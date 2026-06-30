@@ -26,6 +26,9 @@ const SAVE_VERSION = 1;
 const LEGACY_BEST_KEY = "rushpi.bestScore"; // Phase 1 standalone best score
 const LEADERBOARD_MAX = 10;
 
+const RANKED_ATTEMPTS_KEY = "rushpi.rankedAttempts"; // { date: YYYY-MM-DD, used }
+const MAX_RANKED_ATTEMPTS = 3;
+
 const XP_PER_LEVEL = 500;
 const XP_DIVISOR_DAILY = 10;
 const XP_DIVISOR_TRAINING = 20;
@@ -312,11 +315,61 @@ export function getPiTestPaymentCompleted(): boolean {
   return loadSave().profile.piTestPaymentCompleted;
 }
 
+// ---- Ranked Daily attempts (3 per UTC day) ------------------------------
+
+export interface RankedAttempts {
+  date: string; // YYYY-MM-DD UTC
+  used: number;
+  left: number;
+  max: number;
+}
+
+function todayUtc(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/**
+ * Ranked Daily attempts remaining today (UTC). Auto-resets when the UTC day
+ * changes. This is a UX aid; the server enforces the real limit.
+ */
+export function getRankedAttemptsToday(): RankedAttempts {
+  const today = todayUtc();
+  let used = 0;
+  try {
+    const raw = window.localStorage.getItem(RANKED_ATTEMPTS_KEY);
+    if (raw) {
+      const o = JSON.parse(raw) as { date?: unknown; used?: unknown };
+      if (o && o.date === today && typeof o.used === "number") {
+        used = o.used;
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  used = Math.max(0, Math.min(MAX_RANKED_ATTEMPTS, Math.floor(used)));
+  return { date: today, used, left: MAX_RANKED_ATTEMPTS - used, max: MAX_RANKED_ATTEMPTS };
+}
+
+/** Consume one ranked Daily attempt for today (call when a ranked run starts). */
+export function consumeRankedAttempt(): void {
+  const current = getRankedAttemptsToday();
+  const used = Math.min(MAX_RANKED_ATTEMPTS, current.used + 1);
+  try {
+    window.localStorage.setItem(
+      RANKED_ATTEMPTS_KEY,
+      JSON.stringify({ date: current.date, used }),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Wipe all local progress (best score, leaderboard, profile, XP, badges). */
 export function resetLocalProgress(): void {
   try {
     window.localStorage.removeItem(SAVE_KEY);
     window.localStorage.removeItem(LEGACY_BEST_KEY);
+    window.localStorage.removeItem(RANKED_ATTEMPTS_KEY);
   } catch {
     /* ignore */
   }

@@ -19,7 +19,7 @@ export interface ServerScore {
 }
 
 export interface SubmitScorePayload {
-  pi_user_uid?: string | null;
+  pi_user_uid: string;
   pi_username: string;
   score: number;
   energy_collected: number;
@@ -27,6 +27,9 @@ export interface SubmitScorePayload {
   obstacles_hit: number;
   duration_seconds: number;
   game_mode: "daily";
+  /** Daily challenge this run belongs to (server is authoritative, but we send). */
+  challenge_id: string;
+  challenge_date: string;
 }
 
 async function getScores(url: string): Promise<ServerScore[]> {

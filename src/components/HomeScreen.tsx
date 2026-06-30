@@ -1,56 +1,67 @@
 import { useState } from "react";
-import type { GameMode, ProfileStats } from "../types";
+import type { ProfileStats } from "../types";
 import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
+import { getDailyChallengeLabel } from "../game/seededRandom";
 import PiPanel from "./PiPanel";
 
 interface HomeScreenProps {
   profile: ProfileStats;
   badgeCount: number;
-  onPlay: (mode: GameMode) => void;
-  /** Connect Pi then start a ranked Daily run (from the connect modal). */
-  onConnectAndPlayDaily: () => Promise<void>;
-  /** Start a Daily run that will NOT be ranked (from the connect modal). */
-  onPlayDailyLocal: () => void;
-  onLeaderboard: () => void;
-  onProfile: () => void;
-  // Pi integration (optional; game stays playable without it).
+  attemptsLeft: number;
+  maxAttempts: number;
   piSdkAvailable: boolean;
   piUser: PiUser | null;
+  onPlayTraining: () => void;
+  onPlayRankedDaily: () => void;
+  onPlayDailyLocalOnly: () => void;
+  onPlayDailyUnranked: () => void;
+  onConnectAndPlayDaily: () => Promise<void>;
   onConnectPi: () => Promise<void>;
   onPiPaymentComplete: () => void;
+  onLeaderboard: () => void;
+  onProfile: () => void;
 }
 
+type ModalKind = "none" | "connect" | "no-attempts";
+
 /**
- * Home hub. Daily Run is "ranked" only when connected with Pi BEFORE playing, so
- * if the user isn't connected we surface a clear choice (connect / play local /
- * cancel) instead of silently producing an unranked score. Training is unaffected.
+ * Home hub. Daily Run is ranked only when connected AND with attempts left, both
+ * decided before playing. Not connected -> connect modal; out of attempts ->
+ * no-attempts modal. Training is always free. The server enforces the real limit.
  */
 export default function HomeScreen({
   profile,
   badgeCount,
-  onPlay,
-  onConnectAndPlayDaily,
-  onPlayDailyLocal,
-  onLeaderboard,
-  onProfile,
+  attemptsLeft,
+  maxAttempts,
   piSdkAvailable,
   piUser,
+  onPlayTraining,
+  onPlayRankedDaily,
+  onPlayDailyLocalOnly,
+  onPlayDailyUnranked,
+  onConnectAndPlayDaily,
   onConnectPi,
   onPiPaymentComplete,
+  onLeaderboard,
+  onProfile,
 }: HomeScreenProps) {
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
+  const challengeLabel = getDailyChallengeLabel();
 
-  const [showConnectModal, setShowConnectModal] = useState(false);
+  const [modal, setModal] = useState<ModalKind>("none");
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
 
   const handleDailyClick = () => {
-    if (piUser) {
-      onPlay("daily"); // connected → ranked run starts directly
-    } else {
+    if (!piUser) {
       setConnectError(null);
-      setShowConnectModal(true);
+      setModal("connect");
+    } else if (attemptsLeft <= 0) {
+      setModal("no-attempts");
+    } else {
+      onPlayRankedDaily();
     }
   };
 
@@ -66,7 +77,7 @@ export default function HomeScreen({
   };
 
   const closeModal = () => {
-    setShowConnectModal(false);
+    setModal("none");
     setConnecting(false);
     setConnectError(null);
   };
@@ -77,6 +88,7 @@ export default function HomeScreen({
         <div className="home__logo" aria-hidden="true" />
         <h1 className="home__title">Rush Pi</h1>
         <p className="home__subtitle">Daily Runner Challenge</p>
+        <p className="home__challenge">Daily Challenge — {challengeLabel}</p>
       </div>
 
       <button className="profile-strip" type="button" onClick={onProfile}>
@@ -103,14 +115,13 @@ export default function HomeScreen({
         <button className="btn btn--primary" type="button" onClick={handleDailyClick}>
           Play Daily Run
         </button>
-        {/* Ranked-status hint right under the Daily button. */}
         <p className={`rank-hint ${piUser ? "is-ranked" : ""}`}>
           {piUser
-            ? `Connected as @${piUser.username} — scores will be ranked`
+            ? `Connected as @${piUser.username} — Ranked attempts left: ${attemptsLeft}/${maxAttempts}`
             : "Connect Pi before playing to rank your score"}
         </p>
 
-        <button className="btn btn--secondary" type="button" onClick={() => onPlay("training")}>
+        <button className="btn btn--secondary" type="button" onClick={onPlayTraining}>
           Training Mode
         </button>
         <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
@@ -128,7 +139,7 @@ export default function HomeScreen({
 
       <p className="home__hint">Swipe or use ← → to switch lanes</p>
 
-      {showConnectModal && (
+      {modal === "connect" && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal">
             <h2 className="modal__title">Connect to Pi to rank your score</h2>
@@ -137,6 +148,7 @@ export default function HomeScreen({
               you are connected with Pi before playing. You can still play locally,
               but this score will not be ranked.
             </p>
+            <p className="modal__note">Ranked Daily Runs are limited to 3 attempts per day.</p>
             {connectError && <p className="modal__error">{connectError}</p>}
             <div className="modal__actions">
               <button
@@ -150,7 +162,7 @@ export default function HomeScreen({
               <button
                 className="btn btn--secondary"
                 type="button"
-                onClick={onPlayDailyLocal}
+                onClick={onPlayDailyLocalOnly}
                 disabled={connecting}
               >
                 Play locally
@@ -161,6 +173,34 @@ export default function HomeScreen({
                 onClick={closeModal}
                 disabled={connecting}
               >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "no-attempts" && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h2 className="modal__title">No ranked attempts left today</h2>
+            <p className="modal__text">
+              You have used your {maxAttempts} ranked Daily Run attempts for today.
+              You can still play Training Mode, or play locally without submitting to
+              the server leaderboard.
+            </p>
+            <div className="modal__actions">
+              <button className="btn btn--primary" type="button" onClick={onPlayTraining}>
+                Training Mode
+              </button>
+              <button
+                className="btn btn--secondary"
+                type="button"
+                onClick={onPlayDailyUnranked}
+              >
+                Play locally
+              </button>
+              <button className="btn btn--ghost" type="button" onClick={closeModal}>
                 Cancel
               </button>
             </div>

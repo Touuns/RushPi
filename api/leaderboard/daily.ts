@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Top 50 valid Daily Run scores for the current UTC day.
- * Reads via the Supabase service role (server-side only). Only non-sensitive
- * columns are selected/returned (no pi_user_uid).
+ * Top 50 valid scores of TODAY's Daily Challenge (challenge_date = current UTC
+ * day), so the daily board reflects the shared seeded challenge — not a floating
+ * 24h window. Reads via the service role; returns only non-sensitive columns.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -17,15 +17,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: "Server is missing Supabase configuration" });
   }
 
-  const startOfUtcDay = new Date();
-  startOfUtcDay.setUTCHours(0, 0, 0, 0);
-  const since = startOfUtcDay.toISOString();
+  const challengeDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
 
   const query =
     `${supabaseUrl}/rest/v1/rushpi_scores` +
     `?select=pi_username,score,energy_collected,max_combo,obstacles_hit,created_at` +
     `&game_mode=eq.daily&is_valid=eq.true` +
-    `&created_at=gte.${encodeURIComponent(since)}` +
+    `&challenge_date=eq.${challengeDate}` +
     `&order=score.desc&limit=50`;
 
   try {

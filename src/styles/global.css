@@ -152,6 +152,13 @@ body {
   text-transform: uppercase;
 }
 
+.home__challenge {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
 .home__best {
   display: flex;
   flex-direction: column;
@@ -240,6 +247,11 @@ body {
   font-size: 0.9rem;
   color: var(--text-dim);
   line-height: 1.5;
+}
+
+.modal__note {
+  font-size: 0.8rem;
+  color: var(--gold);
 }
 
 .modal__error {
@@ -661,6 +673,13 @@ body {
   color: var(--text-dim);
   text-align: center;
   margin-bottom: 4px;
+}
+
+.leaderboard__subhead {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
 }
 
 /* Discreet server-sync line on the Result screen. */

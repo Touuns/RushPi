@@ -14,10 +14,11 @@ interface ResultScreenProps {
 const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
   idle: null,
   pending: "Syncing score to the server…",
-  ok: "Score synced to the server leaderboard.",
+  ok: "Score synced to today's Daily Challenge leaderboard.",
   failed: "Score saved locally. Server sync failed.",
   "local-only":
     "Score saved locally only. Connect Pi before your next Daily Run to join the leaderboard.",
+  "limit-reached": "Daily ranked attempt limit reached. Score saved locally only.",
 };
 
 /**

@@ -5,27 +5,22 @@ import ResultScreen from "./components/ResultScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import {
+  consumeRankedAttempt,
   getLeaderboard,
   getProfile,
+  getRankedAttemptsToday,
   getUnlockedBadgeIds,
   markPiTestPaymentCompleted,
   recordRun,
   resetLocalProgress,
+  type RankedAttempts,
 } from "./utils/storage";
-import {
-  authenticatePi,
-  initPi,
-  isPiBrowser,
-  type PiUser,
-} from "./pi/piClient";
+import { authenticatePi, initPi, isPiBrowser, type PiUser } from "./pi/piClient";
 import { submitServerScore } from "./utils/serverLeaderboard";
+import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
-
-/** Server-sync state for the just-finished Daily run, shown on the Result screen. */
-export type ServerSyncStatus = "idle" | "pending" | "ok" | "failed" | "local-only";
 import type {
   BadgeId,
-  GameMode,
   GameResult,
   LeaderboardEntry,
   ProfileStats,
@@ -33,11 +28,30 @@ import type {
   Screen,
 } from "./types";
 
+/** Server-sync state for the just-finished Daily run, shown on the Result screen. */
+export type ServerSyncStatus =
+  | "idle"
+  | "pending"
+  | "ok"
+  | "failed"
+  | "local-only"
+  | "limit-reached";
+
+/**
+ * How the current run counts for ranking — decided at kickoff, never re-evaluated:
+ *  - training: never ranked / never sent
+ *  - ranked: Daily, Pi-connected, an attempt was available (and consumed)
+ *  - local-only: Daily played without a Pi connection
+ *  - limit-reached: Daily, connected, but no ranked attempts left today
+ */
+type RunRankState = "training" | "ranked" | "local-only" | "limit-reached";
+
 /** Snapshot of persisted data the UI reads; refreshed on every navigation. */
 interface LocalData {
   profile: ProfileStats;
   leaderboard: LeaderboardEntry[];
   badges: BadgeId[];
+  attempts: RankedAttempts;
 }
 
 function readLocalData(): LocalData {
@@ -45,17 +59,18 @@ function readLocalData(): LocalData {
     profile: getProfile(),
     leaderboard: getLeaderboard(),
     badges: getUnlockedBadgeIds(),
+    attempts: getRankedAttemptsToday(),
   };
 }
 
 /**
- * Screen state-machine: home -> game -> result -> (home | game | leaderboard),
- * plus leaderboard and profile reachable from home. Persisted progression is read
- * into `data` and refreshed whenever we leave a run or mutate storage.
+ * Screen state-machine plus Pi/leaderboard wiring. Daily ranking eligibility and
+ * the 3-attempts/day limit are decided when a run starts; the server is the real
+ * authority on the limit (this only improves the UX).
  */
 export default function App() {
   const [screen, setScreen] = useState<Screen>("home");
-  const [mode, setMode] = useState<GameMode>("daily");
+  const [mode, setMode] = useState<GameResult["mode"]>("daily");
   const [result, setResult] = useState<GameResult | null>(null);
   const [outcome, setOutcome] = useState<RunOutcome | null>(null);
   const [data, setData] = useState<LocalData>(() => readLocalData());
@@ -67,17 +82,12 @@ export default function App() {
 
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
   const [runKey, setRunKey] = useState(0);
-
-  // Leaderboard eligibility is decided when a run STARTS, not at the end.
-  // A Daily run is ranked only if the player was Pi-connected at kickoff. This is
-  // never re-evaluated later (no retroactive sync after connecting) — by design.
-  const [runRanked, setRunRanked] = useState(false);
+  const [runRankState, setRunRankState] = useState<RunRankState>("training");
 
   const refresh = useCallback(() => setData(readLocalData()), []);
 
   // Initialize the Pi SDK on load, and inside Pi Browser auto-connect so the
-  // username shows and every Daily run syncs without re-tapping "Connect Pi"
-  // each session. Silent if already authorized; failures never block the game.
+  // username shows and every Daily run syncs without re-tapping "Connect Pi".
   useEffect(() => {
     const available = isPiBrowser();
     setPiSdkAvailable(available);
@@ -101,32 +111,54 @@ export default function App() {
     refresh();
   }, [refresh]);
 
-  const startRun = useCallback(
-    (nextMode: GameMode, forcedRanked?: boolean) => {
-      // Daily is ranked only when connected at start; training is never ranked.
-      const ranked =
-        forcedRanked ?? (nextMode === "daily" && piUser !== null);
-      setRunRanked(ranked);
+  // Single low-level entry to start a run with an explicit rank state.
+  const beginRun = useCallback(
+    (nextMode: GameResult["mode"], rankState: RunRankState) => {
+      if (rankState === "ranked") consumeRankedAttempt();
+      setRunRankState(rankState);
       setMode(nextMode);
       setResult(null);
       setOutcome(null);
       setRunKey((k) => k + 1);
       setScreen("game");
+      setData(readLocalData()); // reflect the consumed attempt
     },
-    [piUser],
+    [],
   );
 
-  /** From the "Connect Pi" modal action: authenticate, then start a ranked Daily. */
+  const playTraining = useCallback(() => beginRun("training", "training"), [beginRun]);
+  const playRankedDaily = useCallback(() => beginRun("daily", "ranked"), [beginRun]);
+  const playDailyLocalOnly = useCallback(
+    () => beginRun("daily", "local-only"),
+    [beginRun],
+  );
+  const playDailyUnranked = useCallback(
+    () => beginRun("daily", "limit-reached"),
+    [beginRun],
+  );
+
+  /** Connect Pi (from the modal) then start a Daily run respecting the limit. */
   const connectAndPlayDaily = useCallback(async () => {
     const user = await authenticatePi();
     setPiUser(user);
-    startRun("daily", true); // just authenticated → ranked, no state race
-  }, [startRun]);
+    const left = getRankedAttemptsToday().left;
+    beginRun("daily", left > 0 ? "ranked" : "limit-reached");
+  }, [beginRun]);
 
-  /** From the "Play locally" modal action: Daily run that won't be ranked. */
-  const playDailyLocal = useCallback(() => {
-    startRun("daily", false);
-  }, [startRun]);
+  /** Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard). */
+  const startDailyAuto = useCallback(() => {
+    if (!piUser) {
+      beginRun("daily", "local-only");
+      return;
+    }
+    const left = getRankedAttemptsToday().left;
+    beginRun("daily", left > 0 ? "ranked" : "limit-reached");
+  }, [beginRun, piUser]);
+
+  const playAgain = useCallback(() => {
+    if (mode === "training") playTraining();
+    else startDailyAuto();
+  }, [mode, playTraining, startDailyAuto]);
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
@@ -136,12 +168,13 @@ export default function App() {
       refresh();
       setScreen("result");
 
-      // Server leaderboard sync: Daily runs that were RANKED at start (i.e. the
-      // player was Pi-connected when the run began). Training and local-only runs
-      // are never sent; we never retroactively sync a run played while offline.
-      if (r.mode !== "daily") {
+      // Server sync only for ranked Daily runs. Never for training / local-only /
+      // limit-reached, and never retroactively.
+      if (r.mode !== "daily" || runRankState === "training") {
         setServerSync("idle");
-      } else if (!runRanked || !piUser) {
+      } else if (runRankState === "limit-reached") {
+        setServerSync("limit-reached");
+      } else if (runRankState !== "ranked" || !piUser) {
         setServerSync("local-only");
       } else {
         setServerSync("pending");
@@ -154,12 +187,17 @@ export default function App() {
           obstacles_hit: r.obstaclesHit,
           duration_seconds: RUN_DURATION_SECONDS,
           game_mode: "daily",
+          challenge_id: getDailyChallengeId(),
+          challenge_date: getDailyDate(),
         })
           .then(() => setServerSync("ok"))
-          .catch(() => setServerSync("failed"));
+          .catch((e: unknown) => {
+            const msg = e instanceof Error ? e.message : "";
+            setServerSync(/limit/i.test(msg) ? "limit-reached" : "failed");
+          });
       }
     },
-    [refresh, piUser, runRanked],
+    [refresh, piUser, runRankState],
   );
 
   const goHome = useCallback(() => {
@@ -189,25 +227,24 @@ export default function App() {
         <HomeScreen
           profile={data.profile}
           badgeCount={data.badges.length}
-          onPlay={startRun}
-          onConnectAndPlayDaily={connectAndPlayDaily}
-          onPlayDailyLocal={playDailyLocal}
-          onLeaderboard={goLeaderboard}
-          onProfile={goProfile}
+          attemptsLeft={data.attempts.left}
+          maxAttempts={data.attempts.max}
           piSdkAvailable={piSdkAvailable}
           piUser={piUser}
+          onPlayTraining={playTraining}
+          onPlayRankedDaily={playRankedDaily}
+          onPlayDailyLocalOnly={playDailyLocalOnly}
+          onPlayDailyUnranked={playDailyUnranked}
+          onConnectAndPlayDaily={connectAndPlayDaily}
           onConnectPi={connectPi}
           onPiPaymentComplete={onPiPaymentComplete}
+          onLeaderboard={goLeaderboard}
+          onProfile={goProfile}
         />
       )}
 
       {screen === "game" && (
-        <GameScreen
-          key={runKey}
-          mode={mode}
-          onGameOver={handleGameOver}
-          onQuit={goHome}
-        />
+        <GameScreen key={runKey} mode={mode} onGameOver={handleGameOver} onQuit={goHome} />
       )}
 
       {screen === "result" && result && outcome && (
@@ -216,7 +253,7 @@ export default function App() {
           outcome={outcome}
           bestScore={data.profile.bestDailyScore}
           serverSync={serverSync}
-          onPlayAgain={() => startRun(mode)}
+          onPlayAgain={playAgain}
           onHome={goHome}
           onLeaderboard={goLeaderboard}
         />
@@ -227,7 +264,7 @@ export default function App() {
           entries={data.leaderboard}
           piConnected={piUser !== null}
           onHome={goHome}
-          onPlayAgain={() => startRun("daily")}
+          onPlayAgain={startDailyAuto}
         />
       )}
 

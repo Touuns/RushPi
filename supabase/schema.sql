@@ -12,7 +12,11 @@ create table if not exists public.rushpi_scores (
   duration_seconds integer not null,
   game_mode text not null,
   is_valid boolean not null default true,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- Phase 7A/7B: daily challenge + ranked attempt tracking
+  challenge_id text,
+  challenge_date date,
+  ranked_attempt_number integer
 );
 
 -- Indexes for the leaderboard queries.
@@ -20,6 +24,9 @@ create index if not exists rushpi_scores_score_idx on public.rushpi_scores (scor
 create index if not exists rushpi_scores_created_at_idx on public.rushpi_scores (created_at desc);
 create index if not exists rushpi_scores_pi_user_uid_idx on public.rushpi_scores (pi_user_uid);
 create index if not exists rushpi_scores_game_mode_idx on public.rushpi_scores (game_mode);
+create index if not exists rushpi_scores_challenge_date_idx on public.rushpi_scores (challenge_date);
+create index if not exists rushpi_scores_challenge_id_idx on public.rushpi_scores (challenge_id);
+create index if not exists rushpi_scores_uid_challenge_date_idx on public.rushpi_scores (pi_user_uid, challenge_date);
 
 -- Row Level Security: enable it and add NO policies.
 -- => anon/authenticated clients can neither read nor write directly.

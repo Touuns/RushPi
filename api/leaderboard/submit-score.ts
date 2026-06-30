@@ -1,17 +1,19 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Insert a Daily Run score into the Supabase leaderboard (server-side only).
+ * Insert a ranked Daily Run score into the Supabase leaderboard (server-side).
  *
- * Security:
+ * Security & integrity:
  *  - uses SUPABASE_SERVICE_ROLE_KEY (server env, bypasses RLS) — never on client
- *  - the frontend only calls this route; it never touches Supabase directly
+ *  - the challenge_date/challenge_id are computed HERE (server-authoritative), so
+ *    a client can't backdate a score to another day
+ *  - enforces the 3 ranked attempts / UTC day limit per Pi user, server-side
+ *    (the frontend limit is only a UX aid and can be bypassed)
  *
- * Anti-cheat (minimal, not perfect): reject malformed/Training submissions; flag
- * implausible-but-well-formed runs with is_valid=false (excluded from boards).
+ * Anti-cheat (minimal): reject malformed/Training; flag implausible runs
+ * is_valid=false (excluded from boards).
  */
 
-// Plausible bounds for a 60s run. Tune as the game evolves.
 const LIMITS = {
   maxScore: 50000,
   minDuration: 50,
@@ -20,9 +22,14 @@ const LIMITS = {
   maxCombo: 1000,
   maxObstacles: 1000,
 };
+const MAX_RANKED_ATTEMPTS = 3;
 
 function isInt(n: unknown): n is number {
   return typeof n === "number" && Number.isInteger(n);
+}
+
+function todayUtc(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -39,18 +46,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const body = (req.body ?? {}) as Record<string, unknown>;
 
-  // Training scores are never accepted server-side.
   if (body.game_mode !== "daily") {
     return res.status(400).json({ error: "Only daily scores are accepted" });
   }
 
+  const pi_user_uid =
+    typeof body.pi_user_uid === "string" ? body.pi_user_uid.trim().slice(0, 128) : "";
+  if (!pi_user_uid) {
+    return res.status(400).json({ error: "Missing pi_user_uid" });
+  }
   const pi_username =
     typeof body.pi_username === "string" ? body.pi_username.trim().slice(0, 50) : "";
   if (!pi_username) {
     return res.status(400).json({ error: "Missing pi_username" });
   }
-  const pi_user_uid =
-    typeof body.pi_user_uid === "string" ? body.pi_user_uid.slice(0, 128) : null;
 
   const score = body.score;
   const energy_collected = body.energy_collected;
@@ -71,7 +80,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Negative values not allowed" });
   }
 
-  // Well-formed but implausible -> stored as is_valid=false (excluded from boards).
   const is_valid =
     score <= LIMITS.maxScore &&
     duration_seconds >= LIMITS.minDuration &&
@@ -80,15 +88,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     max_combo <= LIMITS.maxCombo &&
     obstacles_hit <= LIMITS.maxObstacles;
 
+  // Server-authoritative challenge identity (ignore any client-sent values).
+  const challenge_date = todayUtc();
+  const challenge_id = `RUSHPI-${challenge_date}`;
+
+  const authHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
   try {
-    const r = await fetch(`${supabaseUrl}/rest/v1/rushpi_scores`, {
+    // Enforce the 3-ranked-attempts/day limit for this user (server side).
+    const countUrl =
+      `${supabaseUrl}/rest/v1/rushpi_scores` +
+      `?select=id&pi_user_uid=eq.${encodeURIComponent(pi_user_uid)}` +
+      `&challenge_date=eq.${challenge_date}`;
+    const countRes = await fetch(countUrl, { headers: authHeaders });
+    if (!countRes.ok) {
+      const detail = await countRes.text();
+      console.error("[leaderboard submit] count error", countRes.status, detail);
+      return res.status(502).json({ error: "Failed to check attempts" });
+    }
+    const existing = (await countRes.json()) as unknown[];
+    const usedToday = Array.isArray(existing) ? existing.length : 0;
+    if (usedToday >= MAX_RANKED_ATTEMPTS) {
+      return res.status(409).json({ error: "Daily ranked attempt limit reached" });
+    }
+    const ranked_attempt_number = usedToday + 1;
+
+    const insertRes = await fetch(`${supabaseUrl}/rest/v1/rushpi_scores`, {
       method: "POST",
-      headers: {
-        apikey: serviceKey,
-        Authorization: `Bearer ${serviceKey}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
+      headers: { ...authHeaders, Prefer: "return=minimal" },
       body: JSON.stringify({
         pi_user_uid,
         pi_username,
@@ -99,16 +130,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         duration_seconds,
         game_mode: "daily",
         is_valid,
+        challenge_id,
+        challenge_date,
+        ranked_attempt_number,
       }),
     });
 
-    if (!r.ok) {
-      const detail = await r.text();
-      console.error("[leaderboard submit] Supabase error", r.status, detail);
+    if (!insertRes.ok) {
+      const detail = await insertRes.text();
+      console.error("[leaderboard submit] insert error", insertRes.status, detail);
       return res.status(502).json({ error: "Failed to save score" });
     }
 
-    return res.status(200).json({ ok: true, is_valid });
+    return res.status(200).json({ ok: true, is_valid, ranked_attempt_number });
   } catch (error) {
     console.error("[leaderboard submit] server error", error);
     return res.status(500).json({ error: "Server error saving score" });

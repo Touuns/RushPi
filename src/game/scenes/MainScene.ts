@@ -10,6 +10,7 @@ import {
   HIT,
 } from "../gameConfig";
 import { PALETTE, GLOW } from "../theme";
+import { createSeededRandom, getDailySeed } from "../seededRandom";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../../types";
 
 type FallingType = "energy" | "obstacle";
@@ -62,12 +63,18 @@ export default class MainScene extends Phaser.Scene {
   // Input
   private pointerDownX: number | null = null;
 
+  // RNG: seeded (identical course for everyone) in Daily mode, random in Training.
+  private rng: () => number = Math.random;
+
   constructor() {
     super({ key: "MainScene" });
   }
 
   init(data: { mode?: GameMode }): void {
     this.mode = data.mode ?? "daily";
+    // Daily Run: deterministic course from the UTC daily seed (same for everyone).
+    // Training: ordinary randomness. Seed is fixed at run start.
+    this.rng = this.mode === "daily" ? createSeededRandom(getDailySeed()) : Math.random;
     // Reset all state (scenes are reused on replay).
     this.objects = [];
     this.spawnAccumulatorMs = 0;
@@ -216,9 +223,11 @@ export default class MainScene extends Phaser.Scene {
   }
 
   private spawnObject(): void {
-    const lane = Phaser.Math.Between(0, LANE_COUNT - 1);
+    // Use the seeded RNG (Daily) / Math.random (Training). Two draws per spawn,
+    // in a fixed order, so the Daily sequence is identical across all devices.
+    const lane = Math.floor(this.rng() * LANE_COUNT);
     const type: FallingType =
-      Math.random() < OBJECTS.obstacleChance ? "obstacle" : "energy";
+      this.rng() < OBJECTS.obstacleChance ? "obstacle" : "energy";
     const container =
       type === "obstacle"
         ? this.makeHazard(PALETTE.obstacle, OBJECTS.radius)

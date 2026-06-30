@@ -107,6 +107,8 @@ export default function LeaderboardScreen({
         </button>
       </div>
 
+      {tab === "daily" && <p className="leaderboard__subhead">Daily Challenge — Today</p>}
+
       {tab === "local" ? (
         <LocalList entries={entries} />
       ) : (
@@ -115,6 +117,9 @@ export default function LeaderboardScreen({
           error={error}
           scores={serverScores[tab]}
           piConnected={piConnected}
+          emptyText={
+            tab === "daily" ? "No ranked scores yet today." : "No scores yet. Be the first!"
+          }
         />
       )}
 
@@ -164,11 +169,13 @@ function ServerList({
   error,
   scores,
   piConnected,
+  emptyText,
 }: {
   loading: boolean;
   error: boolean;
   scores: ServerScore[] | null;
   piConnected: boolean;
+  emptyText: string;
 }) {
   if (loading) return <p className="leaderboard__empty">Loading…</p>;
   if (error) {
@@ -198,7 +205,7 @@ function ServerList({
           </div>
         ))
       ) : (
-        <p className="leaderboard__empty">No scores yet. Be the first!</p>
+        <p className="leaderboard__empty">{emptyText}</p>
       )}
     </div>
   );
