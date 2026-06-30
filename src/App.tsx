@@ -18,6 +18,11 @@ import {
   isPiBrowser,
   type PiUser,
 } from "./pi/piClient";
+import { submitServerScore } from "./utils/serverLeaderboard";
+import { RUN_DURATION_SECONDS } from "./game/gameConfig";
+
+/** Server-sync state for the just-finished Daily run, shown on the Result screen. */
+export type ServerSyncStatus = "idle" | "pending" | "ok" | "failed" | "not-connected";
 import type {
   BadgeId,
   GameMode,
@@ -58,6 +63,7 @@ export default function App() {
   // Pi integration state (optional; never blocks gameplay).
   const [piSdkAvailable, setPiSdkAvailable] = useState(false);
   const [piUser, setPiUser] = useState<PiUser | null>(null);
+  const [serverSync, setServerSync] = useState<ServerSyncStatus>("idle");
 
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
   const [runKey, setRunKey] = useState(0);
@@ -95,8 +101,30 @@ export default function App() {
       setOutcome(o);
       refresh();
       setScreen("result");
+
+      // Server leaderboard sync: Daily runs only, and only when Pi-connected.
+      // Training scores are never sent. Failures never block the result screen.
+      if (r.mode !== "daily") {
+        setServerSync("idle");
+      } else if (!piUser) {
+        setServerSync("not-connected");
+      } else {
+        setServerSync("pending");
+        submitServerScore({
+          pi_user_uid: piUser.uid,
+          pi_username: piUser.username,
+          score: r.score,
+          energy_collected: r.energiesCollected,
+          max_combo: r.maxCombo,
+          obstacles_hit: r.obstaclesHit,
+          duration_seconds: RUN_DURATION_SECONDS,
+          game_mode: "daily",
+        })
+          .then(() => setServerSync("ok"))
+          .catch(() => setServerSync("failed"));
+      }
     },
-    [refresh],
+    [refresh, piUser],
   );
 
   const goHome = useCallback(() => {
@@ -150,6 +178,7 @@ export default function App() {
           result={result}
           outcome={outcome}
           bestScore={data.profile.bestDailyScore}
+          serverSync={serverSync}
           onPlayAgain={() => startRun(mode)}
           onHome={goHome}
           onLeaderboard={goLeaderboard}
@@ -159,6 +188,7 @@ export default function App() {
       {screen === "leaderboard" && (
         <LeaderboardScreen
           entries={data.leaderboard}
+          piConnected={piUser !== null}
           onHome={goHome}
           onPlayAgain={() => startRun("daily")}
         />

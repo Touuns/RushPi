@@ -1,13 +1,23 @@
 import type { GameResult, RunOutcome } from "../types";
+import type { ServerSyncStatus } from "../App";
 
 interface ResultScreenProps {
   result: GameResult;
   outcome: RunOutcome;
   bestScore: number;
+  serverSync: ServerSyncStatus;
   onPlayAgain: () => void;
   onHome: () => void;
   onLeaderboard: () => void;
 }
+
+const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
+  idle: null,
+  pending: "Syncing score to the server…",
+  ok: "Score synced to the server leaderboard.",
+  failed: "Score saved locally. Server sync failed.",
+  "not-connected": "Connect Pi to post your score to the server leaderboard.",
+};
 
 /**
  * End-of-run summary — the screen that decides whether the player replays.
@@ -18,11 +28,13 @@ export default function ResultScreen({
   result,
   outcome,
   bestScore,
+  serverSync,
   onPlayAgain,
   onHome,
   onLeaderboard,
 }: ResultScreenProps) {
   const isTraining = result.mode === "training";
+  const syncMessage = SYNC_MESSAGE[serverSync];
 
   return (
     <div className="screen result">
@@ -63,6 +75,8 @@ export default function ResultScreen({
         <Stat label="Obstacles Hit" value={result.obstaclesHit} />
         <Stat label="End Bonus" value={`+${result.endBonus}`} />
       </div>
+
+      {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
 
       <div className="result__actions">
         <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
