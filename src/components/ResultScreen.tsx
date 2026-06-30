@@ -1,31 +1,60 @@
-import type { GameResult } from "../types";
+import type { GameResult, RunOutcome } from "../types";
 
 interface ResultScreenProps {
   result: GameResult;
+  outcome: RunOutcome;
   bestScore: number;
   onPlayAgain: () => void;
   onHome: () => void;
+  onLeaderboard: () => void;
 }
 
 /**
- * End-of-run summary. This is the screen that decides whether the player replays,
- * so it surfaces the "why" of the score: energies, max combo, hits and end bonus.
+ * End-of-run summary — the screen that decides whether the player replays.
+ * Surfaces the "why" of the score plus Phase 2 progression: XP gained, level-ups
+ * and freshly unlocked badges. Training runs are clearly marked as not ranked.
  */
 export default function ResultScreen({
   result,
+  outcome,
   bestScore,
   onPlayAgain,
   onHome,
+  onLeaderboard,
 }: ResultScreenProps) {
+  const isTraining = result.mode === "training";
+
   return (
     <div className="screen result">
       <h2 className="result__title">Run Complete</h2>
 
+      {isTraining && (
+        <div className="result__training-tag">Training score — not ranked</div>
+      )}
+
       <div className="result__score">
         <span className="result__score-label">Score</span>
         <span className="result__score-value">{result.score.toLocaleString()}</span>
-        {result.isNewBest && <span className="result__badge">New Best!</span>}
+        {outcome.isNewBest && <span className="result__badge">New Best!</span>}
+        <span className="result__xp">+{outcome.xpGained} XP</span>
+        {outcome.leveledUp && (
+          <span className="result__levelup">Level up! → Lv {outcome.level}</span>
+        )}
       </div>
+
+      {outcome.unlockedBadges.length > 0 && (
+        <div className="result__unlocks">
+          <span className="result__unlocks-title">Badges unlocked</span>
+          <div className="result__unlocks-list">
+            {outcome.unlockedBadges.map((b) => (
+              <div key={b.id} className="badge-chip" title={b.description}>
+                <span className="badge-chip__icon">{b.icon}</span>
+                <span className="badge-chip__name">{b.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="result__stats">
         <Stat label="Best Score" value={bestScore.toLocaleString()} />
@@ -39,12 +68,11 @@ export default function ResultScreen({
         <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
           Play Again
         </button>
+        <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+          Leaderboard
+        </button>
         <button className="btn btn--secondary" type="button" onClick={onHome}>
           Back Home
-        </button>
-        {/* Leaderboard button reserved for Phase 2. */}
-        <button className="btn btn--ghost" type="button" disabled title="Coming soon">
-          Leaderboard
         </button>
       </div>
     </div>

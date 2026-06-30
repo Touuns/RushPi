@@ -11,7 +11,6 @@ import {
 } from "../gameConfig";
 import { PALETTE, GLOW } from "../theme";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../../types";
-import { submitScore } from "../../utils/storage";
 
 type FallingType = "energy" | "obstacle";
 
@@ -365,8 +364,8 @@ export default class MainScene extends Phaser.Scene {
       this.obstaclesHit <= SCORING.cleanRunMaxHits ? SCORING.cleanRunBonus : 0;
     const finalScore = Math.floor(this.scoreValue) + endBonus;
 
-    const isNewBest = submitScore(finalScore, this.mode);
-
+    // The scene only reports the raw run; persistence/progression is handled by
+    // React via storage.recordRun() (keeps gameplay decoupled from storage).
     const result: GameResult = {
       mode: this.mode,
       score: finalScore,
@@ -374,7 +373,6 @@ export default class MainScene extends Phaser.Scene {
       maxCombo: this.maxCombo,
       obstaclesHit: this.obstaclesHit,
       endBonus,
-      isNewBest,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.

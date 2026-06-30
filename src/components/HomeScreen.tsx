@@ -1,16 +1,28 @@
-import type { GameMode } from "../types";
+import type { GameMode, ProfileStats } from "../types";
+import { levelProgress } from "../utils/storage";
 
 interface HomeScreenProps {
-  bestScore: number;
+  profile: ProfileStats;
+  badgeCount: number;
   onPlay: (mode: GameMode) => void;
+  onLeaderboard: () => void;
+  onProfile: () => void;
 }
 
 /**
- * Minimal Phase 1 home: title, tagline, primary Play button and the local best.
- * Training Mode is wired through the same onPlay(mode) entry point so enabling it
- * fully in Phase 2 is just flipping the button on — no structural change.
+ * Home hub: brand, a tappable profile strip (level / XP / badges / streak), the
+ * local best, and the primary actions. Daily and Training share onPlay(mode).
+ * Scrollable + top-aligned so the richer Phase 2 content never clips on short screens.
  */
-export default function HomeScreen({ bestScore, onPlay }: HomeScreenProps) {
+export default function HomeScreen({
+  profile,
+  badgeCount,
+  onPlay,
+  onLeaderboard,
+  onProfile,
+}: HomeScreenProps) {
+  const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
+
   return (
     <div className="screen home">
       <div className="home__brand">
@@ -19,23 +31,36 @@ export default function HomeScreen({ bestScore, onPlay }: HomeScreenProps) {
         <p className="home__subtitle">Daily Runner Challenge</p>
       </div>
 
+      {/* Profile strip — tap to open the full profile. */}
+      <button className="profile-strip" type="button" onClick={onProfile}>
+        <div className="profile-strip__top">
+          <span className="profile-strip__level">Lv {profile.level}</span>
+          <span className="profile-strip__name">Pioneer</span>
+          <span className="profile-strip__badges">🏅 {badgeCount}</span>
+        </div>
+        <div className="xpbar" aria-hidden="true">
+          <div className="xpbar__fill" style={{ width: `${Math.round(ratio * 100)}%` }} />
+        </div>
+        <div className="profile-strip__meta">
+          <span>{intoLevel}/{perLevel} XP</span>
+          <span>🔥 {profile.streak} day streak</span>
+        </div>
+      </button>
+
       <div className="home__best">
         <span className="home__best-label">Best Score</span>
-        <span className="home__best-value">{bestScore.toLocaleString()}</span>
+        <span className="home__best-value">{profile.bestDailyScore.toLocaleString()}</span>
       </div>
 
       <div className="home__actions">
-        <button
-          className="btn btn--primary"
-          onClick={() => onPlay("daily")}
-          type="button"
-        >
+        <button className="btn btn--primary" type="button" onClick={() => onPlay("daily")}>
           Play Daily Run
         </button>
-
-        {/* Training Mode is reserved for Phase 2; visible but disabled for now. */}
-        <button className="btn btn--secondary" type="button" disabled title="Coming soon">
+        <button className="btn btn--secondary" type="button" onClick={() => onPlay("training")}>
           Training Mode
+        </button>
+        <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+          Leaderboard
         </button>
       </div>
 

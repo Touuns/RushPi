@@ -6,14 +6,14 @@
  */
 
 /**
- * Game modes. Only `daily` is fully wired in Phase 1, but `training` exists in
- * the type system now so that adding the Training Mode later requires no refactor
- * (screens, scoring and storage already branch on this value where relevant).
+ * Game modes. Daily runs are ranked & feed progression; Training runs are
+ * unranked practice (do not touch best score or leaderboard). The whole app
+ * branches on this single value.
  */
 export type GameMode = "daily" | "training";
 
-/** The screens the app can show. A tiny screen state-machine lives in App.tsx. */
-export type Screen = "home" | "game" | "result";
+/** The screens the app can show. A small screen state-machine lives in App.tsx. */
+export type Screen = "home" | "game" | "result" | "leaderboard" | "profile";
 
 /**
  * Live HUD state emitted by the Phaser scene during a run and rendered by React.
@@ -22,16 +22,16 @@ export type Screen = "home" | "game" | "result";
 export interface HudState {
   /** Current score, already including the combo multiplier. */
   score: number;
-  /** Whole seconds remaining in the run (0..GAME_DURATION_SECONDS). */
+  /** Whole seconds remaining in the run (0..RUN_DURATION_SECONDS). */
   timeLeft: number;
   /** Current combo count (consecutive energies collected without a hit). */
   combo: number;
 }
 
 /**
- * Final result of a run, produced by the scene and consumed by the Result screen.
- * `mode` travels with the result so the UI/storage can treat Daily vs Training
- * differently (e.g. later: not ranking Training scores).
+ * Raw result of a run, produced by the scene and consumed by storage.recordRun().
+ * Intentionally contains only what the gameplay knows — no persistence-derived
+ * fields (those live in RunOutcome).
  */
 export interface GameResult {
   mode: GameMode;
@@ -40,8 +40,67 @@ export interface GameResult {
   maxCombo: number;
   obstaclesHit: number;
   endBonus: number;
-  /** Whether this run produced a new local best (Daily only). */
+}
+
+/**
+ * Outcome of persisting a run: progression deltas computed by storage.recordRun()
+ * and shown on the Result screen. Daily-only effects (best score) are false/0 for
+ * Training runs.
+ */
+export interface RunOutcome {
   isNewBest: boolean;
+  xpGained: number;
+  totalXp: number;
+  level: number;
+  previousLevel: number;
+  leveledUp: boolean;
+  unlockedBadges: Badge[];
+}
+
+/** A single saved Daily leaderboard entry. */
+export interface LeaderboardEntry {
+  score: number;
+  energiesCollected: number;
+  maxCombo: number;
+  obstaclesHit: number;
+  /** ISO timestamp of when the run finished. */
+  dateISO: string;
+}
+
+/** Cumulative local profile/progression stats. */
+export interface ProfileStats {
+  dailyRuns: number;
+  trainingRuns: number;
+  bestDailyScore: number;
+  totalEnergies: number;
+  bestCombo: number;
+  totalObstaclesHit: number;
+  totalXp: number;
+  level: number;
+  /** Simple daily streak (consecutive calendar days with a Daily run). */
+  streak: number;
+  /** Last Daily run date as YYYY-MM-DD (local), or null if never. */
+  lastDailyDate: string | null;
+}
+
+/** Badge identifiers (stable keys persisted in storage). */
+export type BadgeId =
+  | "first-run"
+  | "daily-challenger"
+  | "training-starter"
+  | "combo-starter"
+  | "combo-master"
+  | "energy-collector"
+  | "rising-pioneer"
+  | "obstacle-survivor";
+
+/** Display metadata for a badge. */
+export interface Badge {
+  id: BadgeId;
+  name: string;
+  description: string;
+  /** Short emoji/glyph used in the procedural badge art. */
+  icon: string;
 }
 
 /** Events the Phaser game emits to the React layer. Keep names centralized. */
