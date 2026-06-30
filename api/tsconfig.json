@@ -1,0 +1,15 @@
+{
+  "comment": "Separate config for the Vercel serverless functions (Node runtime). Kept out of the frontend tsconfig so 'npm run build' only type-checks the app. Vercel compiles these functions itself at deploy time.",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "types": ["node"],
+    "lib": ["ES2021", "DOM"]
+  },
+  "include": ["**/*.ts"]
+}

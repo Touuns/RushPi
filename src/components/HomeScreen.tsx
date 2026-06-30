@@ -4,6 +4,8 @@ import { levelProgress } from "../utils/storage";
 interface HomeScreenProps {
   profile: ProfileStats;
   badgeCount: number;
+  /** Pi username when connected, otherwise null (falls back to "Pioneer"). */
+  piUsername: string | null;
   onPlay: (mode: GameMode) => void;
   onLeaderboard: () => void;
   onProfile: () => void;
@@ -17,6 +19,7 @@ interface HomeScreenProps {
 export default function HomeScreen({
   profile,
   badgeCount,
+  piUsername,
   onPlay,
   onLeaderboard,
   onProfile,
@@ -35,7 +38,7 @@ export default function HomeScreen({
       <button className="profile-strip" type="button" onClick={onProfile}>
         <div className="profile-strip__top">
           <span className="profile-strip__level">Lv {profile.level}</span>
-          <span className="profile-strip__name">Pioneer</span>
+          <span className="profile-strip__name">{piUsername ?? "Pioneer"}</span>
           <span className="profile-strip__badges">🏅 {badgeCount}</span>
         </div>
         <div className="xpbar" aria-hidden="true">

@@ -81,6 +81,8 @@ export interface ProfileStats {
   streak: number;
   /** Last Daily run date as YYYY-MM-DD (local), or null if never. */
   lastDailyDate: string | null;
+  /** Whether the Pi developer-checklist test payment has succeeded (cosmetic). */
+  piTestPaymentCompleted: boolean;
 }
 
 /** Badge identifiers (stable keys persisted in storage). */
@@ -92,7 +94,8 @@ export type BadgeId =
   | "combo-master"
   | "energy-collector"
   | "rising-pioneer"
-  | "obstacle-survivor";
+  | "obstacle-survivor"
+  | "pi-supporter";
 
 /** Display metadata for a badge. */
 export interface Badge {

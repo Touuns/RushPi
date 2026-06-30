@@ -1,12 +1,19 @@
 import type { BadgeId, ProfileStats } from "../types";
+import type { PiUser } from "../pi/piClient";
 import { ALL_BADGES } from "../utils/badges";
 import { levelProgress } from "../utils/storage";
+import PiPanel from "./PiPanel";
 
 interface ProfileScreenProps {
   profile: ProfileStats;
   unlockedBadgeIds: BadgeId[];
   onHome: () => void;
   onReset: () => void;
+  // Pi integration (optional; game stays playable without it).
+  piSdkAvailable: boolean;
+  piUser: PiUser | null;
+  onConnectPi: () => Promise<void>;
+  onPiPaymentComplete: () => void;
 }
 
 /**
@@ -18,9 +25,14 @@ export default function ProfileScreen({
   unlockedBadgeIds,
   onHome,
   onReset,
+  piSdkAvailable,
+  piUser,
+  onConnectPi,
+  onPiPaymentComplete,
 }: ProfileScreenProps) {
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
   const owned = new Set(unlockedBadgeIds);
+  const displayName = piUser?.username ?? "Pioneer";
 
   const handleReset = () => {
     if (
@@ -37,9 +49,11 @@ export default function ProfileScreen({
       <h2 className="profile__title">Profile</h2>
 
       <div className="profile__header">
-        <div className="profile__avatar" aria-hidden="true">P</div>
+        <div className="profile__avatar" aria-hidden="true">
+          {displayName.charAt(0).toUpperCase()}
+        </div>
         <div className="profile__id">
-          <span className="profile__name">Pioneer</span>
+          <span className="profile__name">{displayName}</span>
           <span className="profile__level">Level {profile.level}</span>
         </div>
       </div>
@@ -80,6 +94,14 @@ export default function ProfileScreen({
           })}
         </div>
       </div>
+
+      <PiPanel
+        sdkAvailable={piSdkAvailable}
+        piUser={piUser}
+        onConnect={onConnectPi}
+        onPaymentComplete={onPiPaymentComplete}
+        testPaymentDone={profile.piTestPaymentCompleted}
+      />
 
       <div className="profile__actions">
         <button className="btn btn--secondary" type="button" onClick={onHome}>

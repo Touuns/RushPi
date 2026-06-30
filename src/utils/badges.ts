@@ -71,6 +71,15 @@ export const ALL_BADGES: BadgeDef[] = [
     icon: "🛡️",
     check: (_s, run) => run.obstaclesHit <= 3,
   },
+  {
+    id: "pi-supporter",
+    name: "Pi Supporter",
+    description: "Completed the Pi test payment",
+    icon: "π",
+    // Unlocked via storage.markPiTestPaymentCompleted(), not by gameplay.
+    // The predicate keeps it consistent if re-evaluated after a run.
+    check: (s) => s.piTestPaymentCompleted === true,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import HomeScreen from "./components/HomeScreen";
 import GameScreen from "./components/GameScreen";
 import ResultScreen from "./components/ResultScreen";
@@ -8,9 +8,16 @@ import {
   getLeaderboard,
   getProfile,
   getUnlockedBadgeIds,
+  markPiTestPaymentCompleted,
   recordRun,
   resetLocalProgress,
 } from "./utils/storage";
+import {
+  authenticatePi,
+  initPi,
+  isPiBrowser,
+  type PiUser,
+} from "./pi/piClient";
 import type {
   BadgeId,
   GameMode,
@@ -48,10 +55,30 @@ export default function App() {
   const [outcome, setOutcome] = useState<RunOutcome | null>(null);
   const [data, setData] = useState<LocalData>(() => readLocalData());
 
+  // Pi integration state (optional; never blocks gameplay).
+  const [piSdkAvailable, setPiSdkAvailable] = useState(false);
+  const [piUser, setPiUser] = useState<PiUser | null>(null);
+
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
   const [runKey, setRunKey] = useState(0);
 
   const refresh = useCallback(() => setData(readLocalData()), []);
+
+  // Initialize the Pi SDK once on load (no auth, no payment — just init).
+  useEffect(() => {
+    setPiSdkAvailable(isPiBrowser());
+    void initPi();
+  }, []);
+
+  const connectPi = useCallback(async () => {
+    const user = await authenticatePi();
+    setPiUser(user);
+  }, []);
+
+  const onPiPaymentComplete = useCallback(() => {
+    markPiTestPaymentCompleted();
+    refresh();
+  }, [refresh]);
 
   const startRun = useCallback((nextMode: GameMode) => {
     setMode(nextMode);
@@ -99,6 +126,7 @@ export default function App() {
         <HomeScreen
           profile={data.profile}
           badgeCount={data.badges.length}
+          piUsername={piUser?.username ?? null}
           onPlay={startRun}
           onLeaderboard={goLeaderboard}
           onProfile={goProfile}
@@ -139,6 +167,10 @@ export default function App() {
           unlockedBadgeIds={data.badges}
           onHome={goHome}
           onReset={handleReset}
+          piSdkAvailable={piSdkAvailable}
+          piUser={piUser}
+          onConnectPi={connectPi}
+          onPiPaymentComplete={onPiPaymentComplete}
         />
       )}
     </div>

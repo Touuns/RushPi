@@ -777,3 +777,68 @@ body {
   font-size: 0.78rem;
   font-weight: 700;
 }
+
+/* ============================================================
+   Pi panel (profile)
+   ============================================================ */
+.pi-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 340px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: rgba(22, 13, 42, 0.6);
+  border: 1px solid rgba(255, 209, 102, 0.25);
+}
+
+.pi-panel__title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.pi-panel__hint,
+.pi-panel__desc {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.pi-panel__connected {
+  font-size: 0.95rem;
+}
+
+.pi-panel__connected strong {
+  color: var(--gold);
+}
+
+.pi-panel__done {
+  font-size: 0.8rem;
+  color: var(--gold);
+}
+
+.pi-panel__error,
+.pi-panel__status.is-error {
+  font-size: 0.82rem;
+  color: var(--danger);
+  text-align: center;
+}
+
+.pi-panel__status {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pi-panel__status.is-success {
+  color: var(--gold);
+}
+
+.pi-panel__status.is-cancelled {
+  color: var(--text-dim);
+}

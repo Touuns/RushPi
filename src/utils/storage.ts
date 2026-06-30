@@ -51,6 +51,7 @@ function defaultProfile(): ProfileStats {
     level: 1,
     streak: 0,
     lastDailyDate: null,
+    piTestPaymentCompleted: false,
   };
 }
 
@@ -91,6 +92,7 @@ function normalize(parsed: unknown): SaveData {
     streak: num(rawProfile.streak, dp.streak),
     lastDailyDate:
       typeof rawProfile.lastDailyDate === "string" ? rawProfile.lastDailyDate : null,
+    piTestPaymentCompleted: rawProfile.piTestPaymentCompleted === true,
   };
 
   const knownBadgeIds = new Set(ALL_BADGES.map((b) => b.id));
@@ -277,6 +279,37 @@ export function recordRun(run: GameResult): RunOutcome {
     leveledUp: stats.level > previousLevel,
     unlockedBadges,
   };
+}
+
+/**
+ * Mark the Pi developer-checklist test payment as completed and unlock the
+ * cosmetic "Pi Supporter" badge. Returns the badge if newly unlocked, else null.
+ * Purely cosmetic — grants no gameplay advantage.
+ */
+export function markPiTestPaymentCompleted(): Badge | null {
+  const save = loadSave();
+  save.profile.piTestPaymentCompleted = true;
+
+  let unlocked: Badge | null = null;
+  if (!save.badges.includes("pi-supporter")) {
+    save.badges.push("pi-supporter");
+    const def = ALL_BADGES.find((b) => b.id === "pi-supporter");
+    if (def) {
+      unlocked = {
+        id: def.id,
+        name: def.name,
+        description: def.description,
+        icon: def.icon,
+      };
+    }
+  }
+
+  persist(save);
+  return unlocked;
+}
+
+export function getPiTestPaymentCompleted(): boolean {
+  return loadSave().profile.piTestPaymentCompleted;
 }
 
 /** Wipe all local progress (best score, leaderboard, profile, XP, badges). */
