@@ -126,10 +126,13 @@ export default function App() {
         <HomeScreen
           profile={data.profile}
           badgeCount={data.badges.length}
-          piUsername={piUser?.username ?? null}
           onPlay={startRun}
           onLeaderboard={goLeaderboard}
           onProfile={goProfile}
+          piSdkAvailable={piSdkAvailable}
+          piUser={piUser}
+          onConnectPi={connectPi}
+          onPiPaymentComplete={onPiPaymentComplete}
         />
       )}
 

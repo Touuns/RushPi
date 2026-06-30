@@ -1,14 +1,19 @@
 import type { GameMode, ProfileStats } from "../types";
+import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
+import PiPanel from "./PiPanel";
 
 interface HomeScreenProps {
   profile: ProfileStats;
   badgeCount: number;
-  /** Pi username when connected, otherwise null (falls back to "Pioneer"). */
-  piUsername: string | null;
   onPlay: (mode: GameMode) => void;
   onLeaderboard: () => void;
   onProfile: () => void;
+  // Pi integration (optional; game stays playable without it).
+  piSdkAvailable: boolean;
+  piUser: PiUser | null;
+  onConnectPi: () => Promise<void>;
+  onPiPaymentComplete: () => void;
 }
 
 /**
@@ -19,10 +24,13 @@ interface HomeScreenProps {
 export default function HomeScreen({
   profile,
   badgeCount,
-  piUsername,
   onPlay,
   onLeaderboard,
   onProfile,
+  piSdkAvailable,
+  piUser,
+  onConnectPi,
+  onPiPaymentComplete,
 }: HomeScreenProps) {
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
 
@@ -38,7 +46,7 @@ export default function HomeScreen({
       <button className="profile-strip" type="button" onClick={onProfile}>
         <div className="profile-strip__top">
           <span className="profile-strip__level">Lv {profile.level}</span>
-          <span className="profile-strip__name">{piUsername ?? "Pioneer"}</span>
+          <span className="profile-strip__name">{piUser?.username ?? "Pioneer"}</span>
           <span className="profile-strip__badges">🏅 {badgeCount}</span>
         </div>
         <div className="xpbar" aria-hidden="true">
@@ -66,6 +74,15 @@ export default function HomeScreen({
           Leaderboard
         </button>
       </div>
+
+      {/* Pi access directly on Home (connect + test payment), no scrolling needed. */}
+      <PiPanel
+        sdkAvailable={piSdkAvailable}
+        piUser={piUser}
+        onConnect={onConnectPi}
+        onPaymentComplete={onPiPaymentComplete}
+        testPaymentDone={profile.piTestPaymentCompleted}
+      />
 
       <p className="home__hint">Swipe or use ← → to switch lanes</p>
     </div>
