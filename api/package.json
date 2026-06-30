@@ -1,0 +1,4 @@
+{
+  "comment": "The repo root has \"type\": \"module\" (ESM, required by Vite). Vercel's @vercel/node builder compiles these TypeScript functions to CommonJS (uses `exports`). This nested package.json scopes the api/ folder to CommonJS so Node treats the compiled .js as CJS and does not throw 'exports is not defined in ES module scope'.",
+  "type": "commonjs"
+}
