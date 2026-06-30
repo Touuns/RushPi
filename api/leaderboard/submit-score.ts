@@ -14,6 +14,13 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
  * is_valid=false (excluded from boards).
  */
 
+// Plausibility ceilings (Phase 8A balance check).
+// A perfect 60s run tops out around ~3,500-3,800 pts: survival 5/s*60=300,
+// at most ~97 spawns/run, energies capped at the x3 combo multiplier (~2,700),
+// + 500 clean-run bonus. The Magnet only helps COLLECT existing (seeded) energies
+// — it never creates them — so it doesn't raise this ceiling. These limits keep
+// huge headroom (~10x+) so no legitimate score is ever rejected, while still
+// blocking absurd values.
 const LIMITS = {
   maxScore: 50000,
   minDuration: 50,
