@@ -3,7 +3,7 @@ import {
   GAME_WIDTH,
   GAME_HEIGHT,
   LANE_COUNT,
-  GAME_DURATION_SECONDS,
+  RUN_DURATION_SECONDS,
   PLAYER,
   OBJECTS,
   SCORING,
@@ -121,12 +121,33 @@ export default class MainScene extends Phaser.Scene {
     g.lineBetween(0, floorY, GAME_WIDTH, floorY);
   }
 
-  /** Creates a glowing orb (outer faint halo + solid core) as a container. */
+  /**
+   * Creates a glowing round orb (outer faint halo + solid core) as a container.
+   * Used for the player and for energies — "round = collect".
+   */
   private makeOrb(color: number, radius: number): Phaser.GameObjects.Container {
     const halo = this.add.circle(0, 0, radius * GLOW.outerScale, color, GLOW.outerAlpha);
     const core = this.add.circle(0, 0, radius, color, 1);
     core.setStrokeStyle(2, PALETTE.white, 0.85);
     return this.add.container(0, 0, [halo, core]);
+  }
+
+  /**
+   * Creates an angular hazard shape (diamond) as a container — "spiky = avoid".
+   * The sharp silhouette reads as danger in a fraction of a second, distinct from
+   * the round energies even before color is processed.
+   */
+  private makeHazard(color: number, radius: number): Phaser.GameObjects.Container {
+    const halo = this.add.circle(0, 0, radius * GLOW.outerScale, color, GLOW.outerAlpha);
+    // A square rotated 45° = diamond. Slightly larger so the sharp corners are clear.
+    const d = radius * 1.7;
+    const core = this.add.rectangle(0, 0, d, d, color, 1);
+    core.setStrokeStyle(3, PALETTE.white, 0.9);
+    core.setAngle(45);
+    // Inner dark mark reinforces the "warning" read.
+    const mark = this.add.rectangle(0, 0, d * 0.34, d * 0.34, PALETTE.bg, 0.85);
+    mark.setAngle(45);
+    return this.add.container(0, 0, [halo, core, mark]);
   }
 
   private createPlayer(): void {
@@ -180,7 +201,7 @@ export default class MainScene extends Phaser.Scene {
 
   /** Run progress in [0,1] used to ramp difficulty. */
   private progress(): number {
-    return Phaser.Math.Clamp(this.elapsedMs / (GAME_DURATION_SECONDS * 1000), 0, 1);
+    return Phaser.Math.Clamp(this.elapsedMs / (RUN_DURATION_SECONDS * 1000), 0, 1);
   }
 
   private currentSpawnIntervalMs(): number {
@@ -199,8 +220,10 @@ export default class MainScene extends Phaser.Scene {
     const lane = Phaser.Math.Between(0, LANE_COUNT - 1);
     const type: FallingType =
       Math.random() < OBJECTS.obstacleChance ? "obstacle" : "energy";
-    const color = type === "obstacle" ? PALETTE.obstacle : PALETTE.energy;
-    const container = this.makeOrb(color, OBJECTS.radius);
+    const container =
+      type === "obstacle"
+        ? this.makeHazard(PALETTE.obstacle, OBJECTS.radius)
+        : this.makeOrb(PALETTE.energy, OBJECTS.radius);
     container.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
     this.objects.push({ container, type, lane, alive: true });
   }
@@ -257,7 +280,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     // Timer / end of run.
-    if (this.elapsedMs >= GAME_DURATION_SECONDS * 1000) {
+    if (this.elapsedMs >= RUN_DURATION_SECONDS * 1000) {
       this.endRun();
       return;
     }
@@ -321,7 +344,7 @@ export default class MainScene extends Phaser.Scene {
     const score = Math.floor(this.scoreValue);
     const timeLeft = Math.max(
       0,
-      Math.ceil(GAME_DURATION_SECONDS - this.elapsedMs / 1000),
+      Math.ceil(RUN_DURATION_SECONDS - this.elapsedMs / 1000),
     );
     if (
       force ||

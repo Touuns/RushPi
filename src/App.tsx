@@ -41,7 +41,12 @@ export default function App() {
       {screen === "home" && <HomeScreen bestScore={bestScore} onPlay={startRun} />}
 
       {screen === "game" && (
-        <GameScreen key={runKey} mode={mode} onGameOver={handleGameOver} />
+        <GameScreen
+          key={runKey}
+          mode={mode}
+          onGameOver={handleGameOver}
+          onQuit={goHome}
+        />
       )}
 
       {screen === "result" && result && (

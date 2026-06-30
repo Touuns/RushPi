@@ -209,7 +209,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px 18px;
+  /* Extra right padding reserves room for the Quit button in the corner. */
+  padding: 14px 70px 14px 14px;
+  gap: 8px;
   /* Let taps/swipes pass through to the canvas underneath. */
   pointer-events: none;
 }
@@ -252,6 +254,30 @@ body {
   50% { transform: scale(1.15); }
 }
 
+.game-screen__quit {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 6;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(183, 174, 208, 0.3);
+  border-radius: 12px;
+  background: rgba(12, 7, 23, 0.6);
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.game-screen__quit:active {
+  transform: scale(0.92);
+}
+
 .game-screen__mode-tag {
   position: absolute;
   bottom: 16px;
@@ -269,8 +295,19 @@ body {
 /* ============================================================
    Result screen
    ============================================================ */
+/* Result can be tall (stats + 3 buttons); top-align and allow vertical scroll
+   so nothing is clipped on short screens like the iPhone SE (667px). */
+.result {
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 24px 24px 32px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
 .result__title {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -291,7 +328,7 @@ body {
 }
 
 .result__score-value {
-  font-size: 3.4rem;
+  font-size: 2.9rem;
   font-weight: 800;
   background: linear-gradient(135deg, var(--gold), var(--orange));
   -webkit-background-clip: text;

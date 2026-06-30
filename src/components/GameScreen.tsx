@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import type Phaser from "phaser";
 import { createRushPiGame, destroyRushPiGame } from "../game/RushPiGame";
-import { GAME_DURATION_SECONDS } from "../game/gameConfig";
+import { RUN_DURATION_SECONDS } from "../game/gameConfig";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../types";
 
 interface GameScreenProps {
   mode: GameMode;
   onGameOver: (result: GameResult) => void;
+  onQuit: () => void;
 }
 
 const INITIAL_HUD: HudState = {
   score: 0,
-  timeLeft: GAME_DURATION_SECONDS,
+  timeLeft: RUN_DURATION_SECONDS,
   combo: 0,
 };
 
@@ -23,7 +24,7 @@ const INITIAL_HUD: HudState = {
  * If this overlay ever proves too costly it could fall back to on-canvas text, but
  * the event contract (GameEvents) keeps that swap localized.
  */
-export default function GameScreen({ mode, onGameOver }: GameScreenProps) {
+export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   // Keep the latest callback without re-running the mount effect.
@@ -74,6 +75,16 @@ export default function GameScreen({ mode, onGameOver }: GameScreenProps) {
           </span>
         </div>
       </div>
+
+      {/* Quit button: its own interactive layer above the no-pointer HUD. */}
+      <button
+        className="game-screen__quit"
+        type="button"
+        aria-label="Quit run"
+        onClick={onQuit}
+      >
+        ✕
+      </button>
 
       {mode === "training" && (
         <div className="game-screen__mode-tag">Training scores are not ranked</div>

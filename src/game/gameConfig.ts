@@ -13,13 +13,16 @@ export const GAME_HEIGHT = 736;
 /** Number of lanes the player can move between. */
 export const LANE_COUNT = 3;
 
-/** Run length, per the design docs. */
-export const GAME_DURATION_SECONDS = 60;
+/**
+ * Run length, per the design docs.
+ * TESTING TIP: temporarily set this to 15 to iterate faster, then restore to 60.
+ */
+export const RUN_DURATION_SECONDS = 60;
 
 /** Player config. */
 export const PLAYER = {
   /** Vertical position of the player, as a fraction of game height (0=top). */
-  yRatio: 0.82,
+  yRatio: 0.8,
   radius: 22,
   /** Lane-change tween duration in ms (snappy but smooth). */
   laneTweenMs: 110,

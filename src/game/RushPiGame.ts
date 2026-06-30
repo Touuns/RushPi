@@ -31,6 +31,12 @@ export function createRushPiGame(
 
   const game = new Phaser.Game(config);
   game.scene.start("MainScene", { mode });
+
+  // Dev-only: expose the game for manual inspection/automation (stripped in prod).
+  if (import.meta.env.DEV) {
+    (window as unknown as { __rushpi?: Phaser.Game }).__rushpi = game;
+  }
+
   return game;
 }
 
