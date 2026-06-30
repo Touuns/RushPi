@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0c0717" />
+    <title>Rush Pi — Privacy Policy</title>
+    <style>
+      :root {
+        --bg: #0c0717;
+        --bg-elev: #160d2a;
+        --violet: #8b5cf6;
+        --orange: #ff7a3d;
+        --gold: #ffd166;
+        --text: #f4f1fb;
+        --text-dim: #b7aed0;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background:
+          radial-gradient(120% 80% at 50% -10%, rgba(139, 92, 246, 0.22), transparent 60%),
+          var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.6;
+        min-height: 100vh;
+        padding: 28px 20px 56px;
+      }
+      .wrap { max-width: 720px; margin: 0 auto; }
+      h1 {
+        font-size: 1.9rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        background: linear-gradient(135deg, var(--gold), var(--orange), var(--violet));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 4px;
+      }
+      .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px; }
+      h2 {
+        font-size: 1.1rem;
+        color: var(--gold);
+        margin: 22px 0 8px;
+      }
+      p, li { color: var(--text); font-size: 0.98rem; }
+      ul { padding-left: 1.2rem; }
+      li { margin: 6px 0; }
+      .card {
+        background: rgba(22, 13, 42, 0.6);
+        border: 1px solid rgba(167, 139, 250, 0.2);
+        border-radius: 14px;
+        padding: 18px 18px;
+        margin-top: 18px;
+      }
+      .note { color: var(--text-dim); font-size: 0.86rem; margin-top: 24px; }
+      a.back {
+        display: inline-block;
+        margin-top: 28px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--violet), var(--orange));
+        color: var(--text);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      a { color: var(--gold); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Privacy Policy</h1>
+      <p class="subtitle">Rush Pi — casual daily runner game · MVP / Testnet phase</p>
+
+      <div class="card">
+        <p>
+          Rush Pi is a casual runner game. This policy explains, in plain terms,
+          what data the app uses. Rush Pi is currently in a testing / MVP phase.
+        </p>
+
+        <h2>Pi Network authentication</h2>
+        <p>
+          The app may use Pi Network authentication to display your Pi username
+          inside the game. This is optional — the game is fully playable without
+          connecting a Pi account.
+        </p>
+
+        <h2>Payments</h2>
+        <ul>
+          <li>
+            The app may process a small Testnet User-to-App payment <strong>only</strong>
+            when you explicitly tap the test payment button.
+          </li>
+          <li>No gameplay advantage is granted through any payment.</li>
+          <li>
+            The app does <strong>not</strong> ask for, store, or access your wallet
+            passphrase.
+          </li>
+        </ul>
+
+        <h2>Data stored on your device</h2>
+        <p>
+          The app stores gameplay data locally in your browser's localStorage,
+          including:
+        </p>
+        <ul>
+          <li>scores and best score</li>
+          <li>XP, level and badges</li>
+          <li>local leaderboard entries</li>
+          <li>settings / progress</li>
+          <li>a local flag when the Pi test payment is completed</li>
+        </ul>
+        <p>
+          No sensitive personal data is intentionally collected. This data stays
+          in your browser.
+        </p>
+
+        <h2>Clearing your data</h2>
+        <p>
+          You can clear locally stored data at any time using the app's
+          "Reset local data" option, or through your browser's storage settings.
+        </p>
+
+        <h2>Contact</h2>
+        <p>
+          For privacy questions, contact the developer through the Pi app listing
+          or the project repository.
+        </p>
+      </div>
+
+      <p class="note">
+        These pages are simple and do not constitute professional legal advice.
+        They provide a clear baseline for an MVP / Testnet application.
+      </p>
+
+      <a class="back" href="https://rushpi-game.vercel.app">← Back to Rush Pi</a>
+    </div>
+  </body>
+</html>
