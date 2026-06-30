@@ -22,7 +22,7 @@ import { submitServerScore } from "./utils/serverLeaderboard";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 
 /** Server-sync state for the just-finished Daily run, shown on the Result screen. */
-export type ServerSyncStatus = "idle" | "pending" | "ok" | "failed" | "not-connected";
+export type ServerSyncStatus = "idle" | "pending" | "ok" | "failed" | "local-only";
 import type {
   BadgeId,
   GameMode,
@@ -68,6 +68,11 @@ export default function App() {
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
   const [runKey, setRunKey] = useState(0);
 
+  // Leaderboard eligibility is decided when a run STARTS, not at the end.
+  // A Daily run is ranked only if the player was Pi-connected at kickoff. This is
+  // never re-evaluated later (no retroactive sync after connecting) — by design.
+  const [runRanked, setRunRanked] = useState(false);
+
   const refresh = useCallback(() => setData(readLocalData()), []);
 
   // Initialize the Pi SDK on load, and inside Pi Browser auto-connect so the
@@ -96,13 +101,32 @@ export default function App() {
     refresh();
   }, [refresh]);
 
-  const startRun = useCallback((nextMode: GameMode) => {
-    setMode(nextMode);
-    setResult(null);
-    setOutcome(null);
-    setRunKey((k) => k + 1);
-    setScreen("game");
-  }, []);
+  const startRun = useCallback(
+    (nextMode: GameMode, forcedRanked?: boolean) => {
+      // Daily is ranked only when connected at start; training is never ranked.
+      const ranked =
+        forcedRanked ?? (nextMode === "daily" && piUser !== null);
+      setRunRanked(ranked);
+      setMode(nextMode);
+      setResult(null);
+      setOutcome(null);
+      setRunKey((k) => k + 1);
+      setScreen("game");
+    },
+    [piUser],
+  );
+
+  /** From the "Connect Pi" modal action: authenticate, then start a ranked Daily. */
+  const connectAndPlayDaily = useCallback(async () => {
+    const user = await authenticatePi();
+    setPiUser(user);
+    startRun("daily", true); // just authenticated → ranked, no state race
+  }, [startRun]);
+
+  /** From the "Play locally" modal action: Daily run that won't be ranked. */
+  const playDailyLocal = useCallback(() => {
+    startRun("daily", false);
+  }, [startRun]);
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
@@ -112,12 +136,13 @@ export default function App() {
       refresh();
       setScreen("result");
 
-      // Server leaderboard sync: Daily runs only, and only when Pi-connected.
-      // Training scores are never sent. Failures never block the result screen.
+      // Server leaderboard sync: Daily runs that were RANKED at start (i.e. the
+      // player was Pi-connected when the run began). Training and local-only runs
+      // are never sent; we never retroactively sync a run played while offline.
       if (r.mode !== "daily") {
         setServerSync("idle");
-      } else if (!piUser) {
-        setServerSync("not-connected");
+      } else if (!runRanked || !piUser) {
+        setServerSync("local-only");
       } else {
         setServerSync("pending");
         submitServerScore({
@@ -134,7 +159,7 @@ export default function App() {
           .catch(() => setServerSync("failed"));
       }
     },
-    [refresh, piUser],
+    [refresh, piUser, runRanked],
   );
 
   const goHome = useCallback(() => {
@@ -165,6 +190,8 @@ export default function App() {
           profile={data.profile}
           badgeCount={data.badges.length}
           onPlay={startRun}
+          onConnectAndPlayDaily={connectAndPlayDaily}
+          onPlayDailyLocal={playDailyLocal}
           onLeaderboard={goLeaderboard}
           onProfile={goProfile}
           piSdkAvailable={piSdkAvailable}

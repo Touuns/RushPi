@@ -16,7 +16,8 @@ const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
   pending: "Syncing score to the server…",
   ok: "Score synced to the server leaderboard.",
   failed: "Score saved locally. Server sync failed.",
-  "not-connected": "Connect Pi to post your score to the server leaderboard.",
+  "local-only":
+    "Score saved locally only. Connect Pi before your next Daily Run to join the leaderboard.",
 };
 
 /**

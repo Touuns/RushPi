@@ -188,6 +188,72 @@ body {
   color: var(--text-dim);
 }
 
+/* Ranked-status hint under the Daily button. */
+.rank-hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: -4px;
+  max-width: 320px;
+}
+
+.rank-hint.is-ranked {
+  color: var(--gold);
+}
+
+/* ============================================================
+   Modal (Daily-run connect prompt)
+   ============================================================ */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(6, 3, 14, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.modal__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.modal__text {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.modal__error {
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
+.modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
 /* ============================================================
    Game screen + HUD overlay
    ============================================================ */
