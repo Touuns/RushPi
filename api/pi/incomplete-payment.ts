@@ -33,11 +33,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const apiKey = process.env.PI_API_KEY;
-  console.log("[Pi incomplete] endpoint called");
-  console.log("[Pi incomplete] paymentId:", paymentId);
-  console.log("[Pi incomplete] PI_API_KEY present:", Boolean(apiKey));
-
   if (!apiKey) {
+    console.error("[Pi incomplete] PI_API_KEY is not set");
     return res
       .status(500)
       .json({ error: "Missing PI_API_KEY server environment variable" });
@@ -57,10 +54,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       transaction?: { txid?: string } | null;
     } | null;
 
-    console.log("[Pi incomplete] lookup status:", lookup.status);
-
     if (!lookup.ok) {
-      console.error("[Pi incomplete] lookup error body:", payment);
+      console.error("[Pi incomplete] lookup error", lookup.status, payment);
       return res
         .status(lookup.status)
         .json({ error: "Pi payment lookup failed", status: lookup.status, details: payment });
@@ -77,10 +72,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
     const completed = await readBody(complete);
 
-    console.log("[Pi incomplete] complete status:", complete.status);
-
     if (!complete.ok) {
-      console.error("[Pi incomplete] complete error body:", completed);
+      console.error("[Pi incomplete] complete error", complete.status, completed);
       return res
         .status(complete.status)
         .json({ error: "Pi payment completion failed", status: complete.status, details: completed });

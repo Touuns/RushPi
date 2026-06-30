@@ -93,14 +93,16 @@ export default function PiPanel({
           </p>
 
           {testPaymentDone && payStatus !== "success" && (
-            <p className="pi-panel__done">✓ Test payment already completed.</p>
+            <p className="pi-panel__done">✓ Pi test payment completed — thanks!</p>
           )}
 
+          {/* Discreet + clearly optional: the game is fully playable without it. */}
           <p className="pi-panel__desc">
-            Send a small Testnet payment to verify Rush Pi integration.
+            Optional: send a small Testnet payment to support Rush Pi.
+            Not required to play, no gameplay advantage.
           </p>
           <button
-            className="btn btn--secondary"
+            className="btn btn--ghost btn--small"
             type="button"
             onClick={handleTestPayment}
             disabled={payStatus === "pending"}

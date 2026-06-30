@@ -30,12 +30,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const apiKey = process.env.PI_API_KEY;
-  console.log("[Pi complete] endpoint called");
-  console.log("[Pi complete] paymentId:", paymentId);
-  console.log("[Pi complete] txid:", txid);
-  console.log("[Pi complete] PI_API_KEY present:", Boolean(apiKey));
-
   if (!apiKey) {
+    console.error("[Pi complete] PI_API_KEY is not set");
     return res
       .status(500)
       .json({ error: "Missing PI_API_KEY server environment variable" });
@@ -62,10 +58,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       data = { raw: text };
     }
 
-    console.log("[Pi complete] Pi API status:", piResponse.status);
-
     if (!piResponse.ok) {
-      console.error("[Pi complete] Pi API error body:", data);
+      console.error("[Pi complete] Pi API error", piResponse.status, data);
       return res.status(piResponse.status).json({
         error: "Pi payment completion failed",
         status: piResponse.status,
