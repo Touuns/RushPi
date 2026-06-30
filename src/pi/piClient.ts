@@ -96,16 +96,32 @@ export function isPiBrowser(): boolean {
 }
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = (await res.json().catch(() => ({}))) as { error?: string } & T;
-  if (!res.ok) {
-    throw new Error(data?.error || `Request failed (${res.status})`);
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    throw new Error("Network error reaching the server.");
   }
-  return data;
+
+  // Parse defensively: a crashed function can return a non-JSON 500.
+  const text = await res.text().catch(() => "");
+  let data: ({ error?: string } & T) | null = null;
+  try {
+    data = text ? (JSON.parse(text) as { error?: string } & T) : null;
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    if (data?.error) throw new Error(data.error);
+    if (res.status === 500) throw new Error("Server error, check Vercel logs.");
+    throw new Error(`Request failed (${res.status})`);
+  }
+  return (data ?? ({} as T)) as T;
 }
 
 /**
@@ -179,7 +195,8 @@ export function createTestPayment(): Promise<void> {
         // Step 1: Pi asks our server to approve the payment.
         onReadyForServerApproval: (paymentId) => {
           postJson("/api/pi/approve-payment", { paymentId }).catch((err) => {
-            reject(err instanceof Error ? err : new Error(String(err)));
+            const detail = err instanceof Error ? err.message : String(err);
+            reject(new Error(`Payment approval failed: ${detail}`));
           });
         },
         // Step 2: after on-chain submission, our server completes the payment.
@@ -187,12 +204,16 @@ export function createTestPayment(): Promise<void> {
           postJson("/api/pi/complete-payment", { paymentId, txid })
             .then(() => resolve())
             .catch((err) => {
-              reject(err instanceof Error ? err : new Error(String(err)));
+              const detail = err instanceof Error ? err.message : String(err);
+              reject(new Error(`Payment completion failed: ${detail}`));
             });
         },
         onCancel: () => reject(new PiPaymentCancelled()),
-        onError: (error) =>
-          reject(error instanceof Error ? error : new Error(String(error))),
+        onError: (error) => {
+          const msg = error instanceof Error ? error.message : String(error);
+          // The SDK reports expiry here when approval/completion never succeeded.
+          reject(new Error(/expir/i.test(msg) ? "Payment expired." : msg));
+        },
       },
     );
   });

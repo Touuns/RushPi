@@ -1,53 +1,83 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Server-side completion of a Pi payment (step 2 of the U2A flow).
+ * Server-side COMPLETION of a Pi payment (step 2 of the User-to-App flow).
  *
  * Called by the frontend from Pi.createPayment's onReadyForServerCompletion with
- * the on-chain transaction id (txid). Uses the SECRET PI_API_KEY.
+ * { paymentId, txid }. Uses the SECRET PI_API_KEY to call the official Pi
+ * Platform API:
  *
- * Pi Platform API (official): POST https://api.minepi.com/v2/payments/{id}/complete
- * Body: { "txid": "<txid>" }. Auth: "Authorization: Key <PI_API_KEY>".
- * VERIFY against the Pi Developer docs if the API base/path/body ever change.
+ *   POST https://api.minepi.com/v2/payments/{paymentId}/complete
+ *   Header: Authorization: Key <PI_API_KEY>
+ *   Body:   { "txid": "<txid>" }
  */
-const PI_API_BASE = "https://api.minepi.com/v2";
+const PI_API_BASE_URL = "https://api.minepi.com/v2";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const { paymentId, txid } = (req.body ?? {}) as {
+    paymentId?: string;
+    txid?: string;
+  };
+  if (!paymentId || typeof paymentId !== "string") {
+    return res.status(400).json({ error: "Missing paymentId" });
+  }
+  if (!txid || typeof txid !== "string") {
+    return res.status(400).json({ error: "Missing txid" });
   }
 
   const apiKey = process.env.PI_API_KEY;
-  if (!apiKey) {
-    res.status(500).json({ error: "Server is missing PI_API_KEY." });
-    return;
-  }
+  console.log("[Pi complete] endpoint called");
+  console.log("[Pi complete] paymentId:", paymentId);
+  console.log("[Pi complete] txid:", txid);
+  console.log("[Pi complete] PI_API_KEY present:", Boolean(apiKey));
 
-  const { paymentId, txid } = (req.body as { paymentId?: string; txid?: string }) ?? {};
-  if (!paymentId || !txid) {
-    res.status(400).json({ error: "Missing paymentId or txid." });
-    return;
+  if (!apiKey) {
+    return res
+      .status(500)
+      .json({ error: "Missing PI_API_KEY server environment variable" });
   }
 
   try {
-    const piRes = await fetch(`${PI_API_BASE}/payments/${paymentId}/complete`, {
-      method: "POST",
-      headers: {
-        Authorization: `Key ${apiKey}`,
-        "Content-Type": "application/json",
+    const piResponse = await fetch(
+      `${PI_API_BASE_URL}/payments/${encodeURIComponent(paymentId)}/complete`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Key ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ txid }),
       },
-      body: JSON.stringify({ txid }),
-    });
+    );
 
-    const data = await piRes.json().catch(() => ({}));
-    if (!piRes.ok) {
-      res.status(piRes.status).json({ error: "Pi complete failed", detail: data });
-      return;
+    const text = await piResponse.text();
+    let data: unknown;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      data = { raw: text };
     }
 
-    res.status(200).json({ ok: true, payment: data });
-  } catch (err) {
-    res.status(502).json({ error: "Failed to reach Pi API", detail: String(err) });
+    console.log("[Pi complete] Pi API status:", piResponse.status);
+
+    if (!piResponse.ok) {
+      console.error("[Pi complete] Pi API error body:", data);
+      return res.status(piResponse.status).json({
+        error: "Pi payment completion failed",
+        status: piResponse.status,
+        details: data,
+      });
+    }
+
+    return res.status(200).json({ ok: true, payment: data });
+  } catch (error) {
+    console.error("[Pi complete] server error:", error);
+    return res
+      .status(500)
+      .json({ error: "Server error during Pi payment completion" });
   }
 }
