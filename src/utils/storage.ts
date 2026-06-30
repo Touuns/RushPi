@@ -14,10 +14,12 @@
 import type {
   Badge,
   BadgeId,
+  DailyHistoryEntry,
   GameResult,
   LeaderboardEntry,
   ProfileStats,
   RunOutcome,
+  StreakInfo,
 } from "../types";
 import { ALL_BADGES } from "./badges";
 
@@ -33,11 +35,14 @@ const XP_PER_LEVEL = 500;
 const XP_DIVISOR_DAILY = 10;
 const XP_DIVISOR_TRAINING = 20;
 
+const DAILY_HISTORY_MAX = 30;
+
 interface SaveData {
   version: number;
   profile: ProfileStats;
   leaderboard: LeaderboardEntry[];
   badges: BadgeId[];
+  dailyHistory: DailyHistoryEntry[];
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -53,6 +58,7 @@ function defaultProfile(): ProfileStats {
     totalXp: 0,
     level: 1,
     streak: 0,
+    bestStreak: 0,
     lastDailyDate: null,
     piTestPaymentCompleted: false,
   };
@@ -64,6 +70,7 @@ function defaultSave(): SaveData {
     profile: defaultProfile(),
     leaderboard: [],
     badges: [],
+    dailyHistory: [],
   };
 }
 
@@ -93,6 +100,7 @@ function normalize(parsed: unknown): SaveData {
     totalXp: num(rawProfile.totalXp, dp.totalXp),
     level: Math.max(1, num(rawProfile.level, dp.level)),
     streak: num(rawProfile.streak, dp.streak),
+    bestStreak: num(rawProfile.bestStreak, dp.bestStreak),
     lastDailyDate:
       typeof rawProfile.lastDailyDate === "string" ? rawProfile.lastDailyDate : null,
     piTestPaymentCompleted: rawProfile.piTestPaymentCompleted === true,
@@ -122,7 +130,23 @@ function normalize(parsed: unknown): SaveData {
         .slice(0, LEADERBOARD_MAX)
     : [];
 
-  return { version: SAVE_VERSION, profile, leaderboard, badges };
+  const dailyHistory = Array.isArray(p.dailyHistory)
+    ? p.dailyHistory
+        .map((e) => {
+          const r = (e ?? {}) as Record<string, unknown>;
+          const entry: DailyHistoryEntry = {
+            date: typeof r.date === "string" ? r.date : "",
+            bestScore: num(r.bestScore, 0),
+            runs: num(r.runs, 0),
+          };
+          return entry;
+        })
+        .filter((e) => e.date !== "")
+        .sort((a, b) => (a.date < b.date ? 1 : -1))
+        .slice(0, DAILY_HISTORY_MAX)
+    : [];
+
+  return { version: SAVE_VERSION, profile, leaderboard, badges, dailyHistory };
 }
 
 // ---- Low-level load/save -------------------------------------------------
@@ -153,22 +177,27 @@ function persist(save: SaveData): void {
   }
 }
 
-// ---- Date helpers (local calendar day) ----------------------------------
+// ---- Date helpers (UTC calendar day, consistent with the Daily Challenge) ----
 
+/** UTC calendar day as YYYY-MM-DD. */
 function dayString(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return d.toISOString().slice(0, 10);
+}
+
+/** Previous UTC day relative to `d`. */
+function previousDay(d: Date): string {
+  const prev = new Date(d);
+  prev.setUTCDate(prev.getUTCDate() - 1);
+  return dayString(prev);
 }
 
 function updateStreak(profile: ProfileStats, now: Date): void {
   const today = dayString(now);
   if (profile.lastDailyDate === today) return; // already counted today
 
-  const yesterday = new Date(now);
-  yesterday.setDate(yesterday.getDate() - 1);
-  profile.streak = profile.lastDailyDate === dayString(yesterday) ? profile.streak + 1 : 1;
+  profile.streak =
+    profile.lastDailyDate === previousDay(now) ? profile.streak + 1 : 1;
+  profile.bestStreak = Math.max(profile.bestStreak, profile.streak);
   profile.lastDailyDate = today;
 }
 
@@ -209,6 +238,41 @@ export function getLeaderboard(): LeaderboardEntry[] {
 
 export function getUnlockedBadgeIds(): BadgeId[] {
   return loadSave().badges;
+}
+
+export function getDailyHistory(): DailyHistoryEntry[] {
+  return loadSave().dailyHistory;
+}
+
+/**
+ * Effective streak state vs the current UTC day (the stored streak only updates
+ * on play, so we re-derive whether it's still alive for display).
+ */
+export function getStreakInfo(): StreakInfo {
+  const profile = loadSave().profile;
+  const now = new Date();
+  const today = dayString(now);
+  const yesterday = previousDay(now);
+  const last = profile.lastDailyDate;
+
+  const playedToday = last === today;
+  const alive = playedToday || last === yesterday;
+  return {
+    current: alive ? profile.streak : 0,
+    best: profile.bestStreak,
+    playedToday,
+    atRisk: !playedToday && last === yesterday,
+    lastDailyDate: last,
+  };
+}
+
+/** Cosmetic, display-only streak title based on best streak (no gameplay effect). */
+export function getStreakTitle(bestStreak: number): string | null {
+  if (bestStreak >= 30) return "Pi Legend";
+  if (bestStreak >= 14) return "Pi Devoted";
+  if (bestStreak >= 7) return "Pi Regular";
+  if (bestStreak >= 3) return "Pi Riser";
+  return null;
 }
 
 // ---- Main mutation -------------------------------------------------------
@@ -254,6 +318,18 @@ export function recordRun(run: GameResult): RunOutcome {
     });
     save.leaderboard.sort((a, b) => b.score - a.score);
     save.leaderboard = save.leaderboard.slice(0, LEADERBOARD_MAX);
+
+    // Daily Challenge history (per UTC day): track best score + run count.
+    const today = dayString(now);
+    const existing = save.dailyHistory.find((e) => e.date === today);
+    if (existing) {
+      existing.bestScore = Math.max(existing.bestScore, run.score);
+      existing.runs += 1;
+    } else {
+      save.dailyHistory.unshift({ date: today, bestScore: run.score, runs: 1 });
+    }
+    save.dailyHistory.sort((a, b) => (a.date < b.date ? 1 : -1));
+    save.dailyHistory = save.dailyHistory.slice(0, DAILY_HISTORY_MAX);
   }
 
   // Badges (evaluated against updated stats + this run).

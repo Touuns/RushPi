@@ -80,6 +80,34 @@ export const ALL_BADGES: BadgeDef[] = [
     // The predicate keeps it consistent if re-evaluated after a run.
     check: (s) => s.piTestPaymentCompleted === true,
   },
+  {
+    id: "streak-3",
+    name: "3-Day Streak",
+    description: "Play the Daily Run 3 days in a row",
+    icon: "🔥",
+    check: (s) => s.streak >= 3,
+  },
+  {
+    id: "streak-7",
+    name: "7-Day Streak",
+    description: "Play the Daily Run 7 days in a row",
+    icon: "🔥",
+    check: (s) => s.streak >= 7,
+  },
+  {
+    id: "streak-14",
+    name: "14-Day Streak",
+    description: "Play the Daily Run 14 days in a row",
+    icon: "🌟",
+    check: (s) => s.streak >= 14,
+  },
+  {
+    id: "streak-30",
+    name: "30-Day Streak",
+    description: "Play the Daily Run 30 days in a row",
+    icon: "👑",
+    check: (s) => s.streak >= 30,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

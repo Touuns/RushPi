@@ -1,12 +1,14 @@
-import type { BadgeId, ProfileStats } from "../types";
+import type { BadgeId, DailyHistoryEntry, ProfileStats, StreakInfo } from "../types";
 import type { PiUser } from "../pi/piClient";
 import { ALL_BADGES } from "../utils/badges";
-import { levelProgress } from "../utils/storage";
+import { getStreakTitle, levelProgress } from "../utils/storage";
 import PiPanel from "./PiPanel";
 
 interface ProfileScreenProps {
   profile: ProfileStats;
   unlockedBadgeIds: BadgeId[];
+  streak: StreakInfo;
+  history: DailyHistoryEntry[];
   onHome: () => void;
   onReset: () => void;
   // Pi integration (optional; game stays playable without it).
@@ -16,6 +18,13 @@ interface ProfileScreenProps {
   onPiPaymentComplete: () => void;
 }
 
+/** Short label like "Jun 30" from a YYYY-MM-DD string. */
+function historyLabel(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return date;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
 /**
  * Full local profile: identity, level/XP, cumulative stats and the badge grid
  * (locked + unlocked). Includes a discreet, confirmed "Reset local data" action.
@@ -23,6 +32,8 @@ interface ProfileScreenProps {
 export default function ProfileScreen({
   profile,
   unlockedBadgeIds,
+  streak,
+  history,
   onHome,
   onReset,
   piSdkAvailable,
@@ -33,6 +44,7 @@ export default function ProfileScreen({
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
   const owned = new Set(unlockedBadgeIds);
   const displayName = piUser?.username ?? "Pioneer";
+  const title = getStreakTitle(profile.bestStreak);
 
   const handleReset = () => {
     if (
@@ -55,6 +67,7 @@ export default function ProfileScreen({
         <div className="profile__id">
           <span className="profile__name">{displayName}</span>
           <span className="profile__level">Level {profile.level}</span>
+          {title && <span className="profile__pi-title">{title}</span>}
         </div>
       </div>
 
@@ -72,7 +85,8 @@ export default function ProfileScreen({
         <Stat label="Total Energy" value={profile.totalEnergies.toLocaleString()} />
         <Stat label="Best Combo" value={`x${profile.bestCombo}`} />
         <Stat label="Obstacles Hit" value={profile.totalObstaclesHit.toLocaleString()} />
-        <Stat label="Day Streak" value={`🔥 ${profile.streak}`} />
+        <Stat label="Day Streak" value={`🔥 ${streak.current}`} />
+        <Stat label="Best Streak" value={`🔥 ${profile.bestStreak}`} />
         <Stat label="Badges" value={`${owned.size}/${ALL_BADGES.length}`} />
       </div>
 
@@ -94,6 +108,21 @@ export default function ProfileScreen({
           })}
         </div>
       </div>
+
+      {history.length > 0 && (
+        <div className="profile__history-section">
+          <span className="profile__section-title">Daily Challenge history</span>
+          <div className="history-list">
+            {history.slice(0, 10).map((h) => (
+              <div key={h.date} className="history-row">
+                <span className="history-row__date">{historyLabel(h.date)}</span>
+                <span className="history-row__score">{h.bestScore.toLocaleString()}</span>
+                <span className="history-row__runs">{h.runs} run{h.runs > 1 ? "s" : ""}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <PiPanel
         sdkAvailable={piSdkAvailable}

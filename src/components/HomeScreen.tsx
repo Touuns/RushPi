@@ -1,15 +1,22 @@
 import { useState } from "react";
-import type { ProfileStats } from "../types";
+import type { ProfileStats, StreakInfo } from "../types";
 import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
 import { getDailyChallengeLabel } from "../game/seededRandom";
 import PiPanel from "./PiPanel";
+
+function streakMessage(streak: StreakInfo): string {
+  if (streak.playedToday) return "🔥 Come back tomorrow to keep your streak!";
+  if (streak.atRisk) return `🔥 Play today to keep your ${streak.current}-day streak!`;
+  return "Start a daily streak today!";
+}
 
 interface HomeScreenProps {
   profile: ProfileStats;
   badgeCount: number;
   attemptsLeft: number;
   maxAttempts: number;
+  streak: StreakInfo;
   piSdkAvailable: boolean;
   piUser: PiUser | null;
   onPlayTraining: () => void;
@@ -35,6 +42,7 @@ export default function HomeScreen({
   badgeCount,
   attemptsLeft,
   maxAttempts,
+  streak,
   piSdkAvailable,
   piUser,
   onPlayTraining,
@@ -102,7 +110,7 @@ export default function HomeScreen({
         </div>
         <div className="profile-strip__meta">
           <span>{intoLevel}/{perLevel} XP</span>
-          <span>🔥 {profile.streak} day streak</span>
+          <span>🔥 {streak.current} day streak</span>
         </div>
       </button>
 
@@ -120,6 +128,7 @@ export default function HomeScreen({
             ? `Connected as @${piUser.username} — Ranked attempts left: ${attemptsLeft}/${maxAttempts}`
             : "Connect Pi before playing to rank your score"}
         </p>
+        <p className="streak-msg">{streakMessage(streak)}</p>
 
         <button className="btn btn--secondary" type="button" onClick={onPlayTraining}>
           Training Mode

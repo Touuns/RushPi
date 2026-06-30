@@ -77,12 +77,35 @@ export interface ProfileStats {
   totalObstaclesHit: number;
   totalXp: number;
   level: number;
-  /** Simple daily streak (consecutive calendar days with a Daily run). */
+  /** Daily streak as of lastDailyDate (consecutive UTC days with a Daily run). */
   streak: number;
-  /** Last Daily run date as YYYY-MM-DD (local), or null if never. */
+  /** Best streak ever reached (never decreases). */
+  bestStreak: number;
+  /** Last Daily run date as YYYY-MM-DD (UTC), or null if never. */
   lastDailyDate: string | null;
   /** Whether the Pi developer-checklist test payment has succeeded (cosmetic). */
   piTestPaymentCompleted: boolean;
+}
+
+/** One day of Daily Challenge history (local). */
+export interface DailyHistoryEntry {
+  /** Challenge date YYYY-MM-DD (UTC). */
+  date: string;
+  /** Best local score that day. */
+  bestScore: number;
+  /** Number of Daily runs played that day. */
+  runs: number;
+}
+
+/** Effective streak state computed against the current UTC day (for display). */
+export interface StreakInfo {
+  /** Effective current streak (0 if it has lapsed). */
+  current: number;
+  best: number;
+  playedToday: boolean;
+  /** Alive (played yesterday) but not yet today — will break if not played. */
+  atRisk: boolean;
+  lastDailyDate: string | null;
 }
 
 /** Badge identifiers (stable keys persisted in storage). */
@@ -95,7 +118,11 @@ export type BadgeId =
   | "energy-collector"
   | "rising-pioneer"
   | "obstacle-survivor"
-  | "pi-supporter";
+  | "pi-supporter"
+  | "streak-3"
+  | "streak-7"
+  | "streak-14"
+  | "streak-30";
 
 /** Display metadata for a badge. */
 export interface Badge {

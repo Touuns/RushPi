@@ -1,4 +1,4 @@
-import type { GameResult, RunOutcome } from "../types";
+import type { GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
 
 interface ResultScreenProps {
@@ -6,6 +6,7 @@ interface ResultScreenProps {
   outcome: RunOutcome;
   bestScore: number;
   serverSync: ServerSyncStatus;
+  streak: StreakInfo;
   onPlayAgain: () => void;
   onHome: () => void;
   onLeaderboard: () => void;
@@ -31,12 +32,18 @@ export default function ResultScreen({
   outcome,
   bestScore,
   serverSync,
+  streak,
   onPlayAgain,
   onHome,
   onLeaderboard,
 }: ResultScreenProps) {
   const isTraining = result.mode === "training";
   const syncMessage = SYNC_MESSAGE[serverSync];
+  // After a Daily run the streak is counted for today.
+  const streakMessage =
+    !isTraining && streak.playedToday && streak.current > 0
+      ? `🔥 ${streak.current}-day streak — come back tomorrow to keep it!`
+      : null;
 
   return (
     <div className="screen result">
@@ -79,6 +86,7 @@ export default function ResultScreen({
       </div>
 
       {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
+      {streakMessage && <p className="result__streak">{streakMessage}</p>}
 
       <div className="result__actions">
         <button className="btn btn--primary" type="button" onClick={onPlayAgain}>

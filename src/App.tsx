@@ -6,9 +6,11 @@ import LeaderboardScreen from "./components/LeaderboardScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import {
   consumeRankedAttempt,
+  getDailyHistory,
   getLeaderboard,
   getProfile,
   getRankedAttemptsToday,
+  getStreakInfo,
   getUnlockedBadgeIds,
   markPiTestPaymentCompleted,
   recordRun,
@@ -21,11 +23,13 @@ import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 import type {
   BadgeId,
+  DailyHistoryEntry,
   GameResult,
   LeaderboardEntry,
   ProfileStats,
   RunOutcome,
   Screen,
+  StreakInfo,
 } from "./types";
 
 /** Server-sync state for the just-finished Daily run, shown on the Result screen. */
@@ -52,6 +56,8 @@ interface LocalData {
   leaderboard: LeaderboardEntry[];
   badges: BadgeId[];
   attempts: RankedAttempts;
+  streak: StreakInfo;
+  history: DailyHistoryEntry[];
 }
 
 function readLocalData(): LocalData {
@@ -60,6 +66,8 @@ function readLocalData(): LocalData {
     leaderboard: getLeaderboard(),
     badges: getUnlockedBadgeIds(),
     attempts: getRankedAttemptsToday(),
+    streak: getStreakInfo(),
+    history: getDailyHistory(),
   };
 }
 
@@ -229,6 +237,7 @@ export default function App() {
           badgeCount={data.badges.length}
           attemptsLeft={data.attempts.left}
           maxAttempts={data.attempts.max}
+          streak={data.streak}
           piSdkAvailable={piSdkAvailable}
           piUser={piUser}
           onPlayTraining={playTraining}
@@ -253,6 +262,7 @@ export default function App() {
           outcome={outcome}
           bestScore={data.profile.bestDailyScore}
           serverSync={serverSync}
+          streak={data.streak}
           onPlayAgain={playAgain}
           onHome={goHome}
           onLeaderboard={goLeaderboard}
@@ -272,6 +282,8 @@ export default function App() {
         <ProfileScreen
           profile={data.profile}
           unlockedBadgeIds={data.badges}
+          streak={data.streak}
+          history={data.history}
           onHome={goHome}
           onReset={handleReset}
           piSdkAvailable={piSdkAvailable}
