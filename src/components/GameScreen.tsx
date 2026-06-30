@@ -14,6 +14,8 @@ const INITIAL_HUD: HudState = {
   score: 0,
   timeLeft: RUN_DURATION_SECONDS,
   combo: 0,
+  shieldSecs: 0,
+  magnetSecs: 0,
 };
 
 /**
@@ -75,6 +77,22 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
           </span>
         </div>
       </div>
+
+      {/* Active power-up chips (only shown while active). */}
+      {(hud.shieldSecs > 0 || hud.magnetSecs > 0) && (
+        <div className="powerups" aria-hidden="true">
+          {hud.shieldSecs > 0 && (
+            <span className="powerup-chip powerup-chip--shield">
+              🛡 Shield {hud.shieldSecs}s
+            </span>
+          )}
+          {hud.magnetSecs > 0 && (
+            <span className="powerup-chip powerup-chip--magnet">
+              🧲 Magnet {hud.magnetSecs}s
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Quit button: its own interactive layer above the no-pointer HUD. */}
       <button

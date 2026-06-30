@@ -26,7 +26,14 @@ export interface HudState {
   timeLeft: number;
   /** Current combo count (consecutive energies collected without a hit). */
   combo: number;
+  /** Remaining whole seconds of the shield (0 = inactive). */
+  shieldSecs: number;
+  /** Remaining whole seconds of the magnet (0 = inactive). */
+  magnetSecs: number;
 }
+
+/** Deterministic power-ups (Phase 8A). */
+export type PowerupKind = "shield" | "magnet";
 
 /**
  * Raw result of a run, produced by the scene and consumed by storage.recordRun().

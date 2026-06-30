@@ -9,18 +9,32 @@ import {
   SCORING,
   HIT,
 } from "../gameConfig";
-import { PALETTE, GLOW, TRACK } from "../theme";
+import { PALETTE, GLOW, TRACK, PHASES, POWERUPS } from "../theme";
 import { TrackVisuals } from "../track";
+import { BackgroundFX } from "../background";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
-import { GameEvents, type GameMode, type GameResult, type HudState } from "../../types";
+import {
+  GameEvents,
+  type GameMode,
+  type GameResult,
+  type HudState,
+  type PowerupKind,
+} from "../../types";
 
-type FallingType = "energy" | "obstacle";
+type FallingType = "energy" | "obstacle" | PowerupKind;
 
 interface FallingObject {
   container: Phaser.GameObjects.Container;
   type: FallingType;
   lane: number;
   alive: boolean;
+}
+
+interface PowerupSlot {
+  timeMs: number;
+  kind: PowerupKind;
+  lane: number;
+  spawned: boolean;
 }
 
 /**
@@ -43,6 +57,21 @@ export default class MainScene extends Phaser.Scene {
 
   // Visual track (perspective road, chevrons, projection) — purely cosmetic.
   private track!: TrackVisuals;
+  private bg!: BackgroundFX;
+  private trailEmitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+
+  // Player visual states (cosmetic; hitbox unchanged).
+  private shieldRing!: Phaser.GameObjects.Arc;
+  private magnetAura!: Phaser.GameObjects.Arc;
+  private currentPhase = -1;
+
+  // Power-ups (deterministic schedule on a SEPARATE seeded stream so the
+  // obstacle/energy course is byte-identical to before).
+  private powerupRng: () => number = Math.random;
+  private powerupSchedule: PowerupSlot[] = [];
+  private shieldCharges = 0;
+  private shieldUntilMs = 0;
+  private magnetUntilMs = 0;
 
   // Falling objects
   private objects: FallingObject[] = [];
@@ -62,7 +91,13 @@ export default class MainScene extends Phaser.Scene {
   private slowUntilMs = 0;
 
   // HUD throttling (only emit when displayed values change)
-  private lastHud: HudState = { score: -1, timeLeft: -1, combo: -1 };
+  private lastHud: HudState = {
+    score: -1,
+    timeLeft: -1,
+    combo: -1,
+    shieldSecs: -1,
+    magnetSecs: -1,
+  };
 
   // Input
   private pointerDownX: number | null = null;
@@ -79,6 +114,14 @@ export default class MainScene extends Phaser.Scene {
     // Daily Run: deterministic course from the UTC daily seed (same for everyone).
     // Training: ordinary randomness. Seed is fixed at run start.
     this.rng = this.mode === "daily" ? createSeededRandom(getDailySeed()) : Math.random;
+    // Power-ups use a SEPARATE seeded stream so the main course is unaffected.
+    // Daily → deterministic (same for everyone); Training → varies per run.
+    this.powerupRng =
+      this.mode === "daily"
+        ? createSeededRandom(`${getDailySeed()}:pups`)
+        : createSeededRandom(`training:${Date.now()}:${Math.random()}`);
+    this.powerupSchedule = this.buildPowerupSchedule();
+
     // Reset all state (scenes are reused on replay).
     this.objects = [];
     this.spawnAccumulatorMs = 0;
@@ -92,13 +135,42 @@ export default class MainScene extends Phaser.Scene {
     this.currentLane = 1;
     this.invulnerableUntilMs = 0;
     this.slowUntilMs = 0;
-    this.lastHud = { score: -1, timeLeft: -1, combo: -1 };
+    this.shieldCharges = 0;
+    this.shieldUntilMs = 0;
+    this.magnetUntilMs = 0;
+    this.currentPhase = -1;
+    this.lastHud = { score: -1, timeLeft: -1, combo: -1, shieldSecs: -1, magnetSecs: -1 };
+  }
+
+  /**
+   * Deterministic power-up schedule from the dedicated seeded stream.
+   * 1–2 shields (>=20s) and 1–2 magnets (>=25s), never after maxTimeMs.
+   * Same times + lanes for every Daily player.
+   */
+  private buildPowerupSchedule(): PowerupSlot[] {
+    const slots: PowerupSlot[] = [];
+    const pick = (kind: PowerupKind, minMs: number, count: number) => {
+      for (let i = 0; i < count; i++) {
+        const span = POWERUPS.maxTimeMs - minMs;
+        const timeMs = Math.round(minMs + this.powerupRng() * span);
+        const lane = Math.floor(this.powerupRng() * LANE_COUNT);
+        slots.push({ timeMs, kind, lane, spawned: false });
+      }
+    };
+    const shieldCount = 1 + (this.powerupRng() < 0.5 ? 1 : 0);
+    const magnetCount = 1 + (this.powerupRng() < 0.5 ? 1 : 0);
+    pick("shield", POWERUPS.shield.minTimeMs, shieldCount);
+    pick("magnet", POWERUPS.magnet.minTimeMs, magnetCount);
+    slots.sort((a, b) => a.timeMs - b.timeMs);
+    return slots;
   }
 
   create(): void {
     this.cameras.main.setBackgroundColor(PALETTE.bg);
 
     this.computeLanes();
+    this.bg = new BackgroundFX(this);
+    this.bg.create();
     this.track = new TrackVisuals(this, this.laneX);
     this.track.drawStatic();
     this.createPlayer();
@@ -129,7 +201,7 @@ export default class MainScene extends Phaser.Scene {
       tex.generateTexture("spark", 8, 8);
       tex.destroy();
     }
-    const emitter = this.add.particles(0, 0, "spark", {
+    this.trailEmitter = this.add.particles(0, 0, "spark", {
       speedY: { min: 70, max: 130 },
       speedX: { min: -16, max: 16 },
       lifespan: TRACK.trailLifespanMs,
@@ -140,8 +212,8 @@ export default class MainScene extends Phaser.Scene {
       quantity: 1,
       blendMode: "ADD",
     });
-    emitter.setDepth(9);
-    emitter.startFollow(this.player, 0, PLAYER.radius * 0.4);
+    this.trailEmitter.setDepth(9);
+    this.trailEmitter.startFollow(this.player, 0, PLAYER.radius * 0.4);
   }
 
   /**
@@ -177,6 +249,19 @@ export default class MainScene extends Phaser.Scene {
     this.player = this.makeOrb(PALETTE.player, PLAYER.radius);
     this.player.setPosition(this.laneX[this.currentLane], GAME_HEIGHT * PLAYER.yRatio);
     this.player.setDepth(10);
+
+    // Shield ring + magnet aura as children (auto-follow the player). Hidden until
+    // the matching power-up is active. They do NOT change the hitbox.
+    this.shieldRing = this.add
+      .circle(0, 0, PLAYER.radius + 9, PALETTE.shieldRing, 0)
+      .setStrokeStyle(3, PALETTE.shield, 0.95)
+      .setVisible(false);
+    this.magnetAura = this.add
+      .circle(0, 0, PLAYER.radius + 6, PALETTE.magnetRing, 0)
+      .setStrokeStyle(2, PALETTE.magnetRing, 0.8)
+      .setVisible(false);
+    this.player.add([this.shieldRing, this.magnetAura]);
+
     // Gentle idle pulse (separate property from the lane-change x tween).
     this.tweens.add({
       targets: this.player,
@@ -263,6 +348,41 @@ export default class MainScene extends Phaser.Scene {
     this.objects.push({ container, type, lane, alive: true });
   }
 
+  /** Spawn a power-up orb at the top of `lane` (falls + projects like any object). */
+  private spawnPowerup(kind: PowerupKind, lane: number): void {
+    const container =
+      kind === "shield" ? this.makeShieldOrb() : this.makeMagnetOrb();
+    container.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
+    container.setDepth(6);
+    this.objects.push({ container, type: kind, lane, alive: true });
+  }
+
+  /** Cyan shield orb with a protective ring — clearly not energy/obstacle. */
+  private makeShieldOrb(): Phaser.GameObjects.Container {
+    const r = OBJECTS.radius;
+    const halo = this.add.circle(0, 0, r * GLOW.outerScale, PALETTE.shield, GLOW.outerAlpha);
+    const ring = this.add
+      .circle(0, 0, r + 4, PALETTE.shieldRing, 0)
+      .setStrokeStyle(3, PALETTE.shieldRing, 0.9);
+    const core = this.add.circle(0, 0, r * 0.7, PALETTE.shield, 1);
+    core.setStrokeStyle(2, PALETTE.white, 0.9);
+    return this.add.container(0, 0, [halo, ring, core]);
+  }
+
+  /** Orange magnet orb with a violet ring + small orbiting dots. */
+  private makeMagnetOrb(): Phaser.GameObjects.Container {
+    const r = OBJECTS.radius;
+    const halo = this.add.circle(0, 0, r * GLOW.outerScale, PALETTE.magnet, GLOW.outerAlpha);
+    const ring = this.add
+      .circle(0, 0, r + 4, PALETTE.magnetRing, 0)
+      .setStrokeStyle(2, PALETTE.magnetRing, 0.85);
+    const core = this.add.circle(0, 0, r * 0.7, PALETTE.magnet, 1);
+    core.setStrokeStyle(2, PALETTE.white, 0.9);
+    const dotA = this.add.circle(r * 0.9, 0, 2.4, PALETTE.magnetRing, 1);
+    const dotB = this.add.circle(-r * 0.9, 0, 2.4, PALETTE.magnetRing, 1);
+    return this.add.container(0, 0, [halo, ring, core, dotA, dotB]);
+  }
+
   // ---- Main loop -----------------------------------------------------------
 
   update(_time: number, delta: number): void {
@@ -272,6 +392,13 @@ export default class MainScene extends Phaser.Scene {
     this.track.update(delta);
 
     this.elapsedMs += delta;
+
+    // Visual phase + deterministic power-up spawns + active power-up flags.
+    this.updatePhase();
+    this.spawnDuePowerups();
+    const now = this.time.now;
+    const shieldActive = this.shieldCharges > 0 && now < this.shieldUntilMs;
+    const magnetActive = now < this.magnetUntilMs;
 
     // Passive survival score.
     this.scoreValue += SCORING.survivalPerSecond * (delta / 1000);
@@ -287,16 +414,34 @@ export default class MainScene extends Phaser.Scene {
     // Move + test objects.
     const speed = this.currentFallSpeed();
     const dy = speed * (delta / 1000);
-    const invulnerable = this.time.now < this.invulnerableUntilMs;
+    const invulnerable = now < this.invulnerableUntilMs;
+    const radii = PLAYER.radius + OBJECTS.radius;
 
     for (const obj of this.objects) {
       if (!obj.alive) continue;
       obj.container.y += dy;
 
-      // Perspective render (cosmetic only): converge toward the vanishing point
-      // and scale with depth. Collisions below still use lane + y, never this x.
       const proj = this.track.project(obj.lane, obj.container.y);
-      obj.container.x = proj.x;
+      const laneDiff = Math.abs(obj.lane - this.currentLane);
+
+      // Magnet (cosmetic bend): nearby energies curve toward the player as they
+      // approach. Does not move obstacles. Collision reach is widened below.
+      if (
+        magnetActive &&
+        obj.type === "energy" &&
+        laneDiff <= POWERUPS.magnet.laneReach &&
+        obj.container.y > this.player.y - POWERUPS.magnet.rangePx
+      ) {
+        const pf = Phaser.Math.Clamp(
+          (obj.container.y - (this.player.y - POWERUPS.magnet.rangePx)) /
+            POWERUPS.magnet.rangePx,
+          0,
+          1,
+        );
+        obj.container.x = Phaser.Math.Linear(proj.x, this.player.x, pf * 0.92);
+      } else {
+        obj.container.x = proj.x;
+      }
       obj.container.setScale(proj.scale);
 
       // Off-screen cleanup.
@@ -306,17 +451,30 @@ export default class MainScene extends Phaser.Scene {
         continue;
       }
 
-      // Collision only matters near the player row and same lane.
-      if (obj.lane !== this.currentLane) continue;
-      const dist = Math.abs(obj.container.y - this.player.y);
-      if (dist <= PLAYER.radius + OBJECTS.radius) {
-        if (obj.type === "energy") {
+      // ---- Collision. Base rule (unchanged): same lane + within radii. ----
+      const dyAbs = Math.abs(obj.container.y - this.player.y);
+      const sameLane = obj.lane === this.currentLane;
+
+      if (obj.type === "energy") {
+        const magnetReachable = magnetActive && laneDiff <= POWERUPS.magnet.laneReach;
+        if (
+          (sameLane && dyAbs <= radii) ||
+          (magnetReachable && dyAbs <= radii + POWERUPS.magnet.collectReachPx)
+        ) {
           this.collectEnergy(obj);
-        } else if (!invulnerable) {
-          this.hitObstacle(obj);
         }
+      } else if (obj.type === "obstacle") {
+        if (sameLane && dyAbs <= radii) {
+          if (shieldActive) this.absorbWithShield(obj);
+          else if (!invulnerable) this.hitObstacle(obj);
+        }
+      } else if (sameLane && dyAbs <= radii) {
+        this.collectPowerup(obj); // shield / magnet pickup
       }
     }
+
+    // Player ring states + trail intensity (handles power-up expiry).
+    this.updatePlayerStates();
 
     // Prune dead objects from the array periodically (cheap).
     if (this.objects.length > 0 && this.objects.length % 8 === 0) {
@@ -382,6 +540,85 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
+  // ---- Phases / power-ups --------------------------------------------------
+
+  /** Cosmetic visual phase (0..count-1). Drives background liveliness only. */
+  private updatePhase(): void {
+    const phase = Math.min(
+      PHASES.count - 1,
+      Math.floor(this.elapsedMs / PHASES.durationMs),
+    );
+    if (phase === this.currentPhase) return;
+    this.currentPhase = phase;
+    this.bg.setPhase(phase, PHASES.count - 1);
+  }
+
+  private spawnDuePowerups(): void {
+    for (const slot of this.powerupSchedule) {
+      if (!slot.spawned && this.elapsedMs >= slot.timeMs) {
+        slot.spawned = true;
+        this.spawnPowerup(slot.kind, slot.lane);
+      }
+    }
+  }
+
+  /** Toggle the player's rings and tune the trail (phase + high combo). */
+  private updatePlayerStates(): void {
+    const now = this.time.now;
+    this.shieldRing.setVisible(this.shieldCharges > 0 && now < this.shieldUntilMs);
+    this.magnetAura.setVisible(now < this.magnetUntilMs);
+
+    const t = this.currentPhase / (PHASES.count - 1);
+    let freq = Phaser.Math.Linear(TRACK.trailFrequencyMs, TRACK.trailFrequencyMs * 0.55, t);
+    if (this.combo >= 10) freq *= 0.7; // denser trail at high combo
+    this.trailEmitter.frequency = freq;
+  }
+
+  private collectPowerup(obj: FallingObject): void {
+    obj.alive = false;
+    const now = this.time.now;
+    if (obj.type === "shield") {
+      this.shieldCharges = 1;
+      this.shieldUntilMs = now + POWERUPS.shield.durationMs;
+    } else {
+      this.magnetUntilMs = now + POWERUPS.magnet.durationMs;
+    }
+    // No score change — power-ups grant no points (fair for the Daily).
+    this.tweens.add({
+      targets: obj.container,
+      scale: 1.7,
+      alpha: 0,
+      duration: 160,
+      ease: "Quad.easeOut",
+      onComplete: () => obj.container.destroy(),
+    });
+  }
+
+  /** Shield absorbs one obstacle: no penalty, combo preserved, ring breaks. */
+  private absorbWithShield(obj: FallingObject): void {
+    obj.alive = false;
+    obj.container.destroy();
+    this.shieldCharges = 0;
+    this.shieldUntilMs = 0;
+    // Brief i-frames so the same frame can't double-trigger.
+    this.invulnerableUntilMs = this.time.now + HIT.invulnerabilityMs;
+
+    // Break feedback: cyan flash + expanding ring burst (no red, no shake).
+    this.cameras.main.flash(110, 56, 189, 248);
+    const burst = this.add
+      .circle(this.player.x, this.player.y, PLAYER.radius + 9, PALETTE.shieldRing, 0)
+      .setStrokeStyle(3, PALETTE.shield, 0.9)
+      .setDepth(11);
+    this.tweens.add({
+      targets: burst,
+      scale: 2.2,
+      alpha: 0,
+      duration: 280,
+      ease: "Quad.easeOut",
+      onComplete: () => burst.destroy(),
+    });
+  }
+
   // ---- HUD / end -----------------------------------------------------------
 
   private emitHud(force = false): void {
@@ -390,13 +627,22 @@ export default class MainScene extends Phaser.Scene {
       0,
       Math.ceil(RUN_DURATION_SECONDS - this.elapsedMs / 1000),
     );
+    const now = this.time.now;
+    const shieldSecs =
+      this.shieldCharges > 0 && now < this.shieldUntilMs
+        ? Math.ceil((this.shieldUntilMs - now) / 1000)
+        : 0;
+    const magnetSecs =
+      now < this.magnetUntilMs ? Math.ceil((this.magnetUntilMs - now) / 1000) : 0;
     if (
       force ||
       score !== this.lastHud.score ||
       timeLeft !== this.lastHud.timeLeft ||
-      this.combo !== this.lastHud.combo
+      this.combo !== this.lastHud.combo ||
+      shieldSecs !== this.lastHud.shieldSecs ||
+      magnetSecs !== this.lastHud.magnetSecs
     ) {
-      this.lastHud = { score, timeLeft, combo: this.combo };
+      this.lastHud = { score, timeLeft, combo: this.combo, shieldSecs, magnetSecs };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
   }
@@ -421,7 +667,7 @@ export default class MainScene extends Phaser.Scene {
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
-    this.lastHud = { score: finalScore, timeLeft: 0, combo: this.combo };
+    this.lastHud = { score: finalScore, timeLeft: 0, combo: this.combo, shieldSecs: 0, magnetSecs: 0 };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);
   }

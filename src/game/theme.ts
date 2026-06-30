@@ -24,6 +24,11 @@ export const PALETTE = {
   player: 0x8b5cf6, // player orb = violet
   laneLine: 0x2a2140,
 
+  shield: 0x38bdf8, // power-up: cyan shield (distinct from gold/red)
+  shieldRing: 0x7dd3fc,
+  magnet: 0xff7a3d, // power-up: orange magnet core
+  magnetRing: 0xa78bfa, // violet ring
+
   white: 0xffffff,
 } as const;
 
@@ -60,4 +65,45 @@ export const TRACK = {
   /** Player light trail (particles). */
   trailFrequencyMs: 80,
   trailLifespanMs: 360,
+} as const;
+
+/**
+ * Visual phases across the 60s run (cosmetic only — does not change difficulty,
+ * which already ramps via gameConfig). 4 phases of 15s.
+ */
+export const PHASES = {
+  count: 4,
+  durationMs: 15000,
+} as const;
+
+/** Light living background (space/energy feel). Phase-driven intensity. */
+export const BG = {
+  /** Spawn interval (ms) at phase 0 (calm) and at the final phase (lively). */
+  baseFrequencyMs: 240,
+  finalFrequencyMs: 95,
+  driftSpeedMin: 24,
+  driftSpeedMax: 64,
+  lifespanMs: 4200,
+} as const;
+
+/**
+ * Two deterministic power-ups (seeded). Shield absorbs one obstacle (or expires);
+ * Magnet briefly pulls nearby energies. No bonus points — fair for the Daily.
+ */
+export const POWERUPS = {
+  maxTimeMs: 55000, // never spawn power-ups after this (avoid end-of-run)
+  shield: {
+    durationMs: 5000,
+    minTimeMs: 20000,
+  },
+  magnet: {
+    durationMs: 4000,
+    minTimeMs: 25000,
+    /** Energies within this many lanes of the player are pulled. */
+    laneReach: 1,
+    /** Vertical pull window above the player (px). */
+    rangePx: 230,
+    /** Extra collection reach (px) while the magnet is active. */
+    collectReachPx: 26,
+  },
 } as const;

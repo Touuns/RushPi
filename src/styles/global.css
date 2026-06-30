@@ -404,6 +404,38 @@ body {
   50% { transform: scale(1.15); }
 }
 
+/* Active power-up chips, just under the HUD (non-interactive). */
+.powerups {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.powerup-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(12, 7, 23, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.powerup-chip--shield {
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.5);
+}
+
+.powerup-chip--magnet {
+  color: #ffb38a;
+  border: 1px solid rgba(167, 139, 250, 0.5);
+}
+
 .game-screen__quit {
   position: absolute;
   top: 14px;
