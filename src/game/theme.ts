@@ -32,3 +32,32 @@ export const GLOW = {
   outerAlpha: 0.18,
   outerScale: 1.9,
 };
+
+/**
+ * Perspective track ("race feeling") tuning. Purely visual — the gameplay lanes,
+ * spawns and collisions are unchanged. Centralized so future skins / track themes
+ * are a localized edit.
+ */
+export const TRACK = {
+  /** Horizon (far end of the road) as a fraction of game height (0=top). */
+  horizonRatio: 0.16,
+  /** Road keeps a real width at the horizon (trapezoid, not a triangle). */
+  topWidthRatio: 0.32,
+  /** Object scale at the horizon (far) and at the player line (near). */
+  vanishingScale: 0.5,
+  nearScale: 1.1,
+  /** Road surface fill + lane line alphas. */
+  roadFillAlpha: 0.2,
+  edgeAlpha: 0.85,
+  laneAlpha: 0.3,
+  /** Horizon glow radii (subtle). */
+  haloRadius: 48,
+  haloCoreRadius: 16,
+  /** Scrolling chevrons (speed cue). */
+  chevronCount: 5,
+  chevronSpeed: 0.34, // progress units per second (horizon -> bottom)
+  chevronColor: 0xff7a3d,
+  /** Player light trail (particles). */
+  trailFrequencyMs: 80,
+  trailLifespanMs: 360,
+} as const;

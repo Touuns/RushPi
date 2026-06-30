@@ -9,7 +9,8 @@ import {
   SCORING,
   HIT,
 } from "../gameConfig";
-import { PALETTE, GLOW } from "../theme";
+import { PALETTE, GLOW, TRACK } from "../theme";
+import { TrackVisuals } from "../track";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../../types";
 
@@ -39,6 +40,9 @@ export default class MainScene extends Phaser.Scene {
 
   // Player
   private player!: Phaser.GameObjects.Container;
+
+  // Visual track (perspective road, chevrons, projection) — purely cosmetic.
+  private track!: TrackVisuals;
 
   // Falling objects
   private objects: FallingObject[] = [];
@@ -95,8 +99,10 @@ export default class MainScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(PALETTE.bg);
 
     this.computeLanes();
-    this.drawLanes();
+    this.track = new TrackVisuals(this, this.laneX);
+    this.track.drawStatic();
     this.createPlayer();
+    this.createPlayerTrail();
     this.setupInput();
 
     // Emit an initial HUD frame so React shows full timer immediately.
@@ -113,18 +119,29 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
-  private drawLanes(): void {
-    const g = this.add.graphics();
-    g.lineStyle(2, PALETTE.laneLine, 0.6);
-    const laneWidth = GAME_WIDTH / LANE_COUNT;
-    for (let i = 1; i < LANE_COUNT; i++) {
-      const x = laneWidth * i;
-      g.lineBetween(x, 0, x, GAME_HEIGHT);
+  /** Light gold particle trail streaming downward from the player (speed cue). */
+  private createPlayerTrail(): void {
+    // Generate a tiny soft dot texture once (no external assets).
+    if (!this.textures.exists("spark")) {
+      const tex = this.make.graphics({ x: 0, y: 0 }, false);
+      tex.fillStyle(PALETTE.white, 1);
+      tex.fillCircle(4, 4, 4);
+      tex.generateTexture("spark", 8, 8);
+      tex.destroy();
     }
-    // Subtle "lane floor" near the player.
-    g.lineStyle(2, PALETTE.violet, 0.25);
-    const floorY = GAME_HEIGHT * PLAYER.yRatio + PLAYER.radius + 12;
-    g.lineBetween(0, floorY, GAME_WIDTH, floorY);
+    const emitter = this.add.particles(0, 0, "spark", {
+      speedY: { min: 70, max: 130 },
+      speedX: { min: -16, max: 16 },
+      lifespan: TRACK.trailLifespanMs,
+      scale: { start: 0.85, end: 0 },
+      alpha: { start: 0.5, end: 0 },
+      tint: PALETTE.gold,
+      frequency: TRACK.trailFrequencyMs,
+      quantity: 1,
+      blendMode: "ADD",
+    });
+    emitter.setDepth(9);
+    emitter.startFollow(this.player, 0, PLAYER.radius * 0.4);
   }
 
   /**
@@ -160,6 +177,15 @@ export default class MainScene extends Phaser.Scene {
     this.player = this.makeOrb(PALETTE.player, PLAYER.radius);
     this.player.setPosition(this.laneX[this.currentLane], GAME_HEIGHT * PLAYER.yRatio);
     this.player.setDepth(10);
+    // Gentle idle pulse (separate property from the lane-change x tween).
+    this.tweens.add({
+      targets: this.player,
+      scale: 1.06,
+      duration: 720,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
   }
 
   private setupInput(): void {
@@ -233,6 +259,7 @@ export default class MainScene extends Phaser.Scene {
         ? this.makeHazard(PALETTE.obstacle, OBJECTS.radius)
         : this.makeOrb(PALETTE.energy, OBJECTS.radius);
     container.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
+    container.setDepth(5); // above the road/chevrons, below the player
     this.objects.push({ container, type, lane, alive: true });
   }
 
@@ -240,6 +267,9 @@ export default class MainScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (this.finished) return;
+
+    // Animate the visual track (chevrons) — cosmetic only.
+    this.track.update(delta);
 
     this.elapsedMs += delta;
 
@@ -262,6 +292,12 @@ export default class MainScene extends Phaser.Scene {
     for (const obj of this.objects) {
       if (!obj.alive) continue;
       obj.container.y += dy;
+
+      // Perspective render (cosmetic only): converge toward the vanishing point
+      // and scale with depth. Collisions below still use lane + y, never this x.
+      const proj = this.track.project(obj.lane, obj.container.y);
+      obj.container.x = proj.x;
+      obj.container.setScale(proj.scale);
 
       // Off-screen cleanup.
       if (obj.container.y > GAME_HEIGHT + OBJECTS.radius * 2) {
