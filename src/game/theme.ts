@@ -107,3 +107,29 @@ export const POWERUPS = {
     collectReachPx: 26,
   },
 } as const;
+
+/**
+ * Dynamic events (Phase 8B). Seeded on a SEPARATE stream so the obstacle/energy
+ * course and power-ups are unaffected. Mostly visual; only Energy Zone adds a few
+ * deterministic BONUS energies (never touches the base spawn sequence).
+ * Each kind can be disabled or re-weighted here.
+ */
+export const EVENTS = {
+  enabled: true,
+  maxPerRun: 3,
+  minStartMs: 12000, // no events in the first ~12s
+  endMarginMs: 3000, // don't let an event run past ~57s
+  durationMinMs: 4000,
+  durationMaxMs: 7000,
+  vignetteAlpha: 0.13, // additive tint strength (kept subtle for readability)
+  speedChevronMultiplier: 2.3, // Speed Zone: chevrons only (no real speed change)
+  energySpawnIntervalMs: 540, // Energy Zone: bonus energy cadence
+  kinds: {
+    // weight = relative frequency. Per the recommended tuning:
+    // Speed frequent, Danger moderate, Energy & Tunnel rare.
+    speed: { enabled: true, weight: 4, color: 0xffd166 },
+    danger: { enabled: true, weight: 2, color: 0xff4d6d },
+    energy: { enabled: true, weight: 1, color: 0xffd166 },
+    tunnel: { enabled: true, weight: 1, color: 0xa78bfa },
+  },
+} as const;

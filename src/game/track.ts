@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GAME_WIDTH, GAME_HEIGHT, LANE_COUNT, PLAYER } from "./gameConfig";
-import { PALETTE, TRACK } from "./theme";
+import { PALETTE, TRACK, EVENTS } from "./theme";
 
 interface Chevron {
   gfx: Phaser.GameObjects.Container;
@@ -27,6 +27,10 @@ export class TrackVisuals {
   private readonly playerY = GAME_HEIGHT * PLAYER.yRatio;
   private readonly topWidth = GAME_WIDTH * TRACK.topWidthRatio;
   private chevrons: Chevron[] = [];
+
+  // Event visuals (Phase 8B).
+  private speedMultiplier = 1;
+  private tunnelArcs: Phaser.GameObjects.Arc[] = [];
 
   constructor(scene: Phaser.Scene, laneX: number[]) {
     this.scene = scene;
@@ -124,10 +128,47 @@ export class TrackVisuals {
   update(deltaMs: number): void {
     const dt = deltaMs / 1000;
     for (const ch of this.chevrons) {
-      ch.t += TRACK.chevronSpeed * dt;
+      ch.t += TRACK.chevronSpeed * this.speedMultiplier * dt;
       if (ch.t >= 1) ch.t -= 1;
       this.positionChevron(ch);
     }
+  }
+
+  // ---- Event visuals (cosmetic; no gameplay impact) -----------------------
+
+  /** Speed Zone: chevrons scroll faster (does NOT change real game speed). */
+  setSpeedBoost(active: boolean): void {
+    this.speedMultiplier = active ? EVENTS.speedChevronMultiplier : 1;
+  }
+
+  /** Tunnel Pulse: expanding light rings from the vanishing point. */
+  startTunnel(scene: Phaser.Scene): void {
+    if (this.tunnelArcs.length > 0) return;
+    for (let i = 0; i < 3; i++) {
+      const arc = scene.add
+        .circle(this.centerX, this.horizonY, 18, PALETTE.magnetRing, 0)
+        .setStrokeStyle(3, PALETTE.magnetRing, 0.8)
+        .setDepth(1)
+        .setBlendMode(Phaser.BlendModes.ADD);
+      this.tunnelArcs.push(arc);
+      scene.tweens.add({
+        targets: arc,
+        scale: 7,
+        alpha: { from: 0.55, to: 0 },
+        duration: 1500,
+        delay: i * 500,
+        repeat: -1,
+        ease: "Sine.easeOut",
+      });
+    }
+  }
+
+  stopTunnel(scene: Phaser.Scene): void {
+    for (const arc of this.tunnelArcs) {
+      scene.tweens.killTweensOf(arc);
+      arc.destroy();
+    }
+    this.tunnelArcs = [];
   }
 
   /**

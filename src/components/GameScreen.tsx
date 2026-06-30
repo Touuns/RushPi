@@ -16,6 +16,14 @@ const INITIAL_HUD: HudState = {
   combo: 0,
   shieldSecs: 0,
   magnetSecs: 0,
+  event: null,
+};
+
+const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
+  speed: "Speed Zone",
+  energy: "Energy Zone",
+  danger: "Danger Zone",
+  tunnel: "Tunnel Pulse",
 };
 
 /**
@@ -78,8 +86,8 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
         </div>
       </div>
 
-      {/* Active power-up chips (only shown while active). */}
-      {(hud.shieldSecs > 0 || hud.magnetSecs > 0) && (
+      {/* Active power-up + event chips (only shown while active). */}
+      {(hud.shieldSecs > 0 || hud.magnetSecs > 0 || hud.event) && (
         <div className="powerups" aria-hidden="true">
           {hud.shieldSecs > 0 && (
             <span className="powerup-chip powerup-chip--shield">
@@ -89,6 +97,11 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
           {hud.magnetSecs > 0 && (
             <span className="powerup-chip powerup-chip--magnet">
               🧲 Magnet {hud.magnetSecs}s
+            </span>
+          )}
+          {hud.event && (
+            <span className={`powerup-chip powerup-chip--event is-${hud.event}`}>
+              {EVENT_LABEL[hud.event]}
             </span>
           )}
         </div>

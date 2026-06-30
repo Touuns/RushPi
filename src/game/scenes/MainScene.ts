@@ -9,17 +9,25 @@ import {
   SCORING,
   HIT,
 } from "../gameConfig";
-import { PALETTE, GLOW, TRACK, PHASES, POWERUPS } from "../theme";
+import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
 import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
+import { buildEventSchedule, type EventSlot } from "../events";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
+  type GameEventKind,
   type GameMode,
   type GameResult,
   type HudState,
   type PowerupKind,
 } from "../../types";
+
+interface EnergyExtra {
+  timeMs: number;
+  lane: number;
+  spawned: boolean;
+}
 
 type FallingType = "energy" | "obstacle" | PowerupKind;
 
@@ -73,6 +81,13 @@ export default class MainScene extends Phaser.Scene {
   private shieldUntilMs = 0;
   private magnetUntilMs = 0;
 
+  // Dynamic events (deterministic, separate seeded stream).
+  private eventSchedule: EventSlot[] = [];
+  private energyExtras: EnergyExtra[] = [];
+  private activeEventKind: GameEventKind | null = null;
+  private eventSpeedActive = false;
+  private vignette!: Phaser.GameObjects.Rectangle;
+
   // Falling objects
   private objects: FallingObject[] = [];
   private spawnAccumulatorMs = 0;
@@ -97,6 +112,7 @@ export default class MainScene extends Phaser.Scene {
     combo: -1,
     shieldSecs: -1,
     magnetSecs: -1,
+    event: null,
   };
 
   // Input
@@ -122,6 +138,23 @@ export default class MainScene extends Phaser.Scene {
         : createSeededRandom(`training:${Date.now()}:${Math.random()}`);
     this.powerupSchedule = this.buildPowerupSchedule();
 
+    // Dynamic events: yet another SEPARATE seeded stream (course + power-ups
+    // stay byte-identical). Daily → deterministic; Training → varies per run.
+    const eventsRng =
+      this.mode === "daily"
+        ? createSeededRandom(`${getDailySeed()}:events`)
+        : createSeededRandom(`training-events:${Date.now()}:${Math.random()}`);
+    this.eventSchedule = buildEventSchedule(
+      eventsRng,
+      RUN_DURATION_SECONDS * 1000,
+      LANE_COUNT,
+    );
+    this.energyExtras = this.eventSchedule
+      .flatMap((s) => s.extraEnergies)
+      .map((e) => ({ timeMs: e.timeMs, lane: e.lane, spawned: false }));
+    this.activeEventKind = null;
+    this.eventSpeedActive = false;
+
     // Reset all state (scenes are reused on replay).
     this.objects = [];
     this.spawnAccumulatorMs = 0;
@@ -139,7 +172,14 @@ export default class MainScene extends Phaser.Scene {
     this.shieldUntilMs = 0;
     this.magnetUntilMs = 0;
     this.currentPhase = -1;
-    this.lastHud = { score: -1, timeLeft: -1, combo: -1, shieldSecs: -1, magnetSecs: -1 };
+    this.lastHud = {
+      score: -1,
+      timeLeft: -1,
+      combo: -1,
+      shieldSecs: -1,
+      magnetSecs: -1,
+      event: null,
+    };
   }
 
   /**
@@ -176,6 +216,13 @@ export default class MainScene extends Phaser.Scene {
     this.createPlayer();
     this.createPlayerTrail();
     this.setupInput();
+
+    // Full-screen additive tint used by events (subtle; toggled via alpha).
+    this.vignette = this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, PALETTE.gold, 1)
+      .setDepth(8)
+      .setAlpha(0)
+      .setBlendMode(Phaser.BlendModes.ADD);
 
     // Emit an initial HUD frame so React shows full timer immediately.
     this.emitHud(true);
@@ -393,9 +440,11 @@ export default class MainScene extends Phaser.Scene {
 
     this.elapsedMs += delta;
 
-    // Visual phase + deterministic power-up spawns + active power-up flags.
+    // Visual phase + deterministic power-up spawns + dynamic events.
     this.updatePhase();
     this.spawnDuePowerups();
+    this.updateEvents();
+    this.spawnDueEnergyExtras();
     const now = this.time.now;
     const shieldActive = this.shieldCharges > 0 && now < this.shieldUntilMs;
     const magnetActive = now < this.magnetUntilMs;
@@ -562,6 +611,81 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
+  // ---- Dynamic events (Phase 8B) ------------------------------------------
+
+  private updateEvents(): void {
+    const slot = this.eventSchedule.find(
+      (s) => this.elapsedMs >= s.startMs && this.elapsedMs < s.endMs,
+    );
+    const kind = slot ? slot.kind : null;
+    if (kind !== this.activeEventKind) {
+      this.onEventChange(this.activeEventKind, kind);
+      this.activeEventKind = kind;
+    }
+  }
+
+  private onEventChange(prev: GameEventKind | null, next: GameEventKind | null): void {
+    // Clear the previous event's effects.
+    if (prev === "speed") {
+      this.track.setSpeedBoost(false);
+      this.eventSpeedActive = false;
+    } else if (prev === "tunnel") {
+      this.track.stopTunnel(this);
+    }
+
+    // Apply the next event's effects (all cosmetic except Energy's bonus orbs).
+    switch (next) {
+      case "speed":
+        this.track.setSpeedBoost(true);
+        this.eventSpeedActive = true;
+        this.setVignette(EVENTS.kinds.speed.color);
+        break;
+      case "energy":
+        this.setVignette(EVENTS.kinds.energy.color);
+        break;
+      case "danger":
+        this.setVignette(EVENTS.kinds.danger.color);
+        break;
+      case "tunnel":
+        this.track.startTunnel(this);
+        this.setVignette(EVENTS.kinds.tunnel.color);
+        break;
+      case null:
+        this.setVignette(null);
+        break;
+    }
+  }
+
+  private setVignette(color: number | null): void {
+    if (color === null) {
+      this.tweens.add({ targets: this.vignette, alpha: 0, duration: 400 });
+      return;
+    }
+    this.vignette.setFillStyle(color, 1);
+    this.tweens.add({
+      targets: this.vignette,
+      alpha: EVENTS.vignetteAlpha,
+      duration: 400,
+    });
+  }
+
+  /** Deterministic BONUS energies during an Energy Zone (separate from base spawns). */
+  private spawnDueEnergyExtras(): void {
+    for (const e of this.energyExtras) {
+      if (!e.spawned && this.elapsedMs >= e.timeMs) {
+        e.spawned = true;
+        this.spawnEnergyExtra(e.lane);
+      }
+    }
+  }
+
+  private spawnEnergyExtra(lane: number): void {
+    const c = this.makeOrb(PALETTE.energy, OBJECTS.radius);
+    c.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
+    c.setDepth(5);
+    this.objects.push({ container: c, type: "energy", lane, alive: true });
+  }
+
   /** Toggle the player's rings and tune the trail (phase + high combo). */
   private updatePlayerStates(): void {
     const now = this.time.now;
@@ -571,6 +695,7 @@ export default class MainScene extends Phaser.Scene {
     const t = this.currentPhase / (PHASES.count - 1);
     let freq = Phaser.Math.Linear(TRACK.trailFrequencyMs, TRACK.trailFrequencyMs * 0.55, t);
     if (this.combo >= 10) freq *= 0.7; // denser trail at high combo
+    if (this.eventSpeedActive) freq *= 0.7; // and during a Speed Zone
     this.trailEmitter.frequency = freq;
   }
 
@@ -640,9 +765,17 @@ export default class MainScene extends Phaser.Scene {
       timeLeft !== this.lastHud.timeLeft ||
       this.combo !== this.lastHud.combo ||
       shieldSecs !== this.lastHud.shieldSecs ||
-      magnetSecs !== this.lastHud.magnetSecs
+      magnetSecs !== this.lastHud.magnetSecs ||
+      this.activeEventKind !== this.lastHud.event
     ) {
-      this.lastHud = { score, timeLeft, combo: this.combo, shieldSecs, magnetSecs };
+      this.lastHud = {
+        score,
+        timeLeft,
+        combo: this.combo,
+        shieldSecs,
+        magnetSecs,
+        event: this.activeEventKind,
+      };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
   }
@@ -667,7 +800,14 @@ export default class MainScene extends Phaser.Scene {
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
-    this.lastHud = { score: finalScore, timeLeft: 0, combo: this.combo, shieldSecs: 0, magnetSecs: 0 };
+    this.lastHud = {
+      score: finalScore,
+      timeLeft: 0,
+      combo: this.combo,
+      shieldSecs: 0,
+      magnetSecs: 0,
+      event: null,
+    };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);
   }

@@ -412,8 +412,10 @@ body {
   right: 0;
   z-index: 5;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  padding: 0 12px;
   pointer-events: none;
 }
 
@@ -434,6 +436,21 @@ body {
 .powerup-chip--magnet {
   color: #ffb38a;
   border: 1px solid rgba(167, 139, 250, 0.5);
+}
+
+.powerup-chip--event {
+  color: var(--gold);
+  border: 1px solid rgba(255, 209, 102, 0.5);
+}
+
+.powerup-chip--event.is-danger {
+  color: #ff8aa0;
+  border-color: rgba(255, 77, 109, 0.55);
+}
+
+.powerup-chip--event.is-tunnel {
+  color: #c4b5fd;
+  border-color: rgba(167, 139, 250, 0.55);
 }
 
 .game-screen__quit {

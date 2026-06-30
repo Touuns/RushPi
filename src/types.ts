@@ -30,10 +30,15 @@ export interface HudState {
   shieldSecs: number;
   /** Remaining whole seconds of the magnet (0 = inactive). */
   magnetSecs: number;
+  /** Active dynamic event (Phase 8B), or null. */
+  event: GameEventKind | null;
 }
 
 /** Deterministic power-ups (Phase 8A). */
 export type PowerupKind = "shield" | "magnet";
+
+/** Deterministic dynamic events (Phase 8B). */
+export type GameEventKind = "speed" | "energy" | "danger" | "tunnel";
 
 /**
  * Raw result of a run, produced by the scene and consumed by storage.recordRun().
