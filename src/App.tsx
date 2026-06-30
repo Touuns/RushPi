@@ -70,10 +70,20 @@ export default function App() {
 
   const refresh = useCallback(() => setData(readLocalData()), []);
 
-  // Initialize the Pi SDK once on load (no auth, no payment — just init).
+  // Initialize the Pi SDK on load, and inside Pi Browser auto-connect so the
+  // username shows and every Daily run syncs without re-tapping "Connect Pi"
+  // each session. Silent if already authorized; failures never block the game.
   useEffect(() => {
-    setPiSdkAvailable(isPiBrowser());
+    const available = isPiBrowser();
+    setPiSdkAvailable(available);
     void initPi();
+    if (available) {
+      authenticatePi()
+        .then(setPiUser)
+        .catch(() => {
+          /* stay disconnected; manual "Connect Pi" remains available */
+        });
+    }
   }, []);
 
   const connectPi = useCallback(async () => {
