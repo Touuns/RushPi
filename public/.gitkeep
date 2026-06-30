@@ -1,0 +1,3 @@
+# Static assets served at the site root by Vite.
+# Place here the Pi Browser domain-validation file once Pi gives you the exact
+# key, e.g. public/validation-key.txt  ->  served at https://<domain>/validation-key.txt
