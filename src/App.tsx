@@ -359,6 +359,7 @@ export default function App() {
           unlockedBadgeIds={data.badges}
           streak={data.streak}
           history={data.history}
+          campaign={data.campaign}
           onHome={goHome}
           onReset={handleReset}
           piSdkAvailable={piSdkAvailable}

@@ -322,6 +322,24 @@ export function getCampaignProgress(): CampaignProgress {
   return loadSave().campaign;
 }
 
+/** Total Campaign stars earned across all levels (0..24). */
+export function getTotalCampaignStars(campaign: CampaignProgress): number {
+  return Object.values(campaign.starsByLevel).reduce((a, b) => a + b, 0);
+}
+
+/** Unlock a badge by id (if the condition holds and it isn't owned yet). */
+function unlockBadge(
+  save: SaveData,
+  out: Badge[],
+  id: BadgeId,
+  condition: boolean,
+): void {
+  if (!condition || save.badges.includes(id)) return;
+  save.badges.push(id);
+  const def = ALL_BADGES.find((b) => b.id === id);
+  if (def) out.push({ id: def.id, name: def.name, description: def.description, icon: def.icon });
+}
+
 /**
  * Effective streak state vs the current UTC day (the stored streak only updates
  * on play, so we re-derive whether it's still alive for display).
@@ -468,6 +486,13 @@ export function recordRun(run: GameResult): RunOutcome {
         icon: def.icon,
       });
     }
+  }
+
+  // Campaign total-star badges (9F-E): based on starsByLevel, not stat predicates.
+  if (run.mode === "campaign") {
+    const totalStars = getTotalCampaignStars(save.campaign);
+    unlockBadge(save, unlockedBadges, "campaign-collector", totalStars >= 10);
+    unlockBadge(save, unlockedBadges, "campaign-master", totalStars >= 24);
   }
 
   persist(save);

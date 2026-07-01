@@ -1,7 +1,14 @@
-import type { BadgeId, DailyHistoryEntry, ProfileStats, StreakInfo } from "../types";
+import type {
+  BadgeId,
+  CampaignProgress,
+  DailyHistoryEntry,
+  ProfileStats,
+  StreakInfo,
+} from "../types";
 import type { PiUser } from "../pi/piClient";
 import { ALL_BADGES } from "../utils/badges";
-import { getStreakTitle, levelProgress } from "../utils/storage";
+import { getStreakTitle, getTotalCampaignStars, levelProgress } from "../utils/storage";
+import { CAMPAIGN_LEVELS } from "../game/campaign";
 import PiPanel from "./PiPanel";
 
 interface ProfileScreenProps {
@@ -9,6 +16,7 @@ interface ProfileScreenProps {
   unlockedBadgeIds: BadgeId[];
   streak: StreakInfo;
   history: DailyHistoryEntry[];
+  campaign: CampaignProgress;
   onHome: () => void;
   onReset: () => void;
   // Pi integration (optional; game stays playable without it).
@@ -16,6 +24,10 @@ interface ProfileScreenProps {
   piUser: PiUser | null;
   onConnectPi: () => Promise<void>;
   onPiPaymentComplete: () => void;
+}
+
+function stars3(n: number): string {
+  return "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n));
 }
 
 /** Short label like "Jun 30" from a YYYY-MM-DD string. */
@@ -34,6 +46,7 @@ export default function ProfileScreen({
   unlockedBadgeIds,
   streak,
   history,
+  campaign,
   onHome,
   onReset,
   piSdkAvailable,
@@ -123,6 +136,65 @@ export default function ProfileScreen({
           </div>
         </div>
       )}
+
+      <div className="profile__campaign-section">
+        <span className="profile__section-title">Chain Journey Progress</span>
+        {(() => {
+          const totalLevels = CAMPAIGN_LEVELS.length;
+          const completedCount = campaign.completed.length;
+          const totalStars = getTotalCampaignStars(campaign);
+          const seasonComplete = completedCount >= totalLevels;
+          return (
+            <>
+              <div className="campaign-summary">
+                <Stat label="Levels" value={`${completedCount}/${totalLevels}`} />
+                <Stat label="Stars" value={`${totalStars}/${totalLevels * 3}`} />
+                <Stat label="Unlocked" value={`Lv ${campaign.unlockedLevel}`} />
+                <Stat label="Season 1" value={seasonComplete ? "Complete" : "In progress"} />
+              </div>
+
+              {seasonComplete && (
+                <div className="campaign-season-done">
+                  🏆 Season 1 Complete — Chain Journey cleared
+                </div>
+              )}
+
+              <div className="campaign-progress-list">
+                {CAMPAIGN_LEVELS.map((lvl) => {
+                  const unlocked = lvl.id <= campaign.unlockedLevel;
+                  const completed = campaign.completed.includes(lvl.id);
+                  const stars = campaign.starsByLevel[String(lvl.id)] ?? 0;
+                  const best = campaign.bestScoreByLevel[String(lvl.id)] ?? 0;
+                  const status = completed ? "Completed" : unlocked ? "Unlocked" : "Locked";
+                  return (
+                    <div
+                      key={lvl.id}
+                      className={`cp-row ${completed ? "is-completed" : ""} ${
+                        unlocked ? "" : "is-locked"
+                      }`}
+                    >
+                      <div className="cp-row__main">
+                        <span className="cp-row__name">
+                          {lvl.id}. {lvl.name}
+                        </span>
+                        <span className="cp-row__meta">
+                          {status}
+                          {best > 0 ? ` · Best ${best.toLocaleString()}` : ""}
+                          {completed && stars < 3 ? " · can improve" : ""}
+                          {!unlocked ? ` · finish Lv ${lvl.id - 1}` : ""}
+                        </span>
+                      </div>
+                      <span className="cp-row__stars">
+                        {unlocked ? stars3(stars) : "🔒"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
+      </div>
 
       <PiPanel
         sdkAvailable={piSdkAvailable}

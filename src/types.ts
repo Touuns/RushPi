@@ -207,7 +207,9 @@ export type BadgeId =
   | "clear-meme"
   | "clear-privacy"
   | "clear-storm"
-  | "season-1-complete";
+  | "season-1-complete"
+  | "campaign-collector"
+  | "campaign-master";
 
 /** Local Campaign progression (Phase 9F). */
 export interface CampaignProgress {

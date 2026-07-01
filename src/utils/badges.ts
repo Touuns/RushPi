@@ -313,6 +313,23 @@ export const ALL_BADGES: BadgeDef[] = [
     check: (_s, run) =>
       run.mode === "campaign" && run.campaignLevelId === 1 && run.campaignStars >= 3,
   },
+  // Total-star badges (Phase 9F-E). Based on campaign.starsByLevel, which the
+  // (stats, run) predicate can't see — unlocked manually in recordRun. The
+  // always-false check keeps the generic loop from touching them.
+  {
+    id: "campaign-collector",
+    name: "Campaign Collector",
+    description: "Collect 10 Campaign stars in total",
+    icon: "⭐",
+    check: () => false,
+  },
+  {
+    id: "campaign-master",
+    name: "Campaign Master",
+    description: "Collect all 24 Campaign stars",
+    icon: "👑",
+    check: () => false,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

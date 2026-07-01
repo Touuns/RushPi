@@ -415,6 +415,75 @@ body {
   max-width: 360px;
 }
 
+/* Profile: Chain Journey progress section. */
+.profile__campaign-section {
+  width: 100%;
+  max-width: 360px;
+}
+
+.campaign-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.campaign-season-done {
+  text-align: center;
+  font-weight: 800;
+  color: var(--gold);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.campaign-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(22, 13, 42, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+}
+
+.cp-row.is-locked {
+  opacity: 0.55;
+}
+
+.cp-row.is-completed {
+  border-color: rgba(255, 209, 102, 0.4);
+}
+
+.cp-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.cp-row__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.cp-row__meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.cp-row__stars {
+  color: var(--gold);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
 .streak-msg {
   font-size: 0.82rem;
   color: var(--orange);
