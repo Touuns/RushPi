@@ -17,6 +17,7 @@ const INITIAL_HUD: HudState = {
   shieldSecs: 0,
   magnetSecs: 0,
   event: null,
+  lives: 3,
 };
 
 const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
@@ -64,7 +65,8 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
     // mode is fixed for the lifetime of a run; remounting changes it.
   }, [mode]);
 
-  const lowTime = hud.timeLeft <= 10;
+  const isSurvival = mode === "survival";
+  const lowTime = !isSurvival && hud.timeLeft <= 10;
 
   return (
     <div className="game-screen">
@@ -74,10 +76,19 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
           <span className="hud__label">Score</span>
           <span className="hud__value">{hud.score.toLocaleString()}</span>
         </div>
-        <div className={`hud__item hud__item--time ${lowTime ? "is-low" : ""}`}>
-          <span className="hud__label">Time</span>
-          <span className="hud__value">{hud.timeLeft}s</span>
-        </div>
+        {isSurvival ? (
+          <div className="hud__item hud__item--lives">
+            <span className="hud__label">Lives</span>
+            <span className="hud__value">
+              {hud.lives > 0 ? "❤️".repeat(hud.lives) : "—"}
+            </span>
+          </div>
+        ) : (
+          <div className={`hud__item hud__item--time ${lowTime ? "is-low" : ""}`}>
+            <span className="hud__label">Time</span>
+            <span className="hud__value">{hud.timeLeft}s</span>
+          </div>
+        )}
         <div className="hud__item hud__item--combo">
           <span className="hud__label">Combo</span>
           <span className="hud__value">
@@ -85,6 +96,12 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
           </span>
         </div>
       </div>
+
+      {isSurvival && (
+        <div className="survival-time" aria-hidden="true">
+          Survived {hud.timeLeft}s
+        </div>
+      )}
 
       {/* Active power-up + event chips (only shown while active). */}
       {(hud.shieldSecs > 0 || hud.magnetSecs > 0 || hud.event) && (
@@ -119,6 +136,9 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
 
       {mode === "training" && (
         <div className="game-screen__mode-tag">Training scores are not ranked</div>
+      )}
+      {mode === "survival" && (
+        <div className="game-screen__mode-tag">Survival · local only</div>
       )}
 
       <div ref={containerRef} className="game-screen__canvas" />

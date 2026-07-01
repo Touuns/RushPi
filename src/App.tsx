@@ -135,6 +135,9 @@ export default function App() {
   );
 
   const playTraining = useCallback(() => beginRun("training", "training"), [beginRun]);
+  // Survival is local-only → treated as unranked ("training" rank state): no
+  // attempt consumed, never submitted to the server.
+  const playSurvival = useCallback(() => beginRun("survival", "training"), [beginRun]);
   const playRankedDaily = useCallback(() => beginRun("daily", "ranked"), [beginRun]);
   const playDailyLocalOnly = useCallback(
     () => beginRun("daily", "local-only"),
@@ -165,8 +168,9 @@ export default function App() {
 
   const playAgain = useCallback(() => {
     if (mode === "training") playTraining();
+    else if (mode === "survival") playSurvival();
     else startDailyAuto();
-  }, [mode, playTraining, startDailyAuto]);
+  }, [mode, playTraining, playSurvival, startDailyAuto]);
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
@@ -241,6 +245,7 @@ export default function App() {
           piSdkAvailable={piSdkAvailable}
           piUser={piUser}
           onPlayTraining={playTraining}
+          onPlaySurvival={playSurvival}
           onPlayRankedDaily={playRankedDaily}
           onPlayDailyLocalOnly={playDailyLocalOnly}
           onPlayDailyUnranked={playDailyUnranked}
@@ -261,6 +266,7 @@ export default function App() {
           result={result}
           outcome={outcome}
           bestScore={data.profile.bestDailyScore}
+          bestSurvivalScore={data.profile.bestSurvivalScore}
           serverSync={serverSync}
           streak={data.streak}
           onPlayAgain={playAgain}

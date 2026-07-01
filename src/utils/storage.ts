@@ -34,6 +34,7 @@ const MAX_RANKED_ATTEMPTS = 3;
 const XP_PER_LEVEL = 500;
 const XP_DIVISOR_DAILY = 10;
 const XP_DIVISOR_TRAINING = 20;
+const XP_DIVISOR_SURVIVAL = 12;
 
 const DAILY_HISTORY_MAX = 30;
 
@@ -61,6 +62,9 @@ function defaultProfile(): ProfileStats {
     bestStreak: 0,
     lastDailyDate: null,
     piTestPaymentCompleted: false,
+    bestSurvivalScore: 0,
+    bestSurvivalTimeSecs: 0,
+    survivalRuns: 0,
   };
 }
 
@@ -104,6 +108,9 @@ function normalize(parsed: unknown): SaveData {
     lastDailyDate:
       typeof rawProfile.lastDailyDate === "string" ? rawProfile.lastDailyDate : null,
     piTestPaymentCompleted: rawProfile.piTestPaymentCompleted === true,
+    bestSurvivalScore: num(rawProfile.bestSurvivalScore, dp.bestSurvivalScore),
+    bestSurvivalTimeSecs: num(rawProfile.bestSurvivalTimeSecs, dp.bestSurvivalTimeSecs),
+    survivalRuns: num(rawProfile.survivalRuns, dp.survivalRuns),
   };
 
   const knownBadgeIds = new Set(ALL_BADGES.map((b) => b.id));
@@ -204,7 +211,12 @@ function updateStreak(profile: ProfileStats, now: Date): void {
 // ---- XP / level ----------------------------------------------------------
 
 export function xpForRun(mode: GameResult["mode"], score: number): number {
-  const divisor = mode === "daily" ? XP_DIVISOR_DAILY : XP_DIVISOR_TRAINING;
+  const divisor =
+    mode === "daily"
+      ? XP_DIVISOR_DAILY
+      : mode === "survival"
+        ? XP_DIVISOR_SURVIVAL
+        : XP_DIVISOR_TRAINING;
   return Math.round(score / divisor);
 }
 
@@ -288,20 +300,30 @@ export function recordRun(run: GameResult): RunOutcome {
   const previousLevel = stats.level;
   const now = new Date();
 
-  // Cumulative stats (both modes).
+  // Cumulative stats (all modes).
   if (run.mode === "daily") stats.dailyRuns += 1;
+  else if (run.mode === "survival") stats.survivalRuns += 1;
   else stats.trainingRuns += 1;
   stats.totalEnergies += run.energiesCollected;
   stats.bestCombo = Math.max(stats.bestCombo, run.maxCombo);
   stats.totalObstaclesHit += run.obstaclesHit;
 
-  // XP / level (both modes).
+  // XP / level (all modes).
   const xpGained = xpForRun(run.mode, run.score);
   stats.totalXp += xpGained;
   stats.level = levelForXp(stats.totalXp);
 
-  // Daily-only effects.
+  // Survival-only effects (local; never sent to the server).
   let isNewBest = false;
+  if (run.mode === "survival") {
+    if (run.score > stats.bestSurvivalScore) {
+      stats.bestSurvivalScore = run.score;
+      isNewBest = true;
+    }
+    stats.bestSurvivalTimeSecs = Math.max(stats.bestSurvivalTimeSecs, run.timeSurvivedSecs);
+  }
+
+  // Daily-only effects.
   if (run.mode === "daily") {
     if (run.score > stats.bestDailyScore) {
       stats.bestDailyScore = run.score;

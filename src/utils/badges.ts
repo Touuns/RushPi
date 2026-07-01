@@ -108,6 +108,35 @@ export const ALL_BADGES: BadgeDef[] = [
     icon: "👑",
     check: (s) => s.streak >= 30,
   },
+  {
+    id: "survivor-starter",
+    name: "Survivor Starter",
+    description: "Play a Survival run",
+    icon: "🕹️",
+    check: (s) => s.survivalRuns >= 1,
+  },
+  {
+    id: "long-runner",
+    name: "Long Runner",
+    description: "Survive 2 minutes",
+    icon: "🏃",
+    check: (s) => s.bestSurvivalTimeSecs >= 120,
+  },
+  {
+    id: "survival-pro",
+    name: "Survival Pro",
+    description: "Survive 5 minutes",
+    icon: "🛰️",
+    check: (s) => s.bestSurvivalTimeSecs >= 300,
+  },
+  {
+    id: "last-heart-hero",
+    name: "Last Heart Hero",
+    description: "Survive 60s and finish with 1 life",
+    icon: "💗",
+    check: (_s, run) =>
+      run.mode === "survival" && run.timeSurvivedSecs >= 60 && run.livesRemaining === 1,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

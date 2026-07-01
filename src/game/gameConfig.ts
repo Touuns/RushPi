@@ -67,6 +67,18 @@ export const SCORING = {
   cleanRunMaxHits: 3,
 };
 
+/** Survival Mode (Phase 9B). Local-only; no 60s timer. */
+export const SURVIVAL = {
+  startLives: 3,
+  /** Hard safety cap so a run can't be truly infinite (not shown as a goal). */
+  maxRunMs: 600000, // 10 minutes
+  /**
+   * Difficulty ramps to full over this long (vs 60s for Time Attack), so the
+   * early game is gentler: 0-60s easy→normal, 60-120s normal→hard, 120s+ intense.
+   */
+  rampToHardMs: 120000,
+};
+
 /** Anti-frustration: after a hit, the player briefly can't be hit again. */
 export const HIT = {
   /** Invulnerability window after a collision (ms). */

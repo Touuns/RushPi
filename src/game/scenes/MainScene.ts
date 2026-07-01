@@ -9,6 +9,7 @@ import {
   SCORING,
   HIT,
   CONTROLS,
+  SURVIVAL,
 } from "../gameConfig";
 import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
 import { TrackVisuals } from "../track";
@@ -102,6 +103,10 @@ export default class MainScene extends Phaser.Scene {
   private obstaclesHit = 0;
   private finished = false;
 
+  // Survival Mode (Phase 9B).
+  private lives = 0;
+  private livesLost = 0;
+
   // Anti-frustration timers
   private invulnerableUntilMs = 0;
   private slowUntilMs = 0;
@@ -114,6 +119,7 @@ export default class MainScene extends Phaser.Scene {
     shieldSecs: -1,
     magnetSecs: -1,
     event: null,
+    lives: -1,
   };
 
   // Input. `pointerDownX` = where the press started (for tap/swipe on release).
@@ -177,6 +183,8 @@ export default class MainScene extends Phaser.Scene {
     this.shieldUntilMs = 0;
     this.magnetUntilMs = 0;
     this.currentPhase = -1;
+    this.lives = this.mode === "survival" ? SURVIVAL.startLives : 0;
+    this.livesLost = 0;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -184,6 +192,7 @@ export default class MainScene extends Phaser.Scene {
       shieldSecs: -1,
       magnetSecs: -1,
       event: null,
+      lives: -1,
     };
   }
 
@@ -392,9 +401,15 @@ export default class MainScene extends Phaser.Scene {
 
   // ---- Spawning ------------------------------------------------------------
 
-  /** Run progress in [0,1] used to ramp difficulty. */
+  /**
+   * Difficulty progress in [0,1]. Time Attack/Training ramp over the 60s run
+   * (unchanged). Survival ramps more slowly (over SURVIVAL.rampToHardMs) then
+   * holds at max, so it starts gentler and never becomes impossible.
+   */
   private progress(): number {
-    return Phaser.Math.Clamp(this.elapsedMs / (RUN_DURATION_SECONDS * 1000), 0, 1);
+    const span =
+      this.mode === "survival" ? SURVIVAL.rampToHardMs : RUN_DURATION_SECONDS * 1000;
+    return Phaser.Math.Clamp(this.elapsedMs / span, 0, 1);
   }
 
   private currentSpawnIntervalMs(): number {
@@ -559,8 +574,13 @@ export default class MainScene extends Phaser.Scene {
       this.objects = this.objects.filter((o) => o.alive);
     }
 
-    // Timer / end of run.
-    if (this.elapsedMs >= RUN_DURATION_SECONDS * 1000) {
+    // End of run: Survival ends at 0 lives (or the safety cap); other modes at 60s.
+    if (this.mode === "survival") {
+      if (this.lives <= 0 || this.elapsedMs >= SURVIVAL.maxRunMs) {
+        this.endRun();
+        return;
+      }
+    } else if (this.elapsedMs >= RUN_DURATION_SECONDS * 1000) {
       this.endRun();
       return;
     }
@@ -596,10 +616,16 @@ export default class MainScene extends Phaser.Scene {
     obj.alive = false;
     obj.container.destroy();
 
-    // Penalty + combo reset, but the player does NOT die (anti-frustration).
     this.obstaclesHit += 1;
     this.combo = 0;
-    this.scoreValue = Math.max(0, this.scoreValue - SCORING.obstaclePenalty);
+    if (this.mode === "survival") {
+      // Survival: a hit costs a life (game over at 0, handled in update()).
+      this.lives -= 1;
+      this.livesLost += 1;
+    } else {
+      // Time Attack/Training: score penalty, but the player never dies.
+      this.scoreValue = Math.max(0, this.scoreValue - SCORING.obstaclePenalty);
+    }
 
     // Grant brief invulnerability + a short slow-down so a mistake is recoverable.
     this.invulnerableUntilMs = this.time.now + HIT.invulnerabilityMs;
@@ -777,10 +803,12 @@ export default class MainScene extends Phaser.Scene {
 
   private emitHud(force = false): void {
     const score = Math.floor(this.scoreValue);
-    const timeLeft = Math.max(
-      0,
-      Math.ceil(RUN_DURATION_SECONDS - this.elapsedMs / 1000),
-    );
+    // Time Attack/Training: seconds remaining (countdown). Survival: seconds
+    // survived (count up) — the HUD relabels it and there is no 60s target.
+    const timeLeft =
+      this.mode === "survival"
+        ? Math.floor(this.elapsedMs / 1000)
+        : Math.max(0, Math.ceil(RUN_DURATION_SECONDS - this.elapsedMs / 1000));
     const now = this.time.now;
     const shieldSecs =
       this.shieldCharges > 0 && now < this.shieldUntilMs
@@ -788,6 +816,7 @@ export default class MainScene extends Phaser.Scene {
         : 0;
     const magnetSecs =
       now < this.magnetUntilMs ? Math.ceil((this.magnetUntilMs - now) / 1000) : 0;
+    const lives = this.mode === "survival" ? Math.max(0, this.lives) : 0;
     if (
       force ||
       score !== this.lastHud.score ||
@@ -795,7 +824,8 @@ export default class MainScene extends Phaser.Scene {
       this.combo !== this.lastHud.combo ||
       shieldSecs !== this.lastHud.shieldSecs ||
       magnetSecs !== this.lastHud.magnetSecs ||
-      this.activeEventKind !== this.lastHud.event
+      this.activeEventKind !== this.lastHud.event ||
+      lives !== this.lastHud.lives
     ) {
       this.lastHud = {
         score,
@@ -804,6 +834,7 @@ export default class MainScene extends Phaser.Scene {
         shieldSecs,
         magnetSecs,
         event: this.activeEventKind,
+        lives,
       };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
@@ -813,8 +844,11 @@ export default class MainScene extends Phaser.Scene {
     if (this.finished) return;
     this.finished = true;
 
+    const survival = this.mode === "survival";
+    const timeSurvivedSecs = Math.floor(this.elapsedMs / 1000);
+    // Time Attack/Training get the clean-run bonus; Survival scores on progression.
     const endBonus =
-      this.obstaclesHit <= SCORING.cleanRunMaxHits ? SCORING.cleanRunBonus : 0;
+      survival || this.obstaclesHit > SCORING.cleanRunMaxHits ? 0 : SCORING.cleanRunBonus;
     const finalScore = Math.floor(this.scoreValue) + endBonus;
 
     // The scene only reports the raw run; persistence/progression is handled by
@@ -826,16 +860,19 @@ export default class MainScene extends Phaser.Scene {
       maxCombo: this.maxCombo,
       obstaclesHit: this.obstaclesHit,
       endBonus,
+      timeSurvivedSecs,
+      livesRemaining: survival ? Math.max(0, this.lives) : 0,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
     this.lastHud = {
       score: finalScore,
-      timeLeft: 0,
+      timeLeft: survival ? timeSurvivedSecs : 0,
       combo: this.combo,
       shieldSecs: 0,
       magnetSecs: 0,
       event: null,
+      lives: survival ? Math.max(0, this.lives) : 0,
     };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);

@@ -10,7 +10,7 @@
  * unranked practice (do not touch best score or leaderboard). The whole app
  * branches on this single value.
  */
-export type GameMode = "daily" | "training";
+export type GameMode = "daily" | "training" | "survival";
 
 /** The screens the app can show. A small screen state-machine lives in App.tsx. */
 export type Screen = "home" | "game" | "result" | "leaderboard" | "profile";
@@ -32,6 +32,8 @@ export interface HudState {
   magnetSecs: number;
   /** Active dynamic event (Phase 8B), or null. */
   event: GameEventKind | null;
+  /** Survival lives remaining (Phase 9B). 0 for non-survival modes. */
+  lives: number;
 }
 
 /** Deterministic power-ups (Phase 8A). */
@@ -52,6 +54,10 @@ export interface GameResult {
   maxCombo: number;
   obstaclesHit: number;
   endBonus: number;
+  /** Survival: seconds survived (Time Attack = run length). */
+  timeSurvivedSecs: number;
+  /** Survival: lives left at game over (0 for other modes). */
+  livesRemaining: number;
 }
 
 /**
@@ -97,6 +103,10 @@ export interface ProfileStats {
   lastDailyDate: string | null;
   /** Whether the Pi developer-checklist test payment has succeeded (cosmetic). */
   piTestPaymentCompleted: boolean;
+  /** Survival Mode (Phase 9B), local-only. */
+  bestSurvivalScore: number;
+  bestSurvivalTimeSecs: number;
+  survivalRuns: number;
 }
 
 /** One day of Daily Challenge history (local). */
@@ -134,7 +144,11 @@ export type BadgeId =
   | "streak-3"
   | "streak-7"
   | "streak-14"
-  | "streak-30";
+  | "streak-30"
+  | "survivor-starter"
+  | "long-runner"
+  | "survival-pro"
+  | "last-heart-hero";
 
 /** Display metadata for a badge. */
 export interface Badge {

@@ -20,6 +20,7 @@ interface HomeScreenProps {
   piSdkAvailable: boolean;
   piUser: PiUser | null;
   onPlayTraining: () => void;
+  onPlaySurvival: () => void;
   onPlayRankedDaily: () => void;
   onPlayDailyLocalOnly: () => void;
   onPlayDailyUnranked: () => void;
@@ -46,6 +47,7 @@ export default function HomeScreen({
   piSdkAvailable,
   piUser,
   onPlayTraining,
+  onPlaySurvival,
   onPlayRankedDaily,
   onPlayDailyLocalOnly,
   onPlayDailyUnranked,
@@ -122,6 +124,7 @@ export default function HomeScreen({
       <div className="home__actions">
         <button className="btn btn--primary" type="button" onClick={handleDailyClick}>
           Play Daily Run
+          <span className="btn__sub">60s Time Attack</span>
         </button>
         <p className={`rank-hint ${piUser ? "is-ranked" : ""}`}>
           {piUser
@@ -130,6 +133,10 @@ export default function HomeScreen({
         </p>
         <p className="streak-msg">{streakMessage(streak)}</p>
 
+        <button className="btn btn--secondary" type="button" onClick={onPlaySurvival}>
+          Survival Mode
+          <span className="btn__sub">3 lives · endless</span>
+        </button>
         <button className="btn btn--secondary" type="button" onClick={onPlayTraining}>
           Training Mode
         </button>

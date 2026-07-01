@@ -5,11 +5,19 @@ interface ResultScreenProps {
   result: GameResult;
   outcome: RunOutcome;
   bestScore: number;
+  bestSurvivalScore: number;
   serverSync: ServerSyncStatus;
   streak: StreakInfo;
   onPlayAgain: () => void;
   onHome: () => void;
   onLeaderboard: () => void;
+}
+
+/** "1m 23s" / "45s". */
+function formatDuration(totalSecs: number): string {
+  const m = Math.floor(totalSecs / 60);
+  const s = totalSecs % 60;
+  return m > 0 ? `${m}m ${s}s` : `${s}s`;
 }
 
 const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
@@ -31,6 +39,7 @@ export default function ResultScreen({
   result,
   outcome,
   bestScore,
+  bestSurvivalScore,
   serverSync,
   streak,
   onPlayAgain,
@@ -38,19 +47,23 @@ export default function ResultScreen({
   onLeaderboard,
 }: ResultScreenProps) {
   const isTraining = result.mode === "training";
+  const isSurvival = result.mode === "survival";
   const syncMessage = SYNC_MESSAGE[serverSync];
   // After a Daily run the streak is counted for today.
   const streakMessage =
-    !isTraining && streak.playedToday && streak.current > 0
+    result.mode === "daily" && streak.playedToday && streak.current > 0
       ? `🔥 ${streak.current}-day streak — come back tomorrow to keep it!`
       : null;
 
   return (
     <div className="screen result">
-      <h2 className="result__title">Run Complete</h2>
+      <h2 className="result__title">{isSurvival ? "Game Over" : "Run Complete"}</h2>
 
       {isTraining && (
         <div className="result__training-tag">Training score — not ranked</div>
+      )}
+      {isSurvival && (
+        <div className="result__training-tag">Survival Run · local only</div>
       )}
 
       <div className="result__score">
@@ -77,13 +90,24 @@ export default function ResultScreen({
         </div>
       )}
 
-      <div className="result__stats">
-        <Stat label="Best Score" value={bestScore.toLocaleString()} />
-        <Stat label="Energy Collected" value={result.energiesCollected} />
-        <Stat label="Max Combo" value={`x${result.maxCombo}`} />
-        <Stat label="Obstacles Hit" value={result.obstaclesHit} />
-        <Stat label="End Bonus" value={`+${result.endBonus}`} />
-      </div>
+      {isSurvival ? (
+        <div className="result__stats">
+          <Stat label="Best Survival" value={bestSurvivalScore.toLocaleString()} />
+          <Stat label="Distance Survived" value={formatDuration(result.timeSurvivedSecs)} />
+          <Stat label="Lives Remaining" value={result.livesRemaining} />
+          <Stat label="Energy Collected" value={result.energiesCollected} />
+          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
+          <Stat label="Obstacles Hit" value={result.obstaclesHit} />
+        </div>
+      ) : (
+        <div className="result__stats">
+          <Stat label="Best Score" value={bestScore.toLocaleString()} />
+          <Stat label="Energy Collected" value={result.energiesCollected} />
+          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
+          <Stat label="Obstacles Hit" value={result.obstaclesHit} />
+          <Stat label="End Bonus" value={`+${result.endBonus}`} />
+        </div>
+      )}
 
       {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
       {streakMessage && <p className="result__streak">{streakMessage}</p>}
@@ -92,9 +116,11 @@ export default function ResultScreen({
         <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
           Play Again
         </button>
-        <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
-          Leaderboard
-        </button>
+        {!isSurvival && (
+          <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+            Leaderboard
+          </button>
+        )}
         <button className="btn btn--secondary" type="button" onClick={onHome}>
           Back Home
         </button>
