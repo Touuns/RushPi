@@ -40,6 +40,18 @@ export const GLOW = {
 };
 
 /**
+ * Track Drift (Phase 9E, Survival only): the vanishing point eases left/right to
+ * fake a turning track. VISUAL ONLY — collisions still use lane + y. Amplitude is
+ * per-stage (stages.driftMaxX); these control the timing/feel.
+ */
+export const DRIFT = {
+  firstDriftMs: 15000, // no drift before 15s of survival
+  holdMs: 5000, // time held at a side before returning to centre
+  pauseMs: 4000, // rest at centre between drifts
+  easeMs: 1400, // how quickly the actual drift approaches its target
+};
+
+/**
  * Perspective track ("race feeling") tuning. Purely visual — the gameplay lanes,
  * spawns and collisions are unchanged. Centralized so future skins / track themes
  * are a localized edit.

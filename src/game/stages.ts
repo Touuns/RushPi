@@ -16,6 +16,12 @@ export interface Stage {
   tintAlpha: number;
   /** Small chevron-speed factor for a per-stage "feel" (visual only). */
   chevronMultiplier: number;
+  /** Track Drift amplitude as a fraction of screen width (0 = no drift). */
+  driftMaxX: number;
+  /** Visual-only obstacle scale factor (hitbox unchanged). */
+  obstacleVisualScale: number;
+  /** Background particle density multiplier (>1 = livelier). */
+  bgBoost: number;
   badgeId: BadgeId;
 }
 
@@ -27,6 +33,9 @@ export const STAGES: Stage[] = [
     tint: 0x8b5cf6,
     tintAlpha: 0.0,
     chevronMultiplier: 1.0,
+    driftMaxX: 0,
+    obstacleVisualScale: 1,
+    bgBoost: 1,
     badgeId: "stage-genesis",
   },
   {
@@ -36,6 +45,9 @@ export const STAGES: Stage[] = [
     tint: 0xff7a3d,
     tintAlpha: 0.1,
     chevronMultiplier: 1.05,
+    driftMaxX: 0.06,
+    obstacleVisualScale: 1.15,
+    bgBoost: 1,
     badgeId: "stage-orange",
   },
   {
@@ -45,6 +57,9 @@ export const STAGES: Stage[] = [
     tint: 0x38bdf8,
     tintAlpha: 0.1,
     chevronMultiplier: 1.1,
+    driftMaxX: 0.06,
+    obstacleVisualScale: 1,
+    bgBoost: 1,
     badgeId: "stage-smart",
   },
   {
@@ -54,6 +69,9 @@ export const STAGES: Stage[] = [
     tint: 0x34d399,
     tintAlpha: 0.11,
     chevronMultiplier: 1.3,
+    driftMaxX: 0.1,
+    obstacleVisualScale: 1,
+    bgBoost: 1.1,
     badgeId: "stage-neon",
   },
   {
@@ -63,6 +81,9 @@ export const STAGES: Stage[] = [
     tint: 0xa7f3d0,
     tintAlpha: 0.09,
     chevronMultiplier: 1.0,
+    driftMaxX: 0,
+    obstacleVisualScale: 1,
+    bgBoost: 0.9,
     badgeId: "stage-stable",
   },
   {
@@ -72,6 +93,9 @@ export const STAGES: Stage[] = [
     tint: 0xff6ec7,
     tintAlpha: 0.11,
     chevronMultiplier: 1.15,
+    driftMaxX: 0.08,
+    obstacleVisualScale: 1,
+    bgBoost: 1.25,
     badgeId: "stage-meme",
   },
   {
@@ -81,6 +105,9 @@ export const STAGES: Stage[] = [
     tint: 0x3b2a6d,
     tintAlpha: 0.18,
     chevronMultiplier: 1.1,
+    driftMaxX: 0.12,
+    obstacleVisualScale: 1,
+    bgBoost: 0.85,
     badgeId: "stage-privacy",
   },
   {
@@ -90,6 +117,9 @@ export const STAGES: Stage[] = [
     tint: 0xff4d6d,
     tintAlpha: 0.12,
     chevronMultiplier: 1.3,
+    driftMaxX: 0.14,
+    obstacleVisualScale: 1.1,
+    bgBoost: 1.3,
     badgeId: "stage-storm",
   },
 ];

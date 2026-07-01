@@ -16,6 +16,7 @@ import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime } from "../stages";
+import { TrackDrift } from "../trackDrift";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
@@ -119,9 +120,12 @@ export default class MainScene extends Phaser.Scene {
   private highestChargeLevel = 1;
   private chargeAura!: Phaser.GameObjects.Arc;
 
-  // Survival stages (Phase 9D).
+  // Survival stages (Phase 9D) + Track Drift / stage personality (Phase 9E).
   private currentStageIndex = -1;
   private stageTint!: Phaser.GameObjects.Rectangle;
+  private drift = new TrackDrift();
+  private driftAmplitudePx = 0;
+  private stageObstacleScale = 1;
 
   // Anti-frustration timers
   private invulnerableUntilMs = 0;
@@ -213,6 +217,9 @@ export default class MainScene extends Phaser.Scene {
     this.lifeOrbsCollected = 0;
     this.highestChargeLevel = 1;
     this.currentStageIndex = -1;
+    this.drift.reset();
+    this.driftAmplitudePx = 0;
+    this.stageObstacleScale = 1;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -521,8 +528,12 @@ export default class MainScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     if (this.finished) return;
 
-    // Animate the visual track (chevrons) — cosmetic only.
-    this.track.update(delta);
+    // Track Drift (Survival only, visual) + animate the track — cosmetic only.
+    const driftX =
+      this.mode === "survival"
+        ? this.drift.update(this.elapsedMs, delta, this.driftAmplitudePx)
+        : 0;
+    this.track.update(delta, driftX);
 
     this.elapsedMs += delta;
 
@@ -579,7 +590,12 @@ export default class MainScene extends Phaser.Scene {
       } else {
         obj.container.x = proj.x;
       }
-      obj.container.setScale(proj.scale);
+      // Per-stage obstacle heft (visual only; hitbox uses fixed radii).
+      const visualScale =
+        this.mode === "survival" && obj.type === "obstacle"
+          ? proj.scale * this.stageObstacleScale
+          : proj.scale;
+      obj.container.setScale(visualScale);
 
       // Off-screen cleanup.
       if (obj.container.y > GAME_HEIGHT + OBJECTS.radius * 2) {
@@ -744,10 +760,13 @@ export default class MainScene extends Phaser.Scene {
     this.currentStageIndex = idx;
     const stage = STAGES[idx];
 
-    // Ambiance tint (persistent) + per-stage chevron feel.
+    // Ambiance tint (persistent) + per-stage chevron feel + drift/obstacle/bg.
     this.stageTint.setFillStyle(stage.tint, 1);
     this.tweens.add({ targets: this.stageTint, alpha: stage.tintAlpha, duration: 500 });
     this.track.setStageMultiplier(stage.chevronMultiplier);
+    this.driftAmplitudePx = stage.driftMaxX * GAME_WIDTH;
+    this.stageObstacleScale = stage.obstacleVisualScale;
+    this.bg.setIntensityScale(stage.bgBoost);
 
     this.showStageTransition(stage.id, stage.name);
   }

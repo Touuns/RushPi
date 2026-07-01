@@ -40,9 +40,24 @@ export class BackgroundFX {
     this.emitter.setDepth(-10);
   }
 
+  private baseFrequency: number = BG.baseFrequencyMs;
+  private intensityScale = 1;
+
+  private applyFrequency(): void {
+    // Higher scale = livelier = shorter interval.
+    this.emitter.frequency = this.baseFrequency / this.intensityScale;
+  }
+
   /** phase: 0..(PHASES.count-1). More dots later in the run. */
   setPhase(phase: number, maxPhase: number): void {
     const t = maxPhase > 0 ? phase / maxPhase : 0;
-    this.emitter.frequency = Phaser.Math.Linear(BG.baseFrequencyMs, BG.finalFrequencyMs, t);
+    this.baseFrequency = Phaser.Math.Linear(BG.baseFrequencyMs, BG.finalFrequencyMs, t);
+    this.applyFrequency();
+  }
+
+  /** Per-stage density multiplier (Phase 9E). >1 = livelier, <1 = calmer. */
+  setIntensityScale(scale: number): void {
+    this.intensityScale = scale > 0 ? scale : 1;
+    this.applyFrequency();
   }
 }
