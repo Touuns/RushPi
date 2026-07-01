@@ -190,6 +190,144 @@ body {
   align-items: center;
 }
 
+/* ---- 10B-P1: compact home + Game Modes ---------------------------------- */
+.home__brand--compact {
+  gap: 2px;
+}
+.home__brand--compact .home__logo {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 2px;
+}
+.home__brand--compact .home__title {
+  font-size: 2.1rem;
+}
+.home__brand--compact .home__challenge {
+  margin-top: 2px;
+}
+
+.profile-strip--compact {
+  padding: 10px 14px;
+}
+
+.home__section-title {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.home__modes,
+.home__more {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.mode-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mode-card--primary {
+  background: linear-gradient(135deg, var(--violet), var(--orange));
+  border-color: transparent;
+}
+
+.mode-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mode-card__name {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.mode-card__sub {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.mode-card__hint {
+  font-size: 0.74rem;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+.mode-card__hint.is-ranked {
+  color: #fff;
+}
+
+.mode-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--text-dim);
+}
+.mode-tag--ranked {
+  color: #0c0717;
+  background: var(--gold);
+  border-color: transparent;
+}
+
+.home__more-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Campaign level card: 3 objectives + footer. */
+.level-card__objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 2px;
+}
+.level-card__objective {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+.level-card__tier {
+  color: var(--gold);
+  font-size: 0.72rem;
+}
+.level-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+.level-card__improve {
+  font-size: 0.74rem;
+  color: var(--orange);
+}
+.level-card__locktip {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
 .home__hint {
   font-size: 0.85rem;
   color: var(--text-dim);

@@ -28,14 +28,7 @@ export default function CampaignScreen({
           const completed = progress.completed.includes(lvl.id);
           const best = progress.bestScoreByLevel[String(lvl.id)] ?? 0;
           const stars = progress.starsByLevel[String(lvl.id)] ?? 0;
-          // Next objective to chase (drives replay); "All stars" once maxed.
-          const hint = !unlocked
-            ? lvl.stars[1].label // teaser of what's inside
-            : stars >= 3
-              ? "All stars ★★★"
-              : stars === 0
-                ? lvl.stars[0].label
-                : `Next: ${lvl.stars[stars].label}`;
+          const tiers = ["★", "★★", "★★★"];
           return (
             <button
               key={lvl.id}
@@ -60,10 +53,25 @@ export default function CampaignScreen({
                 </span>
               </div>
               <span className="level-card__name">{lvl.name}</span>
-              <span className="level-card__obj">{hint}</span>
-              {best > 0 && (
-                <span className="level-card__best">Best {best.toLocaleString()}</span>
-              )}
+
+              {/* All 3 objectives so the player knows what to aim for. */}
+              <div className="level-card__objectives">
+                {lvl.stars.map((s, i) => (
+                  <span key={i} className="level-card__objective">
+                    <span className="level-card__tier">{tiers[i]}</span> {s.label}
+                  </span>
+                ))}
+              </div>
+
+              <div className="level-card__foot">
+                {best > 0 && <span className="level-card__best">Best {best.toLocaleString()}</span>}
+                {completed && stars < 3 && (
+                  <span className="level-card__improve">· can improve</span>
+                )}
+                {!unlocked && (
+                  <span className="level-card__locktip">Finish Level {lvl.id - 1} to unlock</span>
+                )}
+              </div>
             </button>
           );
         })}

@@ -309,7 +309,13 @@ export default class MainScene extends Phaser.Scene {
       this.track.setStageMultiplier(lvl.chevronMultiplier);
       this.driftAmplitudePx = lvl.driftMaxX * GAME_WIDTH;
       this.bg.setIntensityScale(lvl.bgBoost);
-      this.showBanner(`Level ${lvl.id}\n${lvl.name}\n${lvl.stars[0].label}`);
+      this.showBanner(
+        `Level ${lvl.id} — ${lvl.name}\n` +
+          `★ ${lvl.stars[0].label}\n` +
+          `★★ ${lvl.stars[1].label}\n` +
+          `★★★ ${lvl.stars[2].label}`,
+        18,
+      );
     }
 
     // Emit an initial HUD frame so React shows full timer immediately.
@@ -807,11 +813,11 @@ export default class MainScene extends Phaser.Scene {
   }
 
   /** Brief, non-blocking "Stage N — Name" banner. */
-  private showBanner(text: string): void {
+  private showBanner(text: string, fontSize = 24): void {
     const banner = this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.42, text, {
         fontFamily: "Segoe UI, system-ui, sans-serif",
-        fontSize: "24px",
+        fontSize: `${fontSize}px`,
         fontStyle: "bold",
         color: "#ffd166",
         align: "center",

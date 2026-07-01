@@ -59,7 +59,7 @@ export default function HomeScreen({
   onCampaign,
   onProfile,
 }: HomeScreenProps) {
-  const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
+  const { ratio } = levelProgress(profile.totalXp);
   const challengeLabel = getDailyChallengeLabel();
 
   const [modal, setModal] = useState<ModalKind>("none");
@@ -96,14 +96,13 @@ export default function HomeScreen({
 
   return (
     <div className="screen home">
-      <div className="home__brand">
+      <div className="home__brand home__brand--compact">
         <div className="home__logo" aria-hidden="true" />
         <h1 className="home__title">Rush Pi</h1>
-        <p className="home__subtitle">Daily Runner Challenge</p>
         <p className="home__challenge">Daily Challenge — {challengeLabel}</p>
       </div>
 
-      <button className="profile-strip" type="button" onClick={onProfile}>
+      <button className="profile-strip profile-strip--compact" type="button" onClick={onProfile}>
         <div className="profile-strip__top">
           <span className="profile-strip__level">Lv {profile.level}</span>
           <span className="profile-strip__name">{piUser?.username ?? "Pioneer"}</span>
@@ -113,42 +112,60 @@ export default function HomeScreen({
           <div className="xpbar__fill" style={{ width: `${Math.round(ratio * 100)}%` }} />
         </div>
         <div className="profile-strip__meta">
-          <span>{intoLevel}/{perLevel} XP</span>
-          <span>🔥 {streak.current} day streak</span>
+          <span>🔥 {streak.current}d</span>
+          <span>🏆 {profile.bestDailyScore.toLocaleString()}</span>
         </div>
       </button>
 
-      <div className="home__best">
-        <span className="home__best-label">Best Score</span>
-        <span className="home__best-value">{profile.bestDailyScore.toLocaleString()}</span>
+      {/* The 3 pillars, prominent and above the fold. */}
+      <div className="home__modes">
+        <span className="home__section-title">Game Modes</span>
+
+        <button className="mode-card mode-card--primary" type="button" onClick={handleDailyClick}>
+          <div className="mode-card__head">
+            <span className="mode-card__name">Daily Run</span>
+            <span className="mode-tag mode-tag--ranked">Ranked</span>
+          </div>
+          <span className="mode-card__sub">60s · new course daily</span>
+          <span className={`mode-card__hint ${piUser ? "is-ranked" : ""}`}>
+            {piUser
+              ? `@${piUser.username} — ${attemptsLeft}/${maxAttempts} ranked runs left · ${streakMessage(
+                  streak,
+                )}`
+              : "Connect Pi before playing to rank your score"}
+          </span>
+        </button>
+
+        <button className="mode-card" type="button" onClick={onPlaySurvival}>
+          <div className="mode-card__head">
+            <span className="mode-card__name">Survival</span>
+            <span className="mode-tag">Local</span>
+          </div>
+          <span className="mode-card__sub">Endless run · 3 lives · zones &amp; charge</span>
+        </button>
+
+        <button className="mode-card" type="button" onClick={onCampaign}>
+          <div className="mode-card__head">
+            <span className="mode-card__name">Campaign</span>
+            <span className="mode-tag">Local</span>
+          </div>
+          <span className="mode-card__sub">Beat levels · earn ★ · saved progress</span>
+        </button>
       </div>
 
-      <div className="home__actions">
-        <button className="btn btn--primary" type="button" onClick={handleDailyClick}>
-          Play Daily Run
-          <span className="btn__sub">60s Time Attack</span>
-        </button>
-        <p className={`rank-hint ${piUser ? "is-ranked" : ""}`}>
-          {piUser
-            ? `Connected as @${piUser.username} — Ranked attempts left: ${attemptsLeft}/${maxAttempts}`
-            : "Connect Pi before playing to rank your score"}
-        </p>
-        <p className="streak-msg">{streakMessage(streak)}</p>
-
-        <button className="btn btn--secondary" type="button" onClick={onPlaySurvival}>
-          Survival Mode
-          <span className="btn__sub">3 lives · endless</span>
-        </button>
-        <button className="btn btn--secondary" type="button" onClick={onCampaign}>
-          Campaign
-          <span className="btn__sub">Chain Journey · levels</span>
-        </button>
-        <button className="btn btn--secondary" type="button" onClick={onPlayTraining}>
-          Training Mode
-        </button>
-        <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
-          Leaderboard
-        </button>
+      <div className="home__more">
+        <span className="home__section-title">More</span>
+        <div className="home__more-row">
+          <button className="btn btn--secondary btn--small" type="button" onClick={onPlayTraining}>
+            Training
+          </button>
+          <button className="btn btn--secondary btn--small" type="button" onClick={onLeaderboard}>
+            Leaderboard
+          </button>
+          <button className="btn btn--secondary btn--small" type="button" onClick={onProfile}>
+            Profile
+          </button>
+        </div>
       </div>
 
       <PiPanel
