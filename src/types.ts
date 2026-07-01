@@ -203,7 +203,11 @@ export type BadgeId =
   | "clear-neon"
   | "clear-stable"
   | "first-3-star"
-  | "perfect-genesis";
+  | "perfect-genesis"
+  | "clear-meme"
+  | "clear-privacy"
+  | "clear-storm"
+  | "season-1-complete";
 
 /** Local Campaign progression (Phase 9F). */
 export interface CampaignProgress {

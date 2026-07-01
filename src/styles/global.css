@@ -377,6 +377,13 @@ body {
   color: var(--text-dim);
 }
 
+.result__season {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--gold);
+  text-align: center;
+}
+
 .result__objectives {
   display: flex;
   flex-direction: column;

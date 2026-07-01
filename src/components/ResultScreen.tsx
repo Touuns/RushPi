@@ -1,6 +1,6 @@
 import type { GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
-import { getCampaignLevel } from "../game/campaign";
+import { getCampaignLevel, CAMPAIGN_LEVELS } from "../game/campaign";
 
 /** "★★☆" for n out of 3. */
 function starString(n: number): string {
@@ -90,6 +90,8 @@ export default function ResultScreen({
   if (isCampaign) {
     const level = getCampaignLevel(result.campaignLevelId);
     const success = result.campaignSuccess;
+    const isLastLevel = result.campaignLevelId >= CAMPAIGN_LEVELS.length;
+    const seasonComplete = success && isLastLevel;
     const runStats = {
       livesRemaining: result.livesRemaining,
       energiesCollected: result.energiesCollected,
@@ -99,10 +101,15 @@ export default function ResultScreen({
 
     return (
       <div className="screen result">
-        <h2 className="result__title">{success ? "Level Complete" : "Level Failed"}</h2>
+        <h2 className="result__title">
+          {seasonComplete ? "Season 1 Complete" : success ? "Level Complete" : "Level Failed"}
+        </h2>
         <div className="result__training-tag">
           Level {result.campaignLevelId} — {level?.name ?? ""} · local only
         </div>
+        {seasonComplete && (
+          <p className="result__season">🏆 Chain Journey cleared — well played!</p>
+        )}
 
         <div className="result__score">
           <span className="result__score-label">Score</span>

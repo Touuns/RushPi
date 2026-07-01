@@ -308,7 +308,7 @@ export default class MainScene extends Phaser.Scene {
       this.stageTint.setFillStyle(lvl.tint, 1).setAlpha(lvl.tintAlpha);
       this.track.setStageMultiplier(lvl.chevronMultiplier);
       this.driftAmplitudePx = lvl.driftMaxX * GAME_WIDTH;
-      this.bg.setIntensityScale(1);
+      this.bg.setIntensityScale(lvl.bgBoost);
       this.showBanner(`Level ${lvl.id}\n${lvl.name}\n${lvl.stars[0].label}`);
     }
 

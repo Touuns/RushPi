@@ -36,6 +36,8 @@ export interface CampaignLevel {
   tintAlpha: number;
   chevronMultiplier: number;
   driftMaxX: number;
+  /** Background particle density multiplier (>1 livelier, <1 calmer). */
+  bgBoost: number;
   badgeId: BadgeId;
 }
 
@@ -55,6 +57,7 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
     tintAlpha: 0.0,
     chevronMultiplier: 1.0,
     driftMaxX: 0,
+    bgBoost: 1,
     badgeId: "clear-genesis",
   },
   {
@@ -70,6 +73,7 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
     tintAlpha: 0.1,
     chevronMultiplier: 1.05,
     driftMaxX: 0.06,
+    bgBoost: 1,
     badgeId: "clear-orange",
   },
   {
@@ -85,6 +89,7 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
     tintAlpha: 0.1,
     chevronMultiplier: 1.1,
     driftMaxX: 0.06,
+    bgBoost: 1,
     badgeId: "clear-smart",
   },
   {
@@ -100,6 +105,7 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
     tintAlpha: 0.11,
     chevronMultiplier: 1.3,
     driftMaxX: 0.1,
+    bgBoost: 1.1,
     badgeId: "clear-neon",
   },
   {
@@ -115,7 +121,59 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
     tintAlpha: 0.09,
     chevronMultiplier: 1.0,
     driftMaxX: 0,
+    bgBoost: 0.9,
     badgeId: "clear-stable",
+  },
+  {
+    id: 6,
+    name: "Meme Circuit",
+    stars: [
+      REACH,
+      { label: "Collect 35 energies", test: (r) => r.energiesCollected >= 35 },
+      { label: "Reach charge level 5+", test: (r) => r.maxChargeLevel >= 5 },
+    ],
+    targetDurationSecs: 65,
+    tint: 0xff6ec7,
+    tintAlpha: 0.11,
+    chevronMultiplier: 1.15,
+    driftMaxX: 0.08,
+    bgBoost: 1.25,
+    badgeId: "clear-meme",
+  },
+  {
+    id: 7,
+    name: "Privacy Tunnel",
+    stars: [
+      REACH,
+      { label: "Finish with at least 1 life", test: (r) => r.livesRemaining >= 1 },
+      { label: "Finish with 2 lives or more", test: (r) => r.livesRemaining >= 2 },
+    ],
+    targetDurationSecs: 70,
+    tint: 0x3b2a6d,
+    tintAlpha: 0.18,
+    chevronMultiplier: 1.1,
+    driftMaxX: 0.12,
+    bgBoost: 0.85,
+    badgeId: "clear-privacy",
+  },
+  {
+    id: 8,
+    name: "Chain Storm",
+    stars: [
+      REACH,
+      { label: "Collect 40 energies", test: (r) => r.energiesCollected >= 40 },
+      {
+        label: "Finish with 2 lives+ and charge 5+",
+        test: (r) => r.livesRemaining >= 2 && r.maxChargeLevel >= 5,
+      },
+    ],
+    targetDurationSecs: 75,
+    tint: 0xff4d6d,
+    tintAlpha: 0.12,
+    chevronMultiplier: 1.3,
+    driftMaxX: 0.14,
+    bgBoost: 1.3,
+    badgeId: "clear-storm",
   },
 ];
 
