@@ -8,6 +8,7 @@ import {
   OBJECTS,
   SCORING,
   HIT,
+  CONTROLS,
 } from "../gameConfig";
 import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
 import { TrackVisuals } from "../track";
@@ -115,8 +116,12 @@ export default class MainScene extends Phaser.Scene {
     event: null,
   };
 
-  // Input
+  // Input. `pointerDownX` = where the press started (for tap/swipe on release).
+  // `dragRefX` = moving reference for continuous drag/slide; `dragMoved` marks
+  // that the drag already changed lane(s) so release doesn't double-fire.
   private pointerDownX: number | null = null;
+  private dragRefX: number | null = null;
+  private dragMoved = false;
 
   // RNG: seeded (identical course for everyone) in Daily mode, random in Training.
   private rng: () => number = Math.random;
@@ -328,21 +333,45 @@ export default class MainScene extends Phaser.Scene {
     this.input.keyboard!.on("keydown-A", () => this.moveLane(-1));
     this.input.keyboard!.on("keydown-D", () => this.moveLane(1));
 
-    // Touch: swipe left/right, with tap-half as a fallback.
+    // Touch: three complementary gestures.
+    //  - drag/slide: hold the finger and slide; each ~40px of horizontal travel
+    //    steps one lane (snaps to lanes, never follows the finger pixel-by-pixel).
+    //  - swipe: a quick flick handled on release (if no drag step fired).
+    //  - tap: a tap on the left/right half moves toward that side.
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
       this.pointerDownX = p.x;
+      this.dragRefX = p.x;
+      this.dragMoved = false;
     });
-    this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
-      if (this.pointerDownX === null) return;
-      const dx = p.x - this.pointerDownX;
-      const SWIPE_THRESHOLD = 24;
-      if (Math.abs(dx) >= SWIPE_THRESHOLD) {
-        this.moveLane(dx > 0 ? 1 : -1);
-      } else {
-        // Treat a tap as "move toward the tapped side".
-        this.moveLane(p.x > GAME_WIDTH / 2 ? 1 : -1);
+
+    this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
+      if (this.dragRefX === null || !p.isDown) return;
+      // Only horizontal travel matters, so vertical jitter never changes lanes.
+      let dx = p.x - this.dragRefX;
+      while (Math.abs(dx) >= CONTROLS.dragLaneThresholdPx) {
+        const dir = dx > 0 ? 1 : -1;
+        this.moveLane(dir);
+        this.dragMoved = true;
+        // Advance the reference so a held finger can slide across all lanes.
+        this.dragRefX += dir * CONTROLS.dragLaneThresholdPx;
+        dx = p.x - this.dragRefX;
       }
+    });
+
+    this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
+      const startX = this.pointerDownX;
+      const draggedLanes = this.dragMoved;
       this.pointerDownX = null;
+      this.dragRefX = null;
+      this.dragMoved = false;
+      if (startX === null || draggedLanes) return; // drag already handled it
+
+      const dx = p.x - startX;
+      if (Math.abs(dx) >= CONTROLS.swipeThresholdPx) {
+        this.moveLane(dx > 0 ? 1 : -1); // quick swipe
+      } else {
+        this.moveLane(p.x > GAME_WIDTH / 2 ? 1 : -1); // tap toward side
+      }
     });
   }
 

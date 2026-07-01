@@ -28,6 +28,14 @@ export const PLAYER = {
   laneTweenMs: 110,
 };
 
+/** Touch/drag control tuning (Phase 9A). All in logical game px. */
+export const CONTROLS = {
+  /** Horizontal drag distance for one lane change while the finger is held. */
+  dragLaneThresholdPx: 40,
+  /** A pointerup with |dx| >= this (but no drag step fired) counts as a swipe. */
+  swipeThresholdPx: 24,
+};
+
 /** Falling-object config. */
 export const OBJECTS = {
   radius: 18,
