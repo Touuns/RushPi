@@ -65,6 +65,10 @@ function defaultProfile(): ProfileStats {
     bestSurvivalScore: 0,
     bestSurvivalTimeSecs: 0,
     survivalRuns: 0,
+    highestChargeLevelReached: 0,
+    chargeAbsorbs: 0,
+    livesRecovered: 0,
+    lifeOrbsCollected: 0,
   };
 }
 
@@ -111,6 +115,13 @@ function normalize(parsed: unknown): SaveData {
     bestSurvivalScore: num(rawProfile.bestSurvivalScore, dp.bestSurvivalScore),
     bestSurvivalTimeSecs: num(rawProfile.bestSurvivalTimeSecs, dp.bestSurvivalTimeSecs),
     survivalRuns: num(rawProfile.survivalRuns, dp.survivalRuns),
+    highestChargeLevelReached: num(
+      rawProfile.highestChargeLevelReached,
+      dp.highestChargeLevelReached,
+    ),
+    chargeAbsorbs: num(rawProfile.chargeAbsorbs, dp.chargeAbsorbs),
+    livesRecovered: num(rawProfile.livesRecovered, dp.livesRecovered),
+    lifeOrbsCollected: num(rawProfile.lifeOrbsCollected, dp.lifeOrbsCollected),
   };
 
   const knownBadgeIds = new Set(ALL_BADGES.map((b) => b.id));
@@ -321,6 +332,13 @@ export function recordRun(run: GameResult): RunOutcome {
       isNewBest = true;
     }
     stats.bestSurvivalTimeSecs = Math.max(stats.bestSurvivalTimeSecs, run.timeSurvivedSecs);
+    stats.highestChargeLevelReached = Math.max(
+      stats.highestChargeLevelReached,
+      run.highestChargeLevel,
+    );
+    stats.chargeAbsorbs += run.chargeAbsorbs;
+    stats.livesRecovered += run.livesRecovered;
+    stats.lifeOrbsCollected += run.lifeOrbsCollected;
   }
 
   // Daily-only effects.

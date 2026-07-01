@@ -67,9 +67,10 @@ export const SCORING = {
   cleanRunMaxHits: 3,
 };
 
-/** Survival Mode (Phase 9B). Local-only; no 60s timer. */
+/** Survival Mode (Phase 9B/9C). Local-only; no 60s timer. */
 export const SURVIVAL = {
   startLives: 3,
+  maxLives: 3,
   /** Hard safety cap so a run can't be truly infinite (not shown as a goal). */
   maxRunMs: 600000, // 10 minutes
   /**
@@ -77,6 +78,19 @@ export const SURVIVAL = {
    * early game is gentler: 0-60s easy→normal, 60-120s normal→hard, 120s+ intense.
    */
   rampToHardMs: 120000,
+
+  // --- Phase 9C: charge levels + life recovery (Survival only) ---
+  /** Pi orb charge level range (starts at 1). */
+  chargeMaxLevel: 6,
+  /** Energies collected to gain one charge level. */
+  energyPerChargeLevel: 10,
+  /** Energies collected to recover one life (only when below maxLives). */
+  energyForLife: 10,
+  /** At max charge, absorbing a hit drops the charge back down to this level. */
+  chargeAbsorbDropToLevel: 4,
+  /** Earliest a rare Life Orb can appear, then min gap between them. */
+  lifeOrbMinTimeMs: 30000,
+  lifeOrbCooldownMs: 40000,
 };
 
 /** Anti-frustration: after a hit, the player briefly can't be hit again. */

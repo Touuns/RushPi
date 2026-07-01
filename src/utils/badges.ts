@@ -137,6 +137,44 @@ export const ALL_BADGES: BadgeDef[] = [
     check: (_s, run) =>
       run.mode === "survival" && run.timeSurvivedSecs >= 60 && run.livesRemaining === 1,
   },
+  {
+    id: "charged-up",
+    name: "Charged Up",
+    description: "Reach charge level 3 in Survival",
+    icon: "⚡",
+    check: (s) => s.highestChargeLevelReached >= 3,
+  },
+  {
+    id: "overcharged",
+    name: "Overcharged",
+    description: "Reach charge level 6 in Survival",
+    icon: "🔆",
+    check: (s) => s.highestChargeLevelReached >= 6,
+  },
+  {
+    id: "second-chance",
+    name: "Second Chance",
+    description: "Absorb a hit at max charge",
+    icon: "♻️",
+    check: (s) => s.chargeAbsorbs >= 1,
+  },
+  {
+    id: "life-saver",
+    name: "Life Saver",
+    description: "Recover a life in Survival",
+    icon: "💚",
+    check: (s) => s.livesRecovered >= 1,
+  },
+  {
+    id: "survivor-growth",
+    name: "Survivor Growth",
+    description: "Survive 2 minutes with charge level 4+",
+    icon: "🌱",
+    check: (_s, run) =>
+      run.mode === "survival" &&
+      run.timeSurvivedSecs >= 120 &&
+      run.highestChargeLevel >= 4,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

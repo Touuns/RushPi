@@ -31,7 +31,7 @@ interface EnergyExtra {
   spawned: boolean;
 }
 
-type FallingType = "energy" | "obstacle" | PowerupKind;
+type FallingType = "energy" | "obstacle" | "life" | PowerupKind;
 
 interface FallingObject {
   container: Phaser.GameObjects.Container;
@@ -107,6 +107,17 @@ export default class MainScene extends Phaser.Scene {
   private lives = 0;
   private livesLost = 0;
 
+  // Survival charge + life recovery (Phase 9C).
+  private chargeLevel = 1;
+  private energyForChargeCount = 0;
+  private energyForLifeGauge = 0;
+  private nextLifeOrbMs = Number.POSITIVE_INFINITY;
+  private livesRecovered = 0;
+  private chargeAbsorbs = 0;
+  private lifeOrbsCollected = 0;
+  private highestChargeLevel = 1;
+  private chargeAura!: Phaser.GameObjects.Arc;
+
   // Anti-frustration timers
   private invulnerableUntilMs = 0;
   private slowUntilMs = 0;
@@ -120,6 +131,7 @@ export default class MainScene extends Phaser.Scene {
     magnetSecs: -1,
     event: null,
     lives: -1,
+    charge: -1,
   };
 
   // Input. `pointerDownX` = where the press started (for tap/swipe on release).
@@ -185,6 +197,15 @@ export default class MainScene extends Phaser.Scene {
     this.currentPhase = -1;
     this.lives = this.mode === "survival" ? SURVIVAL.startLives : 0;
     this.livesLost = 0;
+    this.chargeLevel = 1;
+    this.energyForChargeCount = 0;
+    this.energyForLifeGauge = 0;
+    this.nextLifeOrbMs =
+      this.mode === "survival" ? SURVIVAL.lifeOrbMinTimeMs : Number.POSITIVE_INFINITY;
+    this.livesRecovered = 0;
+    this.chargeAbsorbs = 0;
+    this.lifeOrbsCollected = 0;
+    this.highestChargeLevel = 1;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -193,6 +214,7 @@ export default class MainScene extends Phaser.Scene {
       magnetSecs: -1,
       event: null,
       lives: -1,
+      charge: -1,
     };
   }
 
@@ -321,7 +343,12 @@ export default class MainScene extends Phaser.Scene {
       .circle(0, 0, PLAYER.radius + 6, PALETTE.magnetRing, 0)
       .setStrokeStyle(2, PALETTE.magnetRing, 0.8)
       .setVisible(false);
-    this.player.add([this.shieldRing, this.magnetAura]);
+    // Survival charge aura (Phase 9C): gold ring that intensifies with charge.
+    this.chargeAura = this.add
+      .circle(0, 0, PLAYER.radius + 5, PALETTE.gold, 0)
+      .setStrokeStyle(3, PALETTE.gold, 0.9)
+      .setVisible(false);
+    this.player.add([this.chargeAura, this.shieldRing, this.magnetAura]);
 
     // Gentle idle pulse (separate property from the lane-change x tween).
     this.tweens.add({
@@ -489,6 +516,7 @@ export default class MainScene extends Phaser.Scene {
     this.spawnDuePowerups();
     this.updateEvents();
     this.spawnDueEnergyExtras();
+    this.spawnDueLifeOrb();
     const now = this.time.now;
     const shieldActive = this.shieldCharges > 0 && now < this.shieldUntilMs;
     const magnetActive = now < this.magnetUntilMs;
@@ -558,9 +586,19 @@ export default class MainScene extends Phaser.Scene {
         }
       } else if (obj.type === "obstacle") {
         if (sameLane && dyAbs <= radii) {
-          if (shieldActive) this.absorbWithShield(obj);
-          else if (!invulnerable) this.hitObstacle(obj);
+          if (shieldActive) {
+            this.absorbWithShield(obj);
+          } else if (
+            this.mode === "survival" &&
+            this.chargeLevel >= SURVIVAL.chargeMaxLevel
+          ) {
+            this.chargeAbsorb(obj); // max charge tanks the hit (Survival)
+          } else if (!invulnerable) {
+            this.hitObstacle(obj);
+          }
         }
+      } else if (obj.type === "life") {
+        if (sameLane && dyAbs <= radii) this.collectLife(obj);
       } else if (sameLane && dyAbs <= radii) {
         this.collectPowerup(obj); // shield / magnet pickup
       }
@@ -600,6 +638,29 @@ export default class MainScene extends Phaser.Scene {
     this.maxCombo = Math.max(this.maxCombo, this.combo);
     this.energiesCollected += 1;
     this.scoreValue += SCORING.energyPoints * this.comboMultiplier();
+
+    // Survival-only: charge the Pi orb and fill the life-recovery gauge.
+    if (this.mode === "survival") {
+      this.energyForChargeCount += 1;
+      if (this.energyForChargeCount >= SURVIVAL.energyPerChargeLevel) {
+        this.energyForChargeCount = 0;
+        if (this.chargeLevel < SURVIVAL.chargeMaxLevel) {
+          this.chargeLevel += 1;
+          this.highestChargeLevel = Math.max(this.highestChargeLevel, this.chargeLevel);
+        }
+      }
+      if (this.lives < SURVIVAL.maxLives) {
+        this.energyForLifeGauge += 1;
+        if (this.energyForLifeGauge >= SURVIVAL.energyForLife) {
+          this.energyForLifeGauge = 0;
+          this.lives += 1;
+          this.livesRecovered += 1;
+          this.floatText("+1 Life", 0x34d399);
+        }
+      } else {
+        this.energyForLifeGauge = 0; // never bank lives above the cap
+      }
+    }
 
     // Quick pop feedback then remove.
     this.tweens.add({
@@ -751,6 +812,25 @@ export default class MainScene extends Phaser.Scene {
     let freq = Phaser.Math.Linear(TRACK.trailFrequencyMs, TRACK.trailFrequencyMs * 0.55, t);
     if (this.combo >= 10) freq *= 0.7; // denser trail at high combo
     if (this.eventSpeedActive) freq *= 0.7; // and during a Speed Zone
+
+    // Survival charge visuals (Phase 9C): aura + denser trail as charge grows.
+    if (this.mode === "survival") {
+      const lvl = this.chargeLevel; // 1..6
+      // Aura appears from level 3, brighter/wider with charge; strong at level 6.
+      if (lvl >= 3) {
+        const k = (lvl - 3) / (SURVIVAL.chargeMaxLevel - 3); // 0..1 over lvls 3..6
+        this.chargeAura.setVisible(true);
+        this.chargeAura.setStrokeStyle(3, PALETTE.gold, 0.4 + 0.5 * k);
+        this.chargeAura.setScale(1 + 0.35 * k);
+      } else {
+        this.chargeAura.setVisible(false);
+      }
+      // Trail intensifies with charge (levels 1..6 → up to ~0.65x interval).
+      freq *= 1 - (lvl - 1) * 0.07;
+    } else {
+      this.chargeAura.setVisible(false);
+    }
+
     this.trailEmitter.frequency = freq;
   }
 
@@ -799,6 +879,101 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
+  // ---- Survival: life orb + charge absorb (Phase 9C) ----------------------
+
+  /** Rare Life Orb spawns (Survival only): first at minTime, then on a cooldown. */
+  private spawnDueLifeOrb(): void {
+    if (this.mode !== "survival" || this.elapsedMs < this.nextLifeOrbMs) return;
+    this.nextLifeOrbMs = this.elapsedMs + SURVIVAL.lifeOrbCooldownMs;
+    const lane = Math.floor(Math.random() * LANE_COUNT); // Survival isn't seeded
+    const container = this.makeLifeOrb();
+    container.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
+    container.setDepth(6);
+    this.objects.push({ container, type: "life", lane, alive: true });
+  }
+
+  /** Green life orb with a white "+" — distinct from energy/shield/magnet. */
+  private makeLifeOrb(): Phaser.GameObjects.Container {
+    const r = OBJECTS.radius;
+    const halo = this.add.circle(0, 0, r * GLOW.outerScale, PALETTE.life, GLOW.outerAlpha);
+    const core = this.add.circle(0, 0, r * 0.75, PALETTE.life, 1);
+    core.setStrokeStyle(2, PALETTE.white, 0.9);
+    const barV = this.add.rectangle(0, 0, 4, r * 0.9, PALETTE.white, 0.95);
+    const barH = this.add.rectangle(0, 0, r * 0.9, 4, PALETTE.white, 0.95);
+    return this.add.container(0, 0, [halo, core, barV, barH]);
+  }
+
+  private collectLife(obj: FallingObject): void {
+    obj.alive = false;
+    this.lifeOrbsCollected += 1;
+    if (this.lives < SURVIVAL.maxLives) {
+      this.lives += 1;
+      this.livesRecovered += 1;
+      this.floatText("+1 Life", PALETTE.life);
+    } else if (this.chargeLevel < SURVIVAL.chargeMaxLevel) {
+      // Already full lives → small bonus: +1 charge level.
+      this.chargeLevel += 1;
+      this.highestChargeLevel = Math.max(this.highestChargeLevel, this.chargeLevel);
+      this.floatText("+Charge", PALETTE.gold);
+    } else {
+      this.floatText("+", PALETTE.life);
+    }
+    this.tweens.add({
+      targets: obj.container,
+      scale: 1.7,
+      alpha: 0,
+      duration: 160,
+      ease: "Quad.easeOut",
+      onComplete: () => obj.container.destroy(),
+    });
+  }
+
+  /** Max-charge orb tanks a hit (Survival): no life lost, charge drops, combo kept. */
+  private chargeAbsorb(obj: FallingObject): void {
+    obj.alive = false;
+    obj.container.destroy();
+    this.chargeLevel = SURVIVAL.chargeAbsorbDropToLevel;
+    this.chargeAbsorbs += 1;
+    this.invulnerableUntilMs = this.time.now + HIT.invulnerabilityMs;
+
+    // Discharge feedback: gold burst + message (no red, no life lost).
+    this.cameras.main.flash(110, 255, 209, 102);
+    const burst = this.add
+      .circle(this.player.x, this.player.y, PLAYER.radius + 8, PALETTE.gold, 0)
+      .setStrokeStyle(3, PALETTE.gold, 0.9)
+      .setDepth(11);
+    this.tweens.add({
+      targets: burst,
+      scale: 2.4,
+      alpha: 0,
+      duration: 300,
+      ease: "Quad.easeOut",
+      onComplete: () => burst.destroy(),
+    });
+    this.floatText("Charge absorbed hit", PALETTE.gold);
+  }
+
+  /** Short floating status text above the player. */
+  private floatText(message: string, color: number): void {
+    const label = this.add
+      .text(this.player.x, this.player.y - PLAYER.radius - 8, message, {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: "16px",
+        fontStyle: "bold",
+        color: `#${color.toString(16).padStart(6, "0")}`,
+      })
+      .setOrigin(0.5)
+      .setDepth(12);
+    this.tweens.add({
+      targets: label,
+      y: label.y - 42,
+      alpha: 0,
+      duration: 900,
+      ease: "Quad.easeOut",
+      onComplete: () => label.destroy(),
+    });
+  }
+
   // ---- HUD / end -----------------------------------------------------------
 
   private emitHud(force = false): void {
@@ -817,6 +992,7 @@ export default class MainScene extends Phaser.Scene {
     const magnetSecs =
       now < this.magnetUntilMs ? Math.ceil((this.magnetUntilMs - now) / 1000) : 0;
     const lives = this.mode === "survival" ? Math.max(0, this.lives) : 0;
+    const charge = this.mode === "survival" ? this.chargeLevel : 0;
     if (
       force ||
       score !== this.lastHud.score ||
@@ -825,7 +1001,8 @@ export default class MainScene extends Phaser.Scene {
       shieldSecs !== this.lastHud.shieldSecs ||
       magnetSecs !== this.lastHud.magnetSecs ||
       this.activeEventKind !== this.lastHud.event ||
-      lives !== this.lastHud.lives
+      lives !== this.lastHud.lives ||
+      charge !== this.lastHud.charge
     ) {
       this.lastHud = {
         score,
@@ -835,6 +1012,7 @@ export default class MainScene extends Phaser.Scene {
         magnetSecs,
         event: this.activeEventKind,
         lives,
+        charge,
       };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
@@ -862,6 +1040,10 @@ export default class MainScene extends Phaser.Scene {
       endBonus,
       timeSurvivedSecs,
       livesRemaining: survival ? Math.max(0, this.lives) : 0,
+      livesRecovered: survival ? this.livesRecovered : 0,
+      chargeAbsorbs: survival ? this.chargeAbsorbs : 0,
+      lifeOrbsCollected: survival ? this.lifeOrbsCollected : 0,
+      highestChargeLevel: survival ? this.highestChargeLevel : 0,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
@@ -873,6 +1055,7 @@ export default class MainScene extends Phaser.Scene {
       magnetSecs: 0,
       event: null,
       lives: survival ? Math.max(0, this.lives) : 0,
+      charge: survival ? this.chargeLevel : 0,
     };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);

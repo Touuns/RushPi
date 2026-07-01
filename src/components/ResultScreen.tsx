@@ -95,6 +95,8 @@ export default function ResultScreen({
           <Stat label="Best Survival" value={bestSurvivalScore.toLocaleString()} />
           <Stat label="Distance Survived" value={formatDuration(result.timeSurvivedSecs)} />
           <Stat label="Lives Remaining" value={result.livesRemaining} />
+          <Stat label="Max Charge" value={`Lv ${result.highestChargeLevel}`} />
+          <Stat label="Lives Recovered" value={result.livesRecovered} />
           <Stat label="Energy Collected" value={result.energiesCollected} />
           <Stat label="Max Combo" value={`x${result.maxCombo}`} />
           <Stat label="Obstacles Hit" value={result.obstaclesHit} />

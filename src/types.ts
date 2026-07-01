@@ -34,6 +34,8 @@ export interface HudState {
   event: GameEventKind | null;
   /** Survival lives remaining (Phase 9B). 0 for non-survival modes. */
   lives: number;
+  /** Survival Pi-orb charge level 1..6 (Phase 9C). 0 for non-survival modes. */
+  charge: number;
 }
 
 /** Deterministic power-ups (Phase 8A). */
@@ -58,6 +60,11 @@ export interface GameResult {
   timeSurvivedSecs: number;
   /** Survival: lives left at game over (0 for other modes). */
   livesRemaining: number;
+  /** Survival 9C counters (0 for other modes). */
+  livesRecovered: number;
+  chargeAbsorbs: number;
+  lifeOrbsCollected: number;
+  highestChargeLevel: number;
 }
 
 /**
@@ -107,6 +114,11 @@ export interface ProfileStats {
   bestSurvivalScore: number;
   bestSurvivalTimeSecs: number;
   survivalRuns: number;
+  /** Survival 9C cumulative stats (local-only). */
+  highestChargeLevelReached: number;
+  chargeAbsorbs: number;
+  livesRecovered: number;
+  lifeOrbsCollected: number;
 }
 
 /** One day of Daily Challenge history (local). */
@@ -148,7 +160,12 @@ export type BadgeId =
   | "survivor-starter"
   | "long-runner"
   | "survival-pro"
-  | "last-heart-hero";
+  | "last-heart-hero"
+  | "charged-up"
+  | "overcharged"
+  | "second-chance"
+  | "life-saver"
+  | "survivor-growth";
 
 /** Display metadata for a badge. */
 export interface Badge {

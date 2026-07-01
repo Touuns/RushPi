@@ -28,6 +28,7 @@ export const PALETTE = {
   shieldRing: 0x7dd3fc,
   magnet: 0xff7a3d, // power-up: orange magnet core
   magnetRing: 0xa78bfa, // violet ring
+  life: 0x34d399, // Survival life orb: green (distinct from all others)
 
   white: 0xffffff,
 } as const;

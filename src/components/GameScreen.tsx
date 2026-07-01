@@ -18,6 +18,7 @@ const INITIAL_HUD: HudState = {
   magnetSecs: 0,
   event: null,
   lives: 3,
+  charge: 1,
 };
 
 const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
@@ -99,7 +100,7 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
 
       {isSurvival && (
         <div className="survival-time" aria-hidden="true">
-          Survived {hud.timeLeft}s
+          Survived {hud.timeLeft}s · Charge Lv {hud.charge}/6
         </div>
       )}
 
