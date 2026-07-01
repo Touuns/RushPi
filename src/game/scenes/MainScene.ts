@@ -16,7 +16,7 @@ import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime } from "../stages";
-import { getCampaignLevel, objectiveMet, type CampaignLevel } from "../campaign";
+import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign";
 import { TrackDrift } from "../trackDrift";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
@@ -309,7 +309,7 @@ export default class MainScene extends Phaser.Scene {
       this.track.setStageMultiplier(lvl.chevronMultiplier);
       this.driftAmplitudePx = lvl.driftMaxX * GAME_WIDTH;
       this.bg.setIntensityScale(1);
-      this.showBanner(`Level ${lvl.id}\n${lvl.name}\n${lvl.objective.label}`);
+      this.showBanner(`Level ${lvl.id}\n${lvl.name}\n${lvl.stars[0].label}`);
     }
 
     // Emit an initial HUD frame so React shows full timer immediately.
@@ -1163,16 +1163,24 @@ export default class MainScene extends Phaser.Scene {
         : SCORING.cleanRunBonus;
     const finalScore = Math.floor(this.scoreValue) + endBonus;
 
-    // Campaign outcome: reached the finish (didn't die) AND met the objective.
+    // Campaign outcome: reached the finish (didn't die) = 1★ = completed.
+    // Stars (0..3) grade the run for replay value.
     const reachedFinish =
       isCampaign && this.lives > 0 && this.elapsedMs >= this.campaignTargetMs;
-    const campaignSuccess =
-      reachedFinish && this.campaignLevel
-        ? objectiveMet(this.campaignLevel.objective, {
-            livesRemaining,
-            energiesCollected: this.energiesCollected,
-          })
-        : false;
+    const campaignStars =
+      isCampaign && this.campaignLevel
+        ? computeStars(
+            this.campaignLevel,
+            {
+              livesRemaining,
+              energiesCollected: this.energiesCollected,
+              maxCombo: this.maxCombo,
+              maxChargeLevel: this.highestChargeLevel,
+            },
+            reachedFinish,
+          )
+        : 0;
+    const campaignSuccess = reachedFinish;
 
     // The scene only reports the raw run; persistence/progression is handled by
     // React via storage.recordRun() (keeps gameplay decoupled from storage).
@@ -1194,6 +1202,7 @@ export default class MainScene extends Phaser.Scene {
       campaignLevelId: isCampaign ? this.campaignLevelId : 0,
       reachedFinish,
       campaignSuccess,
+      campaignStars,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.

@@ -2,6 +2,11 @@ import type { GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
 import { getCampaignLevel } from "../game/campaign";
 
+/** "★★☆" for n out of 3. */
+function starString(n: number): string {
+  return "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n));
+}
+
 interface ResultScreenProps {
   result: GameResult;
   outcome: RunOutcome;
@@ -9,6 +14,9 @@ interface ResultScreenProps {
   bestSurvivalScore: number;
   bestSurvivalStageName: string;
   campaignLevelBest: number;
+  campaignStarsEarned: number;
+  campaignStarsBest: number;
+  campaignStarsNew: boolean;
   serverSync: ServerSyncStatus;
   streak: StreakInfo;
   onPlayAgain: () => void;
@@ -48,6 +56,9 @@ export default function ResultScreen({
   bestSurvivalScore,
   bestSurvivalStageName,
   campaignLevelBest,
+  campaignStarsEarned,
+  campaignStarsBest,
+  campaignStarsNew,
   serverSync,
   streak,
   onPlayAgain,
@@ -79,9 +90,12 @@ export default function ResultScreen({
   if (isCampaign) {
     const level = getCampaignLevel(result.campaignLevelId);
     const success = result.campaignSuccess;
-    const failReason = !result.reachedFinish
-      ? "Out of lives — you didn't reach the finish."
-      : `Objective not met: ${level?.objective.label ?? ""}`;
+    const runStats = {
+      livesRemaining: result.livesRemaining,
+      energiesCollected: result.energiesCollected,
+      maxCombo: result.maxCombo,
+      maxChargeLevel: result.highestChargeLevel,
+    };
 
     return (
       <div className="screen result">
@@ -100,19 +114,41 @@ export default function ResultScreen({
           )}
         </div>
 
+        {success && (
+          <div className="result__stars">
+            <span className="result__stars-row">{starString(campaignStarsEarned)}</span>
+            <span className="result__stars-best">Best {starString(campaignStarsBest)}</span>
+            {campaignStarsNew && <span className="result__badge">New stars earned!</span>}
+          </div>
+        )}
+
         {badgesBlock}
 
+        {/* Per-objective breakdown for replay value. */}
+        {level && (
+          <div className="result__objectives">
+            {level.stars.map((s, i) => {
+              const met = result.reachedFinish && s.test(runStats);
+              return (
+                <div key={i} className={`objective-row ${met ? "is-met" : ""}`}>
+                  <span className="objective-row__star">{met ? "★" : "☆"}</span>
+                  <span className="objective-row__label">{s.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="result__stats">
-          <Stat
-            label="Objective"
-            value={`${success ? "✓" : "✗"} ${level?.objective.label ?? ""}`}
-          />
           <Stat label="Energy Collected" value={result.energiesCollected} />
           <Stat label="Lives Remaining" value={result.livesRemaining} />
+          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
           <Stat label="Best (level)" value={campaignLevelBest.toLocaleString()} />
         </div>
 
-        {!success && <p className="result__streak">{failReason}</p>}
+        {!success && (
+          <p className="result__streak">Out of lives — you didn't reach the finish.</p>
+        )}
 
         <div className="result__actions">
           {success && onNextLevel && (

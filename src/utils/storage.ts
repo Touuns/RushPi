@@ -79,7 +79,7 @@ function defaultProfile(): ProfileStats {
 }
 
 function defaultCampaign(): CampaignProgress {
-  return { unlockedLevel: 1, completed: [], bestScoreByLevel: {} };
+  return { unlockedLevel: 1, completed: [], bestScoreByLevel: {}, starsByLevel: {} };
 }
 
 function defaultSave(): SaveData {
@@ -188,15 +188,29 @@ function normalize(parsed: unknown): SaveData {
   const bestByLevel: Record<string, number> = {};
   const rawBest = (rawCampaign.bestScoreByLevel as Record<string, unknown>) ?? {};
   for (const [k, v] of Object.entries(rawBest)) bestByLevel[k] = num(v, 0);
+
+  const completed = Array.isArray(rawCampaign.completed)
+    ? (rawCampaign.completed.filter((n) => typeof n === "number") as number[])
+    : [];
+
+  const starsByLevel: Record<string, number> = {};
+  const rawStars = (rawCampaign.starsByLevel as Record<string, unknown>) ?? {};
+  for (const [k, v] of Object.entries(rawStars)) {
+    starsByLevel[k] = Math.max(0, Math.min(3, num(v, 0)));
+  }
+  // Migration: a level completed before 9F-C counts as at least 1 star.
+  for (const id of completed) {
+    if (!(String(id) in starsByLevel)) starsByLevel[String(id)] = 1;
+  }
+
   const campaign: CampaignProgress = {
     unlockedLevel: Math.min(
       totalLevels,
       Math.max(1, num(rawCampaign.unlockedLevel, 1)),
     ),
-    completed: Array.isArray(rawCampaign.completed)
-      ? (rawCampaign.completed.filter((n) => typeof n === "number") as number[])
-      : [],
+    completed,
     bestScoreByLevel: bestByLevel,
+    starsByLevel,
   };
 
   return { version: SAVE_VERSION, profile, leaderboard, badges, dailyHistory, campaign };
@@ -395,6 +409,11 @@ export function recordRun(run: GameResult): RunOutcome {
     if (run.score > prevBest) {
       save.campaign.bestScoreByLevel[key] = run.score;
       isNewBest = true;
+    }
+    // Stars (best kept) — 9F-C.
+    const prevStars = save.campaign.starsByLevel[key] ?? 0;
+    if (run.campaignStars > prevStars) {
+      save.campaign.starsByLevel[key] = run.campaignStars;
     }
     if (run.campaignSuccess) {
       if (!save.campaign.completed.includes(lvl)) save.campaign.completed.push(lvl);

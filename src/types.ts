@@ -83,6 +83,8 @@ export interface GameResult {
   campaignLevelId: number;
   reachedFinish: boolean;
   campaignSuccess: boolean;
+  /** Stars earned this run (Phase 9F-C), 0..3. 0 for non-campaign. */
+  campaignStars: number;
 }
 
 /**
@@ -199,7 +201,9 @@ export type BadgeId =
   | "clear-orange"
   | "clear-smart"
   | "clear-neon"
-  | "clear-stable";
+  | "clear-stable"
+  | "first-3-star"
+  | "perfect-genesis";
 
 /** Local Campaign progression (Phase 9F). */
 export interface CampaignProgress {
@@ -209,6 +213,8 @@ export interface CampaignProgress {
   completed: number[];
   /** Best local score per level id. */
   bestScoreByLevel: Record<string, number>;
+  /** Best stars (0..3) per level id (Phase 9F-C). */
+  starsByLevel: Record<string, number>;
 }
 
 /** Display metadata for a badge. */

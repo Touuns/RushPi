@@ -352,6 +352,56 @@ body {
   font-weight: 700;
 }
 
+.level-card__stars {
+  color: var(--gold);
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+}
+
+/* Result: campaign stars + per-objective breakdown. */
+.result__stars {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.result__stars-row {
+  color: var(--gold);
+  font-size: 1.8rem;
+  letter-spacing: 4px;
+}
+
+.result__stars-best {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.result__objectives {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.objective-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.objective-row.is-met {
+  color: var(--text);
+}
+
+.objective-row__star {
+  color: var(--gold);
+  width: 16px;
+}
+
 .campaign__actions {
   margin-top: 4px;
   width: 100%;

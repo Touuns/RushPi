@@ -99,6 +99,12 @@ export default function App() {
   const [runRankState, setRunRankState] = useState<RunRankState>("training");
   // Campaign level currently being played (0 outside campaign).
   const [campaignLevelId, setCampaignLevelId] = useState(0);
+  // Star recap for the just-finished campaign run (shown on the Result screen).
+  const [campaignStarInfo, setCampaignStarInfo] = useState({
+    earned: 0,
+    best: 0,
+    isNew: false,
+  });
 
   const refresh = useCallback(() => setData(readLocalData()), []);
 
@@ -197,6 +203,16 @@ export default function App() {
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
+      // Read the previous best stars BEFORE recording, to flag "new stars earned".
+      if (r.mode === "campaign") {
+        const prevStars =
+          getCampaignProgress().starsByLevel[String(r.campaignLevelId)] ?? 0;
+        setCampaignStarInfo({
+          earned: r.campaignStars,
+          best: Math.max(prevStars, r.campaignStars),
+          isNew: r.campaignStars > prevStars,
+        });
+      }
       const o = recordRun(r);
       setResult(r);
       setOutcome(o);
@@ -307,6 +323,9 @@ export default function App() {
           bestSurvivalScore={data.profile.bestSurvivalScore}
           bestSurvivalStageName={data.profile.bestSurvivalStageName}
           campaignLevelBest={data.campaign.bestScoreByLevel[String(result.campaignLevelId)] ?? 0}
+          campaignStarsEarned={campaignStarInfo.earned}
+          campaignStarsBest={campaignStarInfo.best}
+          campaignStarsNew={campaignStarInfo.isNew}
           serverSync={serverSync}
           streak={data.streak}
           onPlayAgain={playAgain}

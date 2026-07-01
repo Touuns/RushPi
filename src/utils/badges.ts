@@ -270,6 +270,21 @@ export const ALL_BADGES: BadgeDef[] = [
     icon: "🥇",
     check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 5,
   },
+  {
+    id: "first-3-star",
+    name: "First 3-Star",
+    description: "Earn 3 stars on any Campaign level",
+    icon: "🌟",
+    check: (_s, run) => run.mode === "campaign" && run.campaignStars >= 3,
+  },
+  {
+    id: "perfect-genesis",
+    name: "Perfect Genesis",
+    description: "Earn 3 stars on Level 1",
+    icon: "✨",
+    check: (_s, run) =>
+      run.mode === "campaign" && run.campaignLevelId === 1 && run.campaignStars >= 3,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

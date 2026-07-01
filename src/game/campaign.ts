@@ -1,20 +1,35 @@
 import type { BadgeId } from "../types";
 
 /**
- * Campaign / Chain Journey (Phase 9F). A separate, LOCAL-ONLY progression mode:
- * discrete levels the player completes to unlock the next. Reuses the Survival
- * engine (lives, charge, Shield/Magnet, Life Orbs) but each level has a fixed
- * finish (target duration) and an objective. Never sent to the server.
+ * Campaign / Chain Journey (Phase 9F + 9F-C). A separate, LOCAL-ONLY progression
+ * mode: discrete levels the player completes to unlock the next, now with a 1–3
+ * star system for replayability. Reuses the Survival engine (lives, charge,
+ * Shield/Magnet, Life Orbs). Each level has a fixed finish (target duration).
+ * Never sent to the server.
+ *
+ * Stars: 1★ = reach the finish, 2★ = secondary objective, 3★ = mastery.
+ * A level is "completed" (and unlocks the next) as soon as it earns 1★.
  */
-export type CampaignObjective =
-  | { kind: "reach"; label: string }
-  | { kind: "lives"; value: number; label: string }
-  | { kind: "collect"; value: number; label: string };
+
+/** Run stats used to evaluate star objectives. */
+export interface StarRunStats {
+  livesRemaining: number;
+  energiesCollected: number;
+  maxCombo: number;
+  maxChargeLevel: number;
+}
+
+export interface StarObjective {
+  label: string;
+  /** Only evaluated when the finish was reached. */
+  test: (run: StarRunStats) => boolean;
+}
 
 export interface CampaignLevel {
   id: number;
   name: string;
-  objective: CampaignObjective;
+  /** Exactly 3 objectives: [1★, 2★, 3★]. The first is always "reach the finish". */
+  stars: [StarObjective, StarObjective, StarObjective];
   targetDurationSecs: number;
   /** Zone ambiance (reused from the Survival biomes). */
   tint: number;
@@ -24,11 +39,17 @@ export interface CampaignLevel {
   badgeId: BadgeId;
 }
 
+const REACH: StarObjective = { label: "Reach the finish", test: () => true };
+
 export const CAMPAIGN_LEVELS: CampaignLevel[] = [
   {
     id: 1,
     name: "Genesis Lane",
-    objective: { kind: "reach", label: "Reach the finish" },
+    stars: [
+      REACH,
+      { label: "Collect 20 energies", test: (r) => r.energiesCollected >= 20 },
+      { label: "Finish with 2 lives or more", test: (r) => r.livesRemaining >= 2 },
+    ],
     targetDurationSecs: 45,
     tint: 0x8b5cf6,
     tintAlpha: 0.0,
@@ -39,7 +60,11 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
   {
     id: 2,
     name: "Orange Chain",
-    objective: { kind: "lives", value: 1, label: "Finish with at least 1 life" },
+    stars: [
+      REACH,
+      { label: "Finish with at least 1 life", test: (r) => r.livesRemaining >= 1 },
+      { label: "Finish with 2 lives or more", test: (r) => r.livesRemaining >= 2 },
+    ],
     targetDurationSecs: 50,
     tint: 0xff7a3d,
     tintAlpha: 0.1,
@@ -50,7 +75,11 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
   {
     id: 3,
     name: "Smart Layer",
-    objective: { kind: "collect", value: 25, label: "Collect 25 energies and finish" },
+    stars: [
+      REACH,
+      { label: "Collect 25 energies", test: (r) => r.energiesCollected >= 25 },
+      { label: "Reach charge level 4+", test: (r) => r.maxChargeLevel >= 4 },
+    ],
     targetDurationSecs: 55,
     tint: 0x38bdf8,
     tintAlpha: 0.1,
@@ -61,7 +90,11 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
   {
     id: 4,
     name: "Neon Speednet",
-    objective: { kind: "reach", label: "Reach the finish" },
+    stars: [
+      REACH,
+      { label: "Reach a combo of 15+", test: (r) => r.maxCombo >= 15 },
+      { label: "Finish with 2 lives or more", test: (r) => r.livesRemaining >= 2 },
+    ],
     targetDurationSecs: 60,
     tint: 0x34d399,
     tintAlpha: 0.11,
@@ -72,7 +105,11 @@ export const CAMPAIGN_LEVELS: CampaignLevel[] = [
   {
     id: 5,
     name: "Stable Grid",
-    objective: { kind: "lives", value: 2, label: "Finish with 2 lives or more" },
+    stars: [
+      REACH,
+      { label: "Finish with 2 lives or more", test: (r) => r.livesRemaining >= 2 },
+      { label: "Finish with 3 lives", test: (r) => r.livesRemaining >= 3 },
+    ],
     targetDurationSecs: 60,
     tint: 0xa7f3d0,
     tintAlpha: 0.09,
@@ -86,17 +123,12 @@ export function getCampaignLevel(id: number): CampaignLevel | undefined {
   return CAMPAIGN_LEVELS.find((l) => l.id === id);
 }
 
-/** Whether the objective is satisfied given the finished run's stats. */
-export function objectiveMet(
-  objective: CampaignObjective,
-  run: { livesRemaining: number; energiesCollected: number },
-): boolean {
-  switch (objective.kind) {
-    case "reach":
-      return true;
-    case "lives":
-      return run.livesRemaining >= objective.value;
-    case "collect":
-      return run.energiesCollected >= objective.value;
-  }
+/** Stars earned this run (0 if the finish wasn't reached), 0..3. */
+export function computeStars(
+  level: CampaignLevel,
+  run: StarRunStats,
+  reachedFinish: boolean,
+): number {
+  if (!reachedFinish) return 0;
+  return level.stars.reduce((n, s) => n + (s.test(run) ? 1 : 0), 0);
 }
