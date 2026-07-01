@@ -16,6 +16,7 @@ import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime } from "../stages";
+import { getCampaignLevel, objectiveMet, type CampaignLevel } from "../campaign";
 import { TrackDrift } from "../trackDrift";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
@@ -142,6 +143,7 @@ export default class MainScene extends Phaser.Scene {
     lives: -1,
     charge: -1,
     stage: "",
+    progress: -1,
   };
 
   // Input. `pointerDownX` = where the press started (for tap/swipe on release).
@@ -154,12 +156,28 @@ export default class MainScene extends Phaser.Scene {
   // RNG: seeded (identical course for everyone) in Daily mode, random in Training.
   private rng: () => number = Math.random;
 
+  // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
+  private campaignLevelId = 0;
+  private campaignLevel: CampaignLevel | null = null;
+  private campaignTargetMs = 0;
+
   constructor() {
     super({ key: "MainScene" });
   }
 
-  init(data: { mode?: GameMode }): void {
+  /** Survival + Campaign share the same engine (lives, charge, Life Orbs, absorb). */
+  private survivalLike(): boolean {
+    return this.mode === "survival" || this.mode === "campaign";
+  }
+
+  init(data: { mode?: GameMode; campaignLevelId?: number }): void {
     this.mode = data.mode ?? "daily";
+    this.campaignLevelId = data.campaignLevelId ?? 0;
+    this.campaignLevel =
+      this.mode === "campaign" ? getCampaignLevel(this.campaignLevelId) ?? null : null;
+    this.campaignTargetMs = this.campaignLevel
+      ? this.campaignLevel.targetDurationSecs * 1000
+      : 0;
     // Daily Run: deterministic course from the UTC daily seed (same for everyone).
     // Training: ordinary randomness. Seed is fixed at run start.
     this.rng = this.mode === "daily" ? createSeededRandom(getDailySeed()) : Math.random;
@@ -205,13 +223,14 @@ export default class MainScene extends Phaser.Scene {
     this.shieldUntilMs = 0;
     this.magnetUntilMs = 0;
     this.currentPhase = -1;
-    this.lives = this.mode === "survival" ? SURVIVAL.startLives : 0;
+    this.lives = this.survivalLike() ? SURVIVAL.startLives : 0;
     this.livesLost = 0;
     this.chargeLevel = 1;
     this.energyForChargeCount = 0;
     this.energyForLifeGauge = 0;
-    this.nextLifeOrbMs =
-      this.mode === "survival" ? SURVIVAL.lifeOrbMinTimeMs : Number.POSITIVE_INFINITY;
+    this.nextLifeOrbMs = this.survivalLike()
+      ? SURVIVAL.lifeOrbMinTimeMs
+      : Number.POSITIVE_INFINITY;
     this.livesRecovered = 0;
     this.chargeAbsorbs = 0;
     this.lifeOrbsCollected = 0;
@@ -230,6 +249,7 @@ export default class MainScene extends Phaser.Scene {
       lives: -1,
       charge: -1,
       stage: "",
+      progress: -1,
     };
   }
 
@@ -281,6 +301,16 @@ export default class MainScene extends Phaser.Scene {
       .setDepth(8)
       .setAlpha(0)
       .setBlendMode(Phaser.BlendModes.ADD);
+
+    // Campaign: apply this level's fixed zone ambiance + intro banner.
+    if (this.mode === "campaign" && this.campaignLevel) {
+      const lvl = this.campaignLevel;
+      this.stageTint.setFillStyle(lvl.tint, 1).setAlpha(lvl.tintAlpha);
+      this.track.setStageMultiplier(lvl.chevronMultiplier);
+      this.driftAmplitudePx = lvl.driftMaxX * GAME_WIDTH;
+      this.bg.setIntensityScale(1);
+      this.showBanner(`Level ${lvl.id}\n${lvl.name}\n${lvl.objective.label}`);
+    }
 
     // Emit an initial HUD frame so React shows full timer immediately.
     this.emitHud(true);
@@ -457,7 +487,7 @@ export default class MainScene extends Phaser.Scene {
    */
   private progress(): number {
     const span =
-      this.mode === "survival" ? SURVIVAL.rampToHardMs : RUN_DURATION_SECONDS * 1000;
+      this.survivalLike() ? SURVIVAL.rampToHardMs : RUN_DURATION_SECONDS * 1000;
     return Phaser.Math.Clamp(this.elapsedMs / span, 0, 1);
   }
 
@@ -529,10 +559,9 @@ export default class MainScene extends Phaser.Scene {
     if (this.finished) return;
 
     // Track Drift (Survival only, visual) + animate the track — cosmetic only.
-    const driftX =
-      this.mode === "survival"
-        ? this.drift.update(this.elapsedMs, delta, this.driftAmplitudePx)
-        : 0;
+    const driftX = this.survivalLike()
+      ? this.drift.update(this.elapsedMs, delta, this.driftAmplitudePx)
+      : 0;
     this.track.update(delta, driftX);
 
     this.elapsedMs += delta;
@@ -592,7 +621,7 @@ export default class MainScene extends Phaser.Scene {
       }
       // Per-stage obstacle heft (visual only; hitbox uses fixed radii).
       const visualScale =
-        this.mode === "survival" && obj.type === "obstacle"
+        this.survivalLike() && obj.type === "obstacle"
           ? proj.scale * this.stageObstacleScale
           : proj.scale;
       obj.container.setScale(visualScale);
@@ -621,10 +650,10 @@ export default class MainScene extends Phaser.Scene {
           if (shieldActive) {
             this.absorbWithShield(obj);
           } else if (
-            this.mode === "survival" &&
+            this.survivalLike() &&
             this.chargeLevel >= SURVIVAL.chargeMaxLevel
           ) {
-            this.chargeAbsorb(obj); // max charge tanks the hit (Survival)
+            this.chargeAbsorb(obj); // max charge tanks the hit (Survival/Campaign)
           } else if (!invulnerable) {
             this.hitObstacle(obj);
           }
@@ -644,9 +673,15 @@ export default class MainScene extends Phaser.Scene {
       this.objects = this.objects.filter((o) => o.alive);
     }
 
-    // End of run: Survival ends at 0 lives (or the safety cap); other modes at 60s.
+    // End of run per mode: Survival = 0 lives or safety cap; Campaign = 0 lives
+    // (fail) or target duration reached (finish); others = 60s.
     if (this.mode === "survival") {
       if (this.lives <= 0 || this.elapsedMs >= SURVIVAL.maxRunMs) {
+        this.endRun();
+        return;
+      }
+    } else if (this.mode === "campaign") {
+      if (this.lives <= 0 || this.elapsedMs >= this.campaignTargetMs) {
         this.endRun();
         return;
       }
@@ -671,8 +706,8 @@ export default class MainScene extends Phaser.Scene {
     this.energiesCollected += 1;
     this.scoreValue += SCORING.energyPoints * this.comboMultiplier();
 
-    // Survival-only: charge the Pi orb and fill the life-recovery gauge.
-    if (this.mode === "survival") {
+    // Survival/Campaign: charge the Pi orb and fill the life-recovery gauge.
+    if (this.survivalLike()) {
       this.energyForChargeCount += 1;
       if (this.energyForChargeCount >= SURVIVAL.energyPerChargeLevel) {
         this.energyForChargeCount = 0;
@@ -711,8 +746,8 @@ export default class MainScene extends Phaser.Scene {
 
     this.obstaclesHit += 1;
     this.combo = 0;
-    if (this.mode === "survival") {
-      // Survival: a hit costs a life (game over at 0, handled in update()).
+    if (this.survivalLike()) {
+      // Survival/Campaign: a hit costs a life (game over at 0, handled in update()).
       this.lives -= 1;
       this.livesLost += 1;
     } else {
@@ -768,15 +803,15 @@ export default class MainScene extends Phaser.Scene {
     this.stageObstacleScale = stage.obstacleVisualScale;
     this.bg.setIntensityScale(stage.bgBoost);
 
-    this.showStageTransition(stage.id, stage.name);
+    this.showBanner(`Zone ${stage.id}\n${stage.name}`);
   }
 
   /** Brief, non-blocking "Stage N — Name" banner. */
-  private showStageTransition(id: number, name: string): void {
+  private showBanner(text: string): void {
     const banner = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.42, `Stage ${id}\n${name}`, {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.42, text, {
         fontFamily: "Segoe UI, system-ui, sans-serif",
-        fontSize: "26px",
+        fontSize: "24px",
         fontStyle: "bold",
         color: "#ffd166",
         align: "center",
@@ -892,8 +927,8 @@ export default class MainScene extends Phaser.Scene {
     if (this.combo >= 10) freq *= 0.7; // denser trail at high combo
     if (this.eventSpeedActive) freq *= 0.7; // and during a Speed Zone
 
-    // Survival charge visuals (Phase 9C): aura + denser trail as charge grows.
-    if (this.mode === "survival") {
+    // Survival/Campaign charge visuals (Phase 9C): aura + denser trail with charge.
+    if (this.survivalLike()) {
       const lvl = this.chargeLevel; // 1..6
       // Aura appears from level 3, brighter/wider with charge; strong at level 6.
       if (lvl >= 3) {
@@ -962,7 +997,7 @@ export default class MainScene extends Phaser.Scene {
 
   /** Rare Life Orb spawns (Survival only): first at minTime, then on a cooldown. */
   private spawnDueLifeOrb(): void {
-    if (this.mode !== "survival" || this.elapsedMs < this.nextLifeOrbMs) return;
+    if (!this.survivalLike() || this.elapsedMs < this.nextLifeOrbMs) return;
     this.nextLifeOrbMs = this.elapsedMs + SURVIVAL.lifeOrbCooldownMs;
     const lane = Math.floor(Math.random() * LANE_COUNT); // Survival isn't seeded
     const container = this.makeLifeOrb();
@@ -1070,12 +1105,18 @@ export default class MainScene extends Phaser.Scene {
         : 0;
     const magnetSecs =
       now < this.magnetUntilMs ? Math.ceil((this.magnetUntilMs - now) / 1000) : 0;
-    const lives = this.mode === "survival" ? Math.max(0, this.lives) : 0;
-    const charge = this.mode === "survival" ? this.chargeLevel : 0;
+    const lives = this.survivalLike() ? Math.max(0, this.lives) : 0;
+    const charge = this.survivalLike() ? this.chargeLevel : 0;
     const stage =
       this.mode === "survival" && this.currentStageIndex >= 0
         ? STAGES[this.currentStageIndex].name
-        : "";
+        : this.mode === "campaign" && this.campaignLevel
+          ? this.campaignLevel.name
+          : "";
+    const progress =
+      this.mode === "campaign" && this.campaignTargetMs > 0
+        ? Phaser.Math.Clamp(this.elapsedMs / this.campaignTargetMs, 0, 1)
+        : 0;
     if (
       force ||
       score !== this.lastHud.score ||
@@ -1086,7 +1127,8 @@ export default class MainScene extends Phaser.Scene {
       this.activeEventKind !== this.lastHud.event ||
       lives !== this.lastHud.lives ||
       charge !== this.lastHud.charge ||
-      stage !== this.lastHud.stage
+      stage !== this.lastHud.stage ||
+      Math.abs(progress - this.lastHud.progress) >= 0.01
     ) {
       this.lastHud = {
         score,
@@ -1098,6 +1140,7 @@ export default class MainScene extends Phaser.Scene {
         lives,
         charge,
         stage,
+        progress,
       };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
@@ -1108,11 +1151,28 @@ export default class MainScene extends Phaser.Scene {
     this.finished = true;
 
     const survival = this.mode === "survival";
+    const isCampaign = this.mode === "campaign";
+    const survivalLike = this.survivalLike();
     const timeSurvivedSecs = Math.floor(this.elapsedMs / 1000);
-    // Time Attack/Training get the clean-run bonus; Survival scores on progression.
+    const livesRemaining = survivalLike ? Math.max(0, this.lives) : 0;
+
+    // Only Time Attack/Training get the clean-run bonus.
     const endBonus =
-      survival || this.obstaclesHit > SCORING.cleanRunMaxHits ? 0 : SCORING.cleanRunBonus;
+      survivalLike || this.obstaclesHit > SCORING.cleanRunMaxHits
+        ? 0
+        : SCORING.cleanRunBonus;
     const finalScore = Math.floor(this.scoreValue) + endBonus;
+
+    // Campaign outcome: reached the finish (didn't die) AND met the objective.
+    const reachedFinish =
+      isCampaign && this.lives > 0 && this.elapsedMs >= this.campaignTargetMs;
+    const campaignSuccess =
+      reachedFinish && this.campaignLevel
+        ? objectiveMet(this.campaignLevel.objective, {
+            livesRemaining,
+            energiesCollected: this.energiesCollected,
+          })
+        : false;
 
     // The scene only reports the raw run; persistence/progression is handled by
     // React via storage.recordRun() (keeps gameplay decoupled from storage).
@@ -1124,13 +1184,16 @@ export default class MainScene extends Phaser.Scene {
       obstaclesHit: this.obstaclesHit,
       endBonus,
       timeSurvivedSecs,
-      livesRemaining: survival ? Math.max(0, this.lives) : 0,
-      livesRecovered: survival ? this.livesRecovered : 0,
-      chargeAbsorbs: survival ? this.chargeAbsorbs : 0,
-      lifeOrbsCollected: survival ? this.lifeOrbsCollected : 0,
-      highestChargeLevel: survival ? this.highestChargeLevel : 0,
+      livesRemaining,
+      livesRecovered: survivalLike ? this.livesRecovered : 0,
+      chargeAbsorbs: survivalLike ? this.chargeAbsorbs : 0,
+      lifeOrbsCollected: survivalLike ? this.lifeOrbsCollected : 0,
+      highestChargeLevel: survivalLike ? this.highestChargeLevel : 0,
       stageReached: survival ? STAGES[Math.max(0, this.currentStageIndex)].id : 0,
       stageName: survival ? STAGES[Math.max(0, this.currentStageIndex)].name : "",
+      campaignLevelId: isCampaign ? this.campaignLevelId : 0,
+      reachedFinish,
+      campaignSuccess,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
@@ -1141,9 +1204,12 @@ export default class MainScene extends Phaser.Scene {
       shieldSecs: 0,
       magnetSecs: 0,
       event: null,
-      lives: survival ? Math.max(0, this.lives) : 0,
-      charge: survival ? this.chargeLevel : 0,
+      lives: livesRemaining,
+      charge: survivalLike ? this.chargeLevel : 0,
       stage: survival && this.currentStageIndex >= 0 ? STAGES[this.currentStageIndex].name : "",
+      progress: isCampaign && this.campaignTargetMs > 0
+        ? Phaser.Math.Clamp(this.elapsedMs / this.campaignTargetMs, 0, 1)
+        : 0,
     };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);

@@ -13,6 +13,7 @@ import type { GameMode } from "../types";
 export function createRushPiGame(
   parent: HTMLElement,
   mode: GameMode,
+  campaignLevelId = 0,
 ): Phaser.Game {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -30,7 +31,7 @@ export function createRushPiGame(
   };
 
   const game = new Phaser.Game(config);
-  game.scene.start("MainScene", { mode });
+  game.scene.start("MainScene", { mode, campaignLevelId });
 
   // Dev-only: expose the game for manual inspection/automation (stripped in prod).
   if (import.meta.env.DEV) {

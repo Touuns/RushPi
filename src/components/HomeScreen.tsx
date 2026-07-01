@@ -29,6 +29,7 @@ interface HomeScreenProps {
   onPiPaymentComplete: () => void;
   onLeaderboard: () => void;
   onProfile: () => void;
+  onCampaign: () => void;
 }
 
 type ModalKind = "none" | "connect" | "no-attempts";
@@ -55,6 +56,7 @@ export default function HomeScreen({
   onConnectPi,
   onPiPaymentComplete,
   onLeaderboard,
+  onCampaign,
   onProfile,
 }: HomeScreenProps) {
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
@@ -136,6 +138,10 @@ export default function HomeScreen({
         <button className="btn btn--secondary" type="button" onClick={onPlaySurvival}>
           Survival Mode
           <span className="btn__sub">3 lives · endless</span>
+        </button>
+        <button className="btn btn--secondary" type="button" onClick={onCampaign}>
+          Campaign
+          <span className="btn__sub">Chain Journey · levels</span>
         </button>
         <button className="btn btn--secondary" type="button" onClick={onPlayTraining}>
           Training Mode

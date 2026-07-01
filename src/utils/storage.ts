@@ -14,6 +14,7 @@
 import type {
   Badge,
   BadgeId,
+  CampaignProgress,
   DailyHistoryEntry,
   GameResult,
   LeaderboardEntry,
@@ -22,6 +23,7 @@ import type {
   StreakInfo,
 } from "../types";
 import { ALL_BADGES } from "./badges";
+import { CAMPAIGN_LEVELS } from "../game/campaign";
 
 const SAVE_KEY = "rushpi.save";
 const SAVE_VERSION = 1;
@@ -35,6 +37,7 @@ const XP_PER_LEVEL = 500;
 const XP_DIVISOR_DAILY = 10;
 const XP_DIVISOR_TRAINING = 20;
 const XP_DIVISOR_SURVIVAL = 12;
+const XP_DIVISOR_CAMPAIGN = 12;
 
 const DAILY_HISTORY_MAX = 30;
 
@@ -44,6 +47,7 @@ interface SaveData {
   leaderboard: LeaderboardEntry[];
   badges: BadgeId[];
   dailyHistory: DailyHistoryEntry[];
+  campaign: CampaignProgress;
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -74,6 +78,10 @@ function defaultProfile(): ProfileStats {
   };
 }
 
+function defaultCampaign(): CampaignProgress {
+  return { unlockedLevel: 1, completed: [], bestScoreByLevel: {} };
+}
+
 function defaultSave(): SaveData {
   return {
     version: SAVE_VERSION,
@@ -81,6 +89,7 @@ function defaultSave(): SaveData {
     leaderboard: [],
     badges: [],
     dailyHistory: [],
+    campaign: defaultCampaign(),
   };
 }
 
@@ -174,7 +183,23 @@ function normalize(parsed: unknown): SaveData {
         .slice(0, DAILY_HISTORY_MAX)
     : [];
 
-  return { version: SAVE_VERSION, profile, leaderboard, badges, dailyHistory };
+  const rawCampaign = (p.campaign as Record<string, unknown>) ?? {};
+  const totalLevels = CAMPAIGN_LEVELS.length;
+  const bestByLevel: Record<string, number> = {};
+  const rawBest = (rawCampaign.bestScoreByLevel as Record<string, unknown>) ?? {};
+  for (const [k, v] of Object.entries(rawBest)) bestByLevel[k] = num(v, 0);
+  const campaign: CampaignProgress = {
+    unlockedLevel: Math.min(
+      totalLevels,
+      Math.max(1, num(rawCampaign.unlockedLevel, 1)),
+    ),
+    completed: Array.isArray(rawCampaign.completed)
+      ? (rawCampaign.completed.filter((n) => typeof n === "number") as number[])
+      : [],
+    bestScoreByLevel: bestByLevel,
+  };
+
+  return { version: SAVE_VERSION, profile, leaderboard, badges, dailyHistory, campaign };
 }
 
 // ---- Low-level load/save -------------------------------------------------
@@ -237,7 +262,9 @@ export function xpForRun(mode: GameResult["mode"], score: number): number {
       ? XP_DIVISOR_DAILY
       : mode === "survival"
         ? XP_DIVISOR_SURVIVAL
-        : XP_DIVISOR_TRAINING;
+        : mode === "campaign"
+          ? XP_DIVISOR_CAMPAIGN
+          : XP_DIVISOR_TRAINING;
   return Math.round(score / divisor);
 }
 
@@ -275,6 +302,10 @@ export function getUnlockedBadgeIds(): BadgeId[] {
 
 export function getDailyHistory(): DailyHistoryEntry[] {
   return loadSave().dailyHistory;
+}
+
+export function getCampaignProgress(): CampaignProgress {
+  return loadSave().campaign;
 }
 
 /**
@@ -324,7 +355,8 @@ export function recordRun(run: GameResult): RunOutcome {
   // Cumulative stats (all modes).
   if (run.mode === "daily") stats.dailyRuns += 1;
   else if (run.mode === "survival") stats.survivalRuns += 1;
-  else stats.trainingRuns += 1;
+  else if (run.mode === "training") stats.trainingRuns += 1;
+  // (campaign has its own progression below; no run counter needed)
   stats.totalEnergies += run.energiesCollected;
   stats.bestCombo = Math.max(stats.bestCombo, run.maxCombo);
   stats.totalObstaclesHit += run.obstaclesHit;
@@ -352,6 +384,24 @@ export function recordRun(run: GameResult): RunOutcome {
     if (run.stageReached > stats.bestSurvivalStageReached) {
       stats.bestSurvivalStageReached = run.stageReached;
       stats.bestSurvivalStageName = run.stageName;
+    }
+  }
+
+  // Campaign-only effects (local; never sent to the server).
+  if (run.mode === "campaign") {
+    const lvl = run.campaignLevelId;
+    const key = String(lvl);
+    const prevBest = save.campaign.bestScoreByLevel[key] ?? 0;
+    if (run.score > prevBest) {
+      save.campaign.bestScoreByLevel[key] = run.score;
+      isNewBest = true;
+    }
+    if (run.campaignSuccess) {
+      if (!save.campaign.completed.includes(lvl)) save.campaign.completed.push(lvl);
+      save.campaign.unlockedLevel = Math.min(
+        CAMPAIGN_LEVELS.length,
+        Math.max(save.campaign.unlockedLevel, lvl + 1),
+      );
     }
   }
 

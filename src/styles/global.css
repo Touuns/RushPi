@@ -245,6 +245,119 @@ body {
   letter-spacing: 0.04em;
 }
 
+/* Campaign in-run progress bar. */
+.campaign-progress {
+  width: 180px;
+  max-width: 60vw;
+  height: 6px;
+  margin: 4px auto 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.campaign-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--orange));
+  transition: width 0.2s linear;
+}
+
+.campaign-progress__label {
+  display: block;
+  font-size: 0.78rem;
+}
+
+/* Campaign / Level Select screen. */
+.campaign {
+  gap: 14px;
+}
+
+.campaign__title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), var(--orange), var(--violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.campaign__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: -8px;
+}
+
+.campaign__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.level-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--bg-elev);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.level-card.is-locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-card.is-completed {
+  border-color: rgba(255, 209, 102, 0.6);
+}
+
+.level-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-card__num {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.level-card__mark {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.level-card__name {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.level-card__obj {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.level-card__best {
+  font-size: 0.78rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.campaign__actions {
+  margin-top: 4px;
+  width: 100%;
+  max-width: 360px;
+}
+
 .streak-msg {
   font-size: 0.82rem;
   color: var(--orange);

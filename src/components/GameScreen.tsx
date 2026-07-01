@@ -6,6 +6,7 @@ import { GameEvents, type GameMode, type GameResult, type HudState } from "../ty
 
 interface GameScreenProps {
   mode: GameMode;
+  campaignLevelId?: number;
   onGameOver: (result: GameResult) => void;
   onQuit: () => void;
 }
@@ -20,6 +21,7 @@ const INITIAL_HUD: HudState = {
   lives: 3,
   charge: 1,
   stage: "",
+  progress: 0,
 };
 
 const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
@@ -37,7 +39,12 @@ const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
  * If this overlay ever proves too costly it could fall back to on-canvas text, but
  * the event contract (GameEvents) keeps that swap localized.
  */
-export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps) {
+export default function GameScreen({
+  mode,
+  campaignLevelId = 0,
+  onGameOver,
+  onQuit,
+}: GameScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   // Keep the latest callback without re-running the mount effect.
@@ -49,7 +56,7 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const game = createRushPiGame(containerRef.current, mode);
+    const game = createRushPiGame(containerRef.current, mode, campaignLevelId);
     gameRef.current = game;
 
     const handleHud = (next: HudState) => setHud(next);
@@ -64,11 +71,13 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
       destroyRushPiGame(game);
       gameRef.current = null;
     };
-    // mode is fixed for the lifetime of a run; remounting changes it.
-  }, [mode]);
+    // mode/level are fixed for the lifetime of a run; remounting changes them.
+  }, [mode, campaignLevelId]);
 
   const isSurvival = mode === "survival";
-  const lowTime = !isSurvival && hud.timeLeft <= 10;
+  const isCampaign = mode === "campaign";
+  const isSurvivalLike = isSurvival || isCampaign;
+  const lowTime = !isSurvivalLike && hud.timeLeft <= 10;
 
   return (
     <div className="game-screen">
@@ -78,7 +87,7 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
           <span className="hud__label">Score</span>
           <span className="hud__value">{hud.score.toLocaleString()}</span>
         </div>
-        {isSurvival ? (
+        {isSurvivalLike ? (
           <div className="hud__item hud__item--lives">
             <span className="hud__label">Lives</span>
             <span className="hud__value">
@@ -103,6 +112,21 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
         <div className="survival-time" aria-hidden="true">
           {hud.stage && <span className="survival-stage">{hud.stage}</span>}
           Survived {hud.timeLeft}s · Charge Lv {hud.charge}/6
+        </div>
+      )}
+
+      {isCampaign && (
+        <div className="survival-time" aria-hidden="true">
+          {hud.stage && <span className="survival-stage">{hud.stage}</span>}
+          <div className="campaign-progress">
+            <div
+              className="campaign-progress__fill"
+              style={{ width: `${Math.round(hud.progress * 100)}%` }}
+            />
+          </div>
+          <span className="campaign-progress__label">
+            Progress {Math.round(hud.progress * 100)}% · Charge Lv {hud.charge}/6
+          </span>
         </div>
       )}
 
@@ -142,6 +166,9 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
       )}
       {mode === "survival" && (
         <div className="game-screen__mode-tag">Survival · local only</div>
+      )}
+      {mode === "campaign" && (
+        <div className="game-screen__mode-tag">Campaign · local only</div>
       )}
 
       <div ref={containerRef} className="game-screen__canvas" />

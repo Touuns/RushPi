@@ -1,5 +1,6 @@
 import type { GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
+import { getCampaignLevel } from "../game/campaign";
 
 interface ResultScreenProps {
   result: GameResult;
@@ -7,11 +8,16 @@ interface ResultScreenProps {
   bestScore: number;
   bestSurvivalScore: number;
   bestSurvivalStageName: string;
+  campaignLevelBest: number;
   serverSync: ServerSyncStatus;
   streak: StreakInfo;
   onPlayAgain: () => void;
   onHome: () => void;
   onLeaderboard: () => void;
+  onRetry: () => void;
+  onBackToCampaign: () => void;
+  /** Provided only when a next campaign level exists AND is unlocked. */
+  onNextLevel?: () => void;
 }
 
 /** "1m 23s" / "45s". */
@@ -32,9 +38,8 @@ const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
 };
 
 /**
- * End-of-run summary — the screen that decides whether the player replays.
- * Surfaces the "why" of the score plus Phase 2 progression: XP gained, level-ups
- * and freshly unlocked badges. Training runs are clearly marked as not ranked.
+ * End-of-run summary. Branches per mode: Daily/Training/Survival show a score
+ * recap; Campaign shows Level Complete / Level Failed with Next / Retry / Back.
  */
 export default function ResultScreen({
   result,
@@ -42,16 +47,96 @@ export default function ResultScreen({
   bestScore,
   bestSurvivalScore,
   bestSurvivalStageName,
+  campaignLevelBest,
   serverSync,
   streak,
   onPlayAgain,
   onHome,
   onLeaderboard,
+  onRetry,
+  onBackToCampaign,
+  onNextLevel,
 }: ResultScreenProps) {
   const isTraining = result.mode === "training";
   const isSurvival = result.mode === "survival";
+  const isCampaign = result.mode === "campaign";
+
+  const badgesBlock = outcome.unlockedBadges.length > 0 && (
+    <div className="result__unlocks">
+      <span className="result__unlocks-title">Badges unlocked</span>
+      <div className="result__unlocks-list">
+        {outcome.unlockedBadges.map((b) => (
+          <div key={b.id} className="badge-chip" title={b.description}>
+            <span className="badge-chip__icon">{b.icon}</span>
+            <span className="badge-chip__name">{b.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ---- Campaign: Level Complete / Level Failed --------------------------
+  if (isCampaign) {
+    const level = getCampaignLevel(result.campaignLevelId);
+    const success = result.campaignSuccess;
+    const failReason = !result.reachedFinish
+      ? "Out of lives — you didn't reach the finish."
+      : `Objective not met: ${level?.objective.label ?? ""}`;
+
+    return (
+      <div className="screen result">
+        <h2 className="result__title">{success ? "Level Complete" : "Level Failed"}</h2>
+        <div className="result__training-tag">
+          Level {result.campaignLevelId} — {level?.name ?? ""} · local only
+        </div>
+
+        <div className="result__score">
+          <span className="result__score-label">Score</span>
+          <span className="result__score-value">{result.score.toLocaleString()}</span>
+          {outcome.isNewBest && <span className="result__badge">New Best!</span>}
+          <span className="result__xp">+{outcome.xpGained} XP</span>
+          {outcome.leveledUp && (
+            <span className="result__levelup">Level up! → Lv {outcome.level}</span>
+          )}
+        </div>
+
+        {badgesBlock}
+
+        <div className="result__stats">
+          <Stat
+            label="Objective"
+            value={`${success ? "✓" : "✗"} ${level?.objective.label ?? ""}`}
+          />
+          <Stat label="Energy Collected" value={result.energiesCollected} />
+          <Stat label="Lives Remaining" value={result.livesRemaining} />
+          <Stat label="Best (level)" value={campaignLevelBest.toLocaleString()} />
+        </div>
+
+        {!success && <p className="result__streak">{failReason}</p>}
+
+        <div className="result__actions">
+          {success && onNextLevel && (
+            <button className="btn btn--primary" type="button" onClick={onNextLevel}>
+              Next Level
+            </button>
+          )}
+          <button
+            className={`btn ${success && onNextLevel ? "btn--secondary" : "btn--primary"}`}
+            type="button"
+            onClick={onRetry}
+          >
+            Retry
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onBackToCampaign}>
+            Back to Campaign
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Daily / Training / Survival --------------------------------------
   const syncMessage = SYNC_MESSAGE[serverSync];
-  // After a Daily run the streak is counted for today.
   const streakMessage =
     result.mode === "daily" && streak.playedToday && streak.current > 0
       ? `🔥 ${streak.current}-day streak — come back tomorrow to keep it!`
@@ -78,24 +163,12 @@ export default function ResultScreen({
         )}
       </div>
 
-      {outcome.unlockedBadges.length > 0 && (
-        <div className="result__unlocks">
-          <span className="result__unlocks-title">Badges unlocked</span>
-          <div className="result__unlocks-list">
-            {outcome.unlockedBadges.map((b) => (
-              <div key={b.id} className="badge-chip" title={b.description}>
-                <span className="badge-chip__icon">{b.icon}</span>
-                <span className="badge-chip__name">{b.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {badgesBlock}
 
       {isSurvival ? (
         <div className="result__stats">
-          <Stat label="Stage Reached" value={`${result.stageReached} · ${result.stageName}`} />
-          <Stat label="Best Stage" value={bestSurvivalStageName || "—"} />
+          <Stat label="Zone Reached" value={`${result.stageReached} · ${result.stageName}`} />
+          <Stat label="Farthest Zone" value={bestSurvivalStageName || "—"} />
           <Stat label="Best Survival" value={bestSurvivalScore.toLocaleString()} />
           <Stat label="Distance Survived" value={formatDuration(result.timeSurvivedSecs)} />
           <Stat label="Lives Remaining" value={result.livesRemaining} />

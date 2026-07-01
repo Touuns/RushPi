@@ -10,10 +10,16 @@
  * unranked practice (do not touch best score or leaderboard). The whole app
  * branches on this single value.
  */
-export type GameMode = "daily" | "training" | "survival";
+export type GameMode = "daily" | "training" | "survival" | "campaign";
 
 /** The screens the app can show. A small screen state-machine lives in App.tsx. */
-export type Screen = "home" | "game" | "result" | "leaderboard" | "profile";
+export type Screen =
+  | "home"
+  | "game"
+  | "result"
+  | "leaderboard"
+  | "profile"
+  | "campaign";
 
 /**
  * Live HUD state emitted by the Phaser scene during a run and rendered by React.
@@ -36,8 +42,10 @@ export interface HudState {
   lives: number;
   /** Survival Pi-orb charge level 1..6 (Phase 9C). 0 for non-survival modes. */
   charge: number;
-  /** Survival current stage name (Phase 9D). "" for non-survival modes. */
+  /** Survival current stage/zone name (Phase 9D). "" for non-survival modes. */
   stage: string;
+  /** Campaign progress toward the level finish, 0..1 (Phase 9F). 0 otherwise. */
+  progress: number;
 }
 
 /** Deterministic power-ups (Phase 8A). */
@@ -70,6 +78,11 @@ export interface GameResult {
   /** Survival stage reached (1..8) and its name (Phase 9D; 0/"" otherwise). */
   stageReached: number;
   stageName: string;
+  /** Campaign (Phase 9F): level id, whether the finish was reached (not died),
+   *  and whether the objective was met. 0/false for non-campaign. */
+  campaignLevelId: number;
+  reachedFinish: boolean;
+  campaignSuccess: boolean;
 }
 
 /**
@@ -181,7 +194,22 @@ export type BadgeId =
   | "stage-stable"
   | "stage-meme"
   | "stage-privacy"
-  | "stage-storm";
+  | "stage-storm"
+  | "clear-genesis"
+  | "clear-orange"
+  | "clear-smart"
+  | "clear-neon"
+  | "clear-stable";
+
+/** Local Campaign progression (Phase 9F). */
+export interface CampaignProgress {
+  /** Highest level unlocked (playable). Starts at 1. */
+  unlockedLevel: number;
+  /** Level ids the player has completed. */
+  completed: number[];
+  /** Best local score per level id. */
+  bestScoreByLevel: Record<string, number>;
+}
 
 /** Display metadata for a badge. */
 export interface Badge {

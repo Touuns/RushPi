@@ -233,6 +233,43 @@ export const ALL_BADGES: BadgeDef[] = [
     icon: "🌩️",
     check: (s) => s.bestSurvivalStageReached >= 8,
   },
+
+  // Campaign level-clear badges (Phase 9F). Unlocked on the clearing run.
+  {
+    id: "clear-genesis",
+    name: "Genesis Clear",
+    description: "Complete Campaign Level 1",
+    icon: "🥇",
+    check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 1,
+  },
+  {
+    id: "clear-orange",
+    name: "Orange Chain Clear",
+    description: "Complete Campaign Level 2",
+    icon: "🥇",
+    check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 2,
+  },
+  {
+    id: "clear-smart",
+    name: "Smart Layer Clear",
+    description: "Complete Campaign Level 3",
+    icon: "🥇",
+    check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 3,
+  },
+  {
+    id: "clear-neon",
+    name: "Neon Speednet Clear",
+    description: "Complete Campaign Level 4",
+    icon: "🥇",
+    check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 4,
+  },
+  {
+    id: "clear-stable",
+    name: "Stable Grid Clear",
+    description: "Complete Campaign Level 5",
+    icon: "🥇",
+    check: (_s, run) => run.mode === "campaign" && run.campaignSuccess && run.campaignLevelId === 5,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(

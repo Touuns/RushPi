@@ -4,8 +4,10 @@ import GameScreen from "./components/GameScreen";
 import ResultScreen from "./components/ResultScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
 import ProfileScreen from "./components/ProfileScreen";
+import CampaignScreen from "./components/CampaignScreen";
 import {
   consumeRankedAttempt,
+  getCampaignProgress,
   getDailyHistory,
   getLeaderboard,
   getProfile,
@@ -17,12 +19,14 @@ import {
   resetLocalProgress,
   type RankedAttempts,
 } from "./utils/storage";
+import { CAMPAIGN_LEVELS } from "./game/campaign";
 import { authenticatePi, initPi, isPiBrowser, type PiUser } from "./pi/piClient";
 import { submitServerScore } from "./utils/serverLeaderboard";
 import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 import type {
   BadgeId,
+  CampaignProgress,
   DailyHistoryEntry,
   GameResult,
   LeaderboardEntry,
@@ -58,6 +62,7 @@ interface LocalData {
   attempts: RankedAttempts;
   streak: StreakInfo;
   history: DailyHistoryEntry[];
+  campaign: CampaignProgress;
 }
 
 function readLocalData(): LocalData {
@@ -68,6 +73,7 @@ function readLocalData(): LocalData {
     attempts: getRankedAttemptsToday(),
     streak: getStreakInfo(),
     history: getDailyHistory(),
+    campaign: getCampaignProgress(),
   };
 }
 
@@ -91,6 +97,8 @@ export default function App() {
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
   const [runKey, setRunKey] = useState(0);
   const [runRankState, setRunRankState] = useState<RunRankState>("training");
+  // Campaign level currently being played (0 outside campaign).
+  const [campaignLevelId, setCampaignLevelId] = useState(0);
 
   const refresh = useCallback(() => setData(readLocalData()), []);
 
@@ -166,11 +174,26 @@ export default function App() {
     beginRun("daily", left > 0 ? "ranked" : "limit-reached");
   }, [beginRun, piUser]);
 
+  /** Start a Campaign level (local-only, unranked). */
+  const startCampaignLevel = useCallback(
+    (levelId: number) => {
+      setCampaignLevelId(levelId);
+      beginRun("campaign", "training");
+    },
+    [beginRun],
+  );
+
+  const goCampaign = useCallback(() => {
+    refresh();
+    setScreen("campaign");
+  }, [refresh]);
+
   const playAgain = useCallback(() => {
     if (mode === "training") playTraining();
     else if (mode === "survival") playSurvival();
+    else if (mode === "campaign") startCampaignLevel(campaignLevelId);
     else startDailyAuto();
-  }, [mode, playTraining, playSurvival, startDailyAuto]);
+  }, [mode, playTraining, playSurvival, startCampaignLevel, campaignLevelId, startDailyAuto]);
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
@@ -254,11 +277,26 @@ export default function App() {
           onPiPaymentComplete={onPiPaymentComplete}
           onLeaderboard={goLeaderboard}
           onProfile={goProfile}
+          onCampaign={goCampaign}
+        />
+      )}
+
+      {screen === "campaign" && (
+        <CampaignScreen
+          progress={data.campaign}
+          onSelectLevel={startCampaignLevel}
+          onHome={goHome}
         />
       )}
 
       {screen === "game" && (
-        <GameScreen key={runKey} mode={mode} onGameOver={handleGameOver} onQuit={goHome} />
+        <GameScreen
+          key={runKey}
+          mode={mode}
+          campaignLevelId={campaignLevelId}
+          onGameOver={handleGameOver}
+          onQuit={goHome}
+        />
       )}
 
       {screen === "result" && result && outcome && (
@@ -268,11 +306,22 @@ export default function App() {
           bestScore={data.profile.bestDailyScore}
           bestSurvivalScore={data.profile.bestSurvivalScore}
           bestSurvivalStageName={data.profile.bestSurvivalStageName}
+          campaignLevelBest={data.campaign.bestScoreByLevel[String(result.campaignLevelId)] ?? 0}
           serverSync={serverSync}
           streak={data.streak}
           onPlayAgain={playAgain}
           onHome={goHome}
           onLeaderboard={goLeaderboard}
+          onRetry={() => startCampaignLevel(result.campaignLevelId)}
+          onBackToCampaign={goCampaign}
+          onNextLevel={
+            result.mode === "campaign" &&
+            result.campaignSuccess &&
+            result.campaignLevelId < CAMPAIGN_LEVELS.length &&
+            result.campaignLevelId + 1 <= data.campaign.unlockedLevel
+              ? () => startCampaignLevel(result.campaignLevelId + 1)
+              : undefined
+          }
         />
       )}
 
