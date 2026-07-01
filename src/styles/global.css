@@ -237,6 +237,14 @@ body {
   pointer-events: none;
 }
 
+/* Current Survival stage name, shown above the survived-time line. */
+.survival-stage {
+  display: block;
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
 .streak-msg {
   font-size: 0.82rem;
   color: var(--orange);

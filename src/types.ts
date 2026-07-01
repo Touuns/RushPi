@@ -36,6 +36,8 @@ export interface HudState {
   lives: number;
   /** Survival Pi-orb charge level 1..6 (Phase 9C). 0 for non-survival modes. */
   charge: number;
+  /** Survival current stage name (Phase 9D). "" for non-survival modes. */
+  stage: string;
 }
 
 /** Deterministic power-ups (Phase 8A). */
@@ -65,6 +67,9 @@ export interface GameResult {
   chargeAbsorbs: number;
   lifeOrbsCollected: number;
   highestChargeLevel: number;
+  /** Survival stage reached (1..8) and its name (Phase 9D; 0/"" otherwise). */
+  stageReached: number;
+  stageName: string;
 }
 
 /**
@@ -119,6 +124,9 @@ export interface ProfileStats {
   chargeAbsorbs: number;
   livesRecovered: number;
   lifeOrbsCollected: number;
+  /** Survival 9D best stage reached (1..8) + its name (local-only). */
+  bestSurvivalStageReached: number;
+  bestSurvivalStageName: string;
 }
 
 /** One day of Daily Challenge history (local). */
@@ -165,7 +173,15 @@ export type BadgeId =
   | "overcharged"
   | "second-chance"
   | "life-saver"
-  | "survivor-growth";
+  | "survivor-growth"
+  | "stage-genesis"
+  | "stage-orange"
+  | "stage-smart"
+  | "stage-neon"
+  | "stage-stable"
+  | "stage-meme"
+  | "stage-privacy"
+  | "stage-storm";
 
 /** Display metadata for a badge. */
 export interface Badge {

@@ -267,6 +267,7 @@ export default function App() {
           outcome={outcome}
           bestScore={data.profile.bestDailyScore}
           bestSurvivalScore={data.profile.bestSurvivalScore}
+          bestSurvivalStageName={data.profile.bestSurvivalStageName}
           serverSync={serverSync}
           streak={data.streak}
           onPlayAgain={playAgain}

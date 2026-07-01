@@ -69,6 +69,8 @@ function defaultProfile(): ProfileStats {
     chargeAbsorbs: 0,
     livesRecovered: 0,
     lifeOrbsCollected: 0,
+    bestSurvivalStageReached: 0,
+    bestSurvivalStageName: "",
   };
 }
 
@@ -122,6 +124,14 @@ function normalize(parsed: unknown): SaveData {
     chargeAbsorbs: num(rawProfile.chargeAbsorbs, dp.chargeAbsorbs),
     livesRecovered: num(rawProfile.livesRecovered, dp.livesRecovered),
     lifeOrbsCollected: num(rawProfile.lifeOrbsCollected, dp.lifeOrbsCollected),
+    bestSurvivalStageReached: num(
+      rawProfile.bestSurvivalStageReached,
+      dp.bestSurvivalStageReached,
+    ),
+    bestSurvivalStageName:
+      typeof rawProfile.bestSurvivalStageName === "string"
+        ? rawProfile.bestSurvivalStageName
+        : dp.bestSurvivalStageName,
   };
 
   const knownBadgeIds = new Set(ALL_BADGES.map((b) => b.id));
@@ -339,6 +349,10 @@ export function recordRun(run: GameResult): RunOutcome {
     stats.chargeAbsorbs += run.chargeAbsorbs;
     stats.livesRecovered += run.livesRecovered;
     stats.lifeOrbsCollected += run.lifeOrbsCollected;
+    if (run.stageReached > stats.bestSurvivalStageReached) {
+      stats.bestSurvivalStageReached = run.stageReached;
+      stats.bestSurvivalStageName = run.stageName;
+    }
   }
 
   // Daily-only effects.

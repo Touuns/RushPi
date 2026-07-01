@@ -19,6 +19,7 @@ const INITIAL_HUD: HudState = {
   event: null,
   lives: 3,
   charge: 1,
+  stage: "",
 };
 
 const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
@@ -100,6 +101,7 @@ export default function GameScreen({ mode, onGameOver, onQuit }: GameScreenProps
 
       {isSurvival && (
         <div className="survival-time" aria-hidden="true">
+          {hud.stage && <span className="survival-stage">{hud.stage}</span>}
           Survived {hud.timeLeft}s · Charge Lv {hud.charge}/6
         </div>
       )}

@@ -6,6 +6,7 @@ interface ResultScreenProps {
   outcome: RunOutcome;
   bestScore: number;
   bestSurvivalScore: number;
+  bestSurvivalStageName: string;
   serverSync: ServerSyncStatus;
   streak: StreakInfo;
   onPlayAgain: () => void;
@@ -40,6 +41,7 @@ export default function ResultScreen({
   outcome,
   bestScore,
   bestSurvivalScore,
+  bestSurvivalStageName,
   serverSync,
   streak,
   onPlayAgain,
@@ -92,14 +94,14 @@ export default function ResultScreen({
 
       {isSurvival ? (
         <div className="result__stats">
+          <Stat label="Stage Reached" value={`${result.stageReached} · ${result.stageName}`} />
+          <Stat label="Best Stage" value={bestSurvivalStageName || "—"} />
           <Stat label="Best Survival" value={bestSurvivalScore.toLocaleString()} />
           <Stat label="Distance Survived" value={formatDuration(result.timeSurvivedSecs)} />
           <Stat label="Lives Remaining" value={result.livesRemaining} />
           <Stat label="Max Charge" value={`Lv ${result.highestChargeLevel}`} />
           <Stat label="Lives Recovered" value={result.livesRecovered} />
-          <Stat label="Energy Collected" value={result.energiesCollected} />
           <Stat label="Max Combo" value={`x${result.maxCombo}`} />
-          <Stat label="Obstacles Hit" value={result.obstaclesHit} />
         </div>
       ) : (
         <div className="result__stats">

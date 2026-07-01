@@ -15,6 +15,7 @@ import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
 import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
+import { STAGES, stageIndexForTime } from "../stages";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
@@ -118,6 +119,10 @@ export default class MainScene extends Phaser.Scene {
   private highestChargeLevel = 1;
   private chargeAura!: Phaser.GameObjects.Arc;
 
+  // Survival stages (Phase 9D).
+  private currentStageIndex = -1;
+  private stageTint!: Phaser.GameObjects.Rectangle;
+
   // Anti-frustration timers
   private invulnerableUntilMs = 0;
   private slowUntilMs = 0;
@@ -132,6 +137,7 @@ export default class MainScene extends Phaser.Scene {
     event: null,
     lives: -1,
     charge: -1,
+    stage: "",
   };
 
   // Input. `pointerDownX` = where the press started (for tap/swipe on release).
@@ -206,6 +212,7 @@ export default class MainScene extends Phaser.Scene {
     this.chargeAbsorbs = 0;
     this.lifeOrbsCollected = 0;
     this.highestChargeLevel = 1;
+    this.currentStageIndex = -1;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -215,6 +222,7 @@ export default class MainScene extends Phaser.Scene {
       event: null,
       lives: -1,
       charge: -1,
+      stage: "",
     };
   }
 
@@ -252,6 +260,13 @@ export default class MainScene extends Phaser.Scene {
     this.createPlayer();
     this.createPlayerTrail();
     this.setupInput();
+
+    // Persistent per-stage ambiance tint (Survival, Phase 9D). Normal blend +
+    // low alpha so it shifts the mood without hurting readability.
+    this.stageTint = this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, PALETTE.violet, 1)
+      .setDepth(7)
+      .setAlpha(0);
 
     // Full-screen additive tint used by events (subtle; toggled via alpha).
     this.vignette = this.add
@@ -513,6 +528,7 @@ export default class MainScene extends Phaser.Scene {
 
     // Visual phase + deterministic power-up spawns + dynamic events.
     this.updatePhase();
+    this.updateStage();
     this.spawnDuePowerups();
     this.updateEvents();
     this.spawnDueEnergyExtras();
@@ -716,6 +732,50 @@ export default class MainScene extends Phaser.Scene {
     if (phase === this.currentPhase) return;
     this.currentPhase = phase;
     this.bg.setPhase(phase, PHASES.count - 1);
+  }
+
+  // ---- Survival stages (Phase 9D) -----------------------------------------
+
+  /** Advance the Survival stage by survived time; announce + reskin on change. */
+  private updateStage(): void {
+    if (this.mode !== "survival") return;
+    const idx = stageIndexForTime(this.elapsedMs);
+    if (idx === this.currentStageIndex) return;
+    this.currentStageIndex = idx;
+    const stage = STAGES[idx];
+
+    // Ambiance tint (persistent) + per-stage chevron feel.
+    this.stageTint.setFillStyle(stage.tint, 1);
+    this.tweens.add({ targets: this.stageTint, alpha: stage.tintAlpha, duration: 500 });
+    this.track.setStageMultiplier(stage.chevronMultiplier);
+
+    this.showStageTransition(stage.id, stage.name);
+  }
+
+  /** Brief, non-blocking "Stage N — Name" banner. */
+  private showStageTransition(id: number, name: string): void {
+    const banner = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.42, `Stage ${id}\n${name}`, {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: "26px",
+        fontStyle: "bold",
+        color: "#ffd166",
+        align: "center",
+      })
+      .setOrigin(0.5)
+      .setDepth(13)
+      .setAlpha(0)
+      .setScale(0.8);
+    this.tweens.add({
+      targets: banner,
+      alpha: { from: 0, to: 1 },
+      scale: 1,
+      duration: 260,
+      ease: "Back.easeOut",
+      yoyo: true,
+      hold: 900,
+      onComplete: () => banner.destroy(),
+    });
   }
 
   private spawnDuePowerups(): void {
@@ -993,6 +1053,10 @@ export default class MainScene extends Phaser.Scene {
       now < this.magnetUntilMs ? Math.ceil((this.magnetUntilMs - now) / 1000) : 0;
     const lives = this.mode === "survival" ? Math.max(0, this.lives) : 0;
     const charge = this.mode === "survival" ? this.chargeLevel : 0;
+    const stage =
+      this.mode === "survival" && this.currentStageIndex >= 0
+        ? STAGES[this.currentStageIndex].name
+        : "";
     if (
       force ||
       score !== this.lastHud.score ||
@@ -1002,7 +1066,8 @@ export default class MainScene extends Phaser.Scene {
       magnetSecs !== this.lastHud.magnetSecs ||
       this.activeEventKind !== this.lastHud.event ||
       lives !== this.lastHud.lives ||
-      charge !== this.lastHud.charge
+      charge !== this.lastHud.charge ||
+      stage !== this.lastHud.stage
     ) {
       this.lastHud = {
         score,
@@ -1013,6 +1078,7 @@ export default class MainScene extends Phaser.Scene {
         event: this.activeEventKind,
         lives,
         charge,
+        stage,
       };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
@@ -1044,6 +1110,8 @@ export default class MainScene extends Phaser.Scene {
       chargeAbsorbs: survival ? this.chargeAbsorbs : 0,
       lifeOrbsCollected: survival ? this.lifeOrbsCollected : 0,
       highestChargeLevel: survival ? this.highestChargeLevel : 0,
+      stageReached: survival ? STAGES[Math.max(0, this.currentStageIndex)].id : 0,
+      stageName: survival ? STAGES[Math.max(0, this.currentStageIndex)].name : "",
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
@@ -1056,6 +1124,7 @@ export default class MainScene extends Phaser.Scene {
       event: null,
       lives: survival ? Math.max(0, this.lives) : 0,
       charge: survival ? this.chargeLevel : 0,
+      stage: survival && this.currentStageIndex >= 0 ? STAGES[this.currentStageIndex].name : "",
     };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);

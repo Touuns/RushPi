@@ -30,6 +30,8 @@ export class TrackVisuals {
 
   // Event visuals (Phase 8B).
   private speedMultiplier = 1;
+  // Per-stage chevron factor (Phase 9D), composed with the event speed boost.
+  private stageMultiplier = 1;
   private tunnelArcs: Phaser.GameObjects.Arc[] = [];
 
   constructor(scene: Phaser.Scene, laneX: number[]) {
@@ -128,7 +130,7 @@ export class TrackVisuals {
   update(deltaMs: number): void {
     const dt = deltaMs / 1000;
     for (const ch of this.chevrons) {
-      ch.t += TRACK.chevronSpeed * this.speedMultiplier * dt;
+      ch.t += TRACK.chevronSpeed * this.speedMultiplier * this.stageMultiplier * dt;
       if (ch.t >= 1) ch.t -= 1;
       this.positionChevron(ch);
     }
@@ -139,6 +141,11 @@ export class TrackVisuals {
   /** Speed Zone: chevrons scroll faster (does NOT change real game speed). */
   setSpeedBoost(active: boolean): void {
     this.speedMultiplier = active ? EVENTS.speedChevronMultiplier : 1;
+  }
+
+  /** Per-stage chevron feel (Phase 9D, Survival). Visual only. */
+  setStageMultiplier(m: number): void {
+    this.stageMultiplier = m;
   }
 
   /** Tunnel Pulse: expanding light rings from the vanishing point. */

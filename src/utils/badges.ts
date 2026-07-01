@@ -175,6 +175,64 @@ export const ALL_BADGES: BadgeDef[] = [
       run.timeSurvivedSecs >= 120 &&
       run.highestChargeLevel >= 4,
   },
+
+  // Survival stage-reached badges (Phase 9D). Unlocked by best stage reached.
+  {
+    id: "stage-genesis",
+    name: "Genesis Runner",
+    description: "Reach Genesis Lane (Survival)",
+    icon: "🟣",
+    check: (s) => s.bestSurvivalStageReached >= 1,
+  },
+  {
+    id: "stage-orange",
+    name: "Orange Chain Runner",
+    description: "Reach Orange Chain (Survival)",
+    icon: "🟠",
+    check: (s) => s.bestSurvivalStageReached >= 2,
+  },
+  {
+    id: "stage-smart",
+    name: "Smart Layer Runner",
+    description: "Reach Smart Layer (Survival)",
+    icon: "🔷",
+    check: (s) => s.bestSurvivalStageReached >= 3,
+  },
+  {
+    id: "stage-neon",
+    name: "Neon Speedster",
+    description: "Reach Neon Speednet (Survival)",
+    icon: "🟢",
+    check: (s) => s.bestSurvivalStageReached >= 4,
+  },
+  {
+    id: "stage-stable",
+    name: "Stable Grid Survivor",
+    description: "Reach Stable Grid (Survival)",
+    icon: "⬜",
+    check: (s) => s.bestSurvivalStageReached >= 5,
+  },
+  {
+    id: "stage-meme",
+    name: "Meme Circuit Rider",
+    description: "Reach Meme Circuit (Survival)",
+    icon: "🟡",
+    check: (s) => s.bestSurvivalStageReached >= 6,
+  },
+  {
+    id: "stage-privacy",
+    name: "Privacy Tunnel Runner",
+    description: "Reach Privacy Tunnel (Survival)",
+    icon: "🟪",
+    check: (s) => s.bestSurvivalStageReached >= 7,
+  },
+  {
+    id: "stage-storm",
+    name: "Chain Storm Survivor",
+    description: "Reach Chain Storm (Survival)",
+    icon: "🌩️",
+    check: (s) => s.bestSurvivalStageReached >= 8,
+  },
 ];
 
 const BADGE_BY_ID = new Map<BadgeId, Badge>(
