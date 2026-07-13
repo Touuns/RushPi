@@ -119,6 +119,18 @@ body {
 /* ============================================================
    Home screen
    ============================================================ */
+/* Home can exceed short viewports (375x667): top-align + native touch scroll. */
+.home {
+  justify-content: flex-start;
+  gap: 18px;
+  padding: calc(20px + env(safe-area-inset-top)) 24px
+    calc(28px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
 .home__brand {
   display: flex;
   flex-direction: column;
@@ -297,6 +309,31 @@ body {
   flex-wrap: wrap;
 }
 
+/* Survival + Campaign side by side under the full-width Daily card. */
+.home__modes-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.mode-card--half {
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 12px 8px;
+}
+
+.mode-card--half .mode-card__name {
+  font-size: 1.02rem;
+}
+
+.mode-card--half .mode-card__sub {
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
 /* Campaign level card: 3 objectives + footer. */
 .level-card__objectives {
   display: flex;
@@ -405,9 +442,18 @@ body {
   font-size: 0.78rem;
 }
 
-/* Campaign / Level Select screen. */
+/* Campaign / Level Select screen. Top-aligned + natively scrollable so all 8
+   level cards are reachable by touch (body keeps touch-action:none for the
+   game; this screen opts back into vertical panning only). */
 .campaign {
+  justify-content: flex-start;
   gap: 14px;
+  padding: calc(20px + env(safe-area-inset-top)) 20px
+    calc(28px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .campaign__title {

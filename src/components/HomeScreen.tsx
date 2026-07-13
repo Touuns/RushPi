@@ -126,7 +126,7 @@ export default function HomeScreen({
             <span className="mode-card__name">Daily Run</span>
             <span className="mode-tag mode-tag--ranked">Ranked</span>
           </div>
-          <span className="mode-card__sub">60s · new course daily</span>
+          <span className="mode-card__sub">60s · ranked daily race</span>
           <span className={`mode-card__hint ${piUser ? "is-ranked" : ""}`}>
             {piUser
               ? `@${piUser.username} — ${attemptsLeft}/${maxAttempts} ranked runs left · ${streakMessage(
@@ -136,21 +136,20 @@ export default function HomeScreen({
           </span>
         </button>
 
-        <button className="mode-card" type="button" onClick={onPlaySurvival}>
-          <div className="mode-card__head">
+        {/* Secondary modes side by side under the ranked mode. */}
+        <div className="home__modes-row">
+          <button className="mode-card mode-card--half" type="button" onClick={onPlaySurvival}>
             <span className="mode-card__name">Survival</span>
+            <span className="mode-card__sub">3 lives · zones · charge</span>
             <span className="mode-tag">Local</span>
-          </div>
-          <span className="mode-card__sub">Endless run · 3 lives · zones &amp; charge</span>
-        </button>
+          </button>
 
-        <button className="mode-card" type="button" onClick={onCampaign}>
-          <div className="mode-card__head">
+          <button className="mode-card mode-card--half" type="button" onClick={onCampaign}>
             <span className="mode-card__name">Campaign</span>
+            <span className="mode-card__sub">Levels · stars · progress</span>
             <span className="mode-tag">Local</span>
-          </div>
-          <span className="mode-card__sub">Beat levels · earn ★ · saved progress</span>
-        </button>
+          </button>
+        </div>
       </div>
 
       <div className="home__more">
