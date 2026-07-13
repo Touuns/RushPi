@@ -18,6 +18,7 @@ import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime } from "../stages";
 import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign";
 import { TrackDrift } from "../trackDrift";
+import { TrackGate } from "../zoneTransition";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
@@ -105,6 +106,13 @@ export default class MainScene extends Phaser.Scene {
   private energiesCollected = 0;
   private obstaclesHit = 0;
   private finished = false;
+
+  // Run lifecycle (Phase 10B-P2): "running" → (Daily only) "finishing" during
+  // the FINISH-gate sequence → endRun(). Score/collisions/spawns/lane changes
+  // are all frozen while finishing; the sequence is purely visual.
+  private runState: "running" | "finishing" = "running";
+  private finishGate: TrackGate | null = null;
+  private finishSpeedFactor = 1;
 
   // Survival Mode (Phase 9B).
   private lives = 0;
@@ -239,6 +247,9 @@ export default class MainScene extends Phaser.Scene {
     this.drift.reset();
     this.driftAmplitudePx = 0;
     this.stageObstacleScale = 1;
+    this.runState = "running";
+    this.finishGate = null;
+    this.finishSpeedFactor = 1;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -472,7 +483,7 @@ export default class MainScene extends Phaser.Scene {
   // ---- Movement ------------------------------------------------------------
 
   private moveLane(dir: -1 | 1): void {
-    if (this.finished) return;
+    if (this.finished || this.runState !== "running") return;
     const target = Phaser.Math.Clamp(this.currentLane + dir, 0, LANE_COUNT - 1);
     if (target === this.currentLane) return;
     this.currentLane = target;
@@ -563,6 +574,10 @@ export default class MainScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     if (this.finished) return;
+    if (this.runState === "finishing") {
+      this.updateFinishing(delta);
+      return;
+    }
 
     // Track Drift (Survival only, visual) + animate the track — cosmetic only.
     const driftX = this.survivalLike()
@@ -692,11 +707,57 @@ export default class MainScene extends Phaser.Scene {
         return;
       }
     } else if (this.elapsedMs >= RUN_DURATION_SECONDS * 1000) {
-      this.endRun();
+      // Daily gets the arcade finish sequence; Training keeps the instant end.
+      if (this.mode === "daily") this.startFinishSequence();
+      else this.endRun();
       return;
     }
 
     this.emitHud();
+  }
+
+  // ---- Daily finish sequence (Phase 10B-P2) --------------------------------
+
+  /**
+   * Freeze the run exactly at 60s (score, spawns, collisions, lane changes) and
+   * play a ~1.3s FINISH-gate flythrough before emitting GameOver. Visual only:
+   * the ranked score is byte-identical to the value at 0s remaining.
+   */
+  private startFinishSequence(): void {
+    if (this.runState !== "running" || this.finished) return;
+    this.runState = "finishing";
+    this.elapsedMs = RUN_DURATION_SECONDS * 1000; // exact freeze point
+    this.emitHud(true); // HUD shows 0s + the final frozen score
+    this.finishGate = new TrackGate(this, this.track, {
+      color: PALETTE.gold,
+      label: "FINISH",
+      durationMs: 1300,
+      onCross: () => {
+        this.cameras.main.flash(160, 255, 209, 102);
+        this.showBanner("FINISH!");
+        this.time.delayedCall(500, () => this.endRun());
+      },
+    });
+  }
+
+  /** Finishing-phase frame: coast visuals only — no score, no collisions. */
+  private updateFinishing(delta: number): void {
+    this.track.update(delta, 0);
+    // Ease the visual speed down while the gate approaches.
+    this.finishSpeedFactor = Math.max(0.2, this.finishSpeedFactor - delta / 900);
+    const dy = this.currentFallSpeed() * this.finishSpeedFactor * (delta / 1000);
+    for (const obj of this.objects) {
+      if (!obj.alive) continue;
+      obj.container.y += dy;
+      const proj = this.track.project(obj.lane, obj.container.y);
+      obj.container.x = proj.x;
+      obj.container.setScale(proj.scale);
+      if (obj.container.y > GAME_HEIGHT + OBJECTS.radius * 2) {
+        obj.alive = false;
+        obj.container.destroy();
+      }
+    }
+    this.finishGate?.update(delta);
   }
 
   // ---- Collisions ----------------------------------------------------------

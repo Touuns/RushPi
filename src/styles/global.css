@@ -334,6 +334,107 @@ body {
   line-height: 1.3;
 }
 
+/* Wrapper so the "?" info button is a SIBLING of the launch button, not nested. */
+.mode-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+}
+
+.home__modes-row .mode-wrap {
+  flex: 1 1 0;
+}
+
+.mode-wrap .mode-card {
+  width: 100%;
+}
+
+.mode-info {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(12, 7, 23, 0.45);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Mode intro (onboarding) modal. */
+.intro-modal {
+  position: relative;
+  text-align: left;
+  max-height: min(78vh, 560px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.intro-modal .modal__title {
+  text-align: center;
+  padding: 0 24px;
+}
+
+.intro-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(183, 174, 208, 0.35);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.intro-modal__points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.intro-modal__points li::before {
+  content: "·";
+  color: var(--gold);
+  font-weight: 800;
+  margin-right: 8px;
+}
+
+.intro-modal__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(12, 7, 23, 0.5);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.intro-modal__legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intro-modal__legend-icon {
+  min-width: 30px;
+  text-align: center;
+  color: var(--gold);
+}
+
 /* Campaign level card: 3 objectives + footer. */
 .level-card__objectives {
   display: flex;

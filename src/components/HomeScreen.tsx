@@ -4,6 +4,11 @@ import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
 import { getDailyChallengeLabel } from "../game/seededRandom";
 import PiPanel from "./PiPanel";
+import ModeIntroModal, {
+  hasSeenIntro,
+  markIntroSeen,
+  type IntroMode,
+} from "./ModeIntroModal";
 
 function streakMessage(streak: StreakInfo): string {
   if (streak.playedToday) return "🔥 Come back tomorrow to keep your streak!";
@@ -65,8 +70,10 @@ export default function HomeScreen({
   const [modal, setModal] = useState<ModalKind>("none");
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
+  // Mode onboarding: which intro modal is open (auto on first launch, or via "?").
+  const [intro, setIntro] = useState<IntroMode | null>(null);
 
-  const handleDailyClick = () => {
+  const startDaily = () => {
     if (!piUser) {
       setConnectError(null);
       setModal("connect");
@@ -75,6 +82,35 @@ export default function HomeScreen({
     } else {
       onPlayRankedDaily();
     }
+  };
+
+  // Launch actions per mode; the intro modal's "Play" re-enters these.
+  const LAUNCH: Record<IntroMode, () => void> = {
+    daily: startDaily,
+    survival: onPlaySurvival,
+    campaign: onCampaign,
+  };
+
+  /** First launch of a mode opens its intro; afterwards it launches directly. */
+  const handleModeClick = (mode: IntroMode) => {
+    if (!hasSeenIntro(mode)) {
+      setIntro(mode);
+    } else {
+      LAUNCH[mode]();
+    }
+  };
+
+  const handleIntroPlay = () => {
+    if (!intro) return;
+    markIntroSeen(intro);
+    const launch = LAUNCH[intro];
+    setIntro(null);
+    launch();
+  };
+
+  const handleIntroClose = () => {
+    if (intro) markIntroSeen(intro);
+    setIntro(null);
   };
 
   const handleModalConnect = async () => {
@@ -121,34 +157,78 @@ export default function HomeScreen({
       <div className="home__modes">
         <span className="home__section-title">Game Modes</span>
 
-        <button className="mode-card mode-card--primary" type="button" onClick={handleDailyClick}>
-          <div className="mode-card__head">
-            <span className="mode-card__name">Daily Run</span>
-            <span className="mode-tag mode-tag--ranked">Ranked</span>
-          </div>
-          <span className="mode-card__sub">60s · ranked daily race</span>
-          <span className={`mode-card__hint ${piUser ? "is-ranked" : ""}`}>
-            {piUser
-              ? `@${piUser.username} — ${attemptsLeft}/${maxAttempts} ranked runs left · ${streakMessage(
-                  streak,
-                )}`
-              : "Connect Pi before playing to rank your score"}
-          </span>
-        </button>
+        {/* Each card is a wrapper: main launch button + a SEPARATE "?" info
+            button (never nested inside the launch button). */}
+        <div className="mode-wrap">
+          <button
+            className="mode-card mode-card--primary"
+            type="button"
+            onClick={() => handleModeClick("daily")}
+          >
+            <div className="mode-card__head">
+              <span className="mode-card__name">Daily Run</span>
+              <span className="mode-tag mode-tag--ranked">Ranked</span>
+            </div>
+            <span className="mode-card__sub">60s · ranked daily race</span>
+            <span className={`mode-card__hint ${piUser ? "is-ranked" : ""}`}>
+              {piUser
+                ? `@${piUser.username} — ${attemptsLeft}/${maxAttempts} ranked runs left · ${streakMessage(
+                    streak,
+                  )}`
+                : "Connect Pi before playing to rank your score"}
+            </span>
+          </button>
+          <button
+            className="mode-info"
+            type="button"
+            aria-label="How to play Daily Run"
+            onClick={() => setIntro("daily")}
+          >
+            ?
+          </button>
+        </div>
 
         {/* Secondary modes side by side under the ranked mode. */}
         <div className="home__modes-row">
-          <button className="mode-card mode-card--half" type="button" onClick={onPlaySurvival}>
-            <span className="mode-card__name">Survival</span>
-            <span className="mode-card__sub">3 lives · zones · charge</span>
-            <span className="mode-tag">Local</span>
-          </button>
+          <div className="mode-wrap">
+            <button
+              className="mode-card mode-card--half"
+              type="button"
+              onClick={() => handleModeClick("survival")}
+            >
+              <span className="mode-card__name">Survival</span>
+              <span className="mode-card__sub">3 lives · zones · charge</span>
+              <span className="mode-tag">Local</span>
+            </button>
+            <button
+              className="mode-info"
+              type="button"
+              aria-label="How to play Survival"
+              onClick={() => setIntro("survival")}
+            >
+              ?
+            </button>
+          </div>
 
-          <button className="mode-card mode-card--half" type="button" onClick={onCampaign}>
-            <span className="mode-card__name">Campaign</span>
-            <span className="mode-card__sub">Levels · stars · progress</span>
-            <span className="mode-tag">Local</span>
-          </button>
+          <div className="mode-wrap">
+            <button
+              className="mode-card mode-card--half"
+              type="button"
+              onClick={() => handleModeClick("campaign")}
+            >
+              <span className="mode-card__name">Campaign</span>
+              <span className="mode-card__sub">Levels · stars · progress</span>
+              <span className="mode-tag">Local</span>
+            </button>
+            <button
+              className="mode-info"
+              type="button"
+              aria-label="How to play Campaign"
+              onClick={() => setIntro("campaign")}
+            >
+              ?
+            </button>
+          </div>
         </div>
       </div>
 
@@ -244,6 +324,10 @@ export default function HomeScreen({
             </div>
           </div>
         </div>
+      )}
+
+      {intro && (
+        <ModeIntroModal mode={intro} onPlay={handleIntroPlay} onClose={handleIntroClose} />
       )}
     </div>
   );

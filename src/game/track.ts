@@ -192,6 +192,23 @@ export class TrackVisuals {
   }
 
   /**
+   * Road edge x-coordinates + depth scale at a given y — for decorative gates
+   * and props that must span the (possibly drifting) road. Visual only.
+   */
+  roadEdges(y: number): { left: number; right: number; scale: number } {
+    const p = Phaser.Math.Clamp(
+      (y - this.horizonY) / (this.playerY - this.horizonY),
+      0,
+      1,
+    );
+    return {
+      left: Phaser.Math.Linear(this.boundaryTopX(0), 0, p),
+      right: Phaser.Math.Linear(this.boundaryTopX(LANE_COUNT), GAME_WIDTH, p),
+      scale: Phaser.Math.Linear(TRACK.vanishingScale, TRACK.nearScale, p),
+    };
+  }
+
+  /**
    * Project a logical (lane, y) to its on-road screen x + depth scale, following
    * the current drift near the horizon. Visual only — never used for collisions.
    */
