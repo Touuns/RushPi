@@ -15,6 +15,8 @@ export class BackgroundFX {
     this.scene = scene;
   }
 
+  private palette: number[] = [PALETTE.violet, PALETTE.gold, PALETTE.orange];
+
   create(): void {
     if (!this.scene.textures.exists("spark")) {
       const tex = this.scene.make.graphics({ x: 0, y: 0 }, false);
@@ -23,7 +25,10 @@ export class BackgroundFX {
       tex.generateTexture("spark", 8, 8);
       tex.destroy();
     }
+    this.buildEmitter();
+  }
 
+  private buildEmitter(): void {
     this.emitter = this.scene.add.particles(0, 0, "spark", {
       x: { min: 0, max: GAME_WIDTH },
       y: { min: -10, max: 0 },
@@ -32,12 +37,21 @@ export class BackgroundFX {
       speedX: { min: -6, max: 6 },
       scale: { min: 0.18, max: 0.5 },
       alpha: { start: 0.28, end: 0 }, // soft twinkle (fade out over lifespan)
-      tint: [PALETTE.violet, PALETTE.gold, PALETTE.orange],
+      tint: this.palette,
       frequency: BG.baseFrequencyMs,
       quantity: 1,
       blendMode: "ADD",
     });
     this.emitter.setDepth(-10);
+    this.applyFrequency();
+  }
+
+  /** Zone identity palette (Phase 10D-A): rebuild the emitter with new tints. */
+  setPalette(colors: number[]): void {
+    if (colors.length === 0) return;
+    this.palette = colors;
+    this.emitter.destroy();
+    this.buildEmitter();
   }
 
   private baseFrequency: number = BG.baseFrequencyMs;

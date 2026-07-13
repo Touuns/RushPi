@@ -15,10 +15,11 @@ import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
 import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
-import { STAGES, stageIndexForTime } from "../stages";
+import { STAGES, stageIndexForTime, type Stage } from "../stages";
 import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign";
 import { TrackDrift } from "../trackDrift";
 import { TrackGate } from "../zoneTransition";
+import { ZoneDecor } from "../zoneDecor";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
@@ -136,6 +137,10 @@ export default class MainScene extends Phaser.Scene {
   private driftAmplitudePx = 0;
   private stageObstacleScale = 1;
 
+  // Survival zone gates + per-zone identity (Phase 10D-A). Visual only.
+  private zoneGate: TrackGate | null = null;
+  private zoneDecor: ZoneDecor | null = null;
+
   // Anti-frustration timers
   private invulnerableUntilMs = 0;
   private slowUntilMs = 0;
@@ -250,6 +255,7 @@ export default class MainScene extends Phaser.Scene {
     this.runState = "running";
     this.finishGate = null;
     this.finishSpeedFactor = 1;
+    this.zoneGate = null;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -295,6 +301,7 @@ export default class MainScene extends Phaser.Scene {
     this.bg.create();
     this.track = new TrackVisuals(this, this.laneX);
     this.track.drawStatic();
+    if (this.mode === "survival") this.zoneDecor = new ZoneDecor(this);
     this.createPlayer();
     this.createPlayerTrail();
     this.setupInput();
@@ -584,6 +591,9 @@ export default class MainScene extends Phaser.Scene {
       ? this.drift.update(this.elapsedMs, delta, this.driftAmplitudePx)
       : 0;
     this.track.update(delta, driftX);
+    // Survival zone checkpoint gate + decorative zone pattern (visual only).
+    this.zoneGate?.update(delta);
+    this.zoneDecor?.update(delta);
 
     this.elapsedMs += delta;
 
@@ -854,23 +864,57 @@ export default class MainScene extends Phaser.Scene {
 
   // ---- Survival stages (Phase 9D) -----------------------------------------
 
-  /** Advance the Survival stage by survived time; announce + reskin on change. */
+  /**
+   * Advance the Survival zone by survived time. Zone 1 applies instantly with a
+   * short intro; later zones spawn a checkpoint gate that travels down the
+   * track — the new theme and the "ZONE COMPLETE" banners land when the player
+   * crosses it. Thresholds, score, lives and controls are untouched; gameplay
+   * never pauses.
+   */
   private updateStage(): void {
     if (this.mode !== "survival") return;
     const idx = stageIndexForTime(this.elapsedMs);
     if (idx === this.currentStageIndex) return;
+    const prev = this.currentStageIndex;
     this.currentStageIndex = idx;
     const stage = STAGES[idx];
 
-    // Ambiance tint (persistent) + per-stage chevron feel + drift/obstacle/bg.
+    if (prev < 0) {
+      // Run start: no "complete" banner, just the Zone 1 intro.
+      this.applyZoneVisuals(stage);
+      this.showBanner(`ZONE ${stage.id} — ${stage.name.toUpperCase()}`, 20);
+      return;
+    }
+
+    const prevStage = STAGES[prev];
+    this.zoneGate?.destroy();
+    this.zoneGate = new TrackGate(this, this.track, {
+      color: stage.visual.gateColor,
+      durationMs: 1300,
+      onCross: () => {
+        this.zoneGate = null;
+        this.applyZoneVisuals(stage);
+        this.showBanner(`ZONE ${prevStage.id} COMPLETE`, 20);
+        this.time.delayedCall(1000, () => {
+          if (!this.finished) {
+            this.showBanner(`ZONE ${stage.id} — ${stage.name.toUpperCase()}`, 20);
+          }
+        });
+      },
+    });
+  }
+
+  /** Apply a zone's full look: ambiance + Phase 10D-A identity. Visual only. */
+  private applyZoneVisuals(stage: Stage): void {
     this.stageTint.setFillStyle(stage.tint, 1);
     this.tweens.add({ targets: this.stageTint, alpha: stage.tintAlpha, duration: 500 });
     this.track.setStageMultiplier(stage.chevronMultiplier);
     this.driftAmplitudePx = stage.driftMaxX * GAME_WIDTH;
     this.stageObstacleScale = stage.obstacleVisualScale;
     this.bg.setIntensityScale(stage.bgBoost);
-
-    this.showBanner(`Zone ${stage.id}\n${stage.name}`);
+    this.track.applyZoneVisuals(stage.visual);
+    this.bg.setPalette(stage.visual.particleColors);
+    this.zoneDecor?.apply(stage.visual);
   }
 
   /** Brief, non-blocking "Stage N — Name" banner. */

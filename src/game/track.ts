@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { GAME_WIDTH, GAME_HEIGHT, LANE_COUNT, PLAYER } from "./gameConfig";
 import { PALETTE, TRACK, EVENTS } from "./theme";
+import type { ZoneVisual } from "./stages";
 
 interface Chevron {
   gfx: Phaser.GameObjects.Container;
@@ -36,6 +37,12 @@ export class TrackVisuals {
   private stageMultiplier = 1;
   private driftX = 0;
   private tunnelArcs: Phaser.GameObjects.Arc[] = [];
+
+  // Per-zone identity colors (Phase 10D-A) — visual only, defaults = classic look.
+  private roadColor: number = PALETTE.violet;
+  private railColor: number = PALETTE.gold;
+  private laneColor: number = PALETTE.violet;
+  private railWidth = 4;
 
   constructor(scene: Phaser.Scene, laneX: number[]) {
     this.scene = scene;
@@ -83,7 +90,7 @@ export class TrackVisuals {
     const topR = this.boundaryTopX(LANE_COUNT);
 
     // Road surface (full width at the bottom, narrow at the drifting horizon).
-    g.fillStyle(PALETTE.violet, TRACK.roadFillAlpha);
+    g.fillStyle(this.roadColor, TRACK.roadFillAlpha);
     g.beginPath();
     g.moveTo(0, GAME_HEIGHT);
     g.lineTo(GAME_WIDTH, GAME_HEIGHT);
@@ -93,7 +100,7 @@ export class TrackVisuals {
     g.fillPath();
 
     // Far edge at the horizon.
-    g.lineStyle(2, PALETTE.gold, TRACK.laneAlpha);
+    g.lineStyle(2, this.railColor, TRACK.laneAlpha);
     g.lineBetween(topL, this.horizonY, topR, this.horizonY);
 
     // Lane boundary lines from the bottom to the far edge.
@@ -101,12 +108,23 @@ export class TrackVisuals {
     for (let i = 0; i <= LANE_COUNT; i++) {
       const outer = i === 0 || i === LANE_COUNT;
       g.lineStyle(
-        outer ? 4 : 2,
-        outer ? PALETTE.gold : PALETTE.violet,
+        outer ? this.railWidth : 2,
+        outer ? this.railColor : this.laneColor,
         outer ? TRACK.edgeAlpha : TRACK.laneAlpha,
       );
       g.lineBetween(laneWidth * i, GAME_HEIGHT, this.boundaryTopX(i), this.horizonY);
     }
+  }
+
+  /** Apply a zone's identity to the road/rails/halo (Phase 10D-A, visual only). */
+  applyZoneVisuals(v: ZoneVisual): void {
+    this.roadColor = v.roadColor;
+    this.railColor = v.railColor;
+    this.laneColor = v.laneColor;
+    this.railWidth = v.railWidth;
+    this.haloGlow.setFillStyle(v.haloColor, 0.14);
+    this.haloCore.setFillStyle(v.haloCoreColor, 0.3);
+    this.drawRoad();
   }
 
   private makeChevron(): Phaser.GameObjects.Container {
