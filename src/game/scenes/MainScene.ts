@@ -704,21 +704,28 @@ export default class MainScene extends Phaser.Scene {
       this.objects = this.objects.filter((o) => o.alive);
     }
 
-    // End of run per mode: Survival = 0 lives or safety cap; Campaign = 0 lives
-    // (fail) or target duration reached (finish); others = 60s.
+    // End of run per mode — each exit goes through its own visual end sequence
+    // (Training keeps its instant end for this phase).
     if (this.mode === "survival") {
-      if (this.lives <= 0 || this.elapsedMs >= SURVIVAL.maxRunMs) {
-        this.endRun();
+      if (this.lives <= 0) {
+        this.startEndSequence("survival-gameover");
+        return;
+      }
+      if (this.elapsedMs >= SURVIVAL.maxRunMs) {
+        this.startEndSequence("survival-timeup");
         return;
       }
     } else if (this.mode === "campaign") {
-      if (this.lives <= 0 || this.elapsedMs >= this.campaignTargetMs) {
-        this.endRun();
+      if (this.lives <= 0) {
+        this.startEndSequence("campaign-failure");
+        return;
+      }
+      if (this.elapsedMs >= this.campaignTargetMs) {
+        this.startEndSequence("campaign-success");
         return;
       }
     } else if (this.elapsedMs >= RUN_DURATION_SECONDS * 1000) {
-      // Daily gets the arcade finish sequence; Training keeps the instant end.
-      if (this.mode === "daily") this.startFinishSequence();
+      if (this.mode === "daily") this.startEndSequence("daily-finish");
       else this.endRun();
       return;
     }
@@ -726,34 +733,156 @@ export default class MainScene extends Phaser.Scene {
     this.emitHud();
   }
 
-  // ---- Daily finish sequence (Phase 10B-P2) --------------------------------
+  // ---- End sequences (Phase 10B-P2/P3) -------------------------------------
 
   /**
-   * Freeze the run exactly at 60s (score, spawns, collisions, lane changes) and
-   * play a ~1.3s FINISH-gate flythrough before emitting GameOver. Visual only:
-   * the ranked score is byte-identical to the value at 0s remaining.
+   * Freeze the run and play the mode's visual exit before finalizeRun().
+   * From this point: score, stats, elapsed, lives and charge are frozen; no
+   * spawns, no collisions, no gains, no lane changes. GameOver is emitted
+   * exactly once (finalizeRun/endRun guard), driven by the Phaser clock.
+   *
+   * Kinds: daily-finish (gold FINISH gate — behavior/timing identical to
+   * 10B-P2), campaign-success (level-colored gate + LEVEL COMPLETE!),
+   * campaign-failure (fade-out + LEVEL FAILED), survival-gameover (fade-out +
+   * dispersal + RUN ENDED), survival-timeup (same, SURVIVAL COMPLETE).
    */
-  private startFinishSequence(): void {
+  private startEndSequence(
+    kind:
+      | "daily-finish"
+      | "campaign-success"
+      | "campaign-failure"
+      | "survival-gameover"
+      | "survival-timeup",
+  ): void {
     if (this.runState !== "running" || this.finished) return;
     this.runState = "finishing";
-    this.elapsedMs = RUN_DURATION_SECONDS * 1000; // exact freeze point
-    this.emitHud(true); // HUD shows 0s + the final frozen score
-    this.finishGate = new TrackGate(this, this.track, {
-      color: PALETTE.gold,
-      label: "FINISH",
-      durationMs: 1300,
-      onCross: () => {
-        this.cameras.main.flash(160, 255, 209, 102);
-        this.showBanner("FINISH!");
-        this.time.delayedCall(500, () => this.endRun());
-      },
+
+    // Freeze elapsed at the exact end instant per kind.
+    if (kind === "daily-finish") this.elapsedMs = RUN_DURATION_SECONDS * 1000;
+    else if (kind === "campaign-success") this.elapsedMs = this.campaignTargetMs;
+    else if (kind === "survival-timeup") {
+      this.elapsedMs = Math.min(this.elapsedMs, SURVIVAL.maxRunMs);
+    }
+    this.lives = Math.max(0, this.lives); // never negative
+    // A zone gate mid-travel would be stale now.
+    this.zoneGate?.destroy();
+    this.zoneGate = null;
+    this.emitHud(true); // frozen HUD (final score / time / lives)
+
+    switch (kind) {
+      case "daily-finish":
+        this.finishGate = new TrackGate(this, this.track, {
+          color: PALETTE.gold,
+          label: "FINISH",
+          durationMs: 1300,
+          onCross: () => {
+            this.cameras.main.flash(160, 255, 209, 102);
+            this.showBanner("FINISH!");
+            this.time.delayedCall(500, () => this.endRun());
+          },
+        });
+        break;
+
+      case "campaign-success": {
+        const tint = this.campaignLevel?.tint ?? PALETTE.gold;
+        const rgb = Phaser.Display.Color.IntegerToColor(tint);
+        this.finishGate = new TrackGate(this, this.track, {
+          color: tint,
+          label: "FINISH",
+          durationMs: 1300,
+          onCross: () => {
+            this.cameras.main.flash(150, rgb.red, rgb.green, rgb.blue);
+            this.showBanner("LEVEL COMPLETE!");
+            this.burstAtPlayer(tint);
+            this.time.delayedCall(500, () => this.endRun());
+          },
+        });
+        break;
+      }
+
+      case "campaign-failure":
+        this.fadePlayerForEnd();
+        this.showEndVeil(0x1a0510, 0.22);
+        this.time.delayedCall(350, () => this.showBanner("LEVEL FAILED"));
+        this.time.delayedCall(1000, () => this.endRun());
+        break;
+
+      case "survival-gameover":
+      case "survival-timeup":
+        this.fadePlayerForEnd();
+        this.disperseAtPlayer();
+        this.showEndVeil(0x08040f, 0.25);
+        this.time.delayedCall(300, () =>
+          this.showBanner(kind === "survival-timeup" ? "SURVIVAL COMPLETE" : "RUN ENDED"),
+        );
+        this.time.delayedCall(1200, () => this.endRun());
+        break;
+    }
+  }
+
+  /** Gently power the orb down: shrink/sink, kill trail, hide auras. */
+  private fadePlayerForEnd(): void {
+    this.trailEmitter.stop();
+    this.tweens.add({
+      targets: [this.chargeAura, this.shieldRing, this.magnetAura],
+      alpha: 0,
+      duration: 500,
+    });
+    this.tweens.add({
+      targets: this.player,
+      scale: 0.82,
+      y: this.player.y + 14,
+      alpha: 0.7,
+      duration: 900,
+      ease: "Sine.easeOut",
     });
   }
 
-  /** Finishing-phase frame: coast visuals only — no score, no collisions. */
+  /** Soft dark overlay for failure/game-over exits (below the React HUD). */
+  private showEndVeil(color: number, alpha: number): void {
+    const veil = this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, color, 1)
+      .setDepth(12)
+      .setAlpha(0);
+    this.tweens.add({ targets: veil, alpha, duration: 700 });
+  }
+
+  /** Small celebratory ring burst around the orb (campaign success). */
+  private burstAtPlayer(color: number): void {
+    const burst = this.add
+      .circle(this.player.x, this.player.y, PLAYER.radius + 8, color, 0)
+      .setStrokeStyle(3, color, 0.9)
+      .setDepth(11);
+    this.tweens.add({
+      targets: burst,
+      scale: 2.6,
+      alpha: 0,
+      duration: 340,
+      ease: "Quad.easeOut",
+      onComplete: () => burst.destroy(),
+    });
+  }
+
+  /** One-shot particle dispersal at the orb (survival run ended). */
+  private disperseAtPlayer(): void {
+    const e = this.add.particles(this.player.x, this.player.y, "spark", {
+      speed: { min: 60, max: 160 },
+      lifespan: 700,
+      scale: { start: 0.8, end: 0 },
+      alpha: { start: 0.8, end: 0 },
+      tint: PALETTE.violet,
+      blendMode: "ADD",
+      emitting: false,
+    });
+    e.setDepth(11);
+    e.explode(18);
+  }
+
+  /** Ending-phase frame: coast visuals only — no score, no collisions. */
   private updateFinishing(delta: number): void {
     this.track.update(delta, 0);
-    // Ease the visual speed down while the gate approaches.
+    this.zoneDecor?.update(delta);
+    // Ease the visual speed down while the exit plays.
     this.finishSpeedFactor = Math.max(0.2, this.finishSpeedFactor - delta / 900);
     const dy = this.currentFallSpeed() * this.finishSpeedFactor * (delta / 1000);
     for (const obj of this.objects) {
