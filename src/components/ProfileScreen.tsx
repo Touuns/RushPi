@@ -11,6 +11,7 @@ import { getStreakTitle, getTotalCampaignStars, levelProgress } from "../utils/s
 import { CAMPAIGN_LEVELS } from "../game/campaign";
 import PiPanel from "./PiPanel";
 import ScreenBackButton from "./ScreenBackButton";
+import MarketDataPreview from "./MarketDataPreview";
 
 interface ProfileScreenProps {
   profile: ProfileStats;
@@ -195,6 +196,8 @@ export default function ProfileScreen({
           );
         })()}
       </div>
+
+      <MarketDataPreview />
 
       <PiPanel
         sdkAvailable={piSdkAvailable}

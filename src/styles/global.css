@@ -1220,6 +1220,109 @@ body {
   margin-top: 6px;
 }
 
+/* Market Data preview (Phase 11A) — collapsed details in the Profile. */
+.market-preview {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(22, 13, 42, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  text-align: left;
+}
+
+.market-preview > summary {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.market-preview__hint {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 8px 0;
+}
+
+.market-preview__error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.market-preview__meta {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin: 8px 0 6px;
+}
+
+.market-preview__status {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.market-preview__status.is-live { color: #34d399; }
+.market-preview__status.is-cached { color: var(--gold); }
+.market-preview__status.is-stale { color: var(--orange); }
+.market-preview__status.is-fallback { color: var(--danger); }
+
+.market-preview__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.market-row__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.market-row__logo--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  background: rgba(167, 139, 250, 0.15);
+}
+
+.market-row__symbol {
+  font-weight: 800;
+  min-width: 52px;
+}
+
+.market-row__price {
+  flex: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.market-row__change {
+  min-width: 64px;
+  text-align: right;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+.market-row__change.is-up { color: #34d399; }
+.market-row__change.is-down { color: var(--danger); }
+
+.market-preview__attribution {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
 /* Collapsed secondary stats. */
 .result__details {
   width: 100%;
