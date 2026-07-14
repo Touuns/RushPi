@@ -311,7 +311,7 @@ export default function App() {
           mode={mode}
           campaignLevelId={campaignLevelId}
           onGameOver={handleGameOver}
-          onQuit={goHome}
+          onQuit={mode === "campaign" ? goCampaign : goHome}
         />
       )}
 

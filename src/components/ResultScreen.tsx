@@ -1,6 +1,7 @@
 import type { Badge, GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
 import { getCampaignLevel, CAMPAIGN_LEVELS } from "../game/campaign";
+import ScreenBackButton from "./ScreenBackButton";
 
 interface ResultScreenProps {
   result: GameResult;
@@ -166,6 +167,7 @@ export default function ResultScreen({
 
     return (
       <div className="screen result">
+        <ScreenBackButton onBack={onBackToCampaign} label="Back to Campaign" />
         <h2 className="result__title">
           {seasonComplete ? "Season 1 Complete" : success ? "Level Complete" : "Level Failed"}
         </h2>
@@ -277,6 +279,7 @@ export default function ResultScreen({
 
   return (
     <div className="screen result">
+      <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="result__title">{isSurvival ? "Run Ended" : "Run Complete"}</h2>
 
       {isTraining && (

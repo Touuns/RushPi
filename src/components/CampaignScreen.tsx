@@ -1,5 +1,6 @@
 import type { CampaignProgress } from "../types";
 import { CAMPAIGN_LEVELS } from "../game/campaign";
+import ScreenBackButton from "./ScreenBackButton";
 
 interface CampaignScreenProps {
   progress: CampaignProgress;
@@ -19,6 +20,7 @@ export default function CampaignScreen({
 }: CampaignScreenProps) {
   return (
     <div className="screen campaign">
+      <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="campaign__title">Campaign</h2>
       <p className="campaign__subtitle">Chain Journey — complete a level to unlock the next</p>
 

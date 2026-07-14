@@ -5,6 +5,7 @@ import {
   fetchGlobalLeaderboard,
   type ServerScore,
 } from "../utils/serverLeaderboard";
+import ScreenBackButton from "./ScreenBackButton";
 
 interface LeaderboardScreenProps {
   entries: LeaderboardEntry[];
@@ -81,6 +82,7 @@ export default function LeaderboardScreen({
 
   return (
     <div className="screen leaderboard">
+      <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="leaderboard__title">Leaderboard</h2>
 
       <div className="tabs" role="tablist">

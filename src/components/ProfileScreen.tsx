@@ -10,6 +10,7 @@ import { ALL_BADGES } from "../utils/badges";
 import { getStreakTitle, getTotalCampaignStars, levelProgress } from "../utils/storage";
 import { CAMPAIGN_LEVELS } from "../game/campaign";
 import PiPanel from "./PiPanel";
+import ScreenBackButton from "./ScreenBackButton";
 
 interface ProfileScreenProps {
   profile: ProfileStats;
@@ -69,6 +70,7 @@ export default function ProfileScreen({
 
   return (
     <div className="screen profile">
+      <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="profile__title">Profile</h2>
 
       <div className="profile__header">

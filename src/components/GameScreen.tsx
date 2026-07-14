@@ -3,6 +3,7 @@ import type Phaser from "phaser";
 import { createRushPiGame, destroyRushPiGame } from "../game/RushPiGame";
 import { RUN_DURATION_SECONDS } from "../game/gameConfig";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../types";
+import ScreenBackButton from "./ScreenBackButton";
 
 interface GameScreenProps {
   mode: GameMode;
@@ -52,6 +53,9 @@ export default function GameScreen({
   onGameOverRef.current = onGameOver;
 
   const [hud, setHud] = useState<HudState>(INITIAL_HUD);
+  // Quit confirmation (10B-P4): the Phaser scene is paused while it is open.
+  const [confirmQuit, setConfirmQuit] = useState(false);
+  const quittingRef = useRef(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -78,6 +82,28 @@ export default function GameScreen({
   const isCampaign = mode === "campaign";
   const isSurvivalLike = isSurvival || isCampaign;
   const lowTime = !isSurvivalLike && hud.timeLeft <= 10;
+
+  // Quit flow: pause the scene while the confirmation is open so nothing can be
+  // collected / no lane can change behind the modal; resume cleanly on cancel.
+  const openQuitConfirm = () => {
+    if (confirmQuit || quittingRef.current) return;
+    setConfirmQuit(true);
+    gameRef.current?.scene.pause("MainScene");
+  };
+
+  const keepPlaying = () => {
+    setConfirmQuit(false);
+    gameRef.current?.scene.resume("MainScene");
+  };
+
+  const quitRun = () => {
+    if (quittingRef.current) return; // never quit twice
+    quittingRef.current = true;
+    setConfirmQuit(false);
+    // No GameResult / score / XP / badge is recorded: the parent navigates away
+    // and the unmount destroys the Phaser game before any GameOver can fire.
+    onQuit();
+  };
 
   return (
     <div className="game-screen">
@@ -151,15 +177,28 @@ export default function GameScreen({
         </div>
       )}
 
-      {/* Quit button: its own interactive layer above the no-pointer HUD. */}
-      <button
-        className="game-screen__quit"
-        type="button"
-        aria-label="Quit run"
-        onClick={onQuit}
-      >
-        ✕
-      </button>
+      {/* Back arrow: opens a quit confirmation instead of quitting directly. */}
+      <ScreenBackButton
+        onBack={openQuitConfirm}
+        label={isCampaign ? "Quit level" : "Quit run"}
+      />
+
+      {confirmQuit && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <h2 className="modal__title">Quit this run?</h2>
+            <p className="modal__text">Your current run progress will be lost.</p>
+            <div className="modal__actions">
+              <button className="btn btn--primary" type="button" onClick={keepPlaying}>
+                Keep playing
+              </button>
+              <button className="btn btn--secondary" type="button" onClick={quitRun}>
+                {isCampaign ? "Quit level" : "Quit run"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {mode === "training" && (
         <div className="game-screen__mode-tag">Training scores are not ranked</div>
