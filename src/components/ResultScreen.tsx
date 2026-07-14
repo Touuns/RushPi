@@ -1,11 +1,6 @@
-import type { GameResult, RunOutcome, StreakInfo } from "../types";
+import type { Badge, GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
 import { getCampaignLevel, CAMPAIGN_LEVELS } from "../game/campaign";
-
-/** "★★☆" for n out of 3. */
-function starString(n: number): string {
-  return "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n));
-}
 
 interface ResultScreenProps {
   result: GameResult;
@@ -28,6 +23,11 @@ interface ResultScreenProps {
   onNextLevel?: () => void;
 }
 
+/** "★★☆" for n out of 3. */
+function starString(n: number): string {
+  return "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n));
+}
+
 /** "1m 23s" / "45s". */
 function formatDuration(totalSecs: number): string {
   const m = Math.floor(totalSecs / 60);
@@ -46,8 +46,73 @@ const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
 };
 
 /**
- * End-of-run summary. Branches per mode: Daily/Training/Survival show a score
- * recap; Campaign shows Level Complete / Level Failed with Next / Retry / Back.
+ * Grouped badge presentation (Phase 10B-P3): unlock CONDITIONS are untouched —
+ * this only changes how freshly unlocked badges are displayed. 0 → nothing;
+ * 1 → a single compact card; 2+ → count + first badge highlighted, the rest
+ * behind a collapsed section.
+ */
+function BadgeUnlockSummary({ badges }: { badges: Badge[] }) {
+  if (badges.length === 0) return null;
+  const [first, ...rest] = badges;
+
+  return (
+    <div className="badge-summary">
+      <span className="badge-summary__title">
+        {badges.length === 1 ? "Badge unlocked" : `${badges.length} badges unlocked`}
+      </span>
+      <div className="badge-summary__card" title={first.description}>
+        <span className="badge-summary__icon">{first.icon}</span>
+        <span className="badge-summary__text">
+          <span className="badge-summary__name">{first.name}</span>
+          <span className="badge-summary__desc">{first.description}</span>
+        </span>
+      </div>
+      {rest.length > 0 && (
+        <details className="badge-summary__more">
+          <summary>+ {rest.length} other badge{rest.length > 1 ? "s" : ""}</summary>
+          <div className="badge-summary__list">
+            {rest.map((b) => (
+              <div key={b.id} className="badge-chip" title={b.description}>
+                <span className="badge-chip__icon">{b.icon}</span>
+                <span className="badge-chip__name">{b.name}</span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+/** Up to three always-visible key stats. */
+function KeyStats({ stats }: { stats: { label: string; value: string | number }[] }) {
+  return (
+    <div className="result__stats result__stats--key">
+      {stats.slice(0, 3).map((s) => (
+        <Stat key={s.label} label={s.label} value={s.value} />
+      ))}
+    </div>
+  );
+}
+
+/** Secondary stats behind a native collapsed section. */
+function ResultDetails({ stats }: { stats: { label: string; value: string | number }[] }) {
+  if (stats.length === 0) return null;
+  return (
+    <details className="result__details">
+      <summary>View details</summary>
+      <div className="result__stats">
+        {stats.map((s) => (
+          <Stat key={s.label} label={s.label} value={s.value} />
+        ))}
+      </div>
+    </details>
+  );
+}
+
+/**
+ * End-of-run summary (Phase 10B-P3 hierarchy): main outcome → up to 3 key
+ * stats → meaningful rewards (stars/badges) → collapsed details → actions.
  */
 export default function ResultScreen({
   result,
@@ -72,19 +137,19 @@ export default function ResultScreen({
   const isSurvival = result.mode === "survival";
   const isCampaign = result.mode === "campaign";
 
-  const badgesBlock = outcome.unlockedBadges.length > 0 && (
-    <div className="result__unlocks">
-      <span className="result__unlocks-title">Badges unlocked</span>
-      <div className="result__unlocks-list">
-        {outcome.unlockedBadges.map((b) => (
-          <div key={b.id} className="badge-chip" title={b.description}>
-            <span className="badge-chip__icon">{b.icon}</span>
-            <span className="badge-chip__name">{b.name}</span>
-          </div>
-        ))}
-      </div>
+  const scoreHero = (
+    <div className="result__score">
+      <span className="result__score-label">Score</span>
+      <span className="result__score-value">{result.score.toLocaleString()}</span>
+      {outcome.isNewBest && <span className="result__badge">New Best!</span>}
+      <span className="result__xp">+{outcome.xpGained} XP</span>
+      {outcome.leveledUp && (
+        <span className="result__levelup">Level up! → Lv {outcome.level}</span>
+      )}
     </div>
   );
+
+  const badgesBlock = <BadgeUnlockSummary badges={outcome.unlockedBadges} />;
 
   // ---- Campaign: Level Complete / Level Failed --------------------------
   if (isCampaign) {
@@ -111,15 +176,7 @@ export default function ResultScreen({
           <p className="result__season">🏆 Chain Journey cleared — well played!</p>
         )}
 
-        <div className="result__score">
-          <span className="result__score-label">Score</span>
-          <span className="result__score-value">{result.score.toLocaleString()}</span>
-          {outcome.isNewBest && <span className="result__badge">New Best!</span>}
-          <span className="result__xp">+{outcome.xpGained} XP</span>
-          {outcome.leveledUp && (
-            <span className="result__levelup">Level up! → Lv {outcome.level}</span>
-          )}
-        </div>
+        {scoreHero}
 
         {success && (
           <div className="result__stars">
@@ -131,7 +188,7 @@ export default function ResultScreen({
 
         {badgesBlock}
 
-        {/* Per-objective breakdown for replay value. */}
+        {/* Per-objective breakdown stays visible — it drives replay. */}
         {level && (
           <div className="result__objectives">
             {level.stars.map((s, i) => {
@@ -146,16 +203,24 @@ export default function ResultScreen({
           </div>
         )}
 
-        <div className="result__stats">
-          <Stat label="Energy Collected" value={result.energiesCollected} />
-          <Stat label="Lives Remaining" value={result.livesRemaining} />
-          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
-          <Stat label="Best (level)" value={campaignLevelBest.toLocaleString()} />
-        </div>
+        <KeyStats
+          stats={[
+            { label: "Energy Collected", value: result.energiesCollected },
+            { label: "Lives Remaining", value: result.livesRemaining },
+            { label: "Max Charge", value: `Lv ${result.highestChargeLevel}` },
+          ]}
+        />
 
         {!success && (
           <p className="result__streak">Out of lives — you didn't reach the finish.</p>
         )}
+
+        <ResultDetails
+          stats={[
+            { label: "Best (level)", value: campaignLevelBest.toLocaleString() },
+            { label: "Max Combo", value: `x${result.maxCombo}` },
+          ]}
+        />
 
         <div className="result__actions">
           {success && onNextLevel && (
@@ -185,9 +250,34 @@ export default function ResultScreen({
       ? `🔥 ${streak.current}-day streak — come back tomorrow to keep it!`
       : null;
 
+  const keyStats = isSurvival
+    ? [
+        { label: "Time Survived", value: formatDuration(result.timeSurvivedSecs) },
+        { label: "Zone Reached", value: `${result.stageReached} · ${result.stageName}` },
+        { label: "Max Charge", value: `Lv ${result.highestChargeLevel}` },
+      ]
+    : [
+        { label: "Energy Collected", value: result.energiesCollected },
+        { label: "Max Combo", value: `x${result.maxCombo}` },
+        { label: "Obstacles Hit", value: result.obstaclesHit },
+      ];
+
+  const detailStats = isSurvival
+    ? [
+        { label: "Farthest Zone", value: bestSurvivalStageName || "—" },
+        { label: "Best Survival", value: bestSurvivalScore.toLocaleString() },
+        { label: "Lives Remaining", value: result.livesRemaining },
+        { label: "Lives Recovered", value: result.livesRecovered },
+        { label: "Max Combo", value: `x${result.maxCombo}` },
+      ]
+    : [
+        { label: "Best Score", value: bestScore.toLocaleString() },
+        { label: "End Bonus", value: `+${result.endBonus}` },
+      ];
+
   return (
     <div className="screen result">
-      <h2 className="result__title">{isSurvival ? "Game Over" : "Run Complete"}</h2>
+      <h2 className="result__title">{isSurvival ? "Run Ended" : "Run Complete"}</h2>
 
       {isTraining && (
         <div className="result__training-tag">Training score — not ranked</div>
@@ -196,41 +286,16 @@ export default function ResultScreen({
         <div className="result__training-tag">Survival Run · local only</div>
       )}
 
-      <div className="result__score">
-        <span className="result__score-label">Score</span>
-        <span className="result__score-value">{result.score.toLocaleString()}</span>
-        {outcome.isNewBest && <span className="result__badge">New Best!</span>}
-        <span className="result__xp">+{outcome.xpGained} XP</span>
-        {outcome.leveledUp && (
-          <span className="result__levelup">Level up! → Lv {outcome.level}</span>
-        )}
-      </div>
+      {scoreHero}
 
       {badgesBlock}
 
-      {isSurvival ? (
-        <div className="result__stats">
-          <Stat label="Zone Reached" value={`${result.stageReached} · ${result.stageName}`} />
-          <Stat label="Farthest Zone" value={bestSurvivalStageName || "—"} />
-          <Stat label="Best Survival" value={bestSurvivalScore.toLocaleString()} />
-          <Stat label="Distance Survived" value={formatDuration(result.timeSurvivedSecs)} />
-          <Stat label="Lives Remaining" value={result.livesRemaining} />
-          <Stat label="Max Charge" value={`Lv ${result.highestChargeLevel}`} />
-          <Stat label="Lives Recovered" value={result.livesRecovered} />
-          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
-        </div>
-      ) : (
-        <div className="result__stats">
-          <Stat label="Best Score" value={bestScore.toLocaleString()} />
-          <Stat label="Energy Collected" value={result.energiesCollected} />
-          <Stat label="Max Combo" value={`x${result.maxCombo}`} />
-          <Stat label="Obstacles Hit" value={result.obstaclesHit} />
-          <Stat label="End Bonus" value={`+${result.endBonus}`} />
-        </div>
-      )}
+      <KeyStats stats={keyStats} />
 
       {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
       {streakMessage && <p className="result__streak">{streakMessage}</p>}
+
+      <ResultDetails stats={detailStats} />
 
       <div className="result__actions">
         <button className="btn btn--primary" type="button" onClick={onPlayAgain}>

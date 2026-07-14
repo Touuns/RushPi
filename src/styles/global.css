@@ -1142,10 +1142,99 @@ body {
 .result {
   justify-content: flex-start;
   gap: 16px;
-  padding: 24px 24px 32px;
+  padding: calc(20px + env(safe-area-inset-top)) 24px
+    calc(32px + env(safe-area-inset-bottom));
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+/* Grouped badge unlocks (10B-P3): one highlighted card + collapsed rest. */
+.badge-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.badge-summary__title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  text-align: center;
+  font-weight: 800;
+}
+
+.badge-summary__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(22, 13, 42, 0.7);
+  border: 1px solid rgba(255, 209, 102, 0.45);
+  text-align: left;
+}
+
+.badge-summary__icon {
+  font-size: 1.4rem;
+}
+
+.badge-summary__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.badge-summary__name {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.badge-summary__desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.badge-summary__more summary {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-align: center;
+  padding: 2px 0;
+}
+
+.badge-summary__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* Collapsed secondary stats. */
+.result__details {
+  width: 100%;
+  max-width: 320px;
+}
+
+.result__details > summary {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-align: center;
+  padding: 6px 0;
+}
+
+.result__details[open] > summary {
+  color: var(--text);
+}
+
+.result__details .result__stats {
+  margin-top: 8px;
 }
 
 .result__title {
