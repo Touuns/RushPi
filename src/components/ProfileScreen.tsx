@@ -22,7 +22,6 @@ interface ProfileScreenProps {
   // Pi integration (optional; game stays playable without it).
   piSdkAvailable: boolean;
   piUser: PiUser | null;
-  onConnectPi: () => Promise<void>;
   onPiPaymentComplete: () => void;
 }
 
@@ -51,7 +50,6 @@ export default function ProfileScreen({
   onReset,
   piSdkAvailable,
   piUser,
-  onConnectPi,
   onPiPaymentComplete,
 }: ProfileScreenProps) {
   const { ratio, intoLevel, perLevel } = levelProgress(profile.totalXp);
@@ -199,7 +197,6 @@ export default function ProfileScreen({
       <PiPanel
         sdkAvailable={piSdkAvailable}
         piUser={piUser}
-        onConnect={onConnectPi}
         onPaymentComplete={onPiPaymentComplete}
         testPaymentDone={profile.piTestPaymentCompleted}
       />

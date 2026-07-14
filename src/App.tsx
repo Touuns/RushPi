@@ -364,7 +364,6 @@ export default function App() {
           onReset={handleReset}
           piSdkAvailable={piSdkAvailable}
           piUser={piUser}
-          onConnectPi={connectPi}
           onPiPaymentComplete={onPiPaymentComplete}
         />
       )}

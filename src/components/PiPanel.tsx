@@ -6,8 +6,6 @@ interface PiPanelProps {
   /** Whether window.Pi is present (running where the Pi SDK is available). */
   sdkAvailable: boolean;
   piUser: PiUser | null;
-  /** Authenticate with Pi; throws on failure. */
-  onConnect: () => Promise<void>;
   /** Called after a successful test payment so the parent can persist/refresh. */
   onPaymentComplete: () => void;
   /** Whether the test payment was already completed (persisted). */
@@ -17,33 +15,19 @@ interface PiPanelProps {
 type PayStatus = "idle" | "pending" | "success" | "cancelled" | "error";
 
 /**
- * Pi connection + developer-checklist test payment. Self-contained and optional:
- * the game stays fully playable without connecting. The actual Pi API key lives
- * only on the server (Vercel) — this only triggers the SDK and shows status.
+ * Developer-checklist test payment panel (payment ONLY since Phase 10B-P3 —
+ * connection lives in the header PiConnectChip). Renders nothing unless a Pi
+ * user is connected. The actual Pi API key lives only on the server (Vercel);
+ * this only triggers the SDK and shows status.
  */
 export default function PiPanel({
   sdkAvailable,
   piUser,
-  onConnect,
   onPaymentComplete,
   testPaymentDone,
 }: PiPanelProps) {
-  const [connecting, setConnecting] = useState(false);
-  const [connectError, setConnectError] = useState<string | null>(null);
   const [payStatus, setPayStatus] = useState<PayStatus>("idle");
   const [payMessage, setPayMessage] = useState<string>("");
-
-  const handleConnect = async () => {
-    setConnecting(true);
-    setConnectError(null);
-    try {
-      await onConnect();
-    } catch (err) {
-      setConnectError(err instanceof Error ? err.message : "Could not connect to Pi.");
-    } finally {
-      setConnecting(false);
-    }
-  };
 
   const handleTestPayment = async () => {
     setPayStatus("pending");
@@ -64,56 +48,33 @@ export default function PiPanel({
     }
   };
 
+  // Payment-only panel: nothing to show unless a Pi user is connected.
+  if (!sdkAvailable || !piUser) return null;
+
   return (
     <div className="pi-panel">
       <span className="pi-panel__title">Pi Network</span>
 
-      {!sdkAvailable && (
-        <p className="pi-panel__hint">Open in Pi Browser to connect your Pi account.</p>
+      {testPaymentDone && payStatus !== "success" && (
+        <p className="pi-panel__done">✓ Pi test payment completed — thanks!</p>
       )}
 
-      {sdkAvailable && !piUser && (
-        <>
-          <button
-            className="btn btn--secondary"
-            type="button"
-            onClick={handleConnect}
-            disabled={connecting}
-          >
-            {connecting ? "Connecting…" : "Connect Pi"}
-          </button>
-          {connectError && <p className="pi-panel__error">{connectError}</p>}
-        </>
-      )}
+      {/* Discreet + clearly optional: the game is fully playable without it. */}
+      <p className="pi-panel__desc">
+        Optional: send a small Testnet payment to support Rush Pi.
+        Not required to play, no gameplay advantage.
+      </p>
+      <button
+        className="btn btn--ghost btn--small"
+        type="button"
+        onClick={handleTestPayment}
+        disabled={payStatus === "pending"}
+      >
+        {payStatus === "pending" ? "Processing…" : "Test Pi Payment"}
+      </button>
 
-      {sdkAvailable && piUser && (
-        <>
-          <p className="pi-panel__connected">
-            Connected as <strong>@{piUser.username}</strong>
-          </p>
-
-          {testPaymentDone && payStatus !== "success" && (
-            <p className="pi-panel__done">✓ Pi test payment completed — thanks!</p>
-          )}
-
-          {/* Discreet + clearly optional: the game is fully playable without it. */}
-          <p className="pi-panel__desc">
-            Optional: send a small Testnet payment to support Rush Pi.
-            Not required to play, no gameplay advantage.
-          </p>
-          <button
-            className="btn btn--ghost btn--small"
-            type="button"
-            onClick={handleTestPayment}
-            disabled={payStatus === "pending"}
-          >
-            {payStatus === "pending" ? "Processing…" : "Test Pi Payment"}
-          </button>
-
-          {payMessage && (
-            <p className={`pi-panel__status is-${payStatus}`}>{payMessage}</p>
-          )}
-        </>
+      {payMessage && (
+        <p className={`pi-panel__status is-${payStatus}`}>{payMessage}</p>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
 import { getDailyChallengeLabel } from "../game/seededRandom";
 import PiPanel from "./PiPanel";
+import PiConnectChip from "./PiConnectChip";
 import ModeIntroModal, {
   hasSeenIntro,
   markIntroSeen,
@@ -132,11 +133,20 @@ export default function HomeScreen({
 
   return (
     <div className="screen home">
-      <div className="home__brand home__brand--compact">
-        <div className="home__logo" aria-hidden="true" />
-        <h1 className="home__title">Rush Pi</h1>
-        <p className="home__challenge">Daily Challenge — {challengeLabel}</p>
+      {/* Header: brand on the left, single Pi connection point on the right. */}
+      <div className="home__header">
+        <div className="home__brand-row">
+          <div className="home__logo home__logo--small" aria-hidden="true" />
+          <h1 className="home__title home__title--small">Rush Pi</h1>
+        </div>
+        <PiConnectChip
+          sdkAvailable={piSdkAvailable}
+          piUser={piUser}
+          onConnect={onConnectPi}
+          onProfile={onProfile}
+        />
       </div>
+      <p className="home__challenge">Daily Challenge — {challengeLabel}</p>
 
       <button className="profile-strip profile-strip--compact" type="button" onClick={onProfile}>
         <div className="profile-strip__top">
@@ -250,7 +260,6 @@ export default function HomeScreen({
       <PiPanel
         sdkAvailable={piSdkAvailable}
         piUser={piUser}
-        onConnect={onConnectPi}
         onPaymentComplete={onPiPaymentComplete}
         testPaymentDone={profile.piTestPaymentCompleted}
       />
