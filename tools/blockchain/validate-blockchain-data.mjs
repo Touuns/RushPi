@@ -405,7 +405,17 @@ for (const level of levels) {
   requireUnique(level.rules ?? [], `${context} rules`);
   requireUnique(level.resources ?? [], `${context} resources`);
   requireUnique(level.objectives ?? [], `${context} objectives`);
+  requireUnique(level.validationScenarios ?? [], `${context} validation scenarios`);
   if (!Array.isArray(level.objectives) || level.objectives.length === 0) error(`${context}: objectives required`);
+  if (!Array.isArray(level.validationScenarios) || level.validationScenarios.length < 4) error(`${context}: at least four validation scenarios required`);
+  const resourceIds = new Set((level.resources ?? []).map((resource) => resource.id));
+  for (const objective of level.objectives ?? []) {
+    if (objective.resourceId && !resourceIds.has(objective.resourceId)) error(`${context}: objective ${objective.id} references unknown resource ${objective.resourceId}`);
+  }
+  for (const scenario of level.validationScenarios ?? []) {
+    if (!Array.isArray(scenario.commands) || scenario.commands.length === 0 || scenario.commands.some((command) => !["up", "right", "down", "left"].includes(command))) error(`${context}: scenario ${scenario.id} has invalid commands`);
+    for (const resourceId of Object.keys(scenario.expectedResources ?? {})) if (!resourceIds.has(resourceId)) error(`${context}: scenario ${scenario.id} expects unknown resource ${resourceId}`);
+  }
   for (const resource of level.resources ?? []) {
     if (![resource.initial, resource.minimum, resource.target].filter((value) => value !== undefined).every((value) => Number.isInteger(value) && value >= 0)) error(`${context}: resource ${resource.id} must be non-negative`);
   }
@@ -418,49 +428,165 @@ const scenarioDirections = {
   down: { x: 0, y: 1 },
   left: { x: -1, y: 0 },
 };
-const prototypeScenarios = [
-  {
-    levelId: "bitcoin-utxo-vault-maze",
-    label: "winning route",
-    commands: ["up", "right", "up", "right"],
-    expectedStops: ["btc-utxo-a", "btc-utxo-b", "btc-final-transaction", "btc-exit"],
-  },
-  {
-    levelId: "bitcoin-utxo-vault-maze",
-    label: "spent-output failure route",
-    commands: ["up", "right", "right"],
-    expectedStops: ["btc-utxo-a", "btc-utxo-b", "btc-spent-decoy"],
-  },
-  {
-    levelId: "ethereum-gas-labyrinth-maze",
-    label: "winning route",
-    commands: ["up", "right", "up", "right"],
-    expectedStops: ["eth-contract-a", "eth-gas-cell", "eth-contract-b", "eth-exit"],
-  },
-  {
-    levelId: "ethereum-gas-labyrinth-maze",
-    label: "revert failure route",
-    commands: ["up", "right", "right"],
-    expectedStops: ["eth-contract-a", "eth-gas-cell", "eth-invalid-contract"],
-  },
-];
 
-for (const scenario of prototypeScenarios) {
-  const level = levels.find((candidate) => candidate.id === scenario.levelId);
-  if (!level) {
-    error(`Chain Maze scenario ${scenario.label}: missing level ${scenario.levelId}`);
-    continue;
+function scenarioObjectiveSatisfied(objective, state) {
+  if (objective.type === "resource-at-least") return state.resources[objective.resourceId] >= objective.target;
+  if (objective.type === "resource-equals") return state.resources[objective.resourceId] === objective.target;
+  if (objective.type === "activate-tile") return state.resolvedTiles.has(objective.target);
+  if (objective.type === "activate-tiles") return objective.target.every((id) => state.resolvedTiles.has(id));
+  if (objective.type === "reach-exit") return state.status === "won";
+  return false;
+}
+
+function failScenario(state, failureCode) {
+  state.status = "failed";
+  state.failureCode = failureCode;
+}
+
+function checkScenarioFloors(level, state) {
+  for (const resource of level.resources ?? []) {
+    if (state.resources[resource.id] < resource.minimum) {
+      const rule = level.rules.find((candidate) => candidate.type === "resource-floor" && candidate.parameters.resourceId === resource.id);
+      failScenario(state, rule?.parameters.failureCode ?? "resource-floor");
+      return;
+    }
   }
+}
+
+function resolveScenarioTile(level, state, tile) {
+  if (!tile) return;
+  if (tile.type === "spentOutput") {
+    const rule = level.rules.find((candidate) => candidate.type === "spent-output-fails");
+    failScenario(state, rule?.parameters.failureCode ?? "spent-output");
+    return;
+  }
+  if (tile.type === "hazard") {
+    failScenario(state, "hazard");
+    return;
+  }
+  if ((tile.type === "collectible" || tile.type === "gasCell") && !state.resolvedTiles.has(tile.id)) {
+    const resourceId = tile.type === "gasCell" ? "gas" : level.rules.find((rule) => rule.type === "collect-once")?.parameters.resourceId;
+    if (resourceId) state.resources[resourceId] += tile.value ?? 0;
+    state.resolvedTiles.add(tile.id);
+    return;
+  }
+  if (tile.type === "contract" && !state.resolvedTiles.has(tile.id)) {
+    state.resources.gas -= tile.cost ?? 0;
+    checkScenarioFloors(level, state);
+    if (state.status !== "active") return;
+    if (tile.state === "invalid") {
+      const rule = level.rules.find((candidate) => candidate.type === "invalid-contract-fails");
+      failScenario(state, rule?.parameters.failureCode ?? "revert");
+      return;
+    }
+    state.resolvedTiles.add(tile.id);
+    return;
+  }
+  if (tile.type === "transaction" && !state.resolvedTiles.has(tile.id)) {
+    const rule = level.rules.find((candidate) => candidate.type === "utxo-transaction");
+    if (!rule) {
+      failScenario(state, "missing-transaction-rule");
+      return;
+    }
+    const inputValue = state.resources[rule.parameters.inputResourceId];
+    if (inputValue < rule.parameters.minimumInput) {
+      failScenario(state, "insufficient-input");
+      return;
+    }
+    state.resources[rule.parameters.outputResourceId] = rule.parameters.outputValue;
+    state.resources[rule.parameters.feeResourceId] = rule.parameters.feeValue;
+    state.resources[rule.parameters.changeResourceId] = inputValue - rule.parameters.outputValue - rule.parameters.feeValue;
+    state.resolvedTiles.add(tile.id);
+    return;
+  }
+  if (tile.type === "exit") {
+    const incomplete = level.objectives.filter((objective) => objective.type !== "reach-exit" && !scenarioObjectiveSatisfied(objective, state));
+    if (incomplete.length) failScenario(state, "exit-locked");
+    else state.status = "won";
+  }
+}
+
+function simulateScenario(level, scenario) {
   const tileByCoordinate = new Map((level.tiles ?? []).map((tile) => [coordinateKey(tile), tile]));
-  let position = level.start;
-  const actualStops = [];
+  const state = {
+    position: { ...level.start },
+    moves: 0,
+    status: "active",
+    failureCode: null,
+    resources: Object.fromEntries((level.resources ?? []).map((resource) => [resource.id, resource.initial])),
+    resolvedTiles: new Set(),
+  };
   for (const command of scenario.commands) {
-    position = slide(level, tileByCoordinate, position, scenarioDirections[command]);
-    actualStops.push(tileByCoordinate.get(coordinateKey(position))?.id ?? coordinateKey(position));
+    if (state.status !== "active") break;
+    const currentTile = tileByCoordinate.get(coordinateKey(state.position));
+    if (currentTile?.type === "oneWay" && currentTile.direction !== command) continue;
+    const destination = slide(level, tileByCoordinate, state.position, scenarioDirections[command]);
+    if (coordinateKey(destination) === coordinateKey(state.position)) continue;
+    state.moves += 1;
+    const moveCostRule = level.rules.find((rule) => rule.type === "cost-per-command");
+    if (moveCostRule) state.resources[moveCostRule.parameters.resourceId] -= moveCostRule.parameters.cost;
+    state.position = destination;
+    checkScenarioFloors(level, state);
+    if (state.status === "active") resolveScenarioTile(level, state, tileByCoordinate.get(coordinateKey(state.position)));
   }
-  if (actualStops.join("|") !== scenario.expectedStops.join("|")) {
-    error(`Chain Maze scenario ${scenario.levelId} ${scenario.label}: expected ${scenario.expectedStops.join(" -> ")}, got ${actualStops.join(" -> ")}`);
+  return state;
+}
+
+for (const level of levels) {
+  for (const scenario of level.validationScenarios ?? []) {
+    const context = `Chain Maze scenario ${level.id}/${scenario.id}`;
+    const actual = simulateScenario(level, scenario);
+    if (actual.status !== scenario.expectedStatus) error(`${context}: expected status ${scenario.expectedStatus}, got ${actual.status}`);
+    if (actual.failureCode !== scenario.expectedFailureCode) error(`${context}: expected failure ${scenario.expectedFailureCode}, got ${actual.failureCode}`);
+    if (actual.moves !== scenario.expectedMoves) error(`${context}: expected ${scenario.expectedMoves} moves, got ${actual.moves}`);
+    for (const [resourceId, expectedValue] of Object.entries(scenario.expectedResources ?? {})) {
+      if (actual.resources[resourceId] !== expectedValue) error(`${context}: expected ${resourceId}=${expectedValue}, got ${actual.resources[resourceId]}`);
+    }
   }
+}
+
+const bitcoinLevel = levels.find((level) => level.id === "bitcoin-utxo-vault-maze");
+const ethereumLevel = levels.find((level) => level.id === "ethereum-gas-labyrinth-maze");
+if (!bitcoinLevel || !ethereumLevel) {
+  error("Chain Maze: Bitcoin and Ethereum v2 levels are both required");
+} else {
+  if (bitcoinLevel.width === ethereumLevel.width && bitcoinLevel.height === ethereumLevel.height) error("Chain Maze: Bitcoin and Ethereum must have different dimensions");
+  if (coordinateKey(bitcoinLevel.start) === coordinateKey(ethereumLevel.start) && coordinateKey(bitcoinLevel.exit) === coordinateKey(ethereumLevel.exit)) error("Chain Maze: Bitcoin and Ethereum cannot share both start and exit coordinates");
+  const wallSignature = (level) => level.tiles.filter((tile) => tile.type === "wall").map(coordinateKey).sort().join("|");
+  if (wallSignature(bitcoinLevel) === wallSignature(ethereumLevel)) error("Chain Maze: Bitcoin and Ethereum cannot share the same wall coordinates");
+  const bitcoinPrimary = bitcoinLevel.validationScenarios.find((scenario) => scenario.routeRole === "optimal");
+  const ethereumPrimary = ethereumLevel.validationScenarios.find((scenario) => scenario.routeRole === "short-costly");
+  if (bitcoinPrimary?.commands.join("|") === ethereumPrimary?.commands.join("|")) error("Chain Maze: Bitcoin and Ethereum cannot share the same primary winning command list");
+
+  const bitcoinUtxos = bitcoinLevel.tiles.filter((tile) => tile.type === "collectible" && tile.state === "available");
+  if (bitcoinLevel.width < 10 || bitcoinLevel.height < 9) error("Bitcoin UTXO Vault v2: minimum dimensions are 10x9");
+  if (bitcoinUtxos.length < 3) error("Bitcoin UTXO Vault v2: at least three available UTXOs required");
+  for (const value of [2, 3, 5]) if (!bitcoinUtxos.some((tile) => tile.value === value)) error(`Bitcoin UTXO Vault v2: missing available UTXO value ${value}`);
+  if (!bitcoinLevel.tiles.some((tile) => tile.type === "spentOutput")) error("Bitcoin UTXO Vault v2: an already spent output is required");
+  const bitcoinWins = bitcoinLevel.validationScenarios.filter((scenario) => scenario.expectedStatus === "won");
+  if (bitcoinWins.length < 2 || bitcoinWins.some((scenario) => scenario.commands.length <= 4)) error("Bitcoin UTXO Vault v2: two winning routes longer than four commands are required");
+  for (const role of ["optimal", "alternate", "insufficient", "spent-output"]) if (!bitcoinLevel.validationScenarios.some((scenario) => scenario.routeRole === role)) error(`Bitcoin UTXO Vault v2: missing ${role} scenario`);
+  for (const scenario of bitcoinWins) {
+    const result = simulateScenario(bitcoinLevel, scenario);
+    if (result.resources.createdOutputValue !== 6 || result.resources.abstractFee !== 1 || result.resources.abstractChange !== result.resources.selectedInputValue - 7) error(`Bitcoin UTXO Vault v2: incoherent output/fee/change in ${scenario.id}`);
+  }
+
+  const validContracts = ethereumLevel.tiles.filter((tile) => tile.type === "contract" && tile.state !== "invalid" && tile.required);
+  const invalidContracts = ethereumLevel.tiles.filter((tile) => tile.type === "contract" && tile.state === "invalid");
+  if (validContracts.length < 2) error("Ethereum Gas Labyrinth v2: at least two required valid contracts are required");
+  if (invalidContracts.length < 1) error("Ethereum Gas Labyrinth v2: an invalid contract is required");
+  if (!ethereumLevel.tiles.some((tile) => tile.type === "gasCell")) error("Ethereum Gas Labyrinth v2: a gas cell is required");
+  const ethereumWins = ethereumLevel.validationScenarios.filter((scenario) => scenario.expectedStatus === "won");
+  if (ethereumWins.length < 2) error("Ethereum Gas Labyrinth v2: at least two winning routes are required");
+  for (const role of ["short-costly", "long-efficient", "out-of-gas", "revert", "premature-exit"]) if (!ethereumLevel.validationScenarios.some((scenario) => scenario.routeRole === role)) error(`Ethereum Gas Labyrinth v2: missing ${role} scenario`);
+  const shortRoute = ethereumLevel.validationScenarios.find((scenario) => scenario.routeRole === "short-costly");
+  const efficientRoute = ethereumLevel.validationScenarios.find((scenario) => scenario.routeRole === "long-efficient");
+  const shortResult = shortRoute && simulateScenario(ethereumLevel, shortRoute);
+  const efficientResult = efficientRoute && simulateScenario(ethereumLevel, efficientRoute);
+  if (!shortRoute || !efficientRoute || shortRoute.commands.length >= efficientRoute.commands.length || shortResult.resources.gas >= efficientResult.resources.gas) error("Ethereum Gas Labyrinth v2: the longer gas-cell route must retain more gas than the short costly route");
+  if (ethereumLevel.resources.find((resource) => resource.id === "gas")?.initial !== 16) error("Ethereum Gas Labyrinth v2: initial abstract gas budget must be 16");
+  if (!validContracts.some((tile) => tile.cost === 3) || !validContracts.some((tile) => tile.cost === 5)) error("Ethereum Gas Labyrinth v2: required contract costs 3 and 5 are missing");
+  if (!ethereumLevel.tiles.some((tile) => tile.type === "gasCell" && tile.value === 4)) error("Ethereum Gas Labyrinth v2: optional gas cell must add 4 abstract units");
 }
 
 const visualMechanics = documents.get("visual-mechanics.json")?.mechanics ?? [];

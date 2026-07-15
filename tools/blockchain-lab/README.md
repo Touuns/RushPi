@@ -22,7 +22,7 @@ Open `http://127.0.0.1:4177`. Set `PORT` or pass a port as the first argument wh
 6. Play both **Chain Maze** levels using arrows, WASD, swipe, or the on-screen controls. Test reset, debug coordinates, a winning path, and an invalid or out-of-resource path.
 7. Inspect the local evidence IDs and review dates in **Sources & Accuracy**.
 
-The intended four-command route for each included maze is `Up → Right → Up → Right`. The route `Up → Right → Right` demonstrates a spent-output failure in Bitcoin and a contract revert in Ethereum; repeatedly taking costly Ethereum routes can also demonstrate gas exhaustion.
+The Bitcoin v2 exact-input win is `Up → Up → Right → Right → Up → Left → Right → Right`; its alternate change route starts `Right → Up → Up`. The Ethereum short win is `Up → Up → Right → Up → Right`, while the longer gas-cell route starts `Right → Up → Left`. The **Validated teaching routes** panel lists every automated win, insufficient-input, spent-output, out-of-gas, revert, and premature-exit scenario.
 
 ## Validation
 

@@ -270,6 +270,7 @@ function resetMaze() {
     resources: Object.fromEntries(level.resources.map((resource) => [resource.id, resource.initial])),
     resolvedTiles: new Set(),
     failedReason: "",
+    failureCode: null,
   };
   renderMaze();
   announceMaze(`${level.title} reset. ${level.educationalConcept}`);
@@ -303,9 +304,10 @@ function slideDestination(directionName) {
   return { x, y };
 }
 
-function failMaze(reason) {
+function failMaze(reason, failureCode = "invalid-state") {
   mazeState.status = "failed";
   mazeState.failedReason = reason;
+  mazeState.failureCode = failureCode;
   mazeState.feedback = reason;
 }
 
@@ -337,7 +339,8 @@ function moveMaze(directionName) {
 function checkResourceFloors() {
   for (const resource of mazeState.level.resources) {
     if (mazeState.resources[resource.id] < resource.minimum) {
-      failMaze(`${resource.displayName} fell below its minimum: out of gas or invalid resource state.`);
+      const rule = mazeState.level.rules.find((candidate) => candidate.type === "resource-floor" && candidate.parameters.resourceId === resource.id);
+      failMaze(`${resource.displayName} fell below its minimum: the abstract budget is exhausted.`, rule?.parameters.failureCode ?? "resource-floor");
     }
   }
 }
@@ -349,11 +352,12 @@ function resolveMazeTile() {
     return;
   }
   if (tile.type === "spentOutput") {
-    failMaze("Invalid route: that output is already spent, so using it would be a double-spend attempt.");
+    const rule = mazeState.level.rules.find((candidate) => candidate.type === "spent-output-fails");
+    failMaze("Invalid route: that output is already spent, so using it would be a double-spend attempt.", rule?.parameters.failureCode ?? "spent-output");
     return;
   }
   if (tile.type === "hazard") {
-    failMaze("The level hazard invalidated this attempt.");
+    failMaze("The level hazard invalidated this attempt.", "hazard");
     return;
   }
   if ((tile.type === "collectible" || tile.type === "gasCell") && !mazeState.resolvedTiles.has(tile.id)) {
@@ -362,26 +366,32 @@ function resolveMazeTile() {
     mazeState.resolvedTiles.add(tile.id);
     mazeState.feedback = `${tile.type === "gasCell" ? "Abstract gas" : "Available output"} collected: +${tile.value}.`;
   } else if (tile.type === "contract" && !mazeState.resolvedTiles.has(tile.id)) {
-    if (tile.state === "invalid") {
-      failMaze("Contract revert: this call is marked invalid in the teaching scenario.");
-      return;
-    }
     mazeState.resources.gas -= tile.cost ?? 0;
-    mazeState.resolvedTiles.add(tile.id);
     checkResourceFloors();
-    if (mazeState.status === "active") mazeState.feedback = `${tile.id} succeeded for ${tile.cost} abstract gas cells.`;
-  } else if (tile.type === "transaction" && !mazeState.resolvedTiles.has(tile.id)) {
-    const rule = mazeState.level.rules.find((candidate) => candidate.type === "transaction-requires-resource");
-    if (mazeState.resources[rule.parameters.resourceId] < rule.parameters.minimum) {
-      failMaze(`Transaction invalid: collect fictional value ${rule.parameters.minimum} first.`);
+    if (mazeState.status !== "active") return;
+    if (tile.state === "invalid") {
+      const rule = mazeState.level.rules.find((candidate) => candidate.type === "invalid-contract-fails");
+      failMaze(`Contract revert: this call's fictional changes were discarded after consuming ${tile.cost} engaged gas units; earlier gas remains spent.`, rule?.parameters.failureCode ?? "revert");
       return;
     }
     mazeState.resolvedTiles.add(tile.id);
-    mazeState.feedback = "Simplified transaction confirmed; selected outputs are now spent for this attempt.";
+    mazeState.feedback = `${tile.id} succeeded for ${tile.cost} abstract gas units.`;
+  } else if (tile.type === "transaction" && !mazeState.resolvedTiles.has(tile.id)) {
+    const rule = mazeState.level.rules.find((candidate) => candidate.type === "utxo-transaction");
+    const inputValue = mazeState.resources[rule.parameters.inputResourceId];
+    if (inputValue < rule.parameters.minimumInput) {
+      failMaze(`Transaction rejected: selected fictional input value ${inputValue} is below the required ${rule.parameters.minimumInput}.`, "insufficient-input");
+      return;
+    }
+    mazeState.resources[rule.parameters.outputResourceId] = rule.parameters.outputValue;
+    mazeState.resources[rule.parameters.feeResourceId] = rule.parameters.feeValue;
+    mazeState.resources[rule.parameters.changeResourceId] = inputValue - rule.parameters.outputValue - rule.parameters.feeValue;
+    mazeState.resolvedTiles.add(tile.id);
+    mazeState.feedback = `Fictional transaction created output ${rule.parameters.outputValue}, reserved fee ${rule.parameters.feeValue}, and produced change ${mazeState.resources[rule.parameters.changeResourceId]}. Selected UTXOs are consumed once for this attempt.`;
   } else if (tile.type === "exit") {
     const incomplete = mazeState.level.objectives.filter((objective) => objective.type !== "reach-exit").filter((objective) => !objectiveSatisfied(objective));
     if (incomplete.length) {
-      failMaze(`Exit locked: ${incomplete.map((objective) => objective.description).join(" ")}`);
+      failMaze(`Exit locked: ${incomplete.map((objective) => objective.description).join(" ")}`, "exit-locked");
       return;
     }
     mazeState.status = "won";
@@ -393,9 +403,9 @@ function resolveMazeTile() {
 
 function objectiveSatisfied(objective) {
   if (objective.type === "resource-at-least") {
-    const resource = mazeState.level.resources.find((candidate) => candidate.target === objective.target) ?? mazeState.level.resources[0];
-    return mazeState.resources[resource.id] >= objective.target;
+    return mazeState.resources[objective.resourceId] >= objective.target;
   }
+  if (objective.type === "resource-equals") return mazeState.resources[objective.resourceId] === objective.target;
   if (objective.type === "activate-tile") return mazeState.resolvedTiles.has(objective.target);
   if (objective.type === "activate-tiles") return objective.target.every((id) => mazeState.resolvedTiles.has(id));
   if (objective.type === "reach-exit") return mazeState.status === "won";
@@ -409,6 +419,7 @@ function renderMaze() {
   const debug = $("#maze-debug").checked;
   const marks = { start: "S", exit: "E", anchor: "A", collectible: "+", spentOutput: "×", transaction: "TX", contract: "C", gasCell: "+G", validator: "V", portal: "P", proofFragment: "PF", bridge: "B", checkpoint: "CP", instruction: "I", hazard: "!", oneWay: "→" };
   $("#maze-grid").style.setProperty("--maze-width", level.width);
+  $("#maze-grid").style.setProperty("--maze-height", level.height);
   const cells = [];
   for (let y = 0; y < level.height; y += 1) {
     for (let x = 0; x < level.width; x += 1) {
@@ -428,11 +439,12 @@ function renderMaze() {
   $("#maze-moves").textContent = mazeState.moves;
   $("#maze-par").textContent = level.parMoves;
   $("#maze-resource").textContent = level.resources.map((resource) => `${resource.displayName}: ${mazeState.resources[resource.id]}`).join(" · ");
-  $("#maze-status").textContent = mazeState.status === "active" ? "Active" : mazeState.status === "won" ? "Won" : "Failed";
+  $("#maze-status").textContent = mazeState.status === "active" ? "Active" : mazeState.status === "won" ? "Won" : `Failed · ${mazeState.failureCode}`;
   $("#maze-feedback").textContent = mazeState.feedback;
   $("#maze-objectives").innerHTML = level.objectives.map((objective) => `<li class="${objectiveSatisfied(objective) ? "done" : ""}">${objectiveSatisfied(objective) ? "Done: " : "Open: "}${escapeHtml(objective.description)}</li>`).join("");
   $("#maze-explanation").textContent = level.winCondition;
   $("#maze-simplification").textContent = level.simplificationNotes;
+  $("#maze-scenarios").innerHTML = level.validationScenarios.map((scenario) => `<li><strong>${escapeHtml(scenario.label)}</strong>: ${escapeHtml(scenario.commands.join(" → "))} — expected ${escapeHtml(scenario.expectedStatus)}${scenario.expectedFailureCode ? ` (${escapeHtml(scenario.expectedFailureCode)})` : ""}</li>`).join("");
   $("#maze-sources").textContent = `Sources: ${level.officialSources.join(" · ")}`;
   $$("[data-direction]").forEach((button) => { button.disabled = mazeState.status !== "active"; });
 }

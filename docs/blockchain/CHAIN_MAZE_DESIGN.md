@@ -1,39 +1,31 @@
 # Chain Maze design
 
-Status: original directional-maze foundation
+Status: original directional-maze foundation — v2 prototypes
 
 Canonical levels: `public/data/blockchain/chain-maze-levels.json`
 
 Last reviewed: 2026-07-15
 
-## Originality boundary
+## Originality and scope
 
-Chain Maze uses the general, non-exclusive idea of continuous orthogonal movement on a grid. It does not copy Tomb of the Mask levels, layouts, graphics, masks, enemies, interface, animations, effects, sounds, progression, names, or recognizable motifs.
+Chain Maze uses the general idea of continuous orthogonal movement on a grid. It does not copy Tomb of the Mask levels, layouts, graphics, masks, enemies, interface, animations, effects, sounds, progression, names, or recognizable motifs. Its identity comes from explicit protocol-inspired state machines, visible resources, causal failures, declared test scenarios, and the original generic Rush Pi orb.
 
-Its identity comes from protocol state machines: UTXO consumption, gas accounting, contract reversion, proof gates, packet sequences, quorum checks, and explicit educational recap. The player is the original generic Rush Pi orb shell with no face, mask, or protocol logo.
+The prototype performs no chain operation, transaction, contract call, proof, wallet action, payment, or network request.
 
-## Core movement
+## Movement contract
 
-- The level is an orthogonal rectangular grid.
-- The player commands up, right, down, or left through keyboard, touch buttons, or optional swipe.
-- The orb moves cell by cell in that direction.
-- It continues until the next step would hit a wall or grid boundary, or until it enters a stopping tile.
-- Stopping tiles include anchors, nodes, portals, validators, transactions, contracts, resources, checkpoints, and the exit.
-- The player chooses the next direction only while stopped.
-- There is no analog inertia, acceleration, or physics bounce.
-- Commands are buffered at most once and are ignored while resolving a tile rule.
-- Reset is immediate and always available.
+- Commands are `up`, `right`, `down`, and `left`, available through arrows/WASD, touch buttons, or swipe.
+- The orb continues until a wall, boundary, or stopping tile.
+- Anchors, resources, contracts, transactions, exits, validators, and checkpoints stop movement.
+- A blocked command does not consume a move or resource.
+- A valid Ethereum command deducts its movement cost before the destination tile resolves.
+- Resolved collectibles and valid contracts cannot grant their effect twice.
+- Reset restores position, moves, resources, resolved tiles, status, failure code, and objectives.
+- Reduced motion moves directly to the stopped position while preserving the same rule order.
 
-The preview may animate each traversed cell for readability. Under reduced motion, the orb moves directly to its destination and the traversed path is outlined statically.
-
-## Level interface
+## Data interface
 
 ```ts
-interface Position {
-  x: number;
-  y: number;
-}
-
 interface ChainMazeLevel {
   id: string;
   chapterId: string;
@@ -45,160 +37,107 @@ interface ChainMazeLevel {
   rules: MazeRule[];
   resources: MazeResource[];
   objectives: MazeObjective[];
+  validationScenarios: MazeScenario[];
   parMoves: number;
   educationalConcept: string;
 }
+
+interface MazeScenario {
+  id: string;
+  routeRole: string;
+  commands: Array<"up" | "right" | "down" | "left">;
+  expectedStatus: "won" | "failed";
+  expectedFailureCode: string | null;
+  expectedMoves: number;
+  expectedResources: Record<string, number>;
+}
 ```
 
-The JSON also carries a title, win/failure copy, sources, simplification notes, status, and review date. Unlisted coordinates are `empty`; out-of-bounds movement behaves as a wall.
+Unlisted coordinates are passable `empty` cells. The shared taxonomy includes walls, anchors, start/exit, collectibles, hazards, one-way tiles, portals, validators, transactions, spent outputs, contracts, gas cells, instructions, proof fragments, bridges, and checkpoints. Shape, pattern, text, and border must accompany color.
 
-## Tile taxonomy
+## Bitcoin UTXO Vault v2
 
-| Type | Walkable | Stops | Role |
-|---|:---:|:---:|---|
-| `wall` | no | before entry | blocks a route |
-| `empty` | yes | no | ordinary traversal |
-| `anchor` | yes | yes | neutral direction change |
-| `start` | yes | yes | unique initial position |
-| `exit` | yes | yes | unique objective evaluation point |
-| `collectible` | yes | yes | fictional level resource |
-| `hazard` | yes | yes | explicit failure or penalty rule |
-| `oneWay` | yes | yes | restricts departure direction |
-| `portal` | yes | yes | validated link to another coordinate |
-| `validator` | yes | yes | checks a proof or predicate |
-| `transaction` | yes | yes | consumes inputs or commits a modeled transaction |
-| `spentOutput` | yes | yes | unavailable UTXO; fails the first prototype |
-| `contract` | yes | yes | runs a fictional resource-metered operation |
-| `gasCell` | yes | yes | adds abstract gas units |
-| `instruction` | yes | yes | collects or runs an ordered step |
-| `proofFragment` | yes | yes | fictional proof component |
-| `bridge` | yes | yes | checks a source/destination message rule |
-| `checkpoint` | yes | yes | records validated progress |
+### Topology
 
-Runtime visuals must combine shape, pattern, and text. A spent output, invalid contract, and exit cannot differ by color alone.
+- Grid: 10×9.
+- Start: `(1, 7)`; exit: `(8, 1)`.
+- UTXO A: value 2 at `(1, 5)`.
+- UTXO B: value 3 at `(4, 5)`.
+- UTXO C: value 5 at `(7, 3)`.
+- Already-spent decoy: `(8, 5)`.
+- Transaction: `(4, 1)`.
+- Five neutral anchors create left, center, lower-right, top-right, and initial branches.
+- Fifteen walls form three staggered bands. The layout is neither the old 9×9 grid nor the Ethereum topology.
 
-## Prototype 1 — Bitcoin UTXO Vault
+### Teaching transaction
 
-### Concept
+The player creates a fictional output of value 6 and reserves one abstract unit as a teaching fee. Selected input value must therefore reach at least 7. Excess becomes abstract change:
 
-An available output can be selected once as a fictional transaction input. Entering an already spent output is invalid. The level does not simulate a complete Bitcoin transaction.
+- `2 + 5 = 7`: valid; output 6, fee 1, change 0;
+- `3 + 5 = 8`: valid; output 6, fee 1, change 1;
+- `2 + 3 = 5`: rejected as insufficient;
+- already-spent output: rejected before transaction creation.
 
-### Initial state
+Every selected UTXO contributes once. A successful teaching transaction marks its inputs consumed for that attempt.
 
-- Grid: 9×9.
-- Start: `(1, 7)`.
-- Exit: `(7, 1)`.
-- Available outputs: value 3 at `(1, 4)` and value 2 at `(4, 4)`.
-- Spent decoy: `(7, 4)`.
-- Final transaction: `(4, 1)`.
-- Target fictional selected value: 5.
+### Declared routes
 
-### Intended solution
+- Optimal exact-input win: `Up → Up → Right → Right → Up → Left → Right → Right`.
+- Alternate change win: `Right → Up → Up → Right → Up → Left → Right → Right`.
+- Insufficient route: `Up → Right → Up → Up` reaches the transaction with value 5.
+- Spent-output route: `Right → Up → Right → Right` reaches the spent decoy.
 
-`Up → Right → Up → Right`
+Both winning routes exceed four commands and use different branches. The validator executes all four scenarios and checks output, fee, and change arithmetic.
 
-1. Up stops on the value-3 output and changes it from available to selected/spent-for-this-transaction.
-2. Right stops on the value-2 output; selected fictional value reaches 5.
-3. Up stops on the transaction tile and confirms the simplified objective.
-4. Right reaches the exit.
+### Simplification boundary
 
-Continuing right from the second output instead enters the spent decoy and produces the explicit double-spend failure.
+The puzzle does not reproduce Bitcoin scripts, signatures, serialization, transaction identifiers, real fee policy, propagation, mempool behavior, mining, or complete confirmation. Values are fictional teaching units.
 
-### States
+## Ethereum Gas Labyrinth v2
 
-`available → selected → spent → confirmed`, with `invalid` for the spent-decoy attempt.
+### Topology and budget
 
-### Win
+- Grid: 11×10.
+- Start: `(1, 8)`; exit: `(9, 1)`.
+- Initial budget: 16 abstract gas units.
+- Every valid directional command: cost 1.
+- Required contract A at `(1, 5)`: cost 3.
+- Required contract B at `(6, 5)`: cost 5.
+- Optional gas cell at `(4, 6)`: adds 4 once.
+- Invalid contract at `(8, 5)`: engages cost 2, reverts its fictional call, and ends the attempt.
+- Five anchors and sixteen walls create a direct execution lane, gas detour, premature-exit lane, and revert branch.
 
-Collect both available outputs, activate the final transaction, and reach the confirmed exit without entering the spent output.
+### Declared routes
 
-### Simplification
+- Short costly win: `Up → Up → Right → Up → Right`; gas remaining `3`.
+- Longer efficient win: `Right → Up → Left → Up → Right → Up → Right`; gas remaining `5` after the optional `+4` cell.
+- Out-of-gas: seventeen alternating `Right/Left` commands exhaust the budget to `-1`.
+- Revert: `Up → Up → Right → Right`; the invalid call consumes its engaged cost and ends with gas `2`.
+- Premature exit: `Right → Right → Up`; the exit is reached with gas `13` but both required contracts are missing.
 
-The puzzle omits scripts, signatures, transaction serialization, input/output conservation details, change calculation, fee selection, mempool behavior, and real confirmation risk. Values are fictional.
+Reaching the exit is not sufficient. Both valid contracts and at least one remaining unit are required. Revert discards the invalid call's fictional state; it does not present already-spent gas as fully refunded.
 
-## Prototype 2 — Ethereum Gas Labyrinth
+### Simplification boundary
 
-### Concept
+The fixed counters are not Ethereum fee estimates. The prototype omits intrinsic gas, calldata, opcode schedules, bytecode, storage charging, refunds, access lists, base fee, priority fee, transaction envelopes, denominations, and live network state.
 
-Execution consumes a gas budget and contract calls may succeed or revert. The abstract counter teaches metering and is not a fee estimate.
+## Verified differentiation
 
-### Initial state
+The validator rejects the dataset if both levels share dimensions, both start and exit coordinates, wall-coordinate lists, or primary winning commands. It also verifies:
 
-- Grid: 9×9.
-- Start: `(1, 7)` with 10 abstract gas cells.
-- Exit: `(7, 1)`.
-- Required contract A: `(1, 4)`, cost 3.
-- Gas cell: `(4, 4)`, adds 2 once.
-- Invalid contract: `(7, 4)`, triggers `revert` failure.
-- Required contract B: `(4, 1)`, cost 4.
-- Every directional command costs 1.
-- Exit requires both contracts and at least 1 cell.
+- Bitcoin has three available UTXOs with values 2, 3, and 5, a spent output, two wins, insufficient/spent failures, and coherent change;
+- Ethereum has two valid required contracts, one invalid contract, a gas cell, two wins, out-of-gas, revert, premature exit, and the declared costs;
+- every scenario reaches the exact expected status, failure code, move count, and resources;
+- base directional reachability uses a visited-state set and cannot loop indefinitely.
 
-### Intended solution
+The economic simulator is intentionally bounded to the declared teaching rules; it is not a protocol implementation or formal proof of every possible player path.
 
-`Up → Right → Up → Right`
+## Accessibility
 
-The resource path is `10 − 1 − 3 − 1 + 2 − 1 − 4 − 1 = 1`. Both required contracts succeed and one cell remains.
-
-Continuing right from the gas cell enters the invalid contract. The preview ends the attempt with a clearly labeled revert rather than pretending to reproduce every EVM rollback detail.
-
-### States
-
-`idle → executing → success`, or `revert` / `outOfGas` on failure.
-
-### Win
-
-Activate both required contracts and reach the exit with at least one abstract gas cell.
-
-### Simplification
-
-The puzzle omits opcode schedules, intrinsic transaction cost, storage charging, refunds, access lists, base fee, priority fee, denominations, and real network state. No displayed value is a quote.
-
-## Rule resolution order
-
-For deterministic preview behavior:
-
-1. reject input if the level is won, failed, or currently resolving;
-2. check `oneWay` departure restrictions;
-3. deduct per-command resource cost;
-4. fail if a resource drops below its floor;
-5. traverse until wall, boundary, or stopping tile;
-6. resolve a portal destination if valid;
-7. resolve hazard, spent output, resource, contract, transaction, validator, or checkpoint;
-8. update objectives;
-9. if on exit, evaluate all exit objectives;
-10. announce the result once and re-enable controls if still active.
-
-Repeated collectibles and contracts retain their resolved state and cannot grant resources twice.
-
-## Validation and reachability
-
-The structural validator checks:
-
-- unique level, rule, resource, objective, and tile IDs;
-- one start and exit coordinate, each represented by one matching tile;
-- width, height, and every coordinate within bounds;
-- known tile types;
-- no duplicate tile coordinate;
-- non-negative initial/minimum/target resource values and tile costs;
-- at least one objective and one win condition;
-- referenced tile and objective IDs;
-- rectangular implicit grid;
-- base directional reachability from start to exit.
-
-The base solver explores stopped positions using the movement taxonomy and a visited-state set, so it cannot loop forever. It proves geometric reachability, not every economic rule. A separate deterministic test runs the intended four-command solutions and asserts each win state.
-
-## Controls and accessibility
-
-- Arrow keys and WASD are equivalent.
-- Four touch buttons are always visible at mobile widths.
-- Swipe uses a minimum threshold and is optional.
-- Reset returns position, moves, resources, tiles, contracts, objectives, win, and failure state.
-- Focus remains on the last input control after a move.
-- A live region announces resource changes, stopped tile, failure, and victory once.
-- Debug grid labels coordinates only when enabled.
-- Reduced motion teleports the orb to its stopping position and outlines the traversed path.
-
-## Future levels
-
-Future Chain Maze designs may add validators, proofs, IBC packets, instructions, or checkpoints, but every special tile requires a sourced rule, a bounded state transition, a failure explanation, and base reachability. The two prototypes are the complete scope of this foundation.
+- Touch targets remain at least 44×44 CSS pixels.
+- Keyboard, buttons, and swipe call the same directional command function.
+- Debug coordinates are optional.
+- Resource names and numeric values remain visible in text.
+- Failure copy names `insufficient-input`, `spent-output`, `out-of-gas`, `revert`, or `exit-locked`.
+- Reduced motion preserves state changes and uses static resolved markers.
+- A live region announces result and resource changes without color-only meaning.

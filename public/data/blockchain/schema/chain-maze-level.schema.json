@@ -13,7 +13,7 @@
       "minItems": 2,
       "items": {
         "type": "object",
-        "required": ["id", "title", "chapterId", "width", "height", "start", "exit", "tiles", "rules", "resources", "objectives", "parMoves", "educationalConcept", "winCondition", "failConditions", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt"],
+        "required": ["id", "title", "chapterId", "width", "height", "start", "exit", "tiles", "rules", "resources", "objectives", "validationScenarios", "parMoves", "educationalConcept", "winCondition", "failConditions", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
           "title": { "type": "string" },
@@ -26,6 +26,7 @@
           "rules": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
           "resources": { "type": "array", "items": { "$ref": "#/$defs/resource" } },
           "objectives": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/objective" } },
+          "validationScenarios": { "type": "array", "minItems": 4, "items": { "$ref": "#/$defs/scenario" } },
           "parMoves": { "type": "integer", "minimum": 1 },
           "educationalConcept": { "type": "string" },
           "winCondition": { "type": "string" },
@@ -44,6 +45,21 @@
     "tile": { "type": "object", "required": ["id", "x", "y", "type"], "properties": { "id": { "type": "string" }, "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 }, "type": { "type": "string" }, "value": { "type": "integer" }, "cost": { "type": "integer" }, "targetId": { "type": "string" }, "direction": { "enum": ["up", "right", "down", "left"] }, "state": { "type": "string" }, "required": { "type": "boolean" } }, "additionalProperties": false },
     "rule": { "type": "object", "required": ["id", "type", "description"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "description": { "type": "string" }, "parameters": { "type": "object" } }, "additionalProperties": false },
     "resource": { "type": "object", "required": ["id", "displayName", "initial", "minimum"], "properties": { "id": { "type": "string" }, "displayName": { "type": "string" }, "initial": { "type": "integer", "minimum": 0 }, "minimum": { "type": "integer", "minimum": 0 }, "target": { "type": "integer", "minimum": 0 } }, "additionalProperties": false },
-    "objective": { "type": "object", "required": ["id", "type", "description"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "description": { "type": "string" }, "target": { "type": ["integer", "string", "array"] } }, "additionalProperties": false }
+    "objective": { "type": "object", "required": ["id", "type", "description"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "resourceId": { "type": "string" }, "description": { "type": "string" }, "target": { "type": ["integer", "string", "array"] } }, "additionalProperties": false },
+    "scenario": {
+      "type": "object",
+      "required": ["id", "label", "routeRole", "commands", "expectedStatus", "expectedFailureCode", "expectedMoves", "expectedResources"],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "routeRole": { "enum": ["optimal", "alternate", "insufficient", "spent-output", "short-costly", "long-efficient", "out-of-gas", "revert", "premature-exit"] },
+        "commands": { "type": "array", "minItems": 1, "items": { "enum": ["up", "right", "down", "left"] } },
+        "expectedStatus": { "enum": ["won", "failed"] },
+        "expectedFailureCode": { "type": ["string", "null"] },
+        "expectedMoves": { "type": "integer", "minimum": 1 },
+        "expectedResources": { "type": "object", "additionalProperties": { "type": "integer" } }
+      },
+      "additionalProperties": false
+    }
   }
 }

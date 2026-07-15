@@ -62,8 +62,8 @@ Each chapter includes:
 | Order | Chapter | Template | Central operation | Difficulty |
 |---:|---|---|---|---|
 | 1 | Pi Ecosystem Gateway | Network Routing | Preserve Pi Browser, client, backend, permission, and verified-result boundaries | introductory |
-| 2 | Bitcoin UTXO Vault | Chain Maze | Consume available outputs once and confirm a fictional transaction | introductory |
-| 3 | Ethereum Gas Labyrinth | Chain Maze | Complete required calls within an abstract resource budget | intermediate |
+| 2 | Bitcoin UTXO Vault | Chain Maze | Select inputs totaling at least 7, create output 6, reserve fee 1, and expose change | introductory |
+| 3 | Ethereum Gas Labyrinth | Chain Maze | Compare a short costly route with a longer gas-cell route under a 16-unit budget | intermediate |
 | 4 | Stellar Path Payment | Network Routing | Build a bounded fictional path payment atomically | intermediate |
 | 5 | Solana Atomic Grid | Sequence/Atomic Mission | Parallelize independent account work and serialize conflicts | intermediate |
 | 6 | Avalanche Sampling Trial | Validation Challenge | Accumulate confidence through repeated samples | intermediate |
