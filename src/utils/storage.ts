@@ -64,6 +64,7 @@ function defaultProfile(): ProfileStats {
     level: 1,
     streak: 0,
     bestStreak: 0,
+    bestDailyTokenRushScore: 0,
     lastDailyDate: null,
     piTestPaymentCompleted: false,
     bestSurvivalScore: 0,
@@ -120,6 +121,10 @@ function normalize(parsed: unknown): SaveData {
     level: Math.max(1, num(rawProfile.level, dp.level)),
     streak: num(rawProfile.streak, dp.streak),
     bestStreak: num(rawProfile.bestStreak, dp.bestStreak),
+    bestDailyTokenRushScore: num(
+      rawProfile.bestDailyTokenRushScore,
+      dp.bestDailyTokenRushScore,
+    ),
     lastDailyDate:
       typeof rawProfile.lastDailyDate === "string" ? rawProfile.lastDailyDate : null,
     piTestPaymentCompleted: rawProfile.piTestPaymentCompleted === true,
@@ -444,7 +449,15 @@ export function recordRun(run: GameResult): RunOutcome {
 
   // Daily-only effects.
   if (run.mode === "daily") {
-    if (run.score > stats.bestDailyScore) {
+    // Token Rush (v2) tracks its OWN best, kept separate from the legacy v1 best
+    // so the two rule sets are never compared (Phase 11B). Non-v2 daily runs
+    // (e.g. no manifest loaded) keep updating the legacy best.
+    if (run.rulesVersion === 2) {
+      if (run.score > stats.bestDailyTokenRushScore) {
+        stats.bestDailyTokenRushScore = run.score;
+        isNewBest = true;
+      }
+    } else if (run.score > stats.bestDailyScore) {
       stats.bestDailyScore = run.score;
       isNewBest = true;
     }

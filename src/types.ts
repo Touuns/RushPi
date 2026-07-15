@@ -146,6 +146,12 @@ export interface ProfileStats {
   streak: number;
   /** Best streak ever reached (never decreases). */
   bestStreak: number;
+  /**
+   * Best Daily Token Rush (v2) score — kept SEPARATE from the legacy
+   * bestDailyScore so v1 and v2 records are never mixed (Phase 11B). Home and the
+   * Daily result screen show this value. Default 0 (non-destructive migration).
+   */
+  bestDailyTokenRushScore: number;
   /** Last Daily run date as YYYY-MM-DD (UTC), or null if never. */
   lastDailyDate: string | null;
   /** Whether the Pi developer-checklist test payment has succeeded (cosmetic). */

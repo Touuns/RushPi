@@ -1,7 +1,15 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { getOrCreateDailySnapshot } from "../_lib/dailySnapshot";
+import {
+  buildDailyTokenChallenge,
+  computeDailyTokenPoints,
+  DAILY_TOKEN_COUNT,
+  TOKEN_CHALLENGE_VERSION,
+  TOKEN_RULES_VERSION,
+} from "../_lib/dailyTokenChallenge";
 
 /**
- * Insert a ranked Daily Run score into the Supabase leaderboard (server-side).
+ * Insert a ranked Daily Token Rush score into the Supabase leaderboard (server).
  *
  * Security & integrity:
  *  - uses SUPABASE_SERVICE_ROLE_KEY (server env, bypasses RLS) — never on client
@@ -9,6 +17,10 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
  *    a client can't backdate a score to another day
  *  - enforces the 3 ranked attempts / UTC day limit per Pi user, server-side
  *    (the frontend limit is only a UX aid and can be bypassed)
+ *  - Token Rush (Phase 11B): the manifest is REBUILT here from the persisted
+ *    snapshot and every token field (ids, count, points) is re-derived and
+ *    checked — client-sent token data is never trusted. This is a consistency /
+ *    plausibility check, not a cryptographic anti-cheat guarantee.
  *
  * Anti-cheat (minimal): reject malformed/Training; flag implausible runs
  * is_valid=false (excluded from boards).
@@ -21,6 +33,9 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 // — it never creates them — so it doesn't raise this ceiling. These limits keep
 // huge headroom (~10x+) so no legitimate score is ever rejected, while still
 // blocking absurd values.
+// Token Rush (Phase 11B) adds at most 15*750 = 11,250 fixed token points; even
+// combined with a perfect block run the theoretical max stays well under 50,000,
+// so maxScore needs no change.
 const LIMITS = {
   maxScore: 50000,
   minDuration: 50,
@@ -37,6 +52,10 @@ function isInt(n: unknown): n is number {
 
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === "string");
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -87,6 +106,79 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "Negative values not allowed" });
   }
 
+  // Server-authoritative challenge identity (ignore any client-sent values).
+  const challenge_date = todayUtc();
+
+  // ---- Daily Token Rush validation (Phase 11B, Bloc 14) ------------------
+  // Rebuild the manifest from the PERSISTED snapshot and re-derive every token
+  // value. The client's date/id/points/count/order are never trusted.
+  if (body.rules_version !== TOKEN_RULES_VERSION) {
+    return res.status(400).json({ error: "Unsupported rules_version" });
+  }
+  if (body.daily_token_challenge_version !== TOKEN_CHALLENGE_VERSION) {
+    return res.status(400).json({ error: "Unsupported token challenge version" });
+  }
+  const token_ids_collected = body.token_ids_collected;
+  const token_points = body.token_points;
+  const tokens_collected_count = body.tokens_collected_count;
+  if (!isStringArray(token_ids_collected)) {
+    return res.status(400).json({ error: "Invalid token_ids_collected" });
+  }
+  if (!isInt(token_points) || token_points < 0 || !isInt(tokens_collected_count)) {
+    return res.status(400).json({ error: "Invalid token score fields" });
+  }
+  // No duplicates allowed.
+  if (new Set(token_ids_collected).size !== token_ids_collected.length) {
+    return res.status(400).json({ error: "Duplicate token ids" });
+  }
+
+  let challenge: ReturnType<typeof buildDailyTokenChallenge>;
+  try {
+    const snap = await getOrCreateDailySnapshot();
+    challenge = buildDailyTokenChallenge(snap);
+  } catch (e) {
+    console.error("[leaderboard submit] snapshot/manifest error", e);
+    return res.status(503).json({ error: "Daily challenge unavailable — score not ranked" });
+  }
+  // Ranked scores require a live, persisted, today's manifest with all 15 tokens.
+  if (!challenge.rankedEligible || challenge.challengeDate !== challenge_date) {
+    return res.status(409).json({ error: "Daily challenge not rankable — score not ranked" });
+  }
+
+  // Every collected id must belong to today's 15 tokens; re-derive points.
+  const pointsById = new Map(
+    challenge.tokens.map((t) => [
+      t.id,
+      computeDailyTokenPoints({
+        currentPriceUsd: t.referencePriceUsd,
+        marketCapRank: t.marketCapRank,
+      }),
+    ]),
+  );
+  let recomputedTokenPoints = 0;
+  for (const id of token_ids_collected) {
+    const pts = pointsById.get(id);
+    if (pts === undefined) {
+      return res.status(400).json({ error: "Unknown token id in submission" });
+    }
+    recomputedTokenPoints += pts;
+  }
+  if (recomputedTokenPoints !== token_points) {
+    return res.status(400).json({ error: "Token points mismatch" });
+  }
+  if (tokens_collected_count !== token_ids_collected.length) {
+    return res.status(400).json({ error: "Token count mismatch" });
+  }
+  if (token_points > challenge.totalTokenPointsPossible) {
+    return res.status(400).json({ error: "Token points exceed maximum" });
+  }
+  if (score < token_points) {
+    return res.status(400).json({ error: "Score is below token points" });
+  }
+
+  // Server-authoritative Token Rush challenge id (never trust the client's).
+  const challenge_id = challenge.challengeId; // RUSHPI-YYYY-MM-DD-TOKEN-V1
+
   const is_valid =
     score <= LIMITS.maxScore &&
     duration_seconds >= LIMITS.minDuration &&
@@ -94,10 +186,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     energy_collected <= LIMITS.maxEnergy &&
     max_combo <= LIMITS.maxCombo &&
     obstacles_hit <= LIMITS.maxObstacles;
-
-  // Server-authoritative challenge identity (ignore any client-sent values).
-  const challenge_date = todayUtc();
-  const challenge_id = `RUSHPI-${challenge_date}`;
 
   const authHeaders = {
     apikey: serviceKey,
@@ -140,6 +228,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         challenge_id,
         challenge_date,
         ranked_attempt_number,
+        // Token Rush (Phase 11B) — only server-verified values are stored.
+        rules_version: TOKEN_RULES_VERSION,
+        token_challenge_version: TOKEN_CHALLENGE_VERSION,
+        token_points,
+        tokens_collected_count,
+        token_ids_collected,
       }),
     });
 

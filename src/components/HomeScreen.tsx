@@ -159,7 +159,7 @@ export default function HomeScreen({
         </div>
         <div className="profile-strip__meta">
           <span>🔥 {streak.current}d</span>
-          <span>🏆 {profile.bestDailyScore.toLocaleString()}</span>
+          <span>🏆 {profile.bestDailyTokenRushScore.toLocaleString()}</span>
         </div>
       </button>
 

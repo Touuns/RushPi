@@ -1,9 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Top 50 valid Daily Run scores of all time (global board).
+ * Top 50 valid Daily Token Rush scores of all time (global board).
  * Reads via the Supabase service role (server-side only). Only non-sensitive
  * columns are selected/returned (no pi_user_uid).
+ *
+ * Phase 11B: filtered to rules_version = 2 so the new Token Rush mode is never
+ * compared to legacy v1 scores. Old rows are kept, just not shown here.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -19,8 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const query =
     `${supabaseUrl}/rest/v1/rushpi_scores` +
-    `?select=pi_username,score,energy_collected,max_combo,obstacles_hit,created_at` +
+    `?select=pi_username,score,energy_collected,max_combo,obstacles_hit,created_at,token_points,tokens_collected_count` +
     `&game_mode=eq.daily&is_valid=eq.true` +
+    `&rules_version=eq.2` +
     `&order=score.desc&limit=50`;
 
   try {

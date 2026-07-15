@@ -16,6 +16,9 @@ export interface ServerScore {
   max_combo: number;
   obstacles_hit: number;
   created_at: string;
+  /** Daily Token Rush (Phase 11B) — present on v2 rows, absent/0 on legacy v1. */
+  token_points?: number;
+  tokens_collected_count?: number;
 }
 
 export interface SubmitScorePayload {
@@ -30,6 +33,16 @@ export interface SubmitScorePayload {
   /** Daily challenge this run belongs to (server is authoritative, but we send). */
   challenge_id: string;
   challenge_date: string;
+  /**
+   * Daily Token Rush (Phase 11B). The server re-derives and re-validates all of
+   * these from its own snapshot/manifest — it never trusts the client values.
+   */
+  rules_version: 2;
+  daily_token_challenge_version: 1;
+  daily_challenge_id: string;
+  token_ids_collected: string[];
+  token_points: number;
+  tokens_collected_count: number;
 }
 
 async function getScores(url: string): Promise<ServerScore[]> {

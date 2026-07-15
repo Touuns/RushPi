@@ -194,18 +194,26 @@ function ServerList({
         <p className="leaderboard__note">Connect Pi to post your score here.</p>
       )}
       {scores && scores.length > 0 ? (
-        scores.map((e, i) => (
-          <div key={`${e.created_at}-${i}`} className={`lb-row rank-${i + 1}`}>
-            <span className="lb-row__rank">{i + 1}</span>
-            <div className="lb-row__main">
-              <span className="lb-row__score">{e.score.toLocaleString()}</span>
-              <span className="lb-row__meta">
-                @{e.pi_username ?? "pioneer"} · 💠 {e.energy_collected} · x{e.max_combo}
-              </span>
+        scores.map((e, i) => {
+          // Token Rush (Phase 11B): a compact "X/15 tokens · N token pts" line
+          // when the v2 fields are present; falls back to the legacy meta.
+          const hasTokens = typeof e.tokens_collected_count === "number";
+          return (
+            <div key={`${e.created_at}-${i}`} className={`lb-row rank-${i + 1}`}>
+              <span className="lb-row__rank">{i + 1}</span>
+              <div className="lb-row__main">
+                <span className="lb-row__score">{e.score.toLocaleString()}</span>
+                <span className="lb-row__meta">
+                  @{e.pi_username ?? "pioneer"}
+                  {hasTokens
+                    ? ` · ${e.tokens_collected_count}/15 tokens · ${(e.token_points ?? 0).toLocaleString()} token pts`
+                    : ` · 💠 ${e.energy_collected} · x${e.max_combo}`}
+                </span>
+              </div>
+              <span className="lb-row__date">{shortDate(e.created_at)}</span>
             </div>
-            <span className="lb-row__date">{shortDate(e.created_at)}</span>
-          </div>
-        ))
+          );
+        })
       ) : (
         <p className="leaderboard__empty">{emptyText}</p>
       )}

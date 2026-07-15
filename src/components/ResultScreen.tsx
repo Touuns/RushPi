@@ -1,5 +1,7 @@
 import type { Badge, GameResult, RunOutcome, StreakInfo } from "../types";
 import type { ServerSyncStatus } from "../App";
+import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
+import { formatTokenPrice } from "../game/dailyTokens";
 import { getCampaignLevel, CAMPAIGN_LEVELS } from "../game/campaign";
 import ScreenBackButton from "./ScreenBackButton";
 
@@ -7,6 +9,8 @@ interface ResultScreenProps {
   result: GameResult;
   outcome: RunOutcome;
   bestScore: number;
+  /** Daily Token Rush manifest (Phase 11B) — used to rebuild the 15-token list. */
+  dailyChallenge?: DailyTokenChallenge | null;
   bestSurvivalScore: number;
   bestSurvivalStageName: string;
   campaignLevelBest: number;
@@ -85,6 +89,55 @@ function BadgeUnlockSummary({ badges }: { badges: Badge[] }) {
   );
 }
 
+/** One token logo with a graceful placeholder if the image fails to load. */
+function TokenLogo({ imageUrl, symbol }: { imageUrl: string; symbol: string }) {
+  const short = symbol.toUpperCase().slice(0, 4);
+  return (
+    <span className="token-row__logo" aria-hidden="true">
+      <img
+        src={imageUrl}
+        alt=""
+        loading="lazy"
+        onError={(e) => {
+          // Broken logo → hide the img so the ::before letter placeholder shows.
+          (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+        }}
+      />
+      <span className="token-row__logo-fallback">{short.slice(0, 3)}</span>
+    </span>
+  );
+}
+
+/**
+ * Scrollable, compact 15-token list for the Daily result details (Phase 11B).
+ * Each row: collected ✓ / missed ✕, logo, symbol, snapshot price, fixed points.
+ */
+function TokenResultList({
+  challenge,
+  collectedIds,
+}: {
+  challenge: DailyTokenChallenge;
+  collectedIds: string[];
+}) {
+  const collected = new Set(collectedIds);
+  return (
+    <div className="token-result-list">
+      {challenge.tokens.map((t) => {
+        const got = collected.has(t.id);
+        return (
+          <div key={t.id} className={`token-row ${got ? "is-got" : "is-missed"}`}>
+            <span className="token-row__mark">{got ? "✓" : "✕"}</span>
+            <TokenLogo imageUrl={t.imageUrl} symbol={t.symbol} />
+            <span className="token-row__symbol">{t.symbol.toUpperCase()}</span>
+            <span className="token-row__price">{formatTokenPrice(t.referencePriceUsd)}</span>
+            <span className="token-row__points">+{t.points}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Up to three always-visible key stats. */
 function KeyStats({ stats }: { stats: { label: string; value: string | number }[] }) {
   return (
@@ -119,6 +172,7 @@ export default function ResultScreen({
   result,
   outcome,
   bestScore,
+  dailyChallenge = null,
   bestSurvivalScore,
   bestSurvivalStageName,
   campaignLevelBest,
@@ -137,6 +191,7 @@ export default function ResultScreen({
   const isTraining = result.mode === "training";
   const isSurvival = result.mode === "survival";
   const isCampaign = result.mode === "campaign";
+  const isDaily = result.mode === "daily";
 
   const scoreHero = (
     <div className="result__score">
@@ -245,7 +300,101 @@ export default function ResultScreen({
     );
   }
 
-  // ---- Daily / Training / Survival --------------------------------------
+  // ---- Daily Token Rush (Phase 11B) -------------------------------------
+  if (isDaily) {
+    const syncMessage = SYNC_MESSAGE[serverSync];
+    const streakMessage =
+      streak.playedToday && streak.current > 0
+        ? `🔥 ${streak.current}-day streak — come back tomorrow to keep it!`
+        : null;
+    const tokensTotal = result.dailyTokensTotal || dailyChallenge?.tokens.length || 0;
+    const tokensCollected = result.dailyTokenIdsCollected.length;
+    const pricesFallback = dailyChallenge?.status === "fallback";
+    const marketValue = pricesFallback
+      ? "Unavailable"
+      : `$${Math.round(result.dailyTokenMarketValueUsd).toLocaleString()}`;
+
+    return (
+      <div className="screen result">
+        <ScreenBackButton onBack={onHome} label="Back to Home" />
+        <h2 className="result__title">Run Complete</h2>
+
+        {scoreHero}
+
+        {badgesBlock}
+
+        {/* Token headline: collected / points / (informative) market value. */}
+        <div className="token-summary">
+          <div className="token-summary__row">
+            <span className="token-summary__label">Tokens Collected</span>
+            <span className="token-summary__value">
+              {tokensCollected} / {tokensTotal}
+            </span>
+          </div>
+          <div className="token-summary__row">
+            <span className="token-summary__label">Token Points</span>
+            <span className="token-summary__value">
+              +{result.dailyTokenPoints.toLocaleString()}
+            </span>
+          </div>
+          <div className="token-summary__row">
+            <span className="token-summary__label">Market Value Collected</span>
+            <span className="token-summary__value">{marketValue}</span>
+          </div>
+        </div>
+
+        <KeyStats
+          stats={[
+            { label: "Tokens Collected", value: `${tokensCollected}/${tokensTotal}` },
+            { label: "Blocks Collected", value: result.energiesCollected },
+            { label: "Max Combo", value: `x${result.maxCombo}` },
+          ]}
+        />
+
+        {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
+        {streakMessage && <p className="result__streak">{streakMessage}</p>}
+
+        <details className="result__details">
+          <summary>View details</summary>
+
+          {dailyChallenge && (
+            <>
+              <div className="token-result-list__head">TOKENS {tokensCollected}/{tokensTotal}</div>
+              <TokenResultList
+                challenge={dailyChallenge}
+                collectedIds={result.dailyTokenIdsCollected}
+              />
+            </>
+          )}
+
+          <div className="result__stats">
+            <Stat label="Token Points" value={`+${result.dailyTokenPoints.toLocaleString()}`} />
+            <Stat label="Block Points" value={`+${result.dailyBlockPoints.toLocaleString()}`} />
+            <Stat label="Obstacles Hit" value={result.obstaclesHit} />
+            <Stat label="End Bonus" value={`+${result.endBonus}`} />
+            <Stat label="Best Score" value={bestScore.toLocaleString()} />
+          </div>
+
+          <p className="result__footnote">Prices fixed from today's UTC market snapshot</p>
+          <p className="result__footnote">Market data by CoinGecko</p>
+        </details>
+
+        <div className="result__actions">
+          <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
+            Play Again
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+            Leaderboard
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onHome}>
+            Back Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---- Training / Survival ----------------------------------------------
   const syncMessage = SYNC_MESSAGE[serverSync];
   const streakMessage =
     result.mode === "daily" && streak.playedToday && streak.current > 0
@@ -259,12 +408,8 @@ export default function ResultScreen({
         { label: "Max Charge", value: `Lv ${result.highestChargeLevel}` },
       ]
     : [
-        // Daily texts say "Blocks" since Phase 11B (Chain Blocks); Training keeps
-        // its energy orbs and wording.
-        {
-          label: result.mode === "daily" ? "Blocks Collected" : "Energy Collected",
-          value: result.energiesCollected,
-        },
+        // Only Training reaches this branch now (Daily has its own return above).
+        { label: "Energy Collected", value: result.energiesCollected },
         { label: "Max Combo", value: `x${result.maxCombo}` },
         { label: "Obstacles Hit", value: result.obstaclesHit },
       ];

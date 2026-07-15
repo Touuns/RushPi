@@ -272,6 +272,14 @@ export default function App() {
           game_mode: "daily",
           challenge_id: getDailyChallengeId(),
           challenge_date: getDailyDate(),
+          // Daily Token Rush (Phase 11B) — the server re-validates every value
+          // against its own snapshot/manifest before ranking.
+          rules_version: 2,
+          daily_token_challenge_version: 1,
+          daily_challenge_id: r.dailyChallengeId,
+          token_ids_collected: r.dailyTokenIdsCollected,
+          token_points: r.dailyTokenPoints,
+          tokens_collected_count: r.dailyTokenIdsCollected.length,
         })
           .then(() => setServerSync("ok"))
           .catch((e: unknown) => {
@@ -362,7 +370,12 @@ export default function App() {
         <ResultScreen
           result={result}
           outcome={outcome}
-          bestScore={data.profile.bestDailyScore}
+          bestScore={
+            result.mode === "daily"
+              ? data.profile.bestDailyTokenRushScore
+              : data.profile.bestDailyScore
+          }
+          dailyChallenge={result.mode === "daily" ? dailyChallenge : null}
           bestSurvivalScore={data.profile.bestSurvivalScore}
           bestSurvivalStageName={data.profile.bestSurvivalStageName}
           campaignLevelBest={data.campaign.bestScoreByLevel[String(result.campaignLevelId)] ?? 0}
