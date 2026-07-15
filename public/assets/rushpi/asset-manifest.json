@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "project": "Rush Pi Asset Foundation",
+  "basePath": "/assets/rushpi/",
+  "generatedAt": null,
+  "defaults": {
+    "logicalViewport": "414x736",
+    "masterBackground": "828x1472",
+    "colorSpace": "sRGB",
+    "naming": "kebab-case",
+    "integratedInGameplay": false
+  },
+  "families": [
+    {
+      "id": "home-backgrounds",
+      "category": "backgrounds",
+      "file": "backgrounds/home-*.svg",
+      "format": "svg",
+      "usage": "Home ambience concepts and intensity variants",
+      "size": "414x736",
+      "notes": "Keep the center calm for UI; raster masters should be 828x1472",
+      "animationReady": false
+    },
+    {
+      "id": "daily-market-tunnel",
+      "category": "backgrounds",
+      "file": "backgrounds/daily-market-tunnel-*.svg",
+      "format": "svg",
+      "usage": "Daily Token Rush background concepts",
+      "size": "414x736",
+      "notes": "Abstract data and market cues only; no logo or embedded text",
+      "animationReady": true
+    },
+    {
+      "id": "survival-zone-kit",
+      "category": "concepts",
+      "file": "concepts/zones/*.svg",
+      "format": "svg",
+      "usage": "Eight Survival zone visual placeholders",
+      "size": "414x736",
+      "notes": "Aligned with existing zone palettes in src/game/stages.ts",
+      "animationReady": true
+    },
+    {
+      "id": "portal-gate-kit",
+      "category": "portals",
+      "file": "portals/*.svg",
+      "format": "svg",
+      "usage": "Finish, zone, validation, success, failure and multichain gates",
+      "size": "256x384",
+      "notes": "Static and layered files; pivot at bottom center",
+      "animationReady": true
+    },
+    {
+      "id": "chain-block-kit",
+      "category": "collectibles",
+      "file": "collectibles/chain-block-*.svg",
+      "format": "svg",
+      "usage": "Original non-token collectibles and states",
+      "size": "64x64",
+      "notes": "Readable at 32px; no real token symbol",
+      "animationReady": true
+    },
+    {
+      "id": "fx-kit",
+      "category": "fx",
+      "file": "fx/*.svg",
+      "format": "svg",
+      "usage": "Reusable additive effects and spritesheet sources",
+      "size": "various",
+      "notes": "Transparent backgrounds and centered pivots",
+      "animationReady": true
+    },
+    {
+      "id": "token-placeholder-kit",
+      "category": "placeholders",
+      "file": "placeholders/token-*.svg",
+      "format": "svg",
+      "usage": "Dynamic token logo frame, rarity, selection and fallback visuals",
+      "size": "128x128",
+      "notes": "The real logo is injected later; repository remains brand-free",
+      "animationReady": true
+    }
+  ],
+  "assets": []
+}
