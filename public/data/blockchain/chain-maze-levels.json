@@ -1,0 +1,120 @@
+{
+  "$schema": "./schema/chain-maze-level.schema.json",
+  "schemaVersion": "1.0.0",
+  "lastReviewedAt": "2026-07-15",
+  "movementModel": "From a stopped position, an orthogonal command moves the orb cell by cell until the next step would leave the grid or enter a wall, or until it enters a tile whose taxonomy sets stopsMovement. The player then chooses another direction.",
+  "tileTaxonomy": [
+    { "type": "wall", "walkable": false, "stopsMovement": true, "meaning": "Blocks entry and stops the orb on the preceding cell." },
+    { "type": "empty", "walkable": true, "stopsMovement": false, "meaning": "Passable grid space with no rule effect." },
+    { "type": "anchor", "walkable": true, "stopsMovement": true, "meaning": "Neutral stopping point used to change direction." },
+    { "type": "start", "walkable": true, "stopsMovement": true, "meaning": "Unique initial orb position." },
+    { "type": "exit", "walkable": true, "stopsMovement": true, "meaning": "Unique destination; evaluates objectives before victory." },
+    { "type": "collectible", "walkable": true, "stopsMovement": true, "meaning": "Collects a level-defined fictional resource or item." },
+    { "type": "hazard", "walkable": true, "stopsMovement": true, "meaning": "Triggers a level-defined failure or penalty." },
+    { "type": "oneWay", "walkable": true, "stopsMovement": true, "meaning": "Permits departure only in its declared direction." },
+    { "type": "portal", "walkable": true, "stopsMovement": true, "meaning": "Moves to the linked portal after validation." },
+    { "type": "validator", "walkable": true, "stopsMovement": true, "meaning": "Checks a proof, signature, quorum, or level predicate." },
+    { "type": "transaction", "walkable": true, "stopsMovement": true, "meaning": "Consumes selected fictional inputs or commits a modeled transaction." },
+    { "type": "spentOutput", "walkable": true, "stopsMovement": true, "meaning": "Represents an unavailable output; the UTXO prototype fails on contact." },
+    { "type": "contract", "walkable": true, "stopsMovement": true, "meaning": "Runs a level-defined fictional contract operation with a resource cost." },
+    { "type": "gasCell", "walkable": true, "stopsMovement": true, "meaning": "Adds abstract educational gas units; never a real fee or asset." },
+    { "type": "instruction", "walkable": true, "stopsMovement": true, "meaning": "Collects or executes an ordered instruction." },
+    { "type": "proofFragment", "walkable": true, "stopsMovement": true, "meaning": "Collects a fictional part of a proof representation." },
+    { "type": "bridge", "walkable": true, "stopsMovement": true, "meaning": "Checks a level-defined source/destination message rule." },
+    { "type": "checkpoint", "walkable": true, "stopsMovement": true, "meaning": "Records progress after the associated finality or validation condition passes." }
+  ],
+  "levels": [
+    {
+      "id": "bitcoin-utxo-vault-maze",
+      "title": "Bitcoin UTXO Vault",
+      "chapterId": "bitcoin-utxo-vault",
+      "width": 9,
+      "height": 9,
+      "start": { "x": 1, "y": 7 },
+      "exit": { "x": 7, "y": 1 },
+      "tiles": [
+        { "id": "btc-start", "x": 1, "y": 7, "type": "start" },
+        { "id": "btc-exit", "x": 7, "y": 1, "type": "exit" },
+        { "id": "btc-utxo-a", "x": 1, "y": 4, "type": "collectible", "value": 3, "state": "available", "required": true },
+        { "id": "btc-utxo-b", "x": 4, "y": 4, "type": "collectible", "value": 2, "state": "available", "required": true },
+        { "id": "btc-spent-decoy", "x": 7, "y": 4, "type": "spentOutput", "value": 4, "state": "spent" },
+        { "id": "btc-final-transaction", "x": 4, "y": 1, "type": "transaction", "state": "available", "required": true },
+        { "id": "btc-anchor-a", "x": 4, "y": 7, "type": "anchor" },
+        { "id": "btc-wall-a", "x": 2, "y": 6, "type": "wall" },
+        { "id": "btc-wall-b", "x": 3, "y": 6, "type": "wall" },
+        { "id": "btc-wall-c", "x": 5, "y": 2, "type": "wall" },
+        { "id": "btc-wall-d", "x": 6, "y": 2, "type": "wall" }
+      ],
+      "rules": [
+        { "id": "btc-slide", "type": "directional-slide", "description": "Continue in the chosen direction until a wall, boundary, or stopping tile.", "parameters": { "orthogonalOnly": true } },
+        { "id": "btc-collect", "type": "collect-once", "description": "An available UTXO adds its fictional value once, then changes to spent.", "parameters": { "resourceId": "selectedValue" } },
+        { "id": "btc-double-spend", "type": "spent-output-fails", "description": "Entering a spent output ends the attempt as an invalid double-spend path.", "parameters": { "failureState": "invalid" } },
+        { "id": "btc-transaction", "type": "transaction-requires-resource", "description": "The transaction confirms only when selected fictional value reaches 5.", "parameters": { "resourceId": "selectedValue", "minimum": 5 } },
+        { "id": "btc-exit-rule", "type": "exit-requires-objectives", "description": "The exit opens only after the transaction objective is confirmed.", "parameters": { "objectiveIds": ["btc-target-value", "btc-confirm-transaction"] } }
+      ],
+      "resources": [
+        { "id": "selectedValue", "displayName": "Selected fictional input value", "initial": 0, "minimum": 0, "target": 5 }
+      ],
+      "objectives": [
+        { "id": "btc-target-value", "type": "resource-at-least", "description": "Collect fictional input value 5 using the two available outputs.", "target": 5 },
+        { "id": "btc-confirm-transaction", "type": "activate-tile", "description": "Activate the final transaction after reaching the target.", "target": "btc-final-transaction" },
+        { "id": "btc-reach-exit", "type": "reach-exit", "description": "Reach the confirmed exit without entering the spent output.", "target": "btc-exit" }
+      ],
+      "parMoves": 4,
+      "educationalConcept": "A Bitcoin-style UTXO is an explicit unspent output that can be selected once as an input; the puzzle then confirms a simplified final transaction.",
+      "winCondition": "Collect both available fictional UTXOs, confirm the transaction, and reach the exit without touching the spent output.",
+      "failConditions": ["enter the spent output", "attempt the transaction below value 5", "reach the exit before confirming the transaction"],
+      "officialSources": ["bitcoin-dev-transactions", "bitcoin-whitepaper"],
+      "simplificationNotes": "This is not a complete Bitcoin transaction: scripts, signatures, fees, change calculation, serialization, and network confirmation are abstracted.",
+      "accuracyStatus": "simplified-for-game",
+      "lastReviewedAt": "2026-07-15"
+    },
+    {
+      "id": "ethereum-gas-labyrinth-maze",
+      "title": "Ethereum Gas Labyrinth",
+      "chapterId": "ethereum-gas-labyrinth",
+      "width": 9,
+      "height": 9,
+      "start": { "x": 1, "y": 7 },
+      "exit": { "x": 7, "y": 1 },
+      "tiles": [
+        { "id": "eth-start", "x": 1, "y": 7, "type": "start" },
+        { "id": "eth-exit", "x": 7, "y": 1, "type": "exit" },
+        { "id": "eth-contract-a", "x": 1, "y": 4, "type": "contract", "cost": 3, "state": "idle", "required": true },
+        { "id": "eth-gas-cell", "x": 4, "y": 4, "type": "gasCell", "value": 2, "state": "available" },
+        { "id": "eth-invalid-contract", "x": 7, "y": 4, "type": "contract", "cost": 2, "state": "invalid" },
+        { "id": "eth-contract-b", "x": 4, "y": 1, "type": "contract", "cost": 4, "state": "idle", "required": true },
+        { "id": "eth-anchor-a", "x": 4, "y": 7, "type": "anchor" },
+        { "id": "eth-wall-a", "x": 2, "y": 6, "type": "wall" },
+        { "id": "eth-wall-b", "x": 3, "y": 6, "type": "wall" },
+        { "id": "eth-wall-c", "x": 5, "y": 2, "type": "wall" },
+        { "id": "eth-wall-d", "x": 6, "y": 2, "type": "wall" }
+      ],
+      "rules": [
+        { "id": "eth-slide", "type": "directional-slide", "description": "Continue in the chosen direction until a wall, boundary, or stopping tile.", "parameters": { "orthogonalOnly": true } },
+        { "id": "eth-move-cost", "type": "cost-per-command", "description": "Every directional command consumes one abstract gas cell.", "parameters": { "resourceId": "gas", "cost": 1 } },
+        { "id": "eth-contract-cost", "type": "tile-cost", "description": "Entering a valid contract consumes its fixed abstract cost and marks it successful.", "parameters": { "resourceId": "gas" } },
+        { "id": "eth-gas-collect", "type": "collect-once", "description": "The gas cell adds two abstract units once.", "parameters": { "resourceId": "gas" } },
+        { "id": "eth-invalid-revert", "type": "invalid-contract-fails", "description": "Entering the invalid contract produces a revert failure for this prototype attempt.", "parameters": { "failureState": "revert" } },
+        { "id": "eth-out-of-gas", "type": "resource-floor", "description": "The attempt fails if gas would fall below zero.", "parameters": { "resourceId": "gas", "minimum": 0 } },
+        { "id": "eth-exit-rule", "type": "exit-requires-objectives", "description": "The exit requires both valid contracts and at least one abstract gas cell.", "parameters": { "objectiveIds": ["eth-contracts", "eth-reserve"] } }
+      ],
+      "resources": [
+        { "id": "gas", "displayName": "Abstract gas cells", "initial": 10, "minimum": 0, "target": 1 }
+      ],
+      "objectives": [
+        { "id": "eth-contracts", "type": "activate-tiles", "description": "Activate both required valid contracts.", "target": ["eth-contract-a", "eth-contract-b"] },
+        { "id": "eth-reserve", "type": "resource-at-least", "description": "Reach the exit with at least one abstract gas cell.", "target": 1 },
+        { "id": "eth-reach-exit", "type": "reach-exit", "description": "Reach the exit without triggering the invalid contract.", "target": "eth-exit" }
+      ],
+      "parMoves": 4,
+      "educationalConcept": "Ethereum execution is metered by gas and contract calls can commit or revert; a valid route must budget resources for every operation.",
+      "winCondition": "Activate both required contracts and reach the exit with at least one abstract gas cell remaining.",
+      "failConditions": ["gas falls below zero", "enter the invalid contract", "reach the exit before both valid contracts succeed", "reach the exit with no gas reserve"],
+      "officialSources": ["ethereum-transactions", "ethereum-smart-contracts", "ethereum-eip-1559"],
+      "simplificationNotes": "The counter is not a fee estimate. Opcode schedules, refunds, storage, transaction envelopes, base fee, priority fee, and real currency are not simulated.",
+      "accuracyStatus": "simplified-for-game",
+      "lastReviewedAt": "2026-07-15"
+    }
+  ]
+}

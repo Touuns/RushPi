@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 120" role="img" aria-label="Generic cryptographic proof prism">
+  <g id="prism" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+    <path d="m72 8 60 36-60 68L12 44Z"/>
+    <path d="m12 44 60 28 60-28M72 72v40" opacity="0.55"/>
+  </g>
+  <g id="public-input-sockets" fill="currentColor" opacity="0.7">
+    <circle cx="26" cy="38" r="5"/>
+    <circle cx="118" cy="38" r="5"/>
+  </g>
+  <path id="verified-contour" d="m72 16 50 30-50 56-50-56Z" fill="none" stroke="currentColor" stroke-width="7" opacity="0"/>
+</svg>
