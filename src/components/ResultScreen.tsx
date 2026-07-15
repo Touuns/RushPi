@@ -18,6 +18,8 @@ interface ResultScreenProps {
   campaignStarsBest: number;
   campaignStarsNew: boolean;
   serverSync: ServerSyncStatus;
+  /** Retry a failed-retryable ranked sync (Phase 11B-P4). */
+  onRetrySync?: () => void;
   streak: StreakInfo;
   onPlayAgain: () => void;
   onHome: () => void;
@@ -43,11 +45,14 @@ function formatDuration(totalSecs: number): string {
 const SYNC_MESSAGE: Record<ServerSyncStatus, string | null> = {
   idle: null,
   pending: "Syncing score to the server…",
-  ok: "Score synced to today's Daily Challenge leaderboard.",
-  failed: "Score saved locally. Server sync failed.",
+  ok: "Score synced to the ranked leaderboard.",
   "local-only":
     "Score saved locally only. Connect Pi before your next Daily Run to join the leaderboard.",
-  "limit-reached": "Daily ranked attempt limit reached. Score saved locally only.",
+  "limit-reached": "Daily ranked attempt limit reached.",
+  "auth-required": "Score saved locally. Reconnect Pi to verify this submission.",
+  "failed-retryable": "Score saved locally. Server sync failed.",
+  rejected: "Score saved locally. This run did not pass ranked validation.",
+  conflict: "Score saved locally. This submission conflicts with an earlier result.",
 };
 
 /**
@@ -180,6 +185,7 @@ export default function ResultScreen({
   campaignStarsBest,
   campaignStarsNew,
   serverSync,
+  onRetrySync,
   streak,
   onPlayAgain,
   onHome,
@@ -352,6 +358,16 @@ export default function ResultScreen({
         />
 
         {syncMessage && <p className={`result__sync is-${serverSync}`}>{syncMessage}</p>}
+        {serverSync === "failed-retryable" && onRetrySync && (
+          <button className="btn btn--secondary btn--small" type="button" onClick={onRetrySync}>
+            Retry sync
+          </button>
+        )}
+        {serverSync === "pending" && (
+          <button className="btn btn--secondary btn--small" type="button" disabled>
+            Syncing…
+          </button>
+        )}
         {streakMessage && <p className="result__streak">{streakMessage}</p>}
 
         <details className="result__details">

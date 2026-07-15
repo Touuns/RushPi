@@ -1652,6 +1652,9 @@ export default class MainScene extends Phaser.Scene {
       dailyTokenPoints: this.tokenPointsEarned,
       dailyTokenMarketValueUsd: this.tokenMarketValueUsd,
       dailyBlockPoints: Math.floor(this.blockPointsEarned),
+      // Ranked reservation is owned by React (App fills these for ranked runs).
+      dailySubmissionId: "",
+      serverRankedAttemptNumber: 0,
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.

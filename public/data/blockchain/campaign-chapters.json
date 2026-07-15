@@ -29,7 +29,7 @@
       "educationalMessage": "A documented Pi app workflow keeps client authentication, privileged server verification, permissions, and network context as distinct boundaries; it is not a consensus simulation.",
       "briefing": "Route a fictional app state through client and backend lanes. Request only what is needed; no real user, payment, wallet, token, secret, or Pi access exists.",
       "midLevelEvolution": "A tempting shortcut marks a client animation as complete before backend verification, forcing the player to reject it and restore the verified-result route.",
-      "finalSequence": "The backend verifies the fictional action and returns a signed visual state marker to the application lane while every secret-shaped decoy remains outside the client.",
+      "finalSequence": "The backend verifies the fictional action and returns a server-verified visual state marker to the application lane while every secret-shaped decoy remains outside the client.",
       "assetsNeeded": ["generic browser frame", "permission cards", "client and backend lanes", "verification checkpoint", "Testnet and Mainnet context gates"],
       "animationsNeeded": ["permission selection", "client-to-backend handoff", "verification acknowledgement", "unsafe client-secret rejection"],
       "officialSources": ["pi-developers", "pi-sdk-core", "pi-platform-api", "pi-mainnet-testnet", "pi-open-network-launch"],

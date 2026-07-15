@@ -105,6 +105,14 @@ export interface GameResult {
   dailyTokenMarketValueUsd: number;
   /** Chain Block points earned before bonuses/penalties (result detail only). */
   dailyBlockPoints: number;
+  /**
+   * Ranked reservation for this run (Phase 11B-P4). `dailySubmissionId` is the
+   * server reservation id used to submit and to retry idempotently; the number
+   * is the server-assigned attempt slot. Neutral ("" / 0) for local or non-Daily
+   * runs. The submission id carries no personal data.
+   */
+  dailySubmissionId: string;
+  serverRankedAttemptNumber: number;
 }
 
 /**

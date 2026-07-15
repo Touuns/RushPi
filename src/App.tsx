@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import HomeScreen from "./components/HomeScreen";
 import GameScreen from "./components/GameScreen";
 import ResultScreen from "./components/ResultScreen";
@@ -26,10 +26,10 @@ import type { DailyTokenChallenge } from "./market/dailyTokenTypes";
 import { authenticatePi, initPi, isPiBrowser, type PiSession } from "./pi/piClient";
 import {
   fetchAttemptStatus,
+  ServerScoreError,
   submitServerScore,
   type ClaimResult,
 } from "./utils/serverLeaderboard";
-import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 import type {
   BadgeId,
@@ -48,9 +48,36 @@ export type ServerSyncStatus =
   | "idle"
   | "pending"
   | "ok"
-  | "failed"
   | "local-only"
-  | "limit-reached";
+  | "limit-reached"
+  | "auth-required"
+  | "failed-retryable"
+  | "rejected"
+  | "conflict";
+
+/** Map a submission failure to the Result-screen sync status (never regex). */
+function mapSubmitError(e: unknown): ServerSyncStatus {
+  if (e instanceof ServerScoreError) {
+    switch (e.code) {
+      case "ATTEMPT_LIMIT":
+        return "limit-reached";
+      case "PI_AUTH_REQUIRED":
+      case "PI_AUTH_INVALID":
+      case "PI_AUTH_EXPIRED":
+        return "auth-required";
+      case "SUBMISSION_CONFLICT":
+        return "conflict";
+      case "SCORE_REJECTED":
+      case "SUBMISSION_EXPIRED":
+        return "rejected";
+      default:
+        // NETWORK_ERROR / SERVER_ERROR / CHALLENGE_UNAVAILABLE / MIGRATION_REQUIRED
+        // / PI_AUTH_UNAVAILABLE — transient: the local score is saved, retry later.
+        return "failed-retryable";
+    }
+  }
+  return "failed-retryable";
+}
 
 /**
  * How the current run counts for ranking — decided at kickoff, never re-evaluated:
@@ -113,6 +140,12 @@ export default function App() {
   // manifest kept for GameScreen + ResultScreen (reused for same-day replays).
   const [pendingDailyRank, setPendingDailyRank] = useState<RunRankState>("local-only");
   const [dailyChallenge, setDailyChallenge] = useState<DailyTokenChallenge | null>(null);
+  // Server reservation for the current ranked run (Phase 11B-P4). Threaded into
+  // the GameResult so the score can be finalized/retried idempotently.
+  const [rankedClaim, setRankedClaim] = useState<{
+    submissionId: string;
+    attemptNumber: number;
+  } | null>(null);
 
   // Star recap for the just-finished campaign run (shown on the Result screen).
   const [campaignStarInfo, setCampaignStarInfo] = useState({
@@ -237,8 +270,15 @@ export default function App() {
         rank = "local-only";
       }
       if (rank === "ranked" && claim) {
-        // Server already reserved the attempt: mirror its counter locally.
+        // Server already reserved the attempt: mirror its counter + keep the
+        // reservation so the score can be finalized/retried idempotently.
         syncRankedAttemptsFromServer(claim.challengeDate, claim.used);
+        setRankedClaim({
+          submissionId: claim.submissionId,
+          attemptNumber: claim.attemptNumber ?? 0,
+        });
+      } else {
+        setRankedClaim(null);
       }
       setDailyChallenge(challenge);
       setRunRankState(rank);
@@ -273,6 +313,39 @@ export default function App() {
     else startDailyAuto();
   }, [mode, playTraining, playSurvival, startCampaignLevel, campaignLevelId, startDailyAuto]);
 
+  // Guards against concurrent/double submissions (e.g. rapid Retry-sync clicks),
+  // independent of React render timing. The server is also idempotent per
+  // submissionId, so this is a UX belt-and-braces, not the only safeguard.
+  const syncInFlightRef = useRef(false);
+
+  /**
+   * Submit (or re-submit) a ranked Daily run. Idempotent: the same reservation
+   * id + same run facts never create a second score or consume another attempt.
+   */
+  const submitRankedRun = useCallback((run: GameResult, token: string) => {
+    if (syncInFlightRef.current) return; // ignore a second click while in flight
+    syncInFlightRef.current = true;
+    setServerSync("pending");
+    submitServerScore(token, {
+      submission_id: run.dailySubmissionId,
+      score: run.score,
+      energy_collected: run.energiesCollected,
+      max_combo: run.maxCombo,
+      obstacles_hit: run.obstaclesHit,
+      duration_seconds: RUN_DURATION_SECONDS,
+      rules_version: 2,
+      daily_token_challenge_version: 1,
+      token_ids_collected: run.dailyTokenIdsCollected,
+      token_points: run.dailyTokenPoints,
+      tokens_collected_count: run.dailyTokenIdsCollected.length,
+    })
+      .then((out) => setServerSync(out.ranked ? "ok" : "rejected"))
+      .catch((e: unknown) => setServerSync(mapSubmitError(e)))
+      .finally(() => {
+        syncInFlightRef.current = false;
+      });
+  }, []);
+
   const handleGameOver = useCallback(
     (r: GameResult) => {
       // Read the previous best stars BEFORE recording, to flag "new stars earned".
@@ -285,51 +358,46 @@ export default function App() {
           isNew: r.campaignStars > prevStars,
         });
       }
-      const o = recordRun(r);
-      setResult(r);
+      // Attach the ranked reservation to Daily results (neutral otherwise). The
+      // local score is always saved first, before any network call.
+      const enriched: GameResult =
+        r.mode === "daily"
+          ? {
+              ...r,
+              dailySubmissionId: rankedClaim?.submissionId ?? "",
+              serverRankedAttemptNumber: rankedClaim?.attemptNumber ?? 0,
+            }
+          : r;
+      const o = recordRun(enriched);
+      setResult(enriched);
       setOutcome(o);
       refresh();
       setScreen("result");
 
       // Server sync only for ranked Daily runs. Never for training / local-only /
       // limit-reached, and never retroactively.
-      if (r.mode !== "daily" || runRankState === "training") {
+      if (enriched.mode !== "daily" || runRankState === "training") {
         setServerSync("idle");
       } else if (runRankState === "limit-reached") {
         setServerSync("limit-reached");
-      } else if (runRankState !== "ranked" || !piUser) {
+      } else if (runRankState !== "ranked" || !piSession || !enriched.dailySubmissionId) {
         setServerSync("local-only");
       } else {
-        setServerSync("pending");
-        submitServerScore({
-          pi_user_uid: piUser.uid,
-          pi_username: piUser.username,
-          score: r.score,
-          energy_collected: r.energiesCollected,
-          max_combo: r.maxCombo,
-          obstacles_hit: r.obstaclesHit,
-          duration_seconds: RUN_DURATION_SECONDS,
-          game_mode: "daily",
-          challenge_id: getDailyChallengeId(),
-          challenge_date: getDailyDate(),
-          // Daily Token Rush (Phase 11B) — the server re-validates every value
-          // against its own snapshot/manifest before ranking.
-          rules_version: 2,
-          daily_token_challenge_version: 1,
-          daily_challenge_id: r.dailyChallengeId,
-          token_ids_collected: r.dailyTokenIdsCollected,
-          token_points: r.dailyTokenPoints,
-          tokens_collected_count: r.dailyTokenIdsCollected.length,
-        })
-          .then(() => setServerSync("ok"))
-          .catch((e: unknown) => {
-            const msg = e instanceof Error ? e.message : "";
-            setServerSync(/limit/i.test(msg) ? "limit-reached" : "failed");
-          });
+        submitRankedRun(enriched, piSession.accessToken);
       }
     },
-    [refresh, piUser, runRankState],
+    [refresh, piSession, runRankState, rankedClaim, submitRankedRun],
   );
+
+  /**
+   * Retry a failed ranked sync (Phase 11B-P4): reuses the exact same GameResult
+   * (same submissionId + facts) so the server dedupes it — no new reservation,
+   * no extra attempt, no duplicate score. The local score is already saved.
+   */
+  const retrySync = useCallback(() => {
+    if (!result || result.mode !== "daily" || !result.dailySubmissionId || !piSession) return;
+    submitRankedRun(result, piSession.accessToken);
+  }, [result, piSession, submitRankedRun]);
 
   const goHome = useCallback(() => {
     refresh();
@@ -425,6 +493,7 @@ export default function App() {
           campaignStarsBest={campaignStarInfo.best}
           campaignStarsNew={campaignStarInfo.isNew}
           serverSync={serverSync}
+          onRetrySync={retrySync}
           streak={data.streak}
           onPlayAgain={playAgain}
           onHome={goHome}

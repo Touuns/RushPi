@@ -189,28 +189,30 @@ export async function claimAttempt(
   };
 }
 
+/**
+ * Ranked submission body (Phase 11B-P4): RUN FACTS ONLY. Identity comes from the
+ * Bearer access token and the challenge date/id come from the server-side
+ * reservation — the client no longer sends pi_user_uid/pi_username/challenge_*.
+ */
 export interface SubmitScorePayload {
-  pi_user_uid: string;
-  pi_username: string;
+  submission_id: string;
   score: number;
   energy_collected: number;
   max_combo: number;
   obstacles_hit: number;
   duration_seconds: number;
-  game_mode: "daily";
-  /** Daily challenge this run belongs to (server is authoritative, but we send). */
-  challenge_id: string;
-  challenge_date: string;
-  /**
-   * Daily Token Rush (Phase 11B). The server re-derives and re-validates all of
-   * these from its own snapshot/manifest — it never trusts the client values.
-   */
   rules_version: 2;
   daily_token_challenge_version: 1;
-  daily_challenge_id: string;
   token_ids_collected: string[];
   token_points: number;
   tokens_collected_count: number;
+}
+
+/** Outcome of a submission: whether it was accepted as ranked, plus a code. */
+export interface SubmitResult {
+  ranked: boolean;
+  code?: ServerScoreErrorCode | "OK";
+  idempotent?: boolean;
 }
 
 async function getScores(url: string): Promise<ServerScore[]> {
@@ -228,21 +230,35 @@ export function fetchGlobalLeaderboard(): Promise<ServerScore[]> {
   return getScores("/api/leaderboard/global");
 }
 
-/** Submit a Daily Run score. Throws on failure (caller keeps the run unblocked). */
-export async function submitServerScore(payload: SubmitScorePayload): Promise<void> {
-  const res = await fetch("/api/leaderboard/submit-score", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    let message = `Server sync failed (${res.status})`;
-    try {
-      const data = (await res.json()) as { error?: string };
-      if (data?.error) message = data.error;
-    } catch {
-      /* ignore parse errors */
-    }
-    throw new Error(message);
+/**
+ * Submit (or re-submit) a ranked Daily score. Requires the in-memory access
+ * token (Bearer). Retrying with the SAME submission_id + same run facts is
+ * idempotent server-side. Returns a SubmitResult; throws a ServerScoreError only
+ * on a hard failure (auth/limit/conflict/network) — a non-ranked-but-saved run
+ * (SCORE_REJECTED) resolves normally with { ranked:false }.
+ */
+export async function submitServerScore(
+  accessToken: string,
+  payload: SubmitScorePayload,
+): Promise<SubmitResult> {
+  let res: Response;
+  try {
+    res = await fetch("/api/leaderboard/submit-score", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw networkError();
   }
+  if (!res.ok) throw await errorFromResponse(res);
+  const data = (await res.json()) as { ranked?: boolean; code?: string; idempotent?: boolean };
+  return {
+    ranked: data.ranked !== false,
+    code: (data.code as ServerScoreErrorCode) ?? "OK",
+    idempotent: data.idempotent === true,
+  };
 }

@@ -46,6 +46,38 @@ function rowToResult(row: SnapshotRow, status: SnapshotResult["status"]): Snapsh
 }
 
 /**
+ * READ-ONLY lookup of the persisted snapshot for a specific UTC day (Phase
+ * 11B-P4). Never creates a snapshot and never falls back to CoinGecko or the
+ * built-in coins — it returns null if that day was never persisted. Used when
+ * finalizing a ranked run whose reservation belongs to a specific date (e.g. a
+ * run started just before midnight UTC and finished just after).
+ */
+export async function getPersistedDailySnapshotForDate(
+  challengeDate: string,
+): Promise<SnapshotResult | null> {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) return null;
+  const headers = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+  };
+  try {
+    const r = await fetch(
+      `${supabaseUrl}/rest/v1/daily_market_snapshots` +
+        `?challenge_date=eq.${challengeDate}&currency=eq.usd&version=eq.1&limit=1`,
+      { headers },
+    );
+    if (!r.ok) return null;
+    const rows = (await r.json()) as SnapshotRow[];
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    return rowToResult(rows[0], challengeDate === todayUtc() ? "live" : "stale");
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Read today's persisted snapshot, creating it from CoinGecko on first call.
  * Concurrency-safe: INSERT with ignore-duplicates then re-read the winner.
  * Fallback ladder: live unpersisted (Supabase down) → latest persisted row
