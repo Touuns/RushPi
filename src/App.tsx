@@ -18,12 +18,13 @@ import {
   markPiTestPaymentCompleted,
   recordRun,
   resetLocalProgress,
+  syncRankedAttemptsFromServer,
   type RankedAttempts,
 } from "./utils/storage";
 import { CAMPAIGN_LEVELS } from "./game/campaign";
 import type { DailyTokenChallenge } from "./market/dailyTokenTypes";
-import { authenticatePi, initPi, isPiBrowser, type PiUser } from "./pi/piClient";
-import { submitServerScore } from "./utils/serverLeaderboard";
+import { authenticatePi, initPi, isPiBrowser, type PiSession } from "./pi/piClient";
+import { fetchAttemptStatus, submitServerScore } from "./utils/serverLeaderboard";
 import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 import type {
@@ -93,7 +94,10 @@ export default function App() {
 
   // Pi integration state (optional; never blocks gameplay).
   const [piSdkAvailable, setPiSdkAvailable] = useState(false);
-  const [piUser, setPiUser] = useState<PiUser | null>(null);
+  // Phase 11B-P4: keep the whole session (user + access token) in memory. The
+  // access token is NEVER persisted; UI components only ever receive the user.
+  const [piSession, setPiSession] = useState<PiSession | null>(null);
+  const piUser = piSession?.user ?? null;
   const [serverSync, setServerSync] = useState<ServerSyncStatus>("idle");
 
   // `runKey` forces a fresh GameScreen mount (clean Phaser game) on each run.
@@ -115,6 +119,31 @@ export default function App() {
 
   const refresh = useCallback(() => setData(readLocalData()), []);
 
+  /**
+   * Load the SERVER-authoritative attempt counter for a session and mirror it
+   * locally (Phase 11B-P4). When connected the server is the source of truth;
+   * this fails soft — on any error (migration missing / Pi down / offline) the
+   * existing local mirror is kept and the UI stays usable.
+   */
+  const refreshServerAttempts = useCallback((session: PiSession) => {
+    fetchAttemptStatus(session.accessToken)
+      .then((st) => {
+        syncRankedAttemptsFromServer(st.challengeDate, st.used, st.max);
+        setData(readLocalData());
+      })
+      .catch(() => {
+        /* keep the local mirror; never present offline attempts as ranked */
+      });
+  }, []);
+
+  const applySession = useCallback(
+    (session: PiSession) => {
+      setPiSession(session);
+      refreshServerAttempts(session);
+    },
+    [refreshServerAttempts],
+  );
+
   // Initialize the Pi SDK on load, and inside Pi Browser auto-connect so the
   // username shows and every Daily run syncs without re-tapping "Connect Pi".
   useEffect(() => {
@@ -123,17 +152,17 @@ export default function App() {
     void initPi();
     if (available) {
       authenticatePi()
-        .then(setPiUser)
+        .then(applySession)
         .catch(() => {
           /* stay disconnected; manual "Connect Pi" remains available */
         });
     }
-  }, []);
+  }, [applySession]);
 
   const connectPi = useCallback(async () => {
-    const user = await authenticatePi();
-    setPiUser(user);
-  }, []);
+    const session = await authenticatePi();
+    applySession(session);
+  }, [applySession]);
 
   const onPiPaymentComplete = useCallback(() => {
     markPiTestPaymentCompleted();
@@ -172,11 +201,11 @@ export default function App() {
 
   /** Connect Pi (from the modal) then start a Daily run respecting the limit. */
   const connectAndPlayDaily = useCallback(async () => {
-    const user = await authenticatePi();
-    setPiUser(user);
+    const session = await authenticatePi();
+    applySession(session);
     const left = getRankedAttemptsToday().left;
     goDailyPrep(left > 0 ? "ranked" : "limit-reached");
-  }, [goDailyPrep]);
+  }, [goDailyPrep, applySession]);
 
   /** Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard). */
   const startDailyAuto = useCallback(() => {

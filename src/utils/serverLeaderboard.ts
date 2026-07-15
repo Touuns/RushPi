@@ -21,6 +21,126 @@ export interface ServerScore {
   tokens_collected_count?: number;
 }
 
+// ---- Structured server errors (Phase 11B-P4) ----------------------------
+
+/** Stable error codes returned by the ranked endpoints (never regex the text). */
+export type ServerScoreErrorCode =
+  | "PI_AUTH_REQUIRED"
+  | "PI_AUTH_INVALID"
+  | "PI_AUTH_EXPIRED"
+  | "PI_AUTH_UNAVAILABLE"
+  | "ATTEMPT_LIMIT"
+  | "CHALLENGE_UNAVAILABLE"
+  | "CHALLENGE_NOT_RANKABLE"
+  | "SUBMISSION_NOT_CLAIMED"
+  | "SUBMISSION_CONFLICT"
+  | "SUBMISSION_EXPIRED"
+  | "SCORE_REJECTED"
+  | "MIGRATION_REQUIRED"
+  | "NETWORK_ERROR"
+  | "SERVER_ERROR";
+
+/** Codes the client may safely retry unchanged (transient conditions). */
+const RETRYABLE_CODES: ReadonlySet<ServerScoreErrorCode> = new Set([
+  "PI_AUTH_UNAVAILABLE",
+  "CHALLENGE_UNAVAILABLE",
+  "NETWORK_ERROR",
+  "SERVER_ERROR",
+]);
+
+export class ServerScoreError extends Error {
+  code: ServerScoreErrorCode;
+  retryable: boolean;
+  status: number;
+
+  constructor(code: ServerScoreErrorCode, message: string, status: number, retryable?: boolean) {
+    super(message);
+    this.name = "ServerScoreError";
+    this.code = code;
+    this.status = status;
+    this.retryable = retryable ?? RETRYABLE_CODES.has(code);
+  }
+}
+
+interface ErrorBody {
+  error?: string;
+  code?: string;
+  retryable?: boolean;
+}
+
+function isKnownCode(code: string | undefined): code is ServerScoreErrorCode {
+  return (
+    !!code &&
+    [
+      "PI_AUTH_REQUIRED",
+      "PI_AUTH_INVALID",
+      "PI_AUTH_EXPIRED",
+      "PI_AUTH_UNAVAILABLE",
+      "ATTEMPT_LIMIT",
+      "CHALLENGE_UNAVAILABLE",
+      "CHALLENGE_NOT_RANKABLE",
+      "SUBMISSION_NOT_CLAIMED",
+      "SUBMISSION_CONFLICT",
+      "SUBMISSION_EXPIRED",
+      "SCORE_REJECTED",
+      "MIGRATION_REQUIRED",
+      "NETWORK_ERROR",
+      "SERVER_ERROR",
+    ].includes(code)
+  );
+}
+
+/** Turn a non-OK response into a typed ServerScoreError using its `code`. */
+async function errorFromResponse(res: Response): Promise<ServerScoreError> {
+  let body: ErrorBody = {};
+  try {
+    body = (await res.json()) as ErrorBody;
+  } catch {
+    /* keep defaults */
+  }
+  const code: ServerScoreErrorCode = isKnownCode(body.code) ? body.code : "SERVER_ERROR";
+  const message = body.error || `Request failed (${res.status})`;
+  return new ServerScoreError(code, message, res.status, body.retryable);
+}
+
+/** Wrap a network-level failure (fetch threw) as a retryable NETWORK_ERROR. */
+function networkError(): ServerScoreError {
+  return new ServerScoreError("NETWORK_ERROR", "Network error reaching the server.", 0, true);
+}
+
+// ---- Ranked attempt status (Phase 11B-P4) -------------------------------
+
+export interface AttemptStatus {
+  used: number;
+  left: number;
+  max: number;
+  challengeDate: string;
+}
+
+/**
+ * Fetch the server-authoritative ranked-attempt counter for the verified Pi
+ * user. Requires the in-memory access token (sent as a Bearer header, never in
+ * the URL or body). Throws a ServerScoreError on failure.
+ */
+export async function fetchAttemptStatus(accessToken: string): Promise<AttemptStatus> {
+  let res: Response;
+  try {
+    res = await fetch("/api/leaderboard/attempt-status", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch {
+    throw networkError();
+  }
+  if (!res.ok) throw await errorFromResponse(res);
+  const data = (await res.json()) as Partial<AttemptStatus>;
+  return {
+    used: data.used ?? 0,
+    left: data.left ?? 0,
+    max: data.max ?? 3,
+    challengeDate: data.challengeDate ?? new Date().toISOString().slice(0, 10),
+  };
+}
+
 export interface SubmitScorePayload {
   pi_user_uid: string;
   pi_username: string;

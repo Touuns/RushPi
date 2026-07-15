@@ -601,6 +601,28 @@ export function consumeRankedAttempt(): void {
   }
 }
 
+/**
+ * Align the local ranked-attempt mirror with the SERVER counter (Phase 11B-P4).
+ * When connected, the server is authoritative: this overwrites the local `used`
+ * for `date` with the server value (clamped), so clearing localStorage can never
+ * hand back server-consumed attempts. Backward compatible; wipes nothing else.
+ */
+export function syncRankedAttemptsFromServer(
+  date: string,
+  used: number,
+  max: number = MAX_RANKED_ATTEMPTS,
+): void {
+  const clampedUsed = Math.max(0, Math.min(max, Math.floor(used)));
+  try {
+    window.localStorage.setItem(
+      RANKED_ATTEMPTS_KEY,
+      JSON.stringify({ date, used: clampedUsed }),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Wipe all local progress (best score, leaderboard, profile, XP, badges). */
 export function resetLocalProgress(): void {
   try {

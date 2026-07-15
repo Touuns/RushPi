@@ -22,6 +22,18 @@ export interface PiUser {
   username: string;
 }
 
+/**
+ * A verified-able Pi session (Phase 11B-P4): the user PLUS the raw access token.
+ * The token is a bearer credential — the caller must keep it IN MEMORY ONLY and
+ * hand it to our server (Authorization header) so the server can verify identity
+ * against Pi `/v2/me`. It must NEVER be written to localStorage/sessionStorage,
+ * put in a URL, logged, stored in Supabase, or placed in GameResult.
+ */
+export interface PiSession {
+  user: PiUser;
+  accessToken: string;
+}
+
 interface PiAuthResult {
   accessToken: string;
   user: PiUser;
@@ -155,8 +167,12 @@ export async function initPi(): Promise<void> {
   initialized = true;
 }
 
-/** Authenticate with Pi (username + payments). Returns the Pi user. */
-export async function authenticatePi(): Promise<PiUser> {
+/**
+ * Authenticate with Pi (username + payments). Returns the PiSession (user +
+ * access token). The access token is returned to the caller for in-memory use
+ * only; this module keeps the user (for getPiUser) but NOT the token.
+ */
+export async function authenticatePi(): Promise<PiSession> {
   if (!isPiBrowser()) {
     throw new Error("Pi SDK not available. Open Rush Pi in Pi Browser.");
   }
@@ -166,7 +182,7 @@ export async function authenticatePi(): Promise<PiUser> {
     void handleIncompletePayment(payment);
   });
   currentUser = result.user;
-  return result.user;
+  return { user: result.user, accessToken: result.accessToken };
 }
 
 /** The currently authenticated Pi user, if any. */
