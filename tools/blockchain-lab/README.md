@@ -32,7 +32,7 @@ node --check tools/blockchain-lab/lab.js
 node --check tools/blockchain-lab/server.mjs
 ```
 
-The validator checks counts, identifiers, references, accuracy statuses, source provenance, Campaign variety, maze reachability, visual-state completeness, and the committed SVG constraints. It complements human review of educational wording and interaction quality.
+The validator checks counts, identifiers, references, accuracy statuses, editorial release gates, source provenance, Campaign variety, maze reachability, visual-state completeness, manifest coverage, and the committed SVG constraints. Pi Lab, Survival, Campaign, and Chain Maze display each record's editorial badge so a research draft cannot be mistaken for release-approved copy. Automated checks complement human review of educational wording and interaction quality.
 
 ## Scope and safety
 

@@ -33,6 +33,18 @@ const modePresentation = [
   { id: "Campaign", title: "Chain Journey", subtitle: "Application through varied gameplay", copy: "Complete routing, validation, maze, sequence, and resource missions." },
 ];
 
+const editorialLabels = {
+  "research-draft": "Research draft",
+  "human-reviewed": "Human reviewed",
+  "release-approved": "Release approved",
+};
+
+function editorialBadge(record) {
+  const status = record.editorialReview?.status ?? "research-draft";
+  const label = editorialLabels[status] ?? status;
+  return `<span class="editorial-badge ${escapeHtml(status)}" aria-label="Editorial status: ${escapeHtml(label)}">${escapeHtml(label)}</span>`;
+}
+
 async function loadData() {
   const entries = await Promise.all(Object.entries(dataFiles).map(async ([key, file]) => {
     const response = await fetch(`${DATA_BASE}/${file}`, { cache: "no-store" });
@@ -131,6 +143,7 @@ function renderPiModule() {
   } else {
     content = `<p class="eyebrow">Recap</p><h3>${escapeHtml(module.title)}</h3><p>${escapeHtml(module.recap)}</p><p><strong>Proposed local acknowledgement:</strong> ${escapeHtml(module.proposedReward)} — no financial or transferable value.</p><p class="source-ids">Sources: ${escapeHtml(module.sources.join(" · "))}</p>`;
   }
+  content = `${editorialBadge(module)}${content}`;
   const container = $("#module-content");
   container.innerHTML = content;
 
@@ -169,11 +182,13 @@ function renderSurvival() {
   $("#survival-stage").classList.toggle("reduced", reduced);
   const copy = briefing.firstVisitBriefing.en;
   $("#briefing-card").innerHTML = repeat ? `
+    ${editorialBadge(briefing)}
     <p class="eyebrow">Repeat visit · gameplay frozen</p>
     <h3>${escapeHtml(briefing.zoneName)}</h3>
     <p>${escapeHtml(briefing.repeatVisitBriefing.en)}</p>
     <div class="button-row"><button type="button" class="secondary" id="review-briefing">Review rule</button><button type="button" id="resume-survival">Continue</button></div>
   ` : `
+    ${editorialBadge(briefing)}
     <p class="eyebrow">First visit · gameplay frozen</p>
     <h3>${escapeHtml(briefing.zoneName)}</h3>
     <dl><div><dt>Blockchain idea</dt><dd>${escapeHtml(copy.idea)}</dd></div><div><dt>New journey rule</dt><dd>${escapeHtml(copy.rule)}</dd></div><div><dt>Tip</dt><dd>${escapeHtml(copy.tip)}</dd></div></dl>
@@ -220,6 +235,7 @@ function renderCampaign() {
     .sort((a, b) => (a.seasonOrder ?? 99) - (b.seasonOrder ?? 99));
   $("#campaign-grid").innerHTML = chapters.map((chapter) => `
     <article class="campaign-card">
+      ${editorialBadge(chapter)}
       <span class="tag">${escapeHtml(chapter.gameplayTemplate)}</span>
       <p class="order">${chapter.seasonOneRecommended ? `Season 1 · ${chapter.seasonOrder}` : "Future candidate"}</p>
       <h3>${escapeHtml(chapter.title)}</h3>
@@ -433,7 +449,7 @@ function renderMaze() {
     }
   }
   $("#maze-grid").innerHTML = cells.join("");
-  $("#maze-level-id").textContent = level.id;
+  $("#maze-level-id").innerHTML = `${editorialBadge(level)} <span>${escapeHtml(level.id)}</span>`;
   $("#maze-level-title").textContent = level.title;
   $("#maze-concept").textContent = level.educationalConcept;
   $("#maze-moves").textContent = mazeState.moves;

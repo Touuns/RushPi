@@ -6,6 +6,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
 const dataDir = path.join(repoRoot, "public/data/blockchain");
 const mechanicsDir = path.join(repoRoot, "public/assets/rushpi/mechanics");
+const assetManifestPath = path.join(repoRoot, "public/assets/rushpi/asset-manifest.json");
 const reviewCeiling = "2026-07-15";
 
 const expectedFiles = [
@@ -38,6 +39,7 @@ const accuracyStatuses = new Set([
   "needs-verification",
 ]);
 const simplificationLevels = new Set(["none", "low", "moderate", "high"]);
+const editorialStatuses = new Set(["research-draft", "human-reviewed", "release-approved"]);
 const errors = [];
 const warnings = [];
 const documents = new Map();
@@ -106,6 +108,30 @@ function validateAccuracy(record, context, simplificationRequired = false) {
     error(`${context}: simplified content requires simplificationNotes`);
   }
   validDate(record.lastReviewedAt, context);
+}
+
+function validateEditorialReview(record, context) {
+  const review = record.editorialReview;
+  if (!review || typeof review !== "object" || Array.isArray(review)) {
+    error(`${context}: editorialReview object required`);
+    return;
+  }
+  requireFields(review, ["status", "reviewedBy", "contentVerifiedAt", "reviewNotes", "releaseApproved"], `${context} editorialReview`);
+  if (!editorialStatuses.has(review.status)) error(`${context}: invalid editorialReview status ${String(review.status)}`);
+  if (review.reviewedBy !== null && (typeof review.reviewedBy !== "string" || review.reviewedBy.trim().length === 0)) error(`${context}: reviewedBy must be null or a non-empty string`);
+  if (review.contentVerifiedAt !== null) validDate(review.contentVerifiedAt, `${context} contentVerifiedAt`);
+  if (!Array.isArray(review.reviewNotes) || review.reviewNotes.some((note) => typeof note !== "string" || note.trim().length === 0)) error(`${context}: reviewNotes must contain non-empty strings`);
+  if (typeof review.releaseApproved !== "boolean") error(`${context}: releaseApproved must be boolean`);
+  if (review.status === "release-approved") {
+    if (!review.reviewedBy || !review.contentVerifiedAt || review.reviewNotes.length === 0 || review.releaseApproved !== true) error(`${context}: release-approved requires reviewer, verification date, review note, and releaseApproved=true`);
+  } else if (review.releaseApproved !== false) {
+    error(`${context}: only release-approved status may set releaseApproved=true`);
+  }
+  if (record.accuracyStatus === "needs-verification" && (review.status === "release-approved" || review.releaseApproved)) error(`${context}: needs-verification content cannot be release-approved`);
+  if (record.accuracyStatus === "historical-official" && !/historical|historique/i.test(JSON.stringify(record))) error(`${context}: historical content must retain an explicit warning`);
+  if (review.status !== "research-draft" || review.reviewedBy !== null || review.contentVerifiedAt !== null || review.reviewNotes.length !== 0 || review.releaseApproved !== false) {
+    error(`${context}: CHAIN-0.1 player-facing content must remain an unapproved research-draft`);
+  }
 }
 
 function walk(value, visitor, key = "", context = "root") {
@@ -244,6 +270,7 @@ for (const module of modules) {
   requireFields(module, moduleFields, context);
   validateSourceRefs(module, ["sources"], context);
   validateAccuracy(module, context, true);
+  validateEditorialReview(module, context);
   const check = module.checkQuestion;
   if (!check || typeof check.prompt !== "string" || !Array.isArray(check.answers) || check.answers.length < 2 || !Number.isInteger(check.correctIndex) || check.correctIndex < 0 || check.correctIndex >= check.answers.length) {
     error(`${context}: valid checkQuestion with answers and correctIndex required`);
@@ -261,6 +288,7 @@ for (const briefing of briefings) {
   expectedZones.delete(briefing.zoneName);
   validateSourceRefs(briefing, ["officialSources"], context);
   validateAccuracy(briefing, context, true);
+  validateEditorialReview(briefing, context);
   for (const locale of ["fr", "en"]) {
     const first = briefing.firstVisitBriefing?.[locale];
     if (!first) {
@@ -290,6 +318,7 @@ for (const chapter of chapters) {
   const context = `Campaign chapter ${chapter.id ?? "<missing>"}`;
   validateSourceRefs(chapter, ["officialSources"], context);
   validateAccuracy(chapter, context, true);
+  validateEditorialReview(chapter, context);
   if (typeof chapter.winCondition !== "string" || chapter.winCondition.trim().length < 15) error(`${context}: concrete winCondition required`);
   if (!Array.isArray(chapter.failConditions) || chapter.failConditions.length === 0) error(`${context}: failConditions required`);
   if (!Array.isArray(chapter.playerActions) || chapter.playerActions.length < 3) error(`${context}: at least three playerActions required`);
@@ -382,6 +411,7 @@ for (const level of levels) {
   const context = `Chain Maze level ${level.id ?? "<missing>"}`;
   validateSourceRefs(level, ["officialSources"], context);
   validateAccuracy(level, context, true);
+  validateEditorialReview(level, context);
   if (!Number.isInteger(level.width) || !Number.isInteger(level.height) || level.width < 3 || level.height < 3) error(`${context}: rectangular dimensions required`);
   const inBounds = (position) => Number.isInteger(position?.x) && Number.isInteger(position?.y) && position.x >= 0 && position.y >= 0 && position.x < level.width && position.y < level.height;
   if (!inBounds(level.start)) error(`${context}: invalid start coordinate`);
@@ -636,6 +666,19 @@ for (const [file, document] of documents) {
 }
 
 const svgFiles = listFiles(mechanicsDir).filter((file) => file.toLowerCase().endsWith(".svg"));
+let mechanicsManifestAssets = [];
+try {
+  const assetManifest = JSON.parse(readFileSync(assetManifestPath, "utf8"));
+  if (!assetManifest.families?.some((family) => family.id === "blockchain-mechanics-foundation")) {
+    error("asset-manifest.json: blockchain-mechanics-foundation family required");
+  }
+  mechanicsManifestAssets = (assetManifest.assets ?? []).filter((asset) => asset.category === "mechanics");
+  if (mechanicsManifestAssets.length !== 6) error(`asset-manifest.json: expected 6 mechanics assets, found ${mechanicsManifestAssets.length}`);
+  const listedMechanics = new Set(mechanicsManifestAssets.map((asset) => path.resolve(path.join(repoRoot, "public/assets/rushpi"), asset.file)));
+  for (const svg of svgFiles) if (!listedMechanics.has(path.resolve(svg))) error(`${path.relative(repoRoot, svg).replaceAll("\\", "/")}: missing mechanics manifest entry`);
+} catch (cause) {
+  error(`asset-manifest.json: invalid or unreadable (${cause.message})`);
+}
 const brandPattern = /(?:pi[\s_-]*network|bitcoin|ethereum|solana|stellar|avalanche|polkadot|cosmos|cardano|zcash|monero|algorand|near|sui|aptos|xrp|hedera|filecoin|arweave|chainlink)/i;
 for (const file of listFiles(mechanicsDir)) {
   const relative = path.relative(repoRoot, file).replaceAll("\\", "/");
@@ -678,5 +721,7 @@ if (errors.length) {
   console.log(`  Chain Maze levels: ${levels.length}`);
   console.log(`  Visual mechanic families: ${visualMechanics.length}`);
   console.log(`  Lightweight SVG templates: ${svgFiles.length}`);
+  console.log(`  Editorial research drafts: ${modules.length + briefings.length + chapters.length + levels.length}`);
+  console.log(`  Mechanics manifest assets: ${mechanicsManifestAssets.length}`);
   console.log("Human review is still required for technical accuracy, pedagogy, accessibility, security, legal, and trademark decisions.");
 }

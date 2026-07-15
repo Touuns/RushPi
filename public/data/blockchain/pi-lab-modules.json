@@ -31,7 +31,14 @@
       "proposedReward": "Knowledge badge: Shared Record",
       "futureAssetNeeds": ["generic ledger panels", "record integrity states"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-transactions-blocks-hashes",
@@ -54,7 +61,14 @@
       "proposedReward": "Knowledge badge: Hash Link",
       "futureAssetNeeds": ["generic block shells", "hash ribbons", "transaction cards"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-keys-addresses-signatures",
@@ -77,7 +91,14 @@
       "proposedReward": "Knowledge badge: Safe Signer",
       "futureAssetNeeds": ["generic key shield", "signature seal", "tamper states"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-confirmation-and-finality",
@@ -100,7 +121,14 @@
       "proposedReward": "Knowledge badge: Finality Watch",
       "futureAssetNeeds": ["confirmation rings", "finality certificate", "provisional state"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-app-browser-auth",
@@ -123,7 +151,14 @@
       "proposedReward": "Knowledge badge: App Boundary",
       "futureAssetNeeds": ["generic browser frame", "client and server lanes", "scope cards"],
       "accuracyStatus": "current-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-wallet-and-environments",
@@ -146,7 +181,14 @@
       "proposedReward": "Knowledge badge: Network Check",
       "futureAssetNeeds": ["Testnet stripe pattern", "Mainnet solid pattern", "intent review card"],
       "accuracyStatus": "current-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-user-to-app-payment",
@@ -169,7 +211,14 @@
       "proposedReward": "Knowledge badge: Safe Payment Flow",
       "futureAssetNeeds": ["payment lifecycle cards", "server credential shield", "approval state"],
       "accuracyStatus": "current-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-app-to-user-verification",
@@ -192,7 +241,14 @@
       "proposedReward": "Knowledge badge: Verified Result",
       "futureAssetNeeds": ["server workflow lane", "verification gate", "pending and completed states"],
       "accuracyStatus": "current-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-nodes-and-claim-status",
@@ -215,7 +271,14 @@
       "proposedReward": "Knowledge badge: Source Scout",
       "futureAssetNeeds": ["claim cards", "five status columns", "source-date markers"],
       "accuracyStatus": "current-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-scp-and-fba-history",
@@ -238,7 +301,14 @@
       "proposedReward": "Knowledge badge: Consensus Historian",
       "futureAssetNeeds": ["historical banner", "generic quorum graph", "intersection highlight"],
       "accuracyStatus": "historical-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-quorum-slices-and-overlap",
@@ -261,7 +331,14 @@
       "proposedReward": "Knowledge badge: Safe Overlap",
       "futureAssetNeeds": ["threshold petals", "organization shape markers", "split warning"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pi-participation-vs-validation",
@@ -284,7 +361,14 @@
       "proposedReward": "Knowledge badge: Clear Claims",
       "futureAssetNeeds": ["five process lanes", "unsupported-claim blocker", "daily app card"],
       "accuracyStatus": "needs-verification",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-utxo-vs-account",
@@ -307,7 +391,14 @@
       "proposedReward": "Knowledge badge: State Model",
       "futureAssetNeeds": ["UTXO gems", "account card", "sequence dial"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-pow-vs-pos",
@@ -330,7 +421,14 @@
       "proposedReward": "Knowledge badge: Consensus Compare",
       "futureAssetNeeds": ["hash target", "stake anchors", "attestation rays"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-contracts-and-gas",
@@ -353,7 +451,14 @@
       "proposedReward": "Knowledge badge: Execution Budget",
       "futureAssetNeeds": ["contract rule chamber", "gas cells", "rollback wave"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "lab-rollups-privacy-interop",
@@ -376,7 +481,14 @@
       "proposedReward": "Knowledge badge: Proof Router",
       "futureAssetNeeds": ["fault trace", "validity proof prism", "message proof envelope"],
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     }
   ]
 }

@@ -11,7 +11,7 @@ const manifestPath = path.join(assetRoot, "asset-manifest.json");
 const requiredFields = ["id", "category", "file", "format", "usage", "size", "notes", "animationReady"];
 const expectedDirectories = [
   "backgrounds", "portals", "collectibles", "fx", "ui",
-  "placeholders", "concepts", "spritesheets", "previews",
+  "placeholders", "concepts", "mechanics", "spritesheets", "previews",
 ];
 const visualExtensions = new Set([".svg", ".png", ".webp", ".jpg", ".jpeg"]);
 const errors = [];
@@ -106,6 +106,9 @@ try {
 }
 
 if (!Array.isArray(manifest.assets)) errors.push("Manifest field 'assets' must be an array.");
+if (!Array.isArray(manifest.families) || !manifest.families.some((family) => family.id === "blockchain-mechanics-foundation")) {
+  errors.push("Manifest family 'blockchain-mechanics-foundation' is required.");
+}
 const ids = new Set();
 const files = new Set();
 const categoryCounts = new Map();
@@ -168,6 +171,9 @@ for (const file of diskVisuals) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) errors.push(`${relative(file)}: filename must use kebab-case ASCII.`);
   if (!files.has(relative(file))) errors.push(`${relative(file)}: visual file is not listed in the manifest.`);
 }
+
+const mechanicsAssets = (manifest.assets ?? []).filter((asset) => asset.category === "mechanics");
+if (mechanicsAssets.length !== 6) errors.push(`Expected 6 mechanics assets in the manifest, found ${mechanicsAssets.length}.`);
 
 for (const warning of warnings) console.warn(`WARN  ${warning}`);
 for (const error of errors) console.error(`ERROR ${error}`);

@@ -35,7 +35,14 @@
       "officialSources": ["pi-developers", "pi-sdk-core", "pi-platform-api", "pi-mainnet-testnet", "pi-open-network-launch"],
       "simplificationNotes": "This is a local pedagogical state machine. It performs no authentication, payment, wallet, token, network, user, or Platform API operation and makes no claim about current Pi consensus.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "bitcoin-utxo-vault",
@@ -61,7 +68,14 @@
       "officialSources": ["bitcoin-whitepaper", "bitcoin-dev-transactions"],
       "simplificationNotes": "Values, output, fee, and change are fixed teaching units. Scripts, signatures, serialization, real fee policy, propagation, mempool behavior, and complete confirmation are omitted.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "ethereum-gas-labyrinth",
@@ -87,7 +101,14 @@
       "officialSources": ["ethereum-transactions", "ethereum-smart-contracts", "ethereum-eip-1559"],
       "simplificationNotes": "Gas values are fixed educational counters and never estimate fees or network conditions. Calldata, bytecode, storage charging, refunds, fee markets, and transaction envelopes are omitted.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "stellar-path-payment",
@@ -113,7 +134,14 @@
       "officialSources": ["stellar-path-payments", "stellar-scp"],
       "simplificationNotes": "No live asset, market, price, or best-route claim is used; order-book behavior is reduced to fixed puzzle edges.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "solana-atomic-grid",
@@ -139,7 +167,14 @@
       "officialSources": ["solana-accounts", "solana-whitepaper"],
       "simplificationNotes": "The grid teaches account dependencies and does not reproduce Solana runtime scheduling or throughput.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "avalanche-sampling-trial",
@@ -165,7 +200,14 @@
       "officialSources": ["avalanche-consensus-paper"],
       "simplificationNotes": "The sample sequence is deterministic for teaching and does not expose deployed parameters or real randomness.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "cosmos-ibc-relay-run",
@@ -191,7 +233,14 @@
       "officialSources": ["cosmos-stack", "cosmos-ibc-specs"],
       "simplificationNotes": "The runner is a fictional transport metaphor for a subset of IBC semantics. It creates no chain, relayer, token, connection, network transfer, proof, client, channel, or real acknowledgement, and it never presents delivery as instantaneous execution.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "multichain-finale",
@@ -221,7 +270,14 @@
         "fr": "Cette simulation multichaîne fictive n’implique pas que Pi Network implémente nativement chaque famille de protocoles représentée."
       },
       "accuracyStatus": "proposed-design",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "federated-trust-archive",
@@ -251,7 +307,14 @@
         "fr": "Concept historique/général de consensus — ceci ne simule pas le consensus actuel de Pi Network."
       },
       "accuracyStatus": "historical-official",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "polkadot-xcm-route",
@@ -277,7 +340,14 @@
       "officialSources": ["polkadot-parachains", "polkadot-xcm"],
       "simplificationNotes": "The mission uses a small fixed instruction vocabulary and is not a full XCM interpreter.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "cardano-eutxo-workshop",
@@ -303,7 +373,14 @@
       "officialSources": ["cardano-eutxo"],
       "simplificationNotes": "The puzzle omits Plutus code, ledger eras, serialization, and real value.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "zcash-shielded-proof",
@@ -329,7 +406,14 @@
       "officialSources": ["zcash-protocol", "zcash-zip-224"],
       "simplificationNotes": "No real note, key, proof, cryptography, or anonymity guarantee is produced.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "filecoin-storage-proof",
@@ -355,7 +439,14 @@
       "officialSources": ["filecoin-proofs", "filecoin-blockchain"],
       "simplificationNotes": "No capacity, collateral, reward, storage price, or proof cryptography is simulated.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     }
   ]
 }

@@ -93,7 +93,14 @@
       "officialSources": ["bitcoin-whitepaper", "bitcoin-dev-transactions"],
       "simplificationNotes": "This deterministic puzzle does not reproduce Bitcoin scripts, signatures, serialization, real fee policy, propagation, mempool behavior, or complete network confirmation. Values are fictional teaching units.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "ethereum-gas-labyrinth-maze",
@@ -163,7 +170,14 @@
       "officialSources": ["ethereum-transactions", "ethereum-smart-contracts", "ethereum-eip-1559"],
       "simplificationNotes": "Gas units and costs are fixed teaching counters, not real Ethereum fee estimates. The puzzle omits calldata, storage refunds, fee markets, transaction envelopes, EVM bytecode, and network execution details.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     }
   ]
 }

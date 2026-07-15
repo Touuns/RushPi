@@ -24,6 +24,20 @@ Content JSON references source IDs only. URLs live once in the source catalog so
 
 `accuracyStatus` and `simplificationLevel` answer different questions. The first describes evidentiary status; the second describes how far the representation compresses reality. A source-backed mechanic may still require a high simplification level.
 
+## Editorial review status
+
+Editorial review is a separate release gate from source accuracy. A record can be supported by an official source and still require human review for wording, pedagogy, accessibility, security, legal, or trademark concerns.
+
+Every player-facing Pi Lab module, Survival briefing, Campaign chapter, and Chain Maze level carries an `editorialReview` object:
+
+| Status | Meaning | Release gate |
+|---|---|---|
+| `research-draft` | Structured research content awaiting accountable human review. | `releaseApproved` must remain `false`; reviewer and verification date remain empty. |
+| `human-reviewed` | A named reviewer has assessed the content, but release approval has not been granted. | `releaseApproved` remains `false`; follow-up notes may still be open. |
+| `release-approved` | A named reviewer approved a dated and documented content state. | Requires a reviewer, verification date, at least one review note, and `releaseApproved: true`. |
+
+`needs-verification` content cannot be release-approved. Historical material must keep an explicit player-facing historical warning. All CHAIN-0.1 player-facing records remain unapproved `research-draft` content; the presence of a lab prototype does not imply publication approval.
+
 ## Per-record requirements
 
 Every primitive carries:
@@ -69,7 +83,7 @@ Abstract counters, fictional assets, and deterministic teaching scenarios are ac
 2. Find current primary evidence and add it to the catalog.
 3. Record the claim's status, scope, assumptions, failures, and unresolved questions.
 4. Design the game abstraction and state what it omits.
-5. Validate IDs, dates, references, vocabulary, and prohibited language automatically.
+5. Validate IDs, dates, references, editorial gates, vocabulary, and prohibited language automatically.
 6. Perform human technical, educational, accessibility, legal, and trademark review.
 7. Re-review volatile material before release and whenever an upstream protocol changes.
 

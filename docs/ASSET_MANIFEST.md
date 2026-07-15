@@ -16,6 +16,10 @@
 | `spritesheets/` | Atlases futurs et métadonnées | PNG/WebP + JSON | cellules constantes, max 2048×2048 |
 | `previews/` | Montages de revue uniquement, jamais chargés en jeu | WebP/PNG | largeur max 1440 px |
 
+### Famille blockchain mechanics
+
+Le dossier `mechanics/` contient les formes abstraites blockchain, la coque joueur et leurs groupes animation-ready. Les six SVG transparents vont de 80×88 à 168×128 selon le composant. Ils restent génériques, sans logo de protocole, et ne sont pas intégrés au gameplay.
+
 ## Conventions de nommage
 
 - Utiliser le kebab-case ASCII, sans espace ni date implicite.
@@ -33,6 +37,7 @@ portals/finish-gate-layers.svg
 collectibles/chain-block-core-energized.svg
 fx/collect-burst-gold.svg
 placeholders/token-frame-fallback.svg
+mechanics/player/player-orb-shell.svg
 ```
 
 ## Formats et compression
@@ -66,6 +71,8 @@ Chaque entrée d’asset utilise au minimum :
 | `animationReady` | groupes/frames exploitables séparément |
 
 Les champs facultatifs `variant`, `palette`, `safeCenterPercent` et `layers` enrichissent la galerie sans modifier ce contrat minimal.
+
+La famille `blockchain-mechanics-foundation` répertorie les six SVG abstraits de CHAIN-0.1. Le manifest contient actuellement 56 assets au total. Chaque nouveau visuel de `mechanics/` doit être ajouté au manifest avant validation afin d’éviter les assets orphelins.
 
 ## Cycle d’ajout
 

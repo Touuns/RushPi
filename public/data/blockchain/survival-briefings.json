@@ -41,7 +41,14 @@
       "officialSources": ["bitcoin-whitepaper", "stellar-scp", "pi-whitepaper-original"],
       "simplificationNotes": "Three fictional nodes teach convergence; the zone is not a current Pi consensus simulator.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-orange-chain",
@@ -67,7 +74,14 @@
       "officialSources": ["bitcoin-whitepaper", "bitcoin-dev-transactions"],
       "simplificationNotes": "The runner rule omits Bitcoin scripts, fee policy, and actual confirmation-risk estimates.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-smart-layer",
@@ -93,7 +107,14 @@
       "officialSources": ["ethereum-accounts", "ethereum-smart-contracts", "ethereum-transactions", "ethereum-eip-1559"],
       "simplificationNotes": "Fixed cells teach execution metering, not live fees or full EVM semantics.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-neon-speednet",
@@ -119,7 +140,14 @@
       "officialSources": ["solana-accounts", "sui-platform-paper", "aptos-whitepaper"],
       "simplificationNotes": "The rule combines a shared dependency lesson; concrete systems discover or declare conflicts differently.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-stable-grid",
@@ -145,7 +173,14 @@
       "officialSources": ["stellar-scp"],
       "simplificationNotes": "The small SCP-inspired graph teaches overlap and finality concepts, not a full ballot protocol or current Pi configuration.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-meme-circuit",
@@ -171,7 +206,14 @@
       "officialSources": ["ethereum-transactions", "bitcoin-dev-transactions"],
       "simplificationNotes": "The zone is a proposed media-literacy rule, not a market simulator or technical profile of any meme token.",
       "accuracyStatus": "proposed-design",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-privacy-tunnel",
@@ -197,7 +239,14 @@
       "officialSources": ["zcash-protocol", "zcash-zip-224", "ethereum-zk-rollups"],
       "simplificationNotes": "The proof prism teaches statement/witness separation and does not model Zcash cryptography or imply that every ZK system is private.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     },
     {
       "id": "briefing-chain-storm",
@@ -223,7 +272,14 @@
       "officialSources": ["cosmos-ibc-specs", "polkadot-xcm", "ethereum-optimistic-rollups", "ethereum-zk-rollups"],
       "simplificationNotes": "The final zone compares security models without treating IBC, XCM, and rollups as interchangeable bridges.",
       "accuracyStatus": "simplified-for-game",
-      "lastReviewedAt": "2026-07-15"
+      "lastReviewedAt": "2026-07-15",
+      "editorialReview": {
+        "status": "research-draft",
+        "reviewedBy": null,
+        "contentVerifiedAt": null,
+        "reviewNotes": [],
+        "releaseApproved": false
+      }
     }
   ]
 }

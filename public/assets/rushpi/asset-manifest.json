@@ -72,6 +72,16 @@
       "animationReady": true
     },
     {
+      "id": "blockchain-mechanics-foundation",
+      "category": "mechanics",
+      "file": "mechanics/**/*.svg",
+      "format": "svg",
+      "usage": "Generic blockchain teaching forms and an animation-ready player shell",
+      "size": "various",
+      "notes": "Original abstract forms only; no protocol logos or gameplay integration",
+      "animationReady": true
+    },
+    {
       "id": "token-placeholder-kit",
       "category": "placeholders",
       "file": "placeholders/token-*.svg",
@@ -138,6 +148,13 @@
     { "id": "decor-chain-ribbon", "category": "ui", "file": "ui/chain-ribbon.svg", "format": "svg", "usage": "Repeatable abstract chain ribbon", "size": "256x64", "notes": "Generic geometry without a chain brand", "animationReady": true },
     { "id": "decor-side-shard", "category": "ui", "file": "ui/side-shard.svg", "format": "svg", "usage": "Reusable side crystal decoration", "size": "96x256", "notes": "Mirror for left and right compositions", "animationReady": true },
     { "id": "decor-horizon-lines", "category": "ui", "file": "ui/horizon-lines.svg", "format": "svg", "usage": "Reusable horizon glow and lines", "size": "414x160", "notes": "Place behind the playable track", "animationReady": true },
+    { "id": "mechanics-player-orb-shell", "category": "mechanics", "file": "mechanics/player/player-orb-shell.svg", "format": "svg", "usage": "Brand-free player frame with optional shield, magnet and charge groups", "size": "128x128", "notes": "Transparent center for a runtime avatar; explicit violet fallback color", "animationReady": true },
+    { "id": "mechanics-ledger-panel", "category": "mechanics", "file": "mechanics/ledger/ledger-panel.svg", "format": "svg", "usage": "Abstract replicated-ledger teaching panel", "size": "160x120", "notes": "Generic rows and nodes without protocol identity", "animationReady": true },
+    { "id": "mechanics-gas-cell", "category": "mechanics", "file": "mechanics/gas/gas-cell.svg", "format": "svg", "usage": "Abstract execution-resource cell for gas-budget demonstrations", "size": "80x96", "notes": "Runtime labels provide values; the SVG contains no visible text", "animationReady": true },
+    { "id": "mechanics-message-capsule", "category": "mechanics", "file": "mechanics/interoperability/message-capsule.svg", "format": "svg", "usage": "Generic authenticated-message capsule for routing demonstrations", "size": "168x88", "notes": "Separate capsule, route and proof geometry without a bridge logo", "animationReady": true },
+    { "id": "mechanics-proof-prism", "category": "mechanics", "file": "mechanics/proof/proof-prism.svg", "format": "svg", "usage": "Abstract proof component for verification demonstrations", "size": "144x120", "notes": "Original prism geometry; does not imply a specific proof system", "animationReady": true },
+    { "id": "mechanics-quorum-node", "category": "mechanics", "file": "mechanics/quorum/quorum-node.svg", "format": "svg", "usage": "Generic quorum-participation node for validation demonstrations", "size": "112x112", "notes": "Abstract node arcs only; not a protocol network diagram", "animationReady": true },
+
     { "id": "animation-specs", "category": "metadata", "file": "animation-specs.json", "format": "json", "usage": "Machine-readable animation contract", "size": "various", "notes": "Cosmetic recommendations only; does not alter gameplay timing", "animationReady": false }
   ]
 }

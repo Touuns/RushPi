@@ -13,7 +13,7 @@
       "minItems": 2,
       "items": {
         "type": "object",
-        "required": ["id", "title", "chapterId", "width", "height", "start", "exit", "tiles", "rules", "resources", "objectives", "validationScenarios", "parMoves", "educationalConcept", "winCondition", "failConditions", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt"],
+        "required": ["id", "title", "chapterId", "width", "height", "start", "exit", "tiles", "rules", "resources", "objectives", "validationScenarios", "parMoves", "educationalConcept", "winCondition", "failConditions", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt", "editorialReview"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
           "title": { "type": "string" },
@@ -34,7 +34,23 @@
           "officialSources": { "type": "array", "minItems": 1, "items": { "type": "string" } },
           "simplificationNotes": { "type": "string" },
           "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
-          "lastReviewedAt": { "type": "string", "format": "date" }
+          "lastReviewedAt": { "type": "string", "format": "date" },
+          "editorialReview": {
+            "type": "object",
+            "required": ["status", "reviewedBy", "contentVerifiedAt", "reviewNotes", "releaseApproved"],
+            "properties": {
+              "status": { "enum": ["research-draft", "human-reviewed", "release-approved"] },
+              "reviewedBy": { "type": ["string", "null"] },
+              "contentVerifiedAt": { "type": ["string", "null"], "format": "date" },
+              "reviewNotes": { "type": "array", "items": { "type": "string" } },
+              "releaseApproved": { "type": "boolean" }
+            },
+            "allOf": [
+              { "if": { "properties": { "status": { "const": "release-approved" } } }, "then": { "properties": { "reviewedBy": { "type": "string", "minLength": 1 }, "contentVerifiedAt": { "type": "string", "format": "date" }, "reviewNotes": { "minItems": 1 }, "releaseApproved": { "const": true } } } },
+              { "if": { "properties": { "status": { "enum": ["research-draft", "human-reviewed"] } } }, "then": { "properties": { "releaseApproved": { "const": false } } } }
+            ],
+            "additionalProperties": false
+          }
         },
         "additionalProperties": false
       }

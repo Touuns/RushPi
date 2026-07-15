@@ -12,7 +12,7 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "level", "title", "learnerGoal", "verifiedConcept", "oneSentenceExplanation", "demonstration", "interaction", "checkQuestion", "correctFeedback", "incorrectFeedback", "recap", "prerequisites", "estimatedSeconds", "PiSpecific", "sources", "simplificationNotes", "proposedReward", "futureAssetNeeds", "accuracyStatus", "lastReviewedAt"],
+        "required": ["id", "level", "title", "learnerGoal", "verifiedConcept", "oneSentenceExplanation", "demonstration", "interaction", "checkQuestion", "correctFeedback", "incorrectFeedback", "recap", "prerequisites", "estimatedSeconds", "PiSpecific", "sources", "simplificationNotes", "proposedReward", "futureAssetNeeds", "accuracyStatus", "lastReviewedAt", "editorialReview"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
           "level": { "type": "integer", "minimum": 1, "maximum": 4 },
@@ -43,7 +43,23 @@
           "proposedReward": { "type": "string", "pattern": "^(?!.*(?:money|cash|token|yield|profit|gain|earn)).*$" },
           "futureAssetNeeds": { "type": "array", "items": { "type": "string" } },
           "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
-          "lastReviewedAt": { "type": "string", "format": "date" }
+          "lastReviewedAt": { "type": "string", "format": "date" },
+          "editorialReview": {
+            "type": "object",
+            "required": ["status", "reviewedBy", "contentVerifiedAt", "reviewNotes", "releaseApproved"],
+            "properties": {
+              "status": { "enum": ["research-draft", "human-reviewed", "release-approved"] },
+              "reviewedBy": { "type": ["string", "null"] },
+              "contentVerifiedAt": { "type": ["string", "null"], "format": "date" },
+              "reviewNotes": { "type": "array", "items": { "type": "string" } },
+              "releaseApproved": { "type": "boolean" }
+            },
+            "allOf": [
+              { "if": { "properties": { "status": { "const": "release-approved" } } }, "then": { "properties": { "reviewedBy": { "type": "string", "minLength": 1 }, "contentVerifiedAt": { "type": "string", "format": "date" }, "reviewNotes": { "minItems": 1 }, "releaseApproved": { "const": true } } } },
+              { "if": { "properties": { "status": { "enum": ["research-draft", "human-reviewed"] } } }, "then": { "properties": { "releaseApproved": { "const": false } } } }
+            ],
+            "additionalProperties": false
+          }
         },
         "additionalProperties": false
       }
