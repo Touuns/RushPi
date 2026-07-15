@@ -225,6 +225,7 @@ function renderCampaign() {
       <h3>${escapeHtml(chapter.title)}</h3>
       <p>${escapeHtml(chapter.gameplayFantasy)}</p>
       <h4>Win</h4><p>${escapeHtml(chapter.winCondition)}</p>
+      ${chapter.contentWarning ? `<aside class="content-warning"><strong>Required notice</strong><span lang="en">${escapeHtml(chapter.contentWarning.en)}</span><span lang="fr">${escapeHtml(chapter.contentWarning.fr)}</span></aside>` : ""}
       <details><summary>Actions, sources, and simplification</summary><ul>${chapter.playerActions.map((action) => `<li>${escapeHtml(action)}</li>`).join("")}</ul><p>${escapeHtml(chapter.simplificationNotes)}</p><p class="source-ids">${escapeHtml(chapter.officialSources.join(" · "))}</p></details>
     </article>
   `).join("");

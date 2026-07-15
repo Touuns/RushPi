@@ -8,7 +8,7 @@ Last reviewed: 2026-07-15
 
 ## Campaign promise
 
-Chain Journey applies mechanics learned in Pi Lab through varied, complete missions. A chapter succeeds only when the player performs a logically meaningful operation: build safe quorum overlap, consume an unspent output once, preserve a gas budget, validate a proof, route an authenticated packet, or commit an atomic sequence.
+Chain Journey applies mechanics learned in Pi Lab through varied, complete missions. A chapter succeeds only when the player performs a logically meaningful operation: preserve an application boundary, consume an unspent output once, preserve a gas budget, validate a proof, route an authenticated packet, or commit an atomic sequence.
 
 A chain name never justifies a palette swap. Each chapter must change player decisions, failure semantics, HUD information, and final verification.
 
@@ -17,6 +17,10 @@ A chain name never justifies a palette swap. Each chapter must change player dec
 ### Runner Mission
 
 The existing run can support a chapter only when movement performs a protocol-related selection: accept valid transactions, reject malformed data, manage abstract capacity, cross confirmed blocks, or follow an authenticated route. Running alone is not the educational action.
+
+### Hybrid Runner
+
+A Hybrid Runner keeps Rush Pi's movement DNA but makes the run only one phase of a larger logical operation. The player must transport a uniquely identified abstract object, preserve ordering or capacity, stop at a validation checkpoint, choose a compatible route, and complete a verifier or acknowledgement step. A finish line without these state transitions is not a valid Hybrid Runner.
 
 ### Chain Maze
 
@@ -57,22 +61,22 @@ Each chapter includes:
 
 | Order | Chapter | Template | Central operation | Difficulty |
 |---:|---|---|---|---|
-| 1 | Pi Trust Network | Network Routing | Classify evidence and repair quorum overlap | introductory |
+| 1 | Pi Ecosystem Gateway | Network Routing | Preserve Pi Browser, client, backend, permission, and verified-result boundaries | introductory |
 | 2 | Bitcoin UTXO Vault | Chain Maze | Consume available outputs once and confirm a fictional transaction | introductory |
 | 3 | Ethereum Gas Labyrinth | Chain Maze | Complete required calls within an abstract resource budget | intermediate |
 | 4 | Stellar Path Payment | Network Routing | Build a bounded fictional path payment atomically | intermediate |
 | 5 | Solana Atomic Grid | Sequence/Atomic Mission | Parallelize independent account work and serialize conflicts | intermediate |
 | 6 | Avalanche Sampling Trial | Validation Challenge | Accumulate confidence through repeated samples | intermediate |
-| 7 | Cosmos IBC Relay | Validation Challenge | Verify packet proof, order, acknowledgement, and timeout | advanced |
-| 8 | Pi Multichain Finale | Sequence/Atomic Mission | Preserve Pi app boundaries and route distinct external evidence | advanced |
+| 7 | Cosmos IBC Relay Run | Hybrid Runner / Relay Mission | Transport one abstract ordered packet through proof, route, timeout, and acknowledgement checks | advanced |
+| 8 | Multichain Finale | Hybrid Runner / Routing / Validation | Transport, route, and verify an abstract packet across distinct technology boundaries | advanced |
 
-Season 1 has four gameplay templates with exactly two chapters each. Zero chapters are classic runners, so the non-runner requirement is exceeded without discarding the Runner Mission family for later seasons. Pi is structurally central: it establishes evidence discipline in chapter 1 and returns in chapter 8 as the application and claim-verification frame.
+Season 1 contains two Network Routing chapters, two Chain Maze chapters, one Sequence/Atomic Mission, one Validation Challenge, and two Hybrid Runners. Six of eight chapters are non-runners. Neither runner is a recolored race: chapter 7 preserves packet identity, order, proof, route, timeout, and acknowledgement; chapter 8 adds distinct transport, routing, and validation phases. Pi is structurally central through the original Rush Pi orb identity and chapter 1's current documented application workflow, not through unsupported protocol claims.
 
 ## Difficulty arc
 
 ### Chapters 1–2: visible state
 
-The player sees every node, evidence card, output, and failure. Missions teach that sources have status and state inputs can be used only under explicit rules.
+The player sees every application lane, permission card, output, and failure. Missions teach that client/server boundaries are meaningful and state inputs can be used only under explicit rules.
 
 ### Chapters 3–4: resources and paths
 
@@ -84,11 +88,15 @@ The player schedules dependencies and waits for repeated evidence. Immediate act
 
 ### Chapters 7–8: composed security models
 
-The player distinguishes relaying from verification, client state from server state, fault proofs from validity proofs, and historical claims from current evidence.
+The player retains Rush Pi's motion language while distinguishing transport from verification, packet order from destination compatibility, and client, network, and verifier boundaries.
 
 ## Pi centrality and boundaries
 
-Pi Trust Network uses current SDK/API evidence and the historical whitepaper in separate lanes. Its quorum graph is explicitly historical and simplified. Pi Multichain Finale does not claim that Pi natively uses IBC or Ethereum rollups; external mechanisms are separate proof paths in a fictional application exercise.
+Pi Ecosystem Gateway uses only current developer-platform material for Pi Browser context, SDK authentication, permissions, Testnet/Mainnet separation, Platform API boundaries, and server verification. It is a local state-machine exercise with no real user, identifier, payment, wallet, token, secret, authentication, or Pi access. It does not simulate Pi consensus.
+
+Federated Trust Archive preserves the former quorum idea outside Season 1. It displays “historical/general consensus concept” and uses the historical Pi whitepaper only for lineage, alongside current Stellar material for the general SCP/FBA family. It never claims to reproduce current Pi consensus.
+
+Multichain Finale keeps the player as the central original Rush Pi orb but removes Pi from the chapter's technology label. Its permanent notice states: “This fictional multichain simulation does not imply that Pi Network natively implements every protocol family represented.” The French notice carries the same meaning.
 
 Neither chapter initiates authentication, payments, blockchain messages, proofs, or wallet actions. Daily app participation is never routed to block validation.
 
@@ -96,14 +104,14 @@ Neither chapter initiates authentication, payments, blockchain messages, proofs,
 
 Failure copy names the broken invariant:
 
-- “Two candidate quorums can be disjoint.”
+- “A server secret cannot enter the client lane.”
 - “This output is already spent.”
 - “The call exhausted its abstract gas budget.”
 - “The path output is below the fictional bound.”
 - “Two instructions write the same account simultaneously.”
 - “One sample is not the required repeated confidence.”
-- “The packet sequence or proof does not match this channel.”
-- “This Pi claim is historical, not established as current.”
+- “The packet sequence or proof does not match this route.”
+- “Transport completed, but verifier or acknowledgement checks remain open.”
 
 Generic “network error,” “bad crypto,” and “you lost” messages are not acceptable educational feedback.
 
@@ -119,7 +127,7 @@ Generic “network error,” “bad crypto,” and “you lost” messages are n
 
 ## Out-of-season candidates
 
-Polkadot XCM Route, Cardano eUTXO Workshop, Zcash Shielded Proof, and Filecoin Storage Proof are complete candidates for later sequencing. They are omitted from Season 1 to preserve an eight-chapter arc, not because their mechanisms are less important.
+Federated Trust Archive, Polkadot XCM Route, Cardano eUTXO Workshop, Zcash Shielded Proof, and Filecoin Storage Proof are complete candidates for later sequencing. Federated Trust Archive is explicitly historical/general consensus content. They are omitted from Season 1 to preserve an eight-chapter arc, not because their mechanisms are less important.
 
 ## Implementation gate
 

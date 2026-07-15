@@ -297,12 +297,35 @@ for (const chapter of chapters) {
 const seasonOne = chapters.filter((chapter) => chapter.seasonOneRecommended);
 if (seasonOne.length !== 8) error(`Campaign Season 1: expected 8 chapters, found ${seasonOne.length}`);
 if (new Set(seasonOne.map((chapter) => chapter.seasonOrder)).size !== seasonOne.length) error("Campaign Season 1: duplicate seasonOrder");
+const templateFamily = (template) => template?.startsWith("Hybrid Runner") ? "Hybrid Runner" : template;
 const templateCounts = new Map();
-for (const chapter of seasonOne) templateCounts.set(chapter.gameplayTemplate, (templateCounts.get(chapter.gameplayTemplate) ?? 0) + 1);
-if (templateCounts.size < 4) error("Campaign Season 1: at least four gameplay templates required");
+for (const chapter of seasonOne) {
+  const family = templateFamily(chapter.gameplayTemplate);
+  templateCounts.set(family, (templateCounts.get(family) ?? 0) + 1);
+}
+const requiredTemplateCounts = new Map([
+  ["Network Routing", 2],
+  ["Chain Maze", 2],
+  ["Sequence/Atomic Mission", 1],
+  ["Validation Challenge", 1],
+  ["Hybrid Runner", 2],
+]);
+for (const [template, expectedCount] of requiredTemplateCounts) {
+  if (templateCounts.get(template) !== expectedCount) error(`Campaign Season 1: expected ${expectedCount} ${template} chapter(s), found ${templateCounts.get(template) ?? 0}`);
+}
+for (const template of templateCounts.keys()) if (!requiredTemplateCounts.has(template)) error(`Campaign Season 1: unexpected template family ${template}`);
 if ([...templateCounts.values()].some((count) => count > 2)) error("Campaign Season 1: a gameplay template appears more than twice");
-if (seasonOne.filter((chapter) => chapter.gameplayTemplate !== "Runner Mission").length < 4) error("Campaign Season 1: at least half the chapters must be non-runners");
-if (!seasonOne.some((chapter) => chapter.chainOrFamily?.includes("pi-network"))) error("Campaign Season 1: Pi must be central");
+if (seasonOne.filter((chapter) => templateFamily(chapter.gameplayTemplate) !== "Hybrid Runner" && chapter.gameplayTemplate !== "Runner Mission").length !== 6) error("Campaign Season 1: exactly six chapters must be non-runners");
+const orderedSeason = [...seasonOne].sort((a, b) => a.seasonOrder - b.seasonOrder);
+if (orderedSeason[0]?.id !== "pi-ecosystem-gateway") error("Campaign Season 1: Pi Ecosystem Gateway must be first");
+if (orderedSeason[7]?.id !== "multichain-finale") error("Campaign Season 1: Multichain Finale must be eighth");
+const gateway = chapters.find((chapter) => chapter.id === "pi-ecosystem-gateway");
+if (!gateway?.chainOrFamily?.includes("pi-network") || gateway.officialSources?.includes("pi-whitepaper-original")) error("Campaign: Pi Ecosystem Gateway must use current documented Pi developer workflows, not the historical whitepaper");
+const archive = chapters.find((chapter) => chapter.id === "federated-trust-archive");
+if (!archive || archive.seasonOneRecommended || archive.seasonOrder !== null) error("Campaign: Federated Trust Archive must remain outside Season 1");
+if (archive && (!/historical\/general consensus concept/i.test(archive.briefing) || !archive.contentWarning?.en || !archive.contentWarning?.fr)) error("Campaign: Federated Trust Archive needs explicit bilingual historical/general warning copy");
+const finale = chapters.find((chapter) => chapter.id === "multichain-finale");
+if (finale?.contentWarning?.en !== "This fictional multichain simulation does not imply that Pi Network natively implements every protocol family represented." || !finale?.contentWarning?.fr) error("Campaign: Multichain Finale requires the explicit English warning and a French version");
 
 const mazeDoc = documents.get("chain-maze-levels.json");
 const levels = mazeDoc?.levels ?? [];
