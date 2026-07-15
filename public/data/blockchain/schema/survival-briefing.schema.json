@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rushpi.local/schema/survival-briefing.schema.json",
+  "title": "Rush Pi Survival chain briefings",
+  "type": "object",
+  "required": ["schemaVersion", "lastReviewedAt", "briefingUx", "briefings"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "lastReviewedAt": { "type": "string", "format": "date" },
+    "briefingUx": { "type": "object" },
+    "briefings": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["id", "zoneId", "zoneName", "blockchainConcept", "gameplayRule", "playerGoal", "newHazard", "newOpportunity", "oneSentenceConcept", "oneSentenceGameplayRule", "oneSentenceTip", "demonstrationIdea", "firstVisitBriefing", "repeatVisitBriefing", "resumeLabel", "reducedMotionVersion", "accessibilityNotes", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "zoneId": { "type": "string" },
+          "zoneName": { "type": "string" },
+          "blockchainConcept": { "type": "string" },
+          "gameplayRule": { "type": "string" },
+          "playerGoal": { "type": "string" },
+          "newHazard": { "type": "string" },
+          "newOpportunity": { "type": "string" },
+          "oneSentenceConcept": { "type": "string", "maxLength": 150 },
+          "oneSentenceGameplayRule": { "type": "string", "maxLength": 150 },
+          "oneSentenceTip": { "type": "string", "maxLength": 120 },
+          "demonstrationIdea": { "type": "string" },
+          "firstVisitBriefing": { "$ref": "#/$defs/localizedBriefing" },
+          "repeatVisitBriefing": { "$ref": "#/$defs/localizedRepeat" },
+          "resumeLabel": { "type": "object", "required": ["fr", "en"], "properties": { "fr": { "type": "string" }, "en": { "type": "string" } } },
+          "reducedMotionVersion": { "type": "string" },
+          "accessibilityNotes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "officialSources": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "simplificationNotes": { "type": "string" },
+          "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
+          "lastReviewedAt": { "type": "string", "format": "date" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "localizedBriefing": {
+      "type": "object",
+      "required": ["fr", "en"],
+      "properties": {
+        "fr": { "$ref": "#/$defs/briefingCopy" },
+        "en": { "$ref": "#/$defs/briefingCopy" }
+      }
+    },
+    "briefingCopy": {
+      "type": "object",
+      "required": ["idea", "rule", "tip"],
+      "properties": {
+        "idea": { "type": "string", "maxLength": 150 },
+        "rule": { "type": "string", "maxLength": 150 },
+        "tip": { "type": "string", "maxLength": 120 }
+      },
+      "additionalProperties": false
+    },
+    "localizedRepeat": {
+      "type": "object",
+      "required": ["fr", "en"],
+      "properties": {
+        "fr": { "type": "string", "maxLength": 120 },
+        "en": { "type": "string", "maxLength": 120 }
+      }
+    }
+  }
+}

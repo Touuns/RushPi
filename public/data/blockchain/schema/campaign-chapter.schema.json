@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rushpi.local/schema/campaign-chapter.schema.json",
+  "title": "Rush Pi Campaign chapter candidates",
+  "type": "object",
+  "required": ["schemaVersion", "lastReviewedAt", "chapters"],
+  "properties": { "schemaVersion": { "type": "string" }, "lastReviewedAt": { "type": "string", "format": "date" }, "chapters": { "type": "array", "minItems": 12, "items": { "type": "object", "required": ["id", "seasonRecommendation", "order", "title", "template", "chainFamilyIds", "primitiveIds", "playerFantasy", "coreLoop", "winCondition", "failureConditions", "teachingPoint", "difficulty", "accessibilityNotes", "officialSources", "accuracyStatus", "lastReviewedAt"], "properties": { "id": { "type": "string" }, "seasonRecommendation": { "type": "boolean" }, "order": { "type": ["integer", "null"] }, "title": { "type": "string" }, "template": { "type": "string" }, "chainFamilyIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "primitiveIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "playerFantasy": { "type": "string" }, "coreLoop": { "type": "array", "minItems": 3, "items": { "type": "string" } }, "winCondition": { "type": "string" }, "failureConditions": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "teachingPoint": { "type": "string" }, "difficulty": { "enum": ["introductory", "intermediate", "advanced"] }, "accessibilityNotes": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "officialSources": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "accuracyStatus": { "type": "string" }, "lastReviewedAt": { "type": "string", "format": "date" } } } } }
+}
