@@ -13,11 +13,11 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "title", "org", "url", "sourceType", "official", "accessedAt", "lastReviewedAt", "relevantTopics", "notes"],
+        "required": ["id", "title", "organization", "url", "sourceType", "official", "accessedAt", "lastReviewedAt", "relevantTopics", "notes"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
           "title": { "type": "string", "minLength": 3 },
-          "org": { "type": "string", "minLength": 2 },
+          "organization": { "type": "string", "minLength": 2 },
           "url": { "type": "string", "format": "uri", "pattern": "^https://" },
           "sourceType": { "type": "string", "minLength": 3 },
           "official": { "const": true },

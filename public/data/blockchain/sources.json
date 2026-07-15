@@ -7,7 +7,7 @@
     {
       "id": "pi-developers",
       "title": "Pi Developer Platform",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://minepi.com/developers/",
       "sourceType": "official-documentation",
       "official": true,
@@ -19,7 +19,7 @@
     {
       "id": "pi-sdk-core",
       "title": "Pi SDK Core",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://pi-apps.github.io/pi-sdk-docs/pi-sdk/Core",
       "sourceType": "official-documentation",
       "official": true,
@@ -31,7 +31,7 @@
     {
       "id": "pi-platform-api",
       "title": "Pi Platform API",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://pi-apps.github.io/pi-sdk-docs/platform/PlatformAPI",
       "sourceType": "official-documentation",
       "official": true,
@@ -43,7 +43,7 @@
     {
       "id": "pi-mainnet-testnet",
       "title": "Mainnet vs Testnet",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://pi-apps.github.io/pi-sdk-docs/pitopics/MainVsTest",
       "sourceType": "official-documentation",
       "official": true,
@@ -55,7 +55,7 @@
     {
       "id": "pi-whitepaper-original",
       "title": "Pi Network Whitepaper",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://minepi.com/white-paper/",
       "sourceType": "historical-whitepaper",
       "official": true,
@@ -67,7 +67,7 @@
     {
       "id": "pi-open-network-launch",
       "title": "Pi Open Network Has Launched",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://minepi.com/blog/open-network/",
       "sourceType": "official-announcement",
       "official": true,
@@ -79,7 +79,7 @@
     {
       "id": "pi-trademark-guidelines",
       "title": "Pi Trademark Guidelines",
-      "org": "Pi Network",
+      "organization": "Pi Network",
       "url": "https://minepi.com/pi-trademark-guidelines/",
       "sourceType": "official-policy",
       "official": true,
@@ -91,7 +91,7 @@
     {
       "id": "bitcoin-whitepaper",
       "title": "Bitcoin: A Peer-to-Peer Electronic Cash System",
-      "org": "Bitcoin.org",
+      "organization": "Bitcoin.org",
       "url": "https://bitcoin.org/bitcoin.pdf",
       "sourceType": "protocol-whitepaper",
       "official": true,
@@ -103,7 +103,7 @@
     {
       "id": "bitcoin-dev-transactions",
       "title": "Bitcoin Developer Guide: Transactions",
-      "org": "Bitcoin.org",
+      "organization": "Bitcoin.org",
       "url": "https://developer.bitcoin.org/devguide/transactions.html",
       "sourceType": "official-documentation",
       "official": true,
@@ -115,7 +115,7 @@
     {
       "id": "bitcoin-bips",
       "title": "Bitcoin Improvement Proposals",
-      "org": "Bitcoin Core",
+      "organization": "Bitcoin Core",
       "url": "https://github.com/bitcoin/bips",
       "sourceType": "official-specification-repository",
       "official": true,
@@ -127,7 +127,7 @@
     {
       "id": "ethereum-accounts",
       "title": "Ethereum Accounts",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/accounts/",
       "sourceType": "official-documentation",
       "official": true,
@@ -139,7 +139,7 @@
     {
       "id": "ethereum-transactions",
       "title": "Ethereum Transactions",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/transactions/",
       "sourceType": "official-documentation",
       "official": true,
@@ -151,7 +151,7 @@
     {
       "id": "ethereum-smart-contracts",
       "title": "Introduction to Smart Contracts",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/smart-contracts/",
       "sourceType": "official-documentation",
       "official": true,
@@ -163,7 +163,7 @@
     {
       "id": "ethereum-pos",
       "title": "Proof-of-Stake Consensus",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/consensus-mechanisms/pos/",
       "sourceType": "official-documentation",
       "official": true,
@@ -175,7 +175,7 @@
     {
       "id": "ethereum-eip-1559",
       "title": "EIP-1559: Fee Market Change",
-      "org": "Ethereum Improvement Proposals",
+      "organization": "Ethereum Improvement Proposals",
       "url": "https://eips.ethereum.org/EIPS/eip-1559",
       "sourceType": "official-specification",
       "official": true,
@@ -187,7 +187,7 @@
     {
       "id": "ethereum-optimistic-rollups",
       "title": "Optimistic Rollups",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/scaling/optimistic-rollups/",
       "sourceType": "official-documentation",
       "official": true,
@@ -199,7 +199,7 @@
     {
       "id": "ethereum-zk-rollups",
       "title": "Zero-Knowledge Rollups",
-      "org": "Ethereum Foundation",
+      "organization": "Ethereum Foundation",
       "url": "https://ethereum.org/developers/docs/scaling/zk-rollups/",
       "sourceType": "official-documentation",
       "official": true,
@@ -211,7 +211,7 @@
     {
       "id": "solana-whitepaper",
       "title": "Solana: A New Architecture for a High Performance Blockchain",
-      "org": "Solana Foundation",
+      "organization": "Solana Foundation",
       "url": "https://solana.com/solana-whitepaper.pdf",
       "sourceType": "protocol-whitepaper",
       "official": true,
@@ -223,7 +223,7 @@
     {
       "id": "solana-accounts",
       "title": "Solana Account Model",
-      "org": "Solana Foundation",
+      "organization": "Solana Foundation",
       "url": "https://solana.com/docs/core/accounts",
       "sourceType": "official-documentation",
       "official": true,
@@ -235,7 +235,7 @@
     {
       "id": "stellar-scp",
       "title": "Stellar Consensus Protocol",
-      "org": "Stellar Development Foundation",
+      "organization": "Stellar Development Foundation",
       "url": "https://developers.stellar.org/docs/learn/fundamentals/stellar-consensus-protocol",
       "sourceType": "official-documentation",
       "official": true,
@@ -247,7 +247,7 @@
     {
       "id": "stellar-path-payments",
       "title": "Path Payments",
-      "org": "Stellar Development Foundation",
+      "organization": "Stellar Development Foundation",
       "url": "https://developers.stellar.org/docs/build/guides/transactions/path-payments",
       "sourceType": "official-documentation",
       "official": true,
@@ -259,7 +259,7 @@
     {
       "id": "avalanche-consensus-paper",
       "title": "Snowflake to Avalanche: A Novel Metastable Consensus Protocol Family",
-      "org": "Ava Labs",
+      "organization": "Ava Labs",
       "url": "https://files.avalabs.org/papers/consensus.pdf",
       "sourceType": "protocol-paper",
       "official": true,
@@ -271,7 +271,7 @@
     {
       "id": "avalanche-nodes",
       "title": "Avalanche Nodes and Networks",
-      "org": "Ava Labs",
+      "organization": "Ava Labs",
       "url": "https://build.avax.network/docs/nodes",
       "sourceType": "official-documentation",
       "official": true,
@@ -283,7 +283,7 @@
     {
       "id": "polkadot-parachains",
       "title": "Polkadot Parachains",
-      "org": "Web3 Foundation",
+      "organization": "Web3 Foundation",
       "url": "https://docs.polkadot.com/polkadot-protocol/architecture/parachains/",
       "sourceType": "official-documentation",
       "official": true,
@@ -295,7 +295,7 @@
     {
       "id": "polkadot-xcm",
       "title": "Cross-Consensus Messaging",
-      "org": "Web3 Foundation",
+      "organization": "Web3 Foundation",
       "url": "https://docs.polkadot.com/parachains/interoperability/get-started/",
       "sourceType": "official-documentation",
       "official": true,
@@ -307,7 +307,7 @@
     {
       "id": "cosmos-stack",
       "title": "The Cosmos Stack",
-      "org": "Cosmos SDK",
+      "organization": "Cosmos SDK",
       "url": "https://docs.cosmos.network/sdk/latest/learn/intro/cosmos-stack",
       "sourceType": "official-documentation",
       "official": true,
@@ -319,7 +319,7 @@
     {
       "id": "cosmos-ibc-specs",
       "title": "Interchain Standards",
-      "org": "Cosmos",
+      "organization": "Cosmos",
       "url": "https://github.com/cosmos/ibc",
       "sourceType": "official-specification-repository",
       "official": true,
@@ -331,7 +331,7 @@
     {
       "id": "cardano-eutxo",
       "title": "Extended UTXO Model",
-      "org": "Cardano Foundation",
+      "organization": "Cardano Foundation",
       "url": "https://developers.cardano.org/docs/get-started/technical-concepts/eutxo/",
       "sourceType": "official-documentation",
       "official": true,
@@ -343,7 +343,7 @@
     {
       "id": "cardano-ouroboros",
       "title": "Ouroboros: A Provably Secure Proof-of-Stake Blockchain Protocol",
-      "org": "IOHK Research",
+      "organization": "IOHK Research",
       "url": "https://eprint.iacr.org/2016/889.pdf",
       "sourceType": "protocol-paper",
       "official": true,
@@ -355,7 +355,7 @@
     {
       "id": "zcash-protocol",
       "title": "Zcash Protocol Specification",
-      "org": "Electric Coin Company",
+      "organization": "Electric Coin Company",
       "url": "https://zips.z.cash/protocol/protocol.pdf",
       "sourceType": "protocol-specification",
       "official": true,
@@ -367,7 +367,7 @@
     {
       "id": "zcash-zip-224",
       "title": "ZIP 224: Orchard Shielded Protocol",
-      "org": "Zcash",
+      "organization": "Zcash",
       "url": "https://zips.z.cash/zip-0224",
       "sourceType": "official-specification",
       "official": true,
@@ -379,7 +379,7 @@
     {
       "id": "monero-ringct",
       "title": "Ring Confidential Transactions",
-      "org": "Monero Research Lab",
+      "organization": "Monero Research Lab",
       "url": "https://www.getmonero.org/resources/research-lab/pubs/MRL-0005.pdf",
       "sourceType": "protocol-paper",
       "official": true,
@@ -391,7 +391,7 @@
     {
       "id": "algorand-consensus",
       "title": "Algorand Consensus",
-      "org": "Algorand Foundation",
+      "organization": "Algorand Foundation",
       "url": "https://developer.algorand.org/docs/get-details/algorand_consensus/",
       "sourceType": "official-documentation",
       "official": true,
@@ -403,7 +403,7 @@
     {
       "id": "near-architecture",
       "title": "NEAR Protocol Architecture",
-      "org": "NEAR Foundation",
+      "organization": "NEAR Foundation",
       "url": "https://docs.near.org/protocol/network/architecture",
       "sourceType": "official-documentation",
       "official": true,
@@ -415,7 +415,7 @@
     {
       "id": "near-account-model",
       "title": "NEAR Account Model",
-      "org": "NEAR Foundation",
+      "organization": "NEAR Foundation",
       "url": "https://docs.near.org/protocol/accounts-contracts/account-model",
       "sourceType": "official-documentation",
       "official": true,
@@ -427,7 +427,7 @@
     {
       "id": "sui-platform-paper",
       "title": "The Sui Smart Contracts Platform",
-      "org": "Mysten Labs",
+      "organization": "Mysten Labs",
       "url": "https://docs.sui.io/doc/sui.pdf",
       "sourceType": "protocol-paper",
       "official": true,
@@ -439,7 +439,7 @@
     {
       "id": "aptos-whitepaper",
       "title": "The Aptos Blockchain: Safe, Scalable, and Upgradeable Web3 Infrastructure",
-      "org": "Aptos Labs",
+      "organization": "Aptos Labs",
       "url": "https://legacy.aptos.dev/assets/files/Aptos-Whitepaper-47099b4b907b432f81fc0effd34f3b6a.pdf",
       "sourceType": "protocol-whitepaper",
       "official": true,
@@ -451,7 +451,7 @@
     {
       "id": "xrpl-consensus",
       "title": "XRP Ledger Consensus Protocol",
-      "org": "XRP Ledger Foundation",
+      "organization": "XRP Ledger Foundation",
       "url": "https://xrpl.org/docs/concepts/consensus-protocol",
       "sourceType": "official-documentation",
       "official": true,
@@ -463,7 +463,7 @@
     {
       "id": "xrpl-transactions",
       "title": "XRP Ledger Consensus Structure",
-      "org": "XRP Ledger Foundation",
+      "organization": "XRP Ledger Foundation",
       "url": "https://xrpl.org/docs/concepts/consensus-protocol/consensus-structure",
       "sourceType": "official-documentation",
       "official": true,
@@ -475,7 +475,7 @@
     {
       "id": "hedera-docs",
       "title": "Hedera Developer Documentation",
-      "org": "Hedera",
+      "organization": "Hedera",
       "url": "https://docs.hedera.com/",
       "sourceType": "official-documentation",
       "official": true,
@@ -487,7 +487,7 @@
     {
       "id": "filecoin-proofs",
       "title": "Filecoin Proofs",
-      "org": "Filecoin Foundation",
+      "organization": "Filecoin Foundation",
       "url": "https://docs.filecoin.io/basics/the-blockchain/proofs",
       "sourceType": "official-documentation",
       "official": true,
@@ -499,7 +499,7 @@
     {
       "id": "filecoin-blockchain",
       "title": "Filecoin Blockchain",
-      "org": "Filecoin Foundation",
+      "organization": "Filecoin Foundation",
       "url": "https://docs.filecoin.io/basics/what-is-filecoin/blockchain",
       "sourceType": "official-documentation",
       "official": true,
@@ -511,7 +511,7 @@
     {
       "id": "arweave-protocol",
       "title": "Arweave Protocol",
-      "org": "Arweave",
+      "organization": "Arweave",
       "url": "https://docs.arweave.org/developers/development/protocol",
       "sourceType": "official-documentation",
       "official": true,
@@ -523,7 +523,7 @@
     {
       "id": "chainlink-docs",
       "title": "Chainlink Developer Documentation",
-      "org": "Chainlink Labs",
+      "organization": "Chainlink Labs",
       "url": "https://docs.chain.link/",
       "sourceType": "official-documentation",
       "official": true,
@@ -535,7 +535,7 @@
     {
       "id": "uniswap-v2-whitepaper",
       "title": "Uniswap v2 Core",
-      "org": "Uniswap Labs",
+      "organization": "Uniswap Labs",
       "url": "https://docs.uniswap.org/whitepaper.pdf",
       "sourceType": "protocol-whitepaper",
       "official": true,
@@ -547,7 +547,7 @@
     {
       "id": "maker-dss",
       "title": "Dai Stablecoin System",
-      "org": "Sky Ecosystem / MakerDAO",
+      "organization": "Sky Ecosystem / MakerDAO",
       "url": "https://github.com/makerdao/dss",
       "sourceType": "official-protocol-repository",
       "official": true,
@@ -559,7 +559,7 @@
     {
       "id": "openzeppelin-governor",
       "title": "OpenZeppelin Governor",
-      "org": "OpenZeppelin",
+      "organization": "OpenZeppelin",
       "url": "https://docs.openzeppelin.com/contracts/5.x/api/governance",
       "sourceType": "official-library-documentation",
       "official": true,
@@ -571,7 +571,7 @@
     {
       "id": "w3c-did-core",
       "title": "Decentralized Identifiers v1.0",
-      "org": "World Wide Web Consortium",
+      "organization": "World Wide Web Consortium",
       "url": "https://www.w3.org/TR/did-core/",
       "sourceType": "web-standard",
       "official": true,
