@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "units": { "time": "milliseconds", "angles": "degrees", "coordinates": "normalized" },
+  "defaults": {
+    "targetFps": 60,
+    "minimumFps": 30,
+    "pivot": [0.5, 0.5],
+    "blendMode": "ADD",
+    "reducedMotionFallback": "static-first-frame"
+  },
+  "animations": [
+    {
+      "id": "finish-gate-pulse-loop",
+      "assetId": "portal-finish",
+      "parts": ["portal-glow", "portal-ring", "portal-streaks", "portal-particles"],
+      "type": "scale-alpha-pulse",
+      "durationMs": 1200,
+      "easing": "Sine.easeInOut",
+      "playback": "loop",
+      "frames": { "count": 12, "order": "0-11", "direction": "forward-ping-pong" },
+      "phaser": { "pivot": [0.5, 0.88], "blendMode": "ADD", "notes": "Cosmetic only; gameplay owns finish timing." }
+    },
+    {
+      "id": "zone-gate-transition",
+      "assetId": "portal-zone",
+      "parts": ["portal-glow", "portal-ring", "portal-streaks"],
+      "type": "open-flash",
+      "durationMs": 700,
+      "easing": "Cubic.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 10, "order": "0-9", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.88], "blendMode": "ADD", "notes": "Tint layers with the destination zone palette." }
+    },
+    {
+      "id": "validation-gate-flash",
+      "assetId": "portal-validation",
+      "parts": ["portal-ring", "portal-streaks", "portal-particles"],
+      "type": "trace-pop",
+      "durationMs": 620,
+      "easing": "Back.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 10, "order": "0-9", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.88], "blendMode": "ADD", "notes": "Keep the center open and do not attach collision." }
+    },
+    {
+      "id": "success-gate-rise",
+      "assetId": "portal-success",
+      "parts": ["portal-glow", "portal-streaks", "portal-particles"],
+      "type": "vertical-rise",
+      "durationMs": 780,
+      "easing": "Cubic.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 12, "order": "0-11", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.88], "blendMode": "ADD", "notes": "Pool layers and reset alpha before reuse." }
+    },
+    {
+      "id": "failure-gate-flicker",
+      "assetId": "portal-failure",
+      "parts": ["portal-ring", "portal-streaks", "portal-particles"],
+      "type": "stepped-flicker",
+      "durationMs": 540,
+      "easing": "Stepped",
+      "playback": "one-shot",
+      "frames": { "count": 8, "order": "0,1,3,2,4,6,5,7", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.88], "blendMode": "NORMAL", "notes": "Use small shake only; avoid repeated full-screen flash." }
+    },
+    {
+      "id": "multichain-gate-rotation",
+      "assetId": "portal-multichain",
+      "parts": ["portal-ring", "portal-particles"],
+      "type": "counter-rotation",
+      "durationMs": 2400,
+      "easing": "Linear",
+      "playback": "loop",
+      "frames": { "count": 16, "order": "0-15", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Export intertwined rings separately for opposite rotation." }
+    },
+    {
+      "id": "chain-block-idle",
+      "assetId": "chain-block-base-md",
+      "parts": ["shell", "core", "nodes"],
+      "type": "float-core-pulse",
+      "durationMs": 1400,
+      "easing": "Sine.easeInOut",
+      "playback": "loop",
+      "frames": { "count": 0, "order": "procedural", "direction": "ping-pong" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "NORMAL", "notes": "Tween display object only; collision coordinates stay authoritative." }
+    },
+    {
+      "id": "chain-block-pickup-burst",
+      "assetId": "chain-block-pickup-burst",
+      "parts": ["burst-rays", "fragments", "block-copy"],
+      "type": "pop-dispersal",
+      "durationMs": 360,
+      "easing": "Cubic.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 8, "order": "0-7", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Animate a non-interactive visual copy after logical collection." }
+    },
+    {
+      "id": "chain-block-magnetized-glow",
+      "assetId": "chain-block-magnetized",
+      "parts": ["magnet-rings", "block"],
+      "type": "counter-rotation-alpha",
+      "durationMs": 900,
+      "easing": "Linear",
+      "playback": "loop",
+      "frames": { "count": 12, "order": "0-11", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Visual state only; magnet targeting remains gameplay logic." }
+    },
+    {
+      "id": "charge-discharge-effect",
+      "assetId": "fx-charge-discharge",
+      "parts": ["arcs", "bolts"],
+      "type": "radial-discharge",
+      "durationMs": 480,
+      "easing": "Expo.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 8, "order": "0-7", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Clamp peak alpha and destroy or pool after completion." }
+    },
+    {
+      "id": "token-collection-pop",
+      "assetId": "token-selection-halo",
+      "parts": ["runtime-logo", "frame", "selection-arcs"],
+      "type": "scale-pop-fade",
+      "durationMs": 420,
+      "easing": "Back.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 8, "order": "0-7", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "NORMAL", "notes": "Runtime logo stays external to the Rush Pi atlas." }
+    },
+    {
+      "id": "zone-transition-flash",
+      "assetId": "fx-circular-pulses",
+      "parts": ["pulse-rings", "screen-tint"],
+      "type": "ring-expand-flash",
+      "durationMs": 680,
+      "easing": "Sine.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 0, "order": "procedural", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Limit full-screen tint to 0.32 alpha." }
+    },
+    {
+      "id": "storm-lightning-pulse",
+      "assetId": "fx-storm-lightning",
+      "parts": ["main-bolt", "branch-bolts"],
+      "type": "fast-flash-decay",
+      "durationMs": 260,
+      "easing": "Cubic.easeOut",
+      "playback": "one-shot",
+      "frames": { "count": 6, "order": "0-5", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Never loop full-screen lightning; keep white peak to one frame at 30fps." }
+    },
+    {
+      "id": "speed-trail-loop",
+      "assetId": "fx-speed-trail",
+      "parts": ["long-streaks", "short-streaks"],
+      "type": "vertical-scroll",
+      "durationMs": 520,
+      "easing": "Linear",
+      "playback": "loop",
+      "frames": { "count": 8, "order": "0-7", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "ADD", "notes": "Does not change actual object velocity." }
+    },
+    {
+      "id": "scan-lines-loop",
+      "assetId": "fx-scan-lines",
+      "parts": ["overlay"],
+      "type": "subtle-vertical-scroll",
+      "durationMs": 3200,
+      "easing": "Linear",
+      "playback": "loop",
+      "frames": { "count": 0, "order": "procedural", "direction": "forward" },
+      "phaser": { "pivot": [0.5, 0.5], "blendMode": "NORMAL", "notes": "Maximum alpha 0.12; static fallback preferred on low-end devices." }
+    }
+  ]
+}

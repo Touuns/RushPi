@@ -137,6 +137,7 @@
     { "id": "decor-data-grid-tile", "category": "ui", "file": "ui/data-grid-tile.svg", "format": "svg", "usage": "Repeatable low-opacity data grid", "size": "64x64", "notes": "Tile at low opacity on side panels", "animationReady": false },
     { "id": "decor-chain-ribbon", "category": "ui", "file": "ui/chain-ribbon.svg", "format": "svg", "usage": "Repeatable abstract chain ribbon", "size": "256x64", "notes": "Generic geometry without a chain brand", "animationReady": true },
     { "id": "decor-side-shard", "category": "ui", "file": "ui/side-shard.svg", "format": "svg", "usage": "Reusable side crystal decoration", "size": "96x256", "notes": "Mirror for left and right compositions", "animationReady": true },
-    { "id": "decor-horizon-lines", "category": "ui", "file": "ui/horizon-lines.svg", "format": "svg", "usage": "Reusable horizon glow and lines", "size": "414x160", "notes": "Place behind the playable track", "animationReady": true }
+    { "id": "decor-horizon-lines", "category": "ui", "file": "ui/horizon-lines.svg", "format": "svg", "usage": "Reusable horizon glow and lines", "size": "414x160", "notes": "Place behind the playable track", "animationReady": true },
+    { "id": "animation-specs", "category": "metadata", "file": "animation-specs.json", "format": "json", "usage": "Machine-readable animation contract", "size": "various", "notes": "Cosmetic recommendations only; does not alter gameplay timing", "animationReady": false }
   ]
 }

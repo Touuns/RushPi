@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <title>Rush Pi — Art Preview</title>
+    <link rel="stylesheet" href="preview.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Asset Foundation</p>
+        <h1>Rush Pi Art Preview</h1>
+        <p class="hero__copy">Galerie locale indépendante du jeu. Aucun asset affiché ici n’est intégré au gameplay.</p>
+      </div>
+      <nav class="hero__links" aria-label="Documentation artistique">
+        <a href="../../docs/ART_DIRECTION.md">Direction</a>
+        <a href="../../docs/IMAGE_GENERATION_PROMPTS.md">Prompts</a>
+        <a href="../../docs/ANIMATION_SPECS.md">Animations</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="toolbar" aria-label="Filtres de galerie">
+        <label class="search">
+          <span>Rechercher</span>
+          <input id="search" type="search" placeholder="portal, chain, cyan…" autocomplete="off" />
+        </label>
+        <label class="toggle">
+          <input id="animation-only" type="checkbox" />
+          <span>Animation-ready uniquement</span>
+        </label>
+        <div id="category-filters" class="filters" aria-label="Catégories"></div>
+      </section>
+
+      <section class="summary" aria-live="polite">
+        <p id="status">Chargement du manifest…</p>
+        <p id="count"></p>
+      </section>
+
+      <section id="gallery" class="gallery" aria-label="Assets Rush Pi"></section>
+      <p id="empty" class="empty" hidden>Aucun asset ne correspond aux filtres.</p>
+    </main>
+
+    <dialog id="asset-dialog" class="asset-dialog">
+      <form method="dialog"><button class="dialog-close" aria-label="Fermer">×</button></form>
+      <div id="dialog-preview" class="dialog-preview"></div>
+      <div class="dialog-copy">
+        <p id="dialog-category" class="eyebrow"></p>
+        <h2 id="dialog-title"></h2>
+        <dl id="dialog-meta"></dl>
+        <p id="dialog-notes"></p>
+      </div>
+    </dialog>
+
+    <noscript>Cette galerie nécessite JavaScript uniquement pour lire et filtrer le manifest local.</noscript>
+    <script type="module" src="preview.js"></script>
+  </body>
+</html>
