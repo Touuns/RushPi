@@ -24,7 +24,11 @@ import {
 import { CAMPAIGN_LEVELS } from "./game/campaign";
 import type { DailyTokenChallenge } from "./market/dailyTokenTypes";
 import { authenticatePi, initPi, isPiBrowser, type PiSession } from "./pi/piClient";
-import { fetchAttemptStatus, submitServerScore } from "./utils/serverLeaderboard";
+import {
+  fetchAttemptStatus,
+  submitServerScore,
+  type ClaimResult,
+} from "./utils/serverLeaderboard";
 import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
 import type {
@@ -218,17 +222,24 @@ export default function App() {
   }, [goDailyPrep, piUser]);
 
   /**
-   * Preparation finished: revalidate NOW, consume the ranked attempt exactly
-   * once, then start Phaser with the manifest.
+   * Preparation finished. For a ranked run the attempt was ALREADY reserved on
+   * the server (claim) before we got here — we only mirror its authoritative
+   * counter, never double-consume. A missing/invalid claim downgrades to local.
    */
   const startPreparedDaily = useCallback(
-    (challenge: DailyTokenChallenge | null, requestedRank: RunRankState) => {
+    (
+      challenge: DailyTokenChallenge | null,
+      requestedRank: RunRankState,
+      claim: ClaimResult | null = null,
+    ) => {
       let rank = requestedRank;
-      if (rank === "ranked") {
-        if (!piUser || !challenge?.rankedEligible) rank = "local-only";
-        else if (getRankedAttemptsToday().left <= 0) rank = "limit-reached";
+      if (rank === "ranked" && (!piUser || !challenge?.rankedEligible || !claim)) {
+        rank = "local-only";
       }
-      if (rank === "ranked") consumeRankedAttempt();
+      if (rank === "ranked" && claim) {
+        // Server already reserved the attempt: mirror its counter locally.
+        syncRankedAttemptsFromServer(claim.challengeDate, claim.used);
+      }
       setDailyChallenge(challenge);
       setRunRankState(rank);
       setMode("daily");
@@ -377,9 +388,11 @@ export default function App() {
       {screen === "daily-prep" && (
         <DailyPreparationScreen
           ranked={pendingDailyRank === "ranked"}
+          accessToken={piSession?.accessToken ?? null}
           cachedChallenge={dailyChallenge}
-          onReady={(c) => startPreparedDaily(c, pendingDailyRank)}
+          onReady={(c, claim) => startPreparedDaily(c, pendingDailyRank, claim)}
           onPlayLocally={(c) => startPreparedDaily(c, "local-only")}
+          onReconnect={connectPi}
           onCancel={goHome}
         />
       )}

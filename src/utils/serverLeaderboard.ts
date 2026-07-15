@@ -141,6 +141,54 @@ export async function fetchAttemptStatus(accessToken: string): Promise<AttemptSt
   };
 }
 
+// ---- Ranked attempt reservation (Phase 11B-P4) --------------------------
+
+export interface ClaimResult {
+  status: "claimed" | "already_claimed";
+  submissionId: string;
+  attemptNumber: number | null;
+  used: number;
+  left: number;
+  challengeDate: string;
+  challengeId: string;
+}
+
+/**
+ * Reserve one ranked attempt for `submissionId` BEFORE the run starts. Retrying
+ * with the same submissionId is idempotent (never double-consumes). Only the
+ * submission id is sent in the body; identity comes from the Bearer token.
+ * Throws a ServerScoreError (e.g. ATTEMPT_LIMIT, MIGRATION_REQUIRED) on failure.
+ */
+export async function claimAttempt(
+  accessToken: string,
+  submissionId: string,
+): Promise<ClaimResult> {
+  let res: Response;
+  try {
+    res = await fetch("/api/leaderboard/claim-attempt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ submission_id: submissionId }),
+    });
+  } catch {
+    throw networkError();
+  }
+  if (!res.ok) throw await errorFromResponse(res);
+  const data = (await res.json()) as Partial<ClaimResult>;
+  return {
+    status: data.status === "already_claimed" ? "already_claimed" : "claimed",
+    submissionId,
+    attemptNumber: data.attemptNumber ?? null,
+    used: data.used ?? 0,
+    left: data.left ?? 0,
+    challengeDate: data.challengeDate ?? new Date().toISOString().slice(0, 10),
+    challengeId: data.challengeId ?? "",
+  };
+}
+
 export interface SubmitScorePayload {
   pi_user_uid: string;
   pi_username: string;
