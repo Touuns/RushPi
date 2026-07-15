@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Rush Pi Blockchain Design Lab</title>
+    <link rel="stylesheet" href="/lab.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Independent educational prototype</p>
+        <h1>Blockchain Design Lab</h1>
+        <p class="lede">Source-backed mechanics, learning flows, and original directional-maze prototypes. No wallet, payment, live price, or official protocol logo.</p>
+      </div>
+      <div class="header-status" id="load-status" role="status">Loading local data…</div>
+    </header>
+
+    <nav class="section-nav" aria-label="Lab sections">
+      <a href="#mode-map">Mode Map</a>
+      <a href="#primitives">Primitives</a>
+      <a href="#pi-lab">Pi Lab</a>
+      <a href="#survival">Survival</a>
+      <a href="#campaign">Campaign</a>
+      <a href="#chain-maze">Chain Maze</a>
+      <a href="#sources">Sources</a>
+    </nav>
+
+    <main id="main">
+      <section id="mode-map" aria-labelledby="mode-map-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Where each mechanic belongs</p>
+            <h2 id="mode-map-title">Mode Map</h2>
+          </div>
+          <p>Compatibility is explicit; complex concepts are not forced into every mode.</p>
+        </div>
+        <div class="mode-grid" id="mode-grid"></div>
+        <div class="table-wrap" tabindex="0" aria-label="Primitive compatibility table">
+          <table>
+            <thead><tr><th>Primitive</th><th>Daily</th><th>Pi Lab</th><th>Survival</th><th>Campaign</th></tr></thead>
+            <tbody id="mode-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="primitives" aria-labelledby="primitives-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">40 source-backed building blocks</p>
+            <h2 id="primitives-title">Blockchain Primitives</h2>
+          </div>
+          <p>Search by concept, gameplay verb, category, or failure mode.</p>
+        </div>
+        <div class="toolbar">
+          <label>Search <input id="primitive-search" type="search" autocomplete="off" placeholder="finality, proof, route…"></label>
+          <label>Category <select id="primitive-category"><option value="">All categories</option></select></label>
+        </div>
+        <p id="primitive-count" class="result-count" aria-live="polite"></p>
+        <div class="card-grid" id="primitive-grid"></div>
+      </section>
+
+      <section id="pi-lab" aria-labelledby="pi-lab-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Learn · See · Try · Check · Recap</p>
+            <h2 id="pi-lab-title">Pi Lab preview</h2>
+          </div>
+          <p>Fictional data only. Current, historical, simplified, and unresolved Pi claims remain visibly distinct.</p>
+        </div>
+        <div class="toolbar">
+          <label>Module <select id="module-select"></select></label>
+        </div>
+        <article class="simulator-card" id="module-card">
+          <div class="step-tabs" id="module-steps" aria-label="Module stages"></div>
+          <div id="module-content" tabindex="-1"></div>
+          <div class="button-row">
+            <button type="button" class="secondary" id="module-back">Back</button>
+            <button type="button" id="module-next">Next</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="survival" aria-labelledby="survival-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Frozen, consequence-free briefing</p>
+            <h2 id="survival-title">Survival Briefings</h2>
+          </div>
+          <p>The abstract track moves slowly while score, timer, collisions, spawns, difficulty, and progress remain frozen.</p>
+        </div>
+        <div class="toolbar">
+          <label>Zone <select id="zone-select"></select></label>
+          <label>Visit <select id="visit-select"><option value="first">First visit</option><option value="repeat">Repeat visit</option></select></label>
+          <label class="check-label"><input id="reduced-motion-toggle" type="checkbox"> Reduced motion</label>
+        </div>
+        <div class="survival-stage" id="survival-stage">
+          <div class="slow-track" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="stage-orb" aria-hidden="true"></div>
+          <article class="briefing-card" id="briefing-card"></article>
+          <div class="demo-panel" id="briefing-demo" aria-label="Static rule demonstration"></div>
+          <div class="countdown" id="survival-countdown" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="campaign" aria-labelledby="campaign-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">12 proposals · 8-chapter Season 1</p>
+            <h2 id="campaign-title">Campaign Chapters</h2>
+          </div>
+          <p>Season 1 uses four templates, two chapters each, and no classic runner.</p>
+        </div>
+        <label class="check-label campaign-filter"><input id="season-filter" type="checkbox" checked> Show Season 1 only</label>
+        <div class="card-grid campaign-grid" id="campaign-grid"></div>
+      </section>
+
+      <section id="chain-maze" aria-labelledby="maze-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Original orthogonal directional puzzle</p>
+            <h2 id="maze-title">Chain Maze</h2>
+          </div>
+          <p>Use arrows, WASD, touch buttons, or a swipe. The orb continues until a wall or stopping tile.</p>
+        </div>
+        <div class="maze-layout">
+          <div class="maze-panel">
+            <div class="toolbar maze-toolbar">
+              <label>Level <select id="maze-select"></select></label>
+              <button type="button" class="secondary" id="maze-reset">Reset</button>
+              <label class="check-label"><input id="maze-debug" type="checkbox"> Debug grid</label>
+            </div>
+            <div id="maze-grid" class="maze-grid" role="grid" aria-label="Chain Maze grid" tabindex="0"></div>
+            <div class="direction-pad" aria-label="Directional controls">
+              <button type="button" data-direction="up" aria-label="Move up">↑</button>
+              <button type="button" data-direction="left" aria-label="Move left">←</button>
+              <button type="button" data-direction="down" aria-label="Move down">↓</button>
+              <button type="button" data-direction="right" aria-label="Move right">→</button>
+            </div>
+          </div>
+          <aside class="maze-info" aria-labelledby="maze-level-title">
+            <p class="eyebrow" id="maze-level-id"></p>
+            <h3 id="maze-level-title"></h3>
+            <p id="maze-concept"></p>
+            <dl class="stat-list">
+              <div><dt>Moves</dt><dd id="maze-moves">0</dd></div>
+              <div><dt>Par</dt><dd id="maze-par">0</dd></div>
+              <div><dt>Resource</dt><dd id="maze-resource">—</dd></div>
+              <div><dt>Status</dt><dd id="maze-status">Ready</dd></div>
+            </dl>
+            <h4>Objectives</h4>
+            <ul id="maze-objectives"></ul>
+            <p class="feedback" id="maze-feedback"></p>
+            <details><summary>Educational explanation</summary><p id="maze-explanation"></p><p id="maze-simplification"></p></details>
+            <p class="source-ids" id="maze-sources"></p>
+          </aside>
+        </div>
+        <div id="maze-live" class="visually-hidden" aria-live="polite"></div>
+      </section>
+
+      <section id="sources" aria-labelledby="sources-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Primary official material</p>
+            <h2 id="sources-title">Sources &amp; Accuracy</h2>
+          </div>
+          <p>Content references local source IDs. Historical evidence never silently becomes a current implementation claim.</p>
+        </div>
+        <div class="accuracy-grid" id="accuracy-grid"></div>
+        <div class="source-list" id="source-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>This lab is a local design-review tool. Automated validation does not replace human technical, accessibility, pedagogy, legal, security, or trademark review.</p>
+    </footer>
+    <script type="module" src="/lab.js"></script>
+  </body>
+</html>
