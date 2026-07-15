@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="Generic distributed ledger panel">
+  <g id="panel" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+    <rect x="8" y="8" width="144" height="104" rx="14"/>
+    <path d="M24 32h112M24 60h112M24 88h112" opacity="0.35"/>
+  </g>
+  <g id="record-slots" fill="currentColor">
+    <rect x="26" y="24" width="44" height="8" rx="4" opacity="0.7"/>
+    <rect x="26" y="52" width="76" height="8" rx="4" opacity="0.7"/>
+    <rect x="26" y="80" width="58" height="8" rx="4" opacity="0.7"/>
+  </g>
+  <path id="agreement-baseline" d="M20 102h120" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0"/>
+</svg>

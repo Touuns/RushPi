@@ -3,6 +3,45 @@
   "$id": "https://rushpi.local/schema/campaign-chapter.schema.json",
   "title": "Rush Pi Campaign chapter candidates",
   "type": "object",
-  "required": ["schemaVersion", "lastReviewedAt", "chapters"],
-  "properties": { "schemaVersion": { "type": "string" }, "lastReviewedAt": { "type": "string", "format": "date" }, "chapters": { "type": "array", "minItems": 12, "items": { "type": "object", "required": ["id", "seasonRecommendation", "order", "title", "template", "chainFamilyIds", "primitiveIds", "playerFantasy", "coreLoop", "winCondition", "failureConditions", "teachingPoint", "difficulty", "accessibilityNotes", "officialSources", "accuracyStatus", "lastReviewedAt"], "properties": { "id": { "type": "string" }, "seasonRecommendation": { "type": "boolean" }, "order": { "type": ["integer", "null"] }, "title": { "type": "string" }, "template": { "type": "string" }, "chainFamilyIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "primitiveIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "playerFantasy": { "type": "string" }, "coreLoop": { "type": "array", "minItems": 3, "items": { "type": "string" } }, "winCondition": { "type": "string" }, "failureConditions": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "teachingPoint": { "type": "string" }, "difficulty": { "enum": ["introductory", "intermediate", "advanced"] }, "accessibilityNotes": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "officialSources": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "accuracyStatus": { "type": "string" }, "lastReviewedAt": { "type": "string", "format": "date" } } } } }
+  "required": ["schemaVersion", "lastReviewedAt", "seasonOne", "chapters"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "lastReviewedAt": { "type": "string", "format": "date" },
+    "seasonOne": { "type": "object" },
+    "chapters": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "type": "object",
+        "required": ["id", "seasonOneRecommended", "seasonOrder", "title", "chainOrFamily", "technologyType", "gameplayTemplate", "conceptLearned", "gameplayFantasy", "playerActions", "winCondition", "failConditions", "difficulty", "durationTarget", "educationalMessage", "briefing", "midLevelEvolution", "finalSequence", "assetsNeeded", "animationsNeeded", "officialSources", "simplificationNotes", "accuracyStatus", "lastReviewedAt"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "seasonOneRecommended": { "type": "boolean" },
+          "seasonOrder": { "type": ["integer", "null"], "minimum": 1, "maximum": 8 },
+          "title": { "type": "string" },
+          "chainOrFamily": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "technologyType": { "type": "string" },
+          "gameplayTemplate": { "enum": ["Runner Mission", "Chain Maze", "Network Routing", "Validation Challenge", "Resource Puzzle", "Sequence/Atomic Mission"] },
+          "conceptLearned": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "gameplayFantasy": { "type": "string" },
+          "playerActions": { "type": "array", "minItems": 3, "items": { "type": "string" } },
+          "winCondition": { "type": "string", "minLength": 15 },
+          "failConditions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "difficulty": { "enum": ["introductory", "intermediate", "advanced"] },
+          "durationTarget": { "type": "integer", "minimum": 90, "maximum": 900 },
+          "educationalMessage": { "type": "string" },
+          "briefing": { "type": "string", "maxLength": 240 },
+          "midLevelEvolution": { "type": "string" },
+          "finalSequence": { "type": "string" },
+          "assetsNeeded": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "animationsNeeded": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "officialSources": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "simplificationNotes": { "type": "string" },
+          "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
+          "lastReviewedAt": { "type": "string", "format": "date" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
 }

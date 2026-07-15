@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 96" role="img" aria-label="Generic abstract execution resource cell">
+  <g id="cell-shell" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round">
+    <path d="M20 5h40v12l10 10v56a8 8 0 0 1-8 8H18a8 8 0 0 1-8-8V27l10-10Z"/>
+    <path d="M24 29h32M24 45h32M24 61h32M24 77h20" opacity="0.35"/>
+  </g>
+  <rect id="cell-fill" x="18" y="53" width="44" height="30" rx="5" fill="currentColor" opacity="0.55"/>
+</svg>

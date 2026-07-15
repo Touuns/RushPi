@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Generic player orb shell with an empty center">
+  <g id="orb-shell" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="64" cy="64" r="54" stroke-width="4" opacity="0.45"/>
+    <path d="M64 10a54 54 0 0 1 46.8 27M118 64a54 54 0 0 1-27 46.8M64 118a54 54 0 0 1-46.8-27M10 64a54 54 0 0 1 27-46.8" stroke-width="7"/>
+    <circle cx="64" cy="64" r="35" stroke-width="3" opacity="0.8"/>
+  </g>
+  <g id="shield-effect" fill="none" stroke="currentColor" stroke-width="3" opacity="0">
+    <path d="M64 3 111 22v34c0 31-19 54-47 68C36 110 17 87 17 56V22Z"/>
+  </g>
+  <g id="magnet-effect" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0">
+    <path d="M21 40c-9 12-12 26-9 40M107 40c9 12 12 26 9 40"/>
+    <path d="m12 80-5-8m109 8 5-8"/>
+  </g>
+  <g id="charge-effect" fill="currentColor" opacity="0">
+    <circle cx="64" cy="4" r="3"/>
+    <circle cx="124" cy="64" r="3"/>
+    <circle cx="64" cy="124" r="3"/>
+    <circle cx="4" cy="64" r="3"/>
+  </g>
+</svg>
