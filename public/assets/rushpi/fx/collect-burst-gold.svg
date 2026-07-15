@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Gold collection burst effect">
+  <defs><radialGradient id="g"><stop stop-color="#F4F1FB"/><stop offset=".18" stop-color="#FFD166" stop-opacity=".86"/><stop offset="1" stop-color="#FFD166" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="64" cy="64" r="58" fill="url(#g)" opacity=".45"/>
+  <g id="rays" stroke="#FFD166" stroke-linecap="round"><path d="M64 4v28M64 96v28M4 64h28M96 64h28M22 22l20 20M86 86l20 20M106 22L86 42M42 86l-20 20" stroke-width="4"/><path d="M42 8l8 24M86 96l8 24M8 42l24 8M96 78l24 8M86 8l-8 24M50 96l-8 24M8 86l24-8M96 50l24-8" stroke-width="2"/></g>
+  <circle cx="64" cy="64" r="16" fill="none" stroke="#F4F1FB" stroke-width="3"/>
+</svg>

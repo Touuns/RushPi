@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Smart Layer survival zone concept">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#030A1B"/><stop offset=".58" stop-color="#0B1830"/><stop offset="1" stop-color="#070612"/></linearGradient><radialGradient id="h"><stop stop-color="#38BDF8" stop-opacity=".75"/><stop offset="1" stop-opacity="0"/></radialGradient></defs>
+  <rect width="414" height="736" fill="url(#bg)"/><ellipse cx="207" cy="120" rx="182" ry="108" fill="url(#h)"/>
+  <g fill="none" stroke="#38BDF8" stroke-opacity=".38"><path d="M18 174l70 54 52-74M396 174l-70 54-52-74M24 414l86-92 42-112M390 414l-86-92-42-112"/></g>
+  <g fill="#60A5FA"><circle cx="18" cy="174" r="4"/><circle cx="88" cy="228" r="5"/><circle cx="140" cy="154" r="4"/><circle cx="396" cy="174" r="4"/><circle cx="326" cy="228" r="5"/><circle cx="274" cy="154" r="4"/><circle cx="24" cy="414" r="6"/><circle cx="390" cy="414" r="6"/></g>
+  <path d="M170 120L62 736h290L244 120z" fill="#050B17"/><path d="M170 120L62 736M244 120l108 616" stroke="#38BDF8" stroke-width="4" fill="none"/>
+  <path d="M183 120l-42 616M231 120l42 616" stroke="#60A5FA" stroke-opacity=".36" fill="none"/>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 256" role="img" aria-label="Reusable side crystal decoration">
+  <defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#38BDF8" stop-opacity=".62"/><stop offset=".48" stop-color="#8B5CF6" stop-opacity=".34"/><stop offset="1" stop-color="#160D2A" stop-opacity="0"/></linearGradient></defs>
+  <path d="M48 4L91 86 64 252 8 204 15 64z" fill="url(#g)" stroke="#A78BFA" stroke-opacity=".55"/>
+  <path d="M48 4L42 166 91 86M42 166L8 204M15 64l27 102 22 86" fill="none" stroke="#38BDF8" stroke-opacity=".35"/>
+</svg>

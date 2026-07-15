@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 160" role="img" aria-label="Reusable abstract horizon line decoration">
+  <defs><radialGradient id="g"><stop stop-color="#FFD166" stop-opacity=".66"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></radialGradient></defs>
+  <ellipse cx="207" cy="80" rx="205" ry="78" fill="url(#g)"/>
+  <g fill="none" stroke-linecap="round"><path d="M8 80h398" stroke="#F4F1FB" stroke-opacity=".72" stroke-width="3"/><path d="M40 62h334M72 46h270M108 32h198" stroke="#A78BFA" stroke-opacity=".34"/><path d="M40 98h334M72 114h270M108 128h198" stroke="#FF7A3D" stroke-opacity=".24"/></g>
+</svg>

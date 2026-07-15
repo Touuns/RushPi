@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 384" role="img" aria-label="Layered unstable failure gate">
+  <defs><linearGradient id="ring" y2="1"><stop stop-color="#FF4D6D"/><stop offset=".54" stop-color="#8B5CF6"/><stop offset="1" stop-color="#312E81"/></linearGradient><radialGradient id="core"><stop stop-color="#FF4D6D" stop-opacity=".34"/><stop offset="1" stop-opacity="0"/></radialGradient><filter id="blur"><feGaussianBlur stdDeviation="8"/></filter></defs>
+  <g id="portal-glow"><ellipse cx="128" cy="190" rx="94" ry="132" fill="none" stroke="#FF4D6D" stroke-width="18" opacity=".2" filter="url(#blur)"/><ellipse cx="128" cy="190" rx="80" ry="114" fill="url(#core)"/></g>
+  <g id="portal-ring" fill="none" stroke="url(#ring)" stroke-linecap="square"><path d="M48 328l3-98 13-18-10-36 22-68 24-12 8-44M148 52l8 44 24 12 22 68-10 36 13 18 3 98" stroke-width="13"/><path d="M66 328l4-88 12-22-8-34 20-54M162 130l20 54-8 34 12 22 4 88" stroke-width="4"/><path d="M36 330h184" stroke-width="9"/></g>
+  <g id="portal-streaks" stroke="#FF4D6D" stroke-linecap="round"><path d="M93 142l70 92M163 142l-70 92" stroke-width="5"/><path d="M85 278l22-20M171 278l-22-20" stroke-width="3"/></g>
+  <g id="portal-particles" fill="#FF4D6D"><path d="M29 116l14 7-12 9z"/><path d="M227 116l-14 7 12 9z"/><rect x="52" y="58" width="7" height="7" transform="rotate(28 55 61)"/><rect x="197" y="58" width="7" height="7" transform="rotate(-28 200 61)"/></g>
+</svg>

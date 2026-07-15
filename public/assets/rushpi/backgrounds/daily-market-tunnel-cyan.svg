@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Cyan abstract market tunnel variation">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#020B15"/><stop offset=".55" stop-color="#071B2B"/><stop offset="1" stop-color="#050711"/></linearGradient>
+    <radialGradient id="h"><stop stop-color="#F4F1FB" stop-opacity=".74"/><stop offset=".12" stop-color="#22D3EE" stop-opacity=".68"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rail"><stop stop-color="#22D3EE"/><stop offset=".6" stop-color="#38BDF8"/><stop offset="1" stop-color="#A78BFA"/></linearGradient>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <ellipse cx="207" cy="120" rx="188" ry="110" fill="url(#h)"/>
+  <g fill="none" stroke="#22D3EE" stroke-opacity=".34">
+    <path d="M0 174h112l44-42M414 174H302l-44-42"/><path d="M0 286h78l50-45M414 286h-78l-50-45"/>
+    <path d="M0 462h56l72-102M414 462h-56l-72-102"/>
+  </g>
+  <g fill="#061522" stroke="#38BDF8" stroke-opacity=".58"><rect x="16" y="144" width="42" height="42" rx="5"/><rect x="356" y="144" width="42" height="42" rx="5"/><rect x="28" y="328" width="56" height="56" rx="8"/><rect x="330" y="328" width="56" height="56" rx="8"/></g>
+  <path d="M170 120L58 736h298L244 120z" fill="#030A12" fill-opacity=".9"/>
+  <path d="M170 120L58 736M244 120l112 616" stroke="url(#rail)" stroke-width="4" fill="none"/>
+  <g fill="none" stroke="#38BDF8" stroke-opacity=".22"><ellipse cx="207" cy="120" rx="90" ry="22"/><ellipse cx="207" cy="120" rx="150" ry="54"/><ellipse cx="207" cy="120" rx="205" ry="94"/></g>
+  <ellipse cx="207" cy="120" rx="18" ry="3" fill="#F4F1FB"/>
+</svg>

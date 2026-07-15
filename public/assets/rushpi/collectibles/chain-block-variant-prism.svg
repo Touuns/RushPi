@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Prism Chain Block variant">
+  <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#38BDF8"/><stop offset=".5" stop-color="#A78BFA"/><stop offset="1" stop-color="#FFD166"/></linearGradient></defs>
+  <path d="M32 3L59 20 50 54H14L5 20z" fill="#0B1024" stroke="url(#g)" stroke-width="3"/>
+  <path d="M32 10L50 22 44 46H20L14 22z" fill="#1A1640" stroke="#38BDF8" stroke-opacity=".66"/>
+  <path d="M32 10v36M14 22l18 10 18-10M20 46l12-14 12 14" fill="none" stroke="url(#g)" stroke-width="2"/>
+  <circle cx="32" cy="32" r="5" fill="#F4F1FB"/>
+</svg>

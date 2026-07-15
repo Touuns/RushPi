@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 64" role="img" aria-label="Repeatable original chain ribbon decoration">
+  <defs><linearGradient id="g"><stop stop-color="#8B5CF6"/><stop offset=".5" stop-color="#FFD166"/><stop offset="1" stop-color="#38BDF8"/></linearGradient></defs>
+  <g fill="none" stroke="url(#g)" stroke-width="4" opacity=".65"><path d="M0 32h24l12-16h32l12 16h32l12-16h32l12 16h32l12-16h24"/><path d="M0 44h32l12-16h32l12 16h32l12-16h32l12 16h32l12-16h16" opacity=".38"/></g>
+  <g fill="#FFD166"><circle cx="36" cy="16" r="3"/><circle cx="124" cy="16" r="3"/><circle cx="212" cy="16" r="3"/></g>
+</svg>

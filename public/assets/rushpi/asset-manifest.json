@@ -82,5 +82,61 @@
       "animationReady": true
     }
   ],
-  "assets": []
+  "assets": [
+    { "id": "home-main", "category": "backgrounds", "file": "backgrounds/home-main.svg", "format": "svg", "usage": "Primary Home background concept", "size": "414x736", "notes": "Balanced default with a 46% calm center", "animationReady": false },
+    { "id": "home-variant-crystal", "category": "backgrounds", "file": "backgrounds/home-variant-crystal.svg", "format": "svg", "usage": "Cool crystal Home alternative", "size": "414x736", "notes": "Cyan and violet side architecture", "animationReady": false },
+    { "id": "home-variant-arc", "category": "backgrounds", "file": "backgrounds/home-variant-arc.svg", "format": "svg", "usage": "Warm arc Home alternative", "size": "414x736", "notes": "Orange and gold repeated arches", "animationReady": false },
+    { "id": "home-calm", "category": "backgrounds", "file": "backgrounds/home-calm.svg", "format": "svg", "usage": "Subtle Home background for dense UI", "size": "414x736", "notes": "Reduced particles and bloom", "animationReady": false },
+    { "id": "home-spectacular", "category": "backgrounds", "file": "backgrounds/home-spectacular.svg", "format": "svg", "usage": "High-impact Home background concept", "size": "414x736", "notes": "Vortex intensity remains outside the safe center", "animationReady": false },
+    { "id": "daily-market-tunnel-main", "category": "backgrounds", "file": "backgrounds/daily-market-tunnel-main.svg", "format": "svg", "usage": "Primary Daily Token Rush environment concept", "size": "414x736", "notes": "Abstract data flows without financial text", "animationReady": true },
+    { "id": "daily-market-tunnel-cyan", "category": "backgrounds", "file": "backgrounds/daily-market-tunnel-cyan.svg", "format": "svg", "usage": "Cool Daily environment variant", "size": "414x736", "notes": "Cyan analytical session palette", "animationReady": true },
+    { "id": "daily-market-tunnel-amber", "category": "backgrounds", "file": "backgrounds/daily-market-tunnel-amber.svg", "format": "svg", "usage": "Warm Daily environment variant", "size": "414x736", "notes": "Amber block and data-chain palette", "animationReady": true },
+
+    { "id": "zone-genesis-lane", "category": "concepts", "file": "concepts/zones/genesis-lane.svg", "format": "svg", "usage": "Survival zone 1 lightweight background", "size": "414x736", "notes": "Rings; violet, gold and orange", "animationReady": true },
+    { "id": "zone-orange-chain", "category": "concepts", "file": "concepts/zones/orange-chain.svg", "format": "svg", "usage": "Survival zone 2 lightweight background", "size": "414x736", "notes": "Blocks; orange, amber and brown", "animationReady": true },
+    { "id": "zone-smart-layer", "category": "concepts", "file": "concepts/zones/smart-layer.svg", "format": "svg", "usage": "Survival zone 3 lightweight background", "size": "414x736", "notes": "Nodes; blue, cyan and lavender", "animationReady": true },
+    { "id": "zone-neon-speednet", "category": "concepts", "file": "concepts/zones/neon-speednet.svg", "format": "svg", "usage": "Survival zone 4 lightweight background", "size": "414x736", "notes": "Streaks; emerald, turquoise and cyan", "animationReady": true },
+    { "id": "zone-stable-grid", "category": "concepts", "file": "concepts/zones/stable-grid.svg", "format": "svg", "usage": "Survival zone 5 lightweight background", "size": "414x736", "notes": "Grid; mint, white and gold", "animationReady": true },
+    { "id": "zone-meme-circuit", "category": "concepts", "file": "concepts/zones/meme-circuit.svg", "format": "svg", "usage": "Survival zone 6 lightweight background", "size": "414x736", "notes": "Confetti; magenta, gold and orange", "animationReady": true },
+    { "id": "zone-privacy-tunnel", "category": "concepts", "file": "concepts/zones/privacy-tunnel.svg", "format": "svg", "usage": "Survival zone 7 lightweight background", "size": "414x736", "notes": "Tunnel; deep violet and indigo", "animationReady": true },
+    { "id": "zone-chain-storm", "category": "concepts", "file": "concepts/zones/chain-storm.svg", "format": "svg", "usage": "Survival zone 8 lightweight background", "size": "414x736", "notes": "Storm; coral, cyan, lavender and gold", "animationReady": true },
+
+    { "id": "portal-finish", "category": "portals", "file": "portals/finish-gate.svg", "format": "svg", "usage": "Finish gate static render and layered source", "size": "256x384", "notes": "Groups: portal-glow, portal-ring, portal-streaks, portal-particles", "animationReady": true },
+    { "id": "portal-zone", "category": "portals", "file": "portals/zone-gate.svg", "format": "svg", "usage": "Zone transition gate", "size": "256x384", "notes": "Palette can be tinted per Survival zone", "animationReady": true },
+    { "id": "portal-validation", "category": "portals", "file": "portals/validation-gate.svg", "format": "svg", "usage": "Validation gate", "size": "256x384", "notes": "Abstract confirmation geometry without text", "animationReady": true },
+    { "id": "portal-success", "category": "portals", "file": "portals/success-gate.svg", "format": "svg", "usage": "Success gate", "size": "256x384", "notes": "Gold-white ascending energy", "animationReady": true },
+    { "id": "portal-failure", "category": "portals", "file": "portals/failure-gate.svg", "format": "svg", "usage": "Failure gate", "size": "256x384", "notes": "Broken coral-violet segments", "animationReady": true },
+    { "id": "portal-multichain", "category": "portals", "file": "portals/multichain-gate.svg", "format": "svg", "usage": "Generic multichain transition gate", "size": "256x384", "notes": "Original intertwined rings without official identity", "animationReady": true },
+
+    { "id": "chain-block-base-sm", "category": "collectibles", "file": "collectibles/chain-block-base-sm.svg", "format": "svg", "usage": "Simplified small Chain Block", "size": "32x32", "notes": "Optimized silhouette for 32px display", "animationReady": false },
+    { "id": "chain-block-base-md", "category": "collectibles", "file": "collectibles/chain-block-base-md.svg", "format": "svg", "usage": "Primary medium Chain Block", "size": "64x64", "notes": "Original generic collectible", "animationReady": true },
+    { "id": "chain-block-prism", "category": "collectibles", "file": "collectibles/chain-block-variant-prism.svg", "format": "svg", "usage": "Prism Chain Block variant", "size": "64x64", "notes": "Cyan-violet pentagonal silhouette", "animationReady": true },
+    { "id": "chain-block-lattice", "category": "collectibles", "file": "collectibles/chain-block-variant-lattice.svg", "format": "svg", "usage": "Lattice Chain Block variant", "size": "64x64", "notes": "Mint-cyan node structure", "animationReady": true },
+    { "id": "chain-block-core", "category": "collectibles", "file": "collectibles/chain-block-variant-core.svg", "format": "svg", "usage": "Core Chain Block variant", "size": "64x64", "notes": "Magenta-orange radiant core", "animationReady": true },
+    { "id": "chain-block-energized", "category": "collectibles", "file": "collectibles/chain-block-energized.svg", "format": "svg", "usage": "Charged Chain Block state", "size": "64x64", "notes": "Separate energy-rays group", "animationReady": true },
+    { "id": "chain-block-magnetized", "category": "collectibles", "file": "collectibles/chain-block-magnetized.svg", "format": "svg", "usage": "Magnetized glow Chain Block state", "size": "64x64", "notes": "Separate magnet-rings group", "animationReady": true },
+    { "id": "chain-block-pickup-burst", "category": "collectibles", "file": "collectibles/chain-block-pickup-burst.svg", "format": "svg", "usage": "Pickup highlight composition", "size": "96x96", "notes": "Burst rays and fragments can be separated", "animationReady": true },
+
+    { "id": "fx-collect-burst-gold", "category": "fx", "file": "fx/collect-burst-gold.svg", "format": "svg", "usage": "One-shot collection burst", "size": "128x128", "notes": "Centered transparent source", "animationReady": true },
+    { "id": "fx-energy-ring", "category": "fx", "file": "fx/energy-ring.svg", "format": "svg", "usage": "Loopable energy ring", "size": "128x128", "notes": "Outer, inner and node groups", "animationReady": true },
+    { "id": "fx-portal-halo", "category": "fx", "file": "fx/portal-halo.svg", "format": "svg", "usage": "Portal glow layer", "size": "192x256", "notes": "Use behind a structural gate", "animationReady": true },
+    { "id": "fx-charge-discharge", "category": "fx", "file": "fx/charge-discharge.svg", "format": "svg", "usage": "Charge discharge one-shot", "size": "160x160", "notes": "Arcs and bolts are separate groups", "animationReady": true },
+    { "id": "fx-speed-trail", "category": "fx", "file": "fx/speed-trail.svg", "format": "svg", "usage": "Vertical speed trail", "size": "128x256", "notes": "Long and short streak layers", "animationReady": true },
+    { "id": "fx-validation-spark", "category": "fx", "file": "fx/validation-spark.svg", "format": "svg", "usage": "Validation highlight one-shot", "size": "128x128", "notes": "Main and secondary spark groups", "animationReady": true },
+    { "id": "fx-block-fragments", "category": "fx", "file": "fx/block-fragments.svg", "format": "svg", "usage": "Block breakup fragments", "size": "128x128", "notes": "Independent fragments and trails", "animationReady": true },
+    { "id": "fx-storm-lightning", "category": "fx", "file": "fx/storm-lightning.svg", "format": "svg", "usage": "Chain Storm lightning source", "size": "128x256", "notes": "Main and branch bolts", "animationReady": true },
+    { "id": "fx-circular-pulses", "category": "fx", "file": "fx/circular-pulses.svg", "format": "svg", "usage": "Concentric pulse source", "size": "160x160", "notes": "Four independently scalable rings", "animationReady": true },
+    { "id": "fx-scan-lines", "category": "fx", "file": "fx/scan-lines.svg", "format": "svg", "usage": "Subtle full-screen scan overlay", "size": "414x736", "notes": "Keep opacity low and avoid continuous animation", "animationReady": false },
+
+    { "id": "token-frame-circular", "category": "placeholders", "file": "placeholders/token-frame-circular.svg", "format": "svg", "usage": "Frame around a runtime-loaded logo", "size": "128x128", "notes": "Large transparent-safe logo center", "animationReady": false },
+    { "id": "token-rarity-border", "category": "placeholders", "file": "placeholders/token-rarity-border.svg", "format": "svg", "usage": "Common, rare and epic border layers", "size": "128x128", "notes": "Rarity groups can be exported separately", "animationReady": true },
+    { "id": "token-selection-halo", "category": "placeholders", "file": "placeholders/token-selection-halo.svg", "format": "svg", "usage": "Selected token halo", "size": "128x128", "notes": "Four selection arcs support rotation/pulse", "animationReady": true },
+    { "id": "token-symbol-placeholder", "category": "placeholders", "file": "placeholders/token-symbol-placeholder.svg", "format": "svg", "usage": "Blank plate for runtime symbol text", "size": "128x128", "notes": "Contains no embedded text; symbol is rendered by the UI", "animationReady": false },
+    { "id": "token-fallback", "category": "placeholders", "file": "placeholders/token-fallback.svg", "format": "svg", "usage": "Brand-free visual when a logo fails", "size": "128x128", "notes": "Original generic node motif", "animationReady": false },
+
+    { "id": "decor-data-grid-tile", "category": "ui", "file": "ui/data-grid-tile.svg", "format": "svg", "usage": "Repeatable low-opacity data grid", "size": "64x64", "notes": "Tile at low opacity on side panels", "animationReady": false },
+    { "id": "decor-chain-ribbon", "category": "ui", "file": "ui/chain-ribbon.svg", "format": "svg", "usage": "Repeatable abstract chain ribbon", "size": "256x64", "notes": "Generic geometry without a chain brand", "animationReady": true },
+    { "id": "decor-side-shard", "category": "ui", "file": "ui/side-shard.svg", "format": "svg", "usage": "Reusable side crystal decoration", "size": "96x256", "notes": "Mirror for left and right compositions", "animationReady": true },
+    { "id": "decor-horizon-lines", "category": "ui", "file": "ui/horizon-lines.svg", "format": "svg", "usage": "Reusable horizon glow and lines", "size": "414x160", "notes": "Place behind the playable track", "animationReady": true }
+  ]
 }

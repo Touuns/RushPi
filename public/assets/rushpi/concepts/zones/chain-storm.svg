@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Chain Storm survival zone concept">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#10030B"/><stop offset=".48" stop-color="#1C0B24"/><stop offset="1" stop-color="#08040E"/></linearGradient><radialGradient id="h"><stop stop-color="#FFD166" stop-opacity=".7"/><stop offset=".22" stop-color="#FF4D6D" stop-opacity=".36"/><stop offset="1" stop-opacity="0"/></radialGradient><linearGradient id="rail"><stop stop-color="#FF4D6D"/><stop offset=".5" stop-color="#A78BFA"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs>
+  <rect width="414" height="736" fill="url(#bg)"/><ellipse cx="207" cy="116" rx="192" ry="112" fill="url(#h)"/>
+  <g fill="none" stroke-linecap="round"><path d="M28 80l62 74-30 28 64 60-43 74" stroke="#22D3EE" stroke-width="4"/><path d="M386 68l-60 86 34 32-72 64 45 80" stroke="#FF4D6D" stroke-width="4"/><path d="M3 366l54 28-22 55 75 22" stroke="#A78BFA" stroke-width="3"/><path d="M411 378l-58 24 24 52-73 30" stroke="#FFD166" stroke-width="3"/></g>
+  <path d="M168 116L50 736h314L246 116z" fill="#090510"/><path d="M168 116L50 736M246 116l118 620" stroke="url(#rail)" stroke-width="5" fill="none"/>
+  <path d="M182 116l-45 620M232 116l45 620" stroke="#A78BFA" stroke-opacity=".38" fill="none"/>
+  <g fill="#FFD166"><circle cx="90" cy="154" r="3"/><circle cx="326" cy="154" r="3"/><circle cx="57" cy="394" r="4"/><circle cx="353" cy="402" r="4"/></g>
+</svg>

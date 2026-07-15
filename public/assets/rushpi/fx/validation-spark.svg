@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Validation sparkle effect">
+  <defs><radialGradient id="g"><stop stop-color="#F4F1FB"/><stop offset=".28" stop-color="#34D399" stop-opacity=".72"/><stop offset="1" stop-color="#34D399" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="64" cy="64" r="60" fill="url(#g)" opacity=".38"/>
+  <path id="main-spark" d="M64 5l10 39 39 20-39 10-10 49-10-49-39-10 39-20z" fill="#F4F1FB" stroke="#A7F3D0" stroke-width="2"/>
+  <g id="small-sparks" fill="#34D399"><path d="M22 14l3 10 10 3-10 3-3 10-3-10-10-3 10-3z"/><path d="M105 82l3 10 10 3-10 3-3 10-3-10-10-3 10-3z"/></g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Magnetized glow Chain Block state">
+  <defs><linearGradient id="g"><stop stop-color="#FF7A3D"/><stop offset=".5" stop-color="#A78BFA"/><stop offset="1" stop-color="#38BDF8"/></linearGradient></defs>
+  <g id="magnet-rings" fill="none" stroke="url(#g)" opacity=".65"><ellipse cx="32" cy="32" rx="30" ry="17"/><ellipse cx="32" cy="32" rx="27" ry="25" stroke-dasharray="5 5"/></g>
+  <path d="M32 8l20 12v24L32 56 12 44V20z" fill="#160D2A" stroke="#FF7A3D" stroke-width="3"/>
+  <path d="M32 15l14 8v18l-14 8-14-8V23z" fill="#26133B" stroke="#A78BFA"/>
+  <circle cx="32" cy="32" r="9" fill="#8B5CF6"/><circle cx="32" cy="32" r="4" fill="#F4F1FB"/>
+  <g fill="#38BDF8"><circle cx="5" cy="25" r="2"/><circle cx="59" cy="39" r="2"/></g>
+</svg>

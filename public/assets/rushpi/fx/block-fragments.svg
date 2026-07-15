@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Original block fragment burst">
+  <g id="fragments" stroke="#FFD166" stroke-width="2">
+    <path d="M58 8l13 4-5 14-14-6z" fill="#FF7A3D"/><path d="M98 22l11 10-12 12-12-13z" fill="#8B5CF6"/><path d="M112 65l7 14-15 7-7-16z" fill="#38BDF8"/>
+    <path d="M90 102l-3 17-17-4 5-16z" fill="#FF7A3D"/><path d="M39 100l-12 12-11-13 13-10z" fill="#8B5CF6"/><path d="M14 62L7 48l16-6 6 15z" fill="#38BDF8"/>
+  </g>
+  <g id="fragment-trails" stroke="#A78BFA" stroke-linecap="round" opacity=".6"><path d="M60 39L55 26M86 48l10-9M91 76l13 3M72 92l4 14M43 84l-11 11M35 55l-13-5"/></g>
+  <circle cx="64" cy="64" r="20" fill="none" stroke="#FFD166" stroke-dasharray="5 5"/>
+</svg>

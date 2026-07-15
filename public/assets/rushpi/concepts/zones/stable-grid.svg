@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Stable Grid survival zone concept">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#071311"/><stop offset=".6" stop-color="#10201D"/><stop offset="1" stop-color="#080A11"/></linearGradient><radialGradient id="h"><stop stop-color="#A7F3D0" stop-opacity=".58"/><stop offset="1" stop-opacity="0"/></radialGradient><pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M38 0H0V38" fill="none" stroke="#A7F3D0" stroke-opacity=".17"/></pattern></defs>
+  <rect width="414" height="736" fill="url(#bg)"/><rect width="414" height="736" fill="url(#grid)"/><ellipse cx="207" cy="122" rx="180" ry="100" fill="url(#h)"/>
+  <g fill="none" stroke="#A7F3D0" stroke-opacity=".3"><path d="M0 190h132l38-68M414 190H282l-38-68M0 342h104l52-138M414 342H310l-52-138"/></g>
+  <path d="M170 122L68 736h278L244 122z" fill="#07100F"/><path d="M170 122L68 736M244 122l102 614" stroke="#A7F3D0" stroke-width="3" fill="none"/>
+  <path d="M183 122l-39 614M231 122l39 614" stroke="#D1FAE5" stroke-opacity=".34" fill="none"/>
+  <ellipse cx="207" cy="122" rx="17" ry="3" fill="#FFD166" opacity=".72"/>
+</svg>

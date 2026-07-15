@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="Radial charge discharge effect">
+  <defs><radialGradient id="g"><stop stop-color="#F4F1FB"/><stop offset=".24" stop-color="#38BDF8" stop-opacity=".85"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="80" cy="80" r="72" fill="url(#g)" opacity=".36"/>
+  <g id="arcs" fill="none" stroke-linecap="round"><path d="M32 50a58 58 0 0 1 96 8" stroke="#38BDF8" stroke-width="5"/><path d="M128 110a58 58 0 0 1-96-8" stroke="#A78BFA" stroke-width="5"/><path d="M47 116a44 44 0 0 1-4-66" stroke="#FFD166" stroke-width="2"/><path d="M113 44a44 44 0 0 1 4 66" stroke="#F4F1FB" stroke-width="2"/></g>
+  <g id="bolts" fill="#F4F1FB"><path d="M78 7L65 61h16L70 91l31-48H84L96 7z"/><path d="M23 84l35 7-5 11 24-10-31-18-5 11z" opacity=".58"/><path d="M137 77l-35-7 5-11-24 10 31 18 5-11z" opacity=".58"/></g>
+</svg>

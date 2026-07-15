@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Amber abstract data chain tunnel variation">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#110804"/><stop offset=".5" stop-color="#211016"/><stop offset="1" stop-color="#09040D"/></linearGradient>
+    <radialGradient id="h"><stop stop-color="#FFD166" stop-opacity=".82"/><stop offset=".2" stop-color="#FF7A3D" stop-opacity=".42"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rail"><stop stop-color="#FFD166"/><stop offset=".55" stop-color="#FF7A3D"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <ellipse cx="207" cy="122" rx="190" ry="118" fill="url(#h)"/>
+  <g fill="#211227" stroke="#FF7A3D" stroke-opacity=".58">
+    <path d="M0 132h72l48 52-31 552H0z"/><path d="M414 132h-72l-48 52 31 552h89z"/>
+  </g>
+  <g fill="none" stroke="#FFD166" stroke-opacity=".38">
+    <path d="M18 174h44l22 28-27 30H13M396 174h-44l-22 28 27 30h44"/>
+    <path d="M8 344h55l30 32-38 42H0M406 344h-55l-30 32 38 42h55"/>
+    <path d="M0 546h46l40 50-52 58H0M414 546h-46l-40 50 52 58h34"/>
+  </g>
+  <path d="M169 122L60 736h294L245 122z" fill="#0C0717" fill-opacity=".9"/>
+  <path d="M169 122L60 736M245 122l109 614" stroke="url(#rail)" stroke-width="4" fill="none"/>
+  <path d="M182 122l-42 614M232 122l42 614" stroke="#FFD166" stroke-opacity=".2" fill="none"/>
+  <g fill="#FFD166"><circle cx="62" cy="202" r="3"/><circle cx="352" cy="202" r="3"/><circle cx="55" cy="376" r="3"/><circle cx="359" cy="376" r="3"/></g>
+  <ellipse cx="207" cy="122" rx="19" ry="3.5" fill="#F4F1FB"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Genesis Lane survival zone concept">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#090412"/><stop offset="1" stop-color="#160D2A"/></linearGradient><radialGradient id="h"><stop stop-color="#FFD166" stop-opacity=".62"/><stop offset="1" stop-opacity="0"/></radialGradient></defs>
+  <rect width="414" height="736" fill="url(#bg)"/><ellipse cx="207" cy="122" rx="170" ry="100" fill="url(#h)"/>
+  <g fill="none" stroke="#8B5CF6" stroke-opacity=".32"><ellipse cx="207" cy="122" rx="55" ry="14"/><ellipse cx="207" cy="122" rx="105" ry="35"/><ellipse cx="207" cy="122" rx="165" ry="65"/><ellipse cx="207" cy="122" rx="218" ry="104"/></g>
+  <path d="M170 122L60 736h294L244 122z" fill="#0A0614"/><path d="M170 122L60 736M244 122l110 614" stroke="#FFD166" stroke-width="4" fill="none"/>
+  <path d="M183 122l-42 614M231 122l42 614" stroke="#8B5CF6" stroke-opacity=".28" fill="none"/>
+  <g fill="#FF7A3D"><circle cx="57" cy="246" r="3"/><circle cx="357" cy="246" r="3"/><circle cx="24" cy="510" r="3"/><circle cx="390" cy="510" r="3"/></g>
+</svg>

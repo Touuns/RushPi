@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Spectacular abstract multicolor blockchain vortex">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#05030C"/><stop offset=".45" stop-color="#160D2A"/><stop offset="1" stop-color="#090412"/></linearGradient>
+    <radialGradient id="v"><stop stop-color="#F4F1FB" stop-opacity=".92"/><stop offset=".08" stop-color="#FFD166" stop-opacity=".76"/><stop offset=".35" stop-color="#8B5CF6" stop-opacity=".32"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rainbow"><stop stop-color="#38BDF8"/><stop offset=".35" stop-color="#8B5CF6"/><stop offset=".68" stop-color="#FFD166"/><stop offset="1" stop-color="#FF7A3D"/></linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="7"/></filter>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <ellipse cx="207" cy="120" rx="205" ry="134" fill="url(#v)"/>
+  <g fill="none" stroke="url(#rainbow)" stroke-linecap="round">
+    <path d="M-86 64Q116 78 178 116M500 64Q298 78 236 116" stroke-width="8" opacity=".18" filter="url(#blur)"/>
+    <path d="M-42 136Q92 102 176 120M456 136Q322 102 238 120" stroke-width="4" opacity=".64"/>
+    <path d="M0 276Q102 152 170 126M414 276Q312 152 244 126" stroke-width="3" opacity=".55"/>
+    <path d="M0 532Q82 236 164 136M414 532Q332 236 250 136" stroke-width="2" opacity=".42"/>
+  </g>
+  <g fill="#1B1030" stroke="#A78BFA" stroke-opacity=".58">
+    <path d="M0 168l78-58 59 41-66 585H0z"/><path d="M414 168l-78-58-59 41 66 585h71z"/>
+    <path d="M0 358l51-43 42 35-31 386H0z"/><path d="M414 358l-51-43-42 35 31 386h72z"/>
+  </g>
+  <path d="M168 120L56 736h302L246 120z" fill="#080510" fill-opacity=".9"/>
+  <path d="M168 120L56 736M246 120l112 616" fill="none" stroke="url(#rainbow)" stroke-width="5"/>
+  <g fill="#FFD166"><circle cx="28" cy="230" r="3"/><circle cx="379" cy="218" r="3"/><circle cx="48" cy="496" r="4"/><circle cx="368" cy="532" r="4"/></g>
+  <ellipse cx="207" cy="120" rx="25" ry="5" fill="#F4F1FB"/>
+</svg>
