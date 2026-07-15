@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Privacy Tunnel survival zone concept">
+  <defs><linearGradient id="bg" y2="1"><stop stop-color="#050414"/><stop offset=".5" stop-color="#100D2A"/><stop offset="1" stop-color="#02020A"/></linearGradient><radialGradient id="h"><stop stop-color="#6D28D9" stop-opacity=".58"/><stop offset="1" stop-opacity="0"/></radialGradient></defs>
+  <rect width="414" height="736" fill="url(#bg)"/><ellipse cx="207" cy="122" rx="184" ry="108" fill="url(#h)"/>
+  <g fill="none" stroke="#7C3AED" stroke-opacity=".28"><ellipse cx="207" cy="122" rx="62" ry="22"/><ellipse cx="207" cy="122" rx="112" ry="62"/><ellipse cx="207" cy="122" rx="172" ry="118"/><ellipse cx="207" cy="122" rx="238" ry="190"/></g>
+  <g fill="#070515" stroke="#4C1D95" stroke-opacity=".7"><path d="M0 114l96 42-18 580H0z"/><path d="M414 114l-96 42 18 580h78z"/></g>
+  <path d="M170 122L64 736h286L244 122z" fill="#03030B"/><path d="M170 122L64 736M244 122l106 614" stroke="#7C3AED" stroke-width="4" fill="none"/>
+  <path d="M183 122l-41 614M231 122l41 614" stroke="#4C1D95" stroke-opacity=".5" fill="none"/>
+  <rect y="480" width="414" height="256" fill="#020208" opacity=".22"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Abstract daily market data tunnel without logos or text">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#06101F"/><stop offset=".5" stop-color="#120B2A"/><stop offset="1" stop-color="#08050F"/></linearGradient>
+    <radialGradient id="h"><stop stop-color="#38BDF8" stop-opacity=".8"/><stop offset=".18" stop-color="#8B5CF6" stop-opacity=".42"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="flow"><stop stop-color="#22D3EE"/><stop offset=".5" stop-color="#A78BFA"/><stop offset="1" stop-color="#FFD166"/></linearGradient>
+    <pattern id="blocks" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M4 4h12v12H4zM22 22h10v10H22z" fill="none" stroke="#38BDF8" stroke-opacity=".11"/></pattern>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <rect width="414" height="736" fill="url(#blocks)"/>
+  <ellipse cx="207" cy="118" rx="184" ry="108" fill="url(#h)"/>
+  <g fill="none" stroke="url(#flow)" stroke-linejoin="round">
+    <path d="M0 222l54-42 38 22 44-48 38 18" opacity=".5"/><path d="M414 240l-55-36-38 30-44-62-35 10" opacity=".5"/>
+    <path d="M0 388l62-60 35 28 51-106" opacity=".34"/><path d="M414 392l-62-42-38 23-42-102" opacity=".34"/>
+  </g>
+  <g fill="#38BDF8"><circle cx="54" cy="180" r="3"/><circle cx="92" cy="202" r="3"/><circle cx="359" cy="204" r="3"/><circle cx="321" cy="234" r="3"/></g>
+  <path d="M170 118L62 736h290L244 118z" fill="#080B18" fill-opacity=".86"/>
+  <path d="M170 118L62 736M244 118l108 618" stroke="url(#flow)" stroke-width="4" fill="none"/>
+  <path d="M183 118l-44 618M231 118l44 618" stroke="#38BDF8" stroke-opacity=".25" fill="none"/>
+  <g fill="none" stroke="#A78BFA" stroke-opacity=".24"><ellipse cx="207" cy="118" rx="72" ry="18"/><ellipse cx="207" cy="118" rx="132" ry="42"/><ellipse cx="207" cy="118" rx="188" ry="74"/></g>
+  <ellipse cx="207" cy="118" rx="20" ry="4" fill="#F4F1FB" opacity=".82"/>
+</svg>

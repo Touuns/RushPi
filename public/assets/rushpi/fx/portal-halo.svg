@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 256" role="img" aria-label="Portal halo overlay">
+  <defs><radialGradient id="g"><stop stop-color="#F4F1FB" stop-opacity=".52"/><stop offset=".2" stop-color="#A78BFA" stop-opacity=".32"/><stop offset=".64" stop-color="#8B5CF6" stop-opacity=".12"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></radialGradient><filter id="b"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <ellipse cx="96" cy="128" rx="88" ry="120" fill="url(#g)"/>
+  <ellipse cx="96" cy="128" rx="68" ry="98" fill="none" stroke="#A78BFA" stroke-width="12" opacity=".24" filter="url(#b)"/>
+  <ellipse cx="96" cy="128" rx="61" ry="91" fill="none" stroke="#F4F1FB" stroke-width="2" opacity=".58"/>
+</svg>

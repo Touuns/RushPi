@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Abstract crystal city around a clear central track">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#070A1D"/><stop offset=".48" stop-color="#15123B"/><stop offset="1" stop-color="#0C0717"/></linearGradient>
+    <radialGradient id="halo"><stop stop-color="#38BDF8" stop-opacity=".6"/><stop offset=".34" stop-color="#8B5CF6" stop-opacity=".22"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="crystal" x2="0" y2="1"><stop stop-color="#38BDF8" stop-opacity=".38"/><stop offset="1" stop-color="#8B5CF6" stop-opacity=".05"/></linearGradient>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <ellipse cx="207" cy="118" rx="180" ry="110" fill="url(#halo)"/>
+  <g fill="url(#crystal)" stroke="#38BDF8" stroke-opacity=".5">
+    <path d="M0 736V206l55-109 34 151-22 488z"/><path d="M67 736l31-462 41-123 23 585z"/>
+    <path d="M414 736V206L359 97l-34 151 22 488z"/><path d="M347 736l-31-462-41-123-23 585z"/>
+  </g>
+  <path d="M172 118L85 736h244l-87-618z" fill="#090817" fill-opacity=".82"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M172 118L85 736M242 118l87 618" stroke="#A78BFA" stroke-width="4"/>
+    <path d="M182 118l-35 618M232 118l35 618" stroke="#38BDF8" stroke-opacity=".25"/>
+    <path d="M144 190H74M270 190h70M130 292H45M284 292h85M112 440H12M302 440h100" stroke="#FFD166" stroke-opacity=".34"/>
+  </g>
+  <g fill="#38BDF8"><circle cx="82" cy="178" r="3"/><circle cx="342" cy="298" r="2"/><circle cx="54" cy="516" r="3"/><circle cx="369" cy="568" r="2"/></g>
+  <path d="M190 118h34" stroke="#F4F1FB" stroke-width="3" stroke-linecap="round" opacity=".82"/>
+</svg>

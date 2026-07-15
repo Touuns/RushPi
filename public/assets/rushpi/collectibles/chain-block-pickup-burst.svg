@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Chain Block pickup highlight burst">
+  <defs><radialGradient id="g"><stop stop-color="#F4F1FB"/><stop offset=".25" stop-color="#FFD166" stop-opacity=".9"/><stop offset="1" stop-color="#FF7A3D" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="48" cy="48" r="44" fill="url(#g)" opacity=".45"/>
+  <g id="burst-rays" stroke="#FFD166" stroke-linecap="round"><path d="M48 2v18M48 76v18M2 48h18M76 48h18M15 15l13 13M68 68l13 13M81 15L68 28M28 68L15 81" stroke-width="3"/></g>
+  <g id="fragments" fill="#FF7A3D"><path d="M37 9l5 8-9 2z"/><path d="M87 37l-8 5-2-9z"/><path d="M59 87l-5-8 9-2z"/><path d="M9 59l8-5 2 9z"/></g>
+  <path d="M48 27l18 10v21L48 69 30 58V37z" fill="#160D2A" stroke="#FFD166" stroke-width="2"/>
+  <circle cx="48" cy="48" r="8" fill="#F4F1FB"/>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 256" role="img" aria-label="Vertical speed trail effect">
+  <defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#F4F1FB" stop-opacity=".85"/><stop offset=".18" stop-color="#FFD166" stop-opacity=".6"/><stop offset="1" stop-color="#FF7A3D" stop-opacity="0"/></linearGradient></defs>
+  <g id="long-streaks" stroke="url(#g)" stroke-linecap="round"><path d="M24 8v210" stroke-width="4"/><path d="M48 42v190" stroke-width="2"/><path d="M80 18v220" stroke-width="5"/><path d="M105 64v176" stroke-width="3"/></g>
+  <g id="short-streaks" stroke="#38BDF8" stroke-linecap="round" opacity=".62"><path d="M14 96v78"/><path d="M61 8v93"/><path d="M94 32v92"/><path d="M118 118v92"/></g>
+</svg>

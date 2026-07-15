@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Abstract orange and violet arc tunnel">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#120711"/><stop offset=".5" stop-color="#190C2B"/><stop offset="1" stop-color="#08040F"/></linearGradient>
+    <radialGradient id="sun"><stop stop-color="#FF7A3D" stop-opacity=".7"/><stop offset=".25" stop-color="#FFD166" stop-opacity=".22"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="line"><stop stop-color="#FF7A3D"/><stop offset=".52" stop-color="#FFD166"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <circle cx="207" cy="130" r="110" fill="url(#sun)"/>
+  <g fill="none" stroke="url(#line)" opacity=".42">
+    <path d="M-74 736Q-18 130 207 130T488 736" stroke-width="5"/>
+    <path d="M-18 736Q20 176 207 130T432 736" stroke-width="2"/>
+    <path d="M36 736Q58 232 207 130T378 736"/>
+  </g>
+  <g fill="#231137" stroke="#FF7A3D" stroke-opacity=".4">
+    <path d="M0 196l52-55 58 42-36 553H0z"/><path d="M414 196l-52-55-58 42 36 553h74z"/>
+    <path d="M0 430l40-50 38 24-14 332H0z"/><path d="M414 430l-40-50-38 24 14 332h74z"/>
+  </g>
+  <path d="M169 130L67 736h280L245 130z" fill="#0C0717" fill-opacity=".88"/>
+  <path d="M169 130L67 736M245 130l102 606" stroke="url(#line)" stroke-width="4" fill="none"/>
+  <g fill="#FFD166" opacity=".8"><circle cx="43" cy="254" r="2"/><circle cx="371" cy="260" r="2"/><circle cx="24" cy="578" r="3"/><circle cx="390" cy="552" r="3"/></g>
+  <path d="M187 130h40" stroke="#F4F1FB" stroke-width="3" stroke-linecap="round"/>
+</svg>

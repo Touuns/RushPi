@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Layered energy ring effect">
+  <defs><linearGradient id="g"><stop stop-color="#38BDF8"/><stop offset=".5" stop-color="#A78BFA"/><stop offset="1" stop-color="#FFD166"/></linearGradient></defs>
+  <g id="ring-outer" fill="none" stroke="url(#g)"><circle cx="64" cy="64" r="54" stroke-width="3" stroke-dasharray="18 8"/><circle cx="64" cy="64" r="46" stroke-width="8" opacity=".28"/></g>
+  <g id="ring-inner" fill="none" stroke="#F4F1FB"><circle cx="64" cy="64" r="34" stroke-width="2" opacity=".75"/><circle cx="64" cy="64" r="24" stroke-dasharray="4 7" opacity=".45"/></g>
+  <g id="ring-nodes" fill="#FFD166"><circle cx="64" cy="10" r="4"/><circle cx="118" cy="64" r="4"/><circle cx="64" cy="118" r="4"/><circle cx="10" cy="64" r="4"/></g>
+</svg>

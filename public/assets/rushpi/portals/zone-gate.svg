@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 384" role="img" aria-label="Layered zone transition gate">
+  <defs><linearGradient id="ring"><stop stop-color="#38BDF8"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#FFD166"/></linearGradient><radialGradient id="core"><stop stop-color="#38BDF8" stop-opacity=".44"/><stop offset="1" stop-opacity="0"/></radialGradient><filter id="blur"><feGaussianBlur stdDeviation="8"/></filter></defs>
+  <g id="portal-glow"><ellipse cx="128" cy="190" rx="92" ry="136" fill="none" stroke="#38BDF8" stroke-width="20" opacity=".2" filter="url(#blur)"/><ellipse cx="128" cy="190" rx="78" ry="116" fill="url(#core)"/></g>
+  <g id="portal-ring" fill="none" stroke="url(#ring)" stroke-linejoin="round"><path d="M46 328L38 132 92 46h72l54 86-8 196z" stroke-width="12"/><path d="M65 318l-6-177 43-70h52l43 70-6 177z" stroke-width="4" opacity=".72"/><path d="M34 328h188" stroke-width="9"/></g>
+  <g id="portal-streaks" stroke="#A78BFA" stroke-linecap="round"><path d="M82 287l9-139"/><path d="M106 292l5-177"/><path d="M128 292V96"/><path d="M150 292l-5-177"/><path d="M174 287l-9-139"/></g>
+  <g id="portal-particles" fill="#38BDF8"><circle cx="30" cy="190" r="3"/><circle cx="226" cy="190" r="3"/><circle cx="74" cy="70" r="2.5"/><circle cx="182" cy="70" r="2.5"/></g>
+</svg>

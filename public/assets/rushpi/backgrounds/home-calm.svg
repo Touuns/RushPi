@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 414 736" role="img" aria-label="Subtle dark digital background with a quiet horizon">
+  <defs>
+    <linearGradient id="bg" y2="1"><stop stop-color="#0A0612"/><stop offset=".55" stop-color="#120A22"/><stop offset="1" stop-color="#0C0717"/></linearGradient>
+    <radialGradient id="h"><stop stop-color="#A78BFA" stop-opacity=".32"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <pattern id="dots" width="42" height="42" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#A78BFA" opacity=".11"/></pattern>
+  </defs>
+  <rect width="414" height="736" fill="url(#bg)"/>
+  <rect width="414" height="736" fill="url(#dots)"/>
+  <ellipse cx="207" cy="122" rx="150" ry="74" fill="url(#h)"/>
+  <path d="M174 122L92 736h230l-82-614z" fill="#090611" fill-opacity=".48"/>
+  <path d="M174 122L92 736M240 122l82 614" fill="none" stroke="#8B5CF6" stroke-width="2" opacity=".35"/>
+  <g fill="none" stroke="#FFD166" stroke-opacity=".12"><path d="M0 248L143 144M414 248L271 144"/><path d="M0 504L158 158M414 504L256 158"/></g>
+  <ellipse cx="207" cy="122" rx="13" ry="2.5" fill="#FFD166" opacity=".54"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Medium original Chain Block collectible">
+  <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#FFD166"/><stop offset=".55" stop-color="#FF7A3D"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient><radialGradient id="c"><stop stop-color="#F4F1FB"/><stop offset=".35" stop-color="#FFD166"/><stop offset="1" stop-color="#FF7A3D" stop-opacity="0"/></radialGradient></defs>
+  <path d="M32 3l26 15v28L32 61 6 46V18z" fill="#10091F" stroke="url(#g)" stroke-width="3"/>
+  <path d="M32 10l18 10v22L32 53 14 42V20z" fill="#231137" stroke="#FFD166" stroke-opacity=".66"/>
+  <path d="M14 20l18 10 18-10M32 30v23" fill="none" stroke="#A78BFA" stroke-width="2" opacity=".7"/>
+  <circle cx="32" cy="30" r="10" fill="url(#c)"/>
+  <g fill="#38BDF8"><circle cx="14" cy="20" r="2.5"/><circle cx="50" cy="20" r="2.5"/><circle cx="32" cy="53" r="2.5"/></g>
+</svg>
