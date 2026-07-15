@@ -1,4 +1,5 @@
 import type { DailyMarketSnapshot, MarketCoin, MarketResponse } from "./types";
+import type { DailyTokenChallenge } from "./dailyTokenTypes";
 
 /**
  * Client for Rush Pi's own market endpoints (Phase 11A). Never talks to
@@ -57,6 +58,34 @@ export async function fetchDailyMarketSnapshot(): Promise<DailyMarketSnapshot> {
   const data = await getJson<DailyMarketSnapshot>("/api/market/daily");
   if (!data || !isValidCoinArray(data.coins) || typeof data.challengeDate !== "string") {
     throw new MarketClientError("Malformed market snapshot");
+  }
+  return data;
+}
+
+/** Fetch today's Daily Token Rush manifest (Phase 11B), lightly validated. */
+export async function fetchDailyTokenChallenge(): Promise<DailyTokenChallenge> {
+  const data = await getJson<DailyTokenChallenge>("/api/market/daily-challenge");
+  const tokensOk =
+    Array.isArray(data?.tokens) &&
+    data.tokens.every(
+      (t) =>
+        t &&
+        typeof t.id === "string" &&
+        typeof t.symbol === "string" &&
+        Number.isFinite(t.points) &&
+        Number.isFinite(t.spawnTimeMs) &&
+        t.lane >= 0 &&
+        t.lane <= 2,
+    ) &&
+    new Set(data.tokens.map((t) => t.id)).size === data.tokens.length;
+  if (
+    !data ||
+    !tokensOk ||
+    typeof data.challengeDate !== "string" ||
+    typeof data.challengeId !== "string" ||
+    data.rulesVersion !== 2
+  ) {
+    throw new MarketClientError("Malformed daily token challenge");
   }
   return data;
 }

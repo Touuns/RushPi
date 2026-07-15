@@ -1220,6 +1220,59 @@ body {
   margin-top: 6px;
 }
 
+/* Daily Token Rush preparation screen (Phase 11B). */
+.daily-prep {
+  justify-content: center;
+  gap: 18px;
+}
+
+.daily-prep__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), var(--orange), var(--violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.daily-prep__spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid rgba(167, 139, 250, 0.25);
+  border-top-color: var(--gold);
+  animation: daily-prep-spin 0.9s linear infinite;
+}
+
+@keyframes daily-prep-spin {
+  to { transform: rotate(360deg); }
+}
+
+.daily-prep__step {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.daily-prep__error {
+  font-size: 0.9rem;
+  color: var(--danger);
+  max-width: 300px;
+}
+
+.daily-prep__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+}
+
+.daily-prep__hint {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  max-width: 280px;
+}
+
 /* Market Data preview (Phase 11A) — collapsed details in the Profile. */
 .market-preview {
   width: 100%;

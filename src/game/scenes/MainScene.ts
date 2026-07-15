@@ -17,6 +17,7 @@ import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime, type Stage } from "../stages";
 import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign";
+import type { DailyTokenChallenge } from "../../market/dailyTokenTypes";
 import { TrackDrift } from "../trackDrift";
 import { TrackGate } from "../zoneTransition";
 import { ZoneDecor } from "../zoneDecor";
@@ -169,6 +170,10 @@ export default class MainScene extends Phaser.Scene {
   // RNG: seeded (identical course for everyone) in Daily mode, random in Training.
   private rng: () => number = Math.random;
 
+  // Daily Token Rush manifest (Phase 11B); null outside Daily. Public so the
+  // dev harness can inspect it; gameplay consumption lands in 11B commit 2.
+  dailyChallenge: DailyTokenChallenge | null = null;
+
   // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
   private campaignLevelId = 0;
   private campaignLevel: CampaignLevel | null = null;
@@ -183,8 +188,13 @@ export default class MainScene extends Phaser.Scene {
     return this.mode === "survival" || this.mode === "campaign";
   }
 
-  init(data: { mode?: GameMode; campaignLevelId?: number }): void {
+  init(data: {
+    mode?: GameMode;
+    campaignLevelId?: number;
+    dailyChallenge?: DailyTokenChallenge | null;
+  }): void {
     this.mode = data.mode ?? "daily";
+    this.dailyChallenge = this.mode === "daily" ? (data.dailyChallenge ?? null) : null;
     this.campaignLevelId = data.campaignLevelId ?? 0;
     this.campaignLevel =
       this.mode === "campaign" ? getCampaignLevel(this.campaignLevelId) ?? null : null;

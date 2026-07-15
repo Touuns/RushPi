@@ -5,6 +5,7 @@ import ResultScreen from "./components/ResultScreen";
 import LeaderboardScreen from "./components/LeaderboardScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import CampaignScreen from "./components/CampaignScreen";
+import DailyPreparationScreen from "./components/DailyPreparationScreen";
 import {
   consumeRankedAttempt,
   getCampaignProgress,
@@ -20,6 +21,7 @@ import {
   type RankedAttempts,
 } from "./utils/storage";
 import { CAMPAIGN_LEVELS } from "./game/campaign";
+import type { DailyTokenChallenge } from "./market/dailyTokenTypes";
 import { authenticatePi, initPi, isPiBrowser, type PiUser } from "./pi/piClient";
 import { submitServerScore } from "./utils/serverLeaderboard";
 import { getDailyChallengeId, getDailyDate } from "./game/seededRandom";
@@ -99,6 +101,11 @@ export default function App() {
   const [runRankState, setRunRankState] = useState<RunRankState>("training");
   // Campaign level currently being played (0 outside campaign).
   const [campaignLevelId, setCampaignLevelId] = useState(0);
+  // Daily Token Rush (Phase 11B): pending rank while preparing, and the
+  // manifest kept for GameScreen + ResultScreen (reused for same-day replays).
+  const [pendingDailyRank, setPendingDailyRank] = useState<RunRankState>("local-only");
+  const [dailyChallenge, setDailyChallenge] = useState<DailyTokenChallenge | null>(null);
+
   // Star recap for the just-finished campaign run (shown on the Result screen).
   const [campaignStarInfo, setCampaignStarInfo] = useState({
     earned: 0,
@@ -152,33 +159,58 @@ export default function App() {
   // Survival is local-only → treated as unranked ("training" rank state): no
   // attempt consumed, never submitted to the server.
   const playSurvival = useCallback(() => beginRun("survival", "training"), [beginRun]);
-  const playRankedDaily = useCallback(() => beginRun("daily", "ranked"), [beginRun]);
-  const playDailyLocalOnly = useCallback(
-    () => beginRun("daily", "local-only"),
-    [beginRun],
-  );
-  const playDailyUnranked = useCallback(
-    () => beginRun("daily", "limit-reached"),
-    [beginRun],
-  );
+  // Daily runs go through the preparation screen (Phase 11B): the ranked
+  // attempt is only consumed once the challenge + logos are actually ready.
+  const goDailyPrep = useCallback((rank: RunRankState) => {
+    setPendingDailyRank(rank);
+    setScreen("daily-prep");
+  }, []);
+
+  const playRankedDaily = useCallback(() => goDailyPrep("ranked"), [goDailyPrep]);
+  const playDailyLocalOnly = useCallback(() => goDailyPrep("local-only"), [goDailyPrep]);
+  const playDailyUnranked = useCallback(() => goDailyPrep("limit-reached"), [goDailyPrep]);
 
   /** Connect Pi (from the modal) then start a Daily run respecting the limit. */
   const connectAndPlayDaily = useCallback(async () => {
     const user = await authenticatePi();
     setPiUser(user);
     const left = getRankedAttemptsToday().left;
-    beginRun("daily", left > 0 ? "ranked" : "limit-reached");
-  }, [beginRun]);
+    goDailyPrep(left > 0 ? "ranked" : "limit-reached");
+  }, [goDailyPrep]);
 
   /** Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard). */
   const startDailyAuto = useCallback(() => {
     if (!piUser) {
-      beginRun("daily", "local-only");
+      goDailyPrep("local-only");
       return;
     }
     const left = getRankedAttemptsToday().left;
-    beginRun("daily", left > 0 ? "ranked" : "limit-reached");
-  }, [beginRun, piUser]);
+    goDailyPrep(left > 0 ? "ranked" : "limit-reached");
+  }, [goDailyPrep, piUser]);
+
+  /**
+   * Preparation finished: revalidate NOW, consume the ranked attempt exactly
+   * once, then start Phaser with the manifest.
+   */
+  const startPreparedDaily = useCallback(
+    (challenge: DailyTokenChallenge | null, requestedRank: RunRankState) => {
+      let rank = requestedRank;
+      if (rank === "ranked") {
+        if (!piUser || !challenge?.rankedEligible) rank = "local-only";
+        else if (getRankedAttemptsToday().left <= 0) rank = "limit-reached";
+      }
+      if (rank === "ranked") consumeRankedAttempt();
+      setDailyChallenge(challenge);
+      setRunRankState(rank);
+      setMode("daily");
+      setResult(null);
+      setOutcome(null);
+      setRunKey((k) => k + 1);
+      setScreen("game");
+      setData(readLocalData());
+    },
+    [piUser],
+  );
 
   /** Start a Campaign level (local-only, unranked). */
   const startCampaignLevel = useCallback(
@@ -305,11 +337,22 @@ export default function App() {
         />
       )}
 
+      {screen === "daily-prep" && (
+        <DailyPreparationScreen
+          ranked={pendingDailyRank === "ranked"}
+          cachedChallenge={dailyChallenge}
+          onReady={(c) => startPreparedDaily(c, pendingDailyRank)}
+          onPlayLocally={(c) => startPreparedDaily(c, "local-only")}
+          onCancel={goHome}
+        />
+      )}
+
       {screen === "game" && (
         <GameScreen
           key={runKey}
           mode={mode}
           campaignLevelId={campaignLevelId}
+          dailyChallenge={mode === "daily" ? dailyChallenge : null}
           onGameOver={handleGameOver}
           onQuit={mode === "campaign" ? goCampaign : goHome}
         />

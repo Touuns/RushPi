@@ -19,7 +19,8 @@ export type Screen =
   | "result"
   | "leaderboard"
   | "profile"
-  | "campaign";
+  | "campaign"
+  | "daily-prep";
 
 /**
  * Live HUD state emitted by the Phaser scene during a run and rendered by React.

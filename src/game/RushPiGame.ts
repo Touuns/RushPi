@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from "./gameConfig";
 import { PALETTE } from "./theme";
 import MainScene from "./scenes/MainScene";
 import type { GameMode } from "../types";
+import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 
 /**
  * Thin factory that owns the Phaser.Game lifecycle. React (GameScreen) calls
@@ -14,6 +15,7 @@ export function createRushPiGame(
   parent: HTMLElement,
   mode: GameMode,
   campaignLevelId = 0,
+  dailyChallenge: DailyTokenChallenge | null = null,
 ): Phaser.Game {
   const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -31,7 +33,7 @@ export function createRushPiGame(
   };
 
   const game = new Phaser.Game(config);
-  game.scene.start("MainScene", { mode, campaignLevelId });
+  game.scene.start("MainScene", { mode, campaignLevelId, dailyChallenge });
 
   // Dev-only: expose the game for manual inspection/automation (stripped in prod).
   if (import.meta.env.DEV) {

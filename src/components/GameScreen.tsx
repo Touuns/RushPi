@@ -3,11 +3,14 @@ import type Phaser from "phaser";
 import { createRushPiGame, destroyRushPiGame } from "../game/RushPiGame";
 import { RUN_DURATION_SECONDS } from "../game/gameConfig";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../types";
+import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import ScreenBackButton from "./ScreenBackButton";
 
 interface GameScreenProps {
   mode: GameMode;
   campaignLevelId?: number;
+  /** Daily Token Rush manifest (Phase 11B); null outside Daily. */
+  dailyChallenge?: DailyTokenChallenge | null;
   onGameOver: (result: GameResult) => void;
   onQuit: () => void;
 }
@@ -43,6 +46,7 @@ const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
 export default function GameScreen({
   mode,
   campaignLevelId = 0,
+  dailyChallenge = null,
   onGameOver,
   onQuit,
 }: GameScreenProps) {
@@ -60,7 +64,7 @@ export default function GameScreen({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const game = createRushPiGame(containerRef.current, mode, campaignLevelId);
+    const game = createRushPiGame(containerRef.current, mode, campaignLevelId, dailyChallenge);
     gameRef.current = game;
 
     const handleHud = (next: HudState) => setHud(next);
