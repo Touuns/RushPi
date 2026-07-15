@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rushpi.local/schema/pi-lab-module.schema.json",
+  "title": "Rush Pi Lab modules",
+  "type": "object",
+  "required": ["schemaVersion", "lastReviewedAt", "modules"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "lastReviewedAt": { "type": "string", "format": "date" },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "level", "title", "learnerGoal", "verifiedConcept", "oneSentenceExplanation", "demonstration", "interaction", "checkQuestion", "correctFeedback", "incorrectFeedback", "recap", "prerequisites", "estimatedSeconds", "PiSpecific", "sources", "simplificationNotes", "proposedReward", "futureAssetNeeds", "accuracyStatus", "lastReviewedAt"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "level": { "type": "integer", "minimum": 1, "maximum": 4 },
+          "title": { "type": "string", "minLength": 3 },
+          "learnerGoal": { "type": "string", "minLength": 10 },
+          "verifiedConcept": { "type": "string", "minLength": 10 },
+          "oneSentenceExplanation": { "type": "string", "minLength": 15 },
+          "demonstration": { "type": "string", "minLength": 10 },
+          "interaction": { "type": "string", "minLength": 10 },
+          "checkQuestion": {
+            "type": "object",
+            "required": ["prompt", "answers", "correctIndex"],
+            "properties": {
+              "prompt": { "type": "string" },
+              "answers": { "type": "array", "minItems": 2, "items": { "type": "string" } },
+              "correctIndex": { "type": "integer", "minimum": 0 }
+            },
+            "additionalProperties": false
+          },
+          "correctFeedback": { "type": "string" },
+          "incorrectFeedback": { "type": "string" },
+          "recap": { "type": "string", "minLength": 10 },
+          "prerequisites": { "type": "array", "items": { "type": "string" } },
+          "estimatedSeconds": { "type": "integer", "minimum": 45, "maximum": 180 },
+          "PiSpecific": { "type": "boolean" },
+          "sources": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "simplificationNotes": { "type": "string", "minLength": 10 },
+          "proposedReward": { "type": "string", "pattern": "^(?!.*(?:money|cash|token|yield|profit|gain|earn)).*$" },
+          "futureAssetNeeds": { "type": "array", "items": { "type": "string" } },
+          "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
+          "lastReviewedAt": { "type": "string", "format": "date" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

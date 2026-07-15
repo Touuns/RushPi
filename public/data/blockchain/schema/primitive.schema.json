@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rushpi.local/schema/primitive.schema.json",
+  "title": "Rush Pi blockchain primitive catalog",
+  "type": "object",
+  "required": ["schemaVersion", "lastReviewedAt", "primitives"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "lastReviewedAt": { "type": "string", "format": "date" },
+    "primitives": {
+      "type": "array",
+      "minItems": 40,
+      "items": { "$ref": "#/$defs/primitive" }
+    }
+  },
+  "$defs": {
+    "accuracyStatus": { "enum": ["current-official", "historical-official", "proposed-design", "simplified-for-game", "needs-verification"] },
+    "primitive": {
+      "type": "object",
+      "required": ["id", "displayName", "category", "realFunction", "whatProblemItSolves", "inputs", "outputs", "actors", "stateTransitions", "failureCases", "securityAssumptions", "gameplayVerb", "potentialPlayerAction", "successCondition", "failureCondition", "visualLanguage", "animationStates", "suitableModes", "suitableGameTemplates", "educationalDifficulty", "simplificationLevel", "simplificationNotes", "officialSources", "sourceType", "lastReviewedAt", "accuracyStatus", "unresolvedQuestions"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "displayName": { "type": "string" },
+        "category": { "type": "string" },
+        "realFunction": { "type": "string", "minLength": 20 },
+        "whatProblemItSolves": { "type": "string", "minLength": 15 },
+        "inputs": { "$ref": "#/$defs/stringList" },
+        "outputs": { "$ref": "#/$defs/stringList" },
+        "actors": { "$ref": "#/$defs/stringList" },
+        "stateTransitions": { "$ref": "#/$defs/stringList" },
+        "failureCases": { "$ref": "#/$defs/stringList" },
+        "securityAssumptions": { "$ref": "#/$defs/stringList" },
+        "gameplayVerb": { "type": "string" },
+        "potentialPlayerAction": { "type": "string" },
+        "successCondition": { "type": "string" },
+        "failureCondition": { "type": "string" },
+        "visualLanguage": { "$ref": "#/$defs/stringList" },
+        "animationStates": { "$ref": "#/$defs/stringList" },
+        "suitableModes": { "$ref": "#/$defs/stringList" },
+        "suitableGameTemplates": { "$ref": "#/$defs/stringList" },
+        "educationalDifficulty": { "enum": ["introductory", "intermediate", "advanced"] },
+        "simplificationLevel": { "enum": ["none", "low", "moderate", "high"] },
+        "simplificationNotes": { "type": "string", "minLength": 10 },
+        "officialSources": { "$ref": "#/$defs/stringList" },
+        "sourceType": { "$ref": "#/$defs/stringList" },
+        "lastReviewedAt": { "type": "string", "format": "date" },
+        "accuracyStatus": { "$ref": "#/$defs/accuracyStatus" },
+        "unresolvedQuestions": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "stringList": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+  }
+}
