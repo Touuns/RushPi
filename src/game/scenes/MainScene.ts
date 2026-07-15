@@ -17,7 +17,15 @@ import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
 import { STAGES, stageIndexForTime, type Stage } from "../stages";
 import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign";
-import type { DailyTokenChallenge } from "../../market/dailyTokenTypes";
+import type { DailyTokenChallenge, DailyTokenSpec } from "../../market/dailyTokenTypes";
+import {
+  formatTokenPrice,
+  laneBlockedByToken,
+  makeChainBlock,
+  makeTokenCollectible,
+  registerTokenTextures,
+  TOKEN_RADIUS,
+} from "../dailyTokens";
 import { TrackDrift } from "../trackDrift";
 import { TrackGate } from "../zoneTransition";
 import { ZoneDecor } from "../zoneDecor";
@@ -37,13 +45,15 @@ interface EnergyExtra {
   spawned: boolean;
 }
 
-type FallingType = "energy" | "obstacle" | "life" | PowerupKind;
+type FallingType = "energy" | "token" | "obstacle" | "life" | PowerupKind;
 
 interface FallingObject {
   container: Phaser.GameObjects.Container;
   type: FallingType;
   lane: number;
   alive: boolean;
+  /** Daily Token Rush spec (Phase 11B); only set when type === "token". */
+  token?: DailyTokenSpec;
 }
 
 interface PowerupSlot {
@@ -158,6 +168,8 @@ export default class MainScene extends Phaser.Scene {
     charge: -1,
     stage: "",
     progress: -1,
+    tokensCollected: -1,
+    tokensTotal: -1,
   };
 
   // Input. `pointerDownX` = where the press started (for tap/swipe on release).
@@ -170,9 +182,18 @@ export default class MainScene extends Phaser.Scene {
   // RNG: seeded (identical course for everyone) in Daily mode, random in Training.
   private rng: () => number = Math.random;
 
-  // Daily Token Rush manifest (Phase 11B); null outside Daily. Public so the
-  // dev harness can inspect it; gameplay consumption lands in 11B commit 2.
+  // Daily Token Rush (Phase 11B); manifest is null outside Daily. Public so the
+  // dev harness can inspect it. Tokens spawn from the manifest schedule (already
+  // sorted by spawnTimeMs), are never magnet-attracted and never touch the combo.
   dailyChallenge: DailyTokenChallenge | null = null;
+  private tokenSpawnIndex = 0;
+  private tokenIdsCollected: string[] = [];
+  private tokenPointsEarned = 0;
+  private tokenMarketValueUsd = 0;
+  private tokensMissed = 0;
+  private blockPointsEarned = 0;
+  // One collect notification at a time — a new one replaces the previous.
+  private tokenToast: Phaser.GameObjects.Container | null = null;
 
   // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
   private campaignLevelId = 0;
@@ -266,6 +287,13 @@ export default class MainScene extends Phaser.Scene {
     this.finishGate = null;
     this.finishSpeedFactor = 1;
     this.zoneGate = null;
+    this.tokenSpawnIndex = 0;
+    this.tokenIdsCollected = [];
+    this.tokenPointsEarned = 0;
+    this.tokenMarketValueUsd = 0;
+    this.tokensMissed = 0;
+    this.blockPointsEarned = 0;
+    this.tokenToast = null;
     this.lastHud = {
       score: -1,
       timeLeft: -1,
@@ -277,6 +305,8 @@ export default class MainScene extends Phaser.Scene {
       charge: -1,
       stage: "",
       progress: -1,
+      tokensCollected: -1,
+      tokensTotal: -1,
     };
   }
 
@@ -307,6 +337,11 @@ export default class MainScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(PALETTE.bg);
 
     this.computeLanes();
+    // Daily Token Rush: register the preloaded logo textures BEFORE the run —
+    // no image request ever starts mid-run (missing logos fall back procedurally).
+    if (this.dailyChallenge) {
+      registerTokenTextures(this, this.dailyChallenge.tokens);
+    }
     this.bg = new BackgroundFX(this);
     this.bg.create();
     this.track = new TrackVisuals(this, this.laneX);
@@ -418,6 +453,19 @@ export default class MainScene extends Phaser.Scene {
     this.player = this.makeOrb(PALETTE.player, PLAYER.radius);
     this.player.setPosition(this.laneX[this.currentLane], GAME_HEIGHT * PLAYER.yRatio);
     this.player.setDepth(10);
+
+    // Pi identity (Phase 11B): original typographic "π" glyph centered on the
+    // orb, in the Rush Pi style — purely cosmetic, hitbox/collisions unchanged.
+    const piGlyph = this.add
+      .text(0, -1, "π", {
+        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontSize: `${Math.round(PLAYER.radius * 1.15)}px`,
+        fontStyle: "bold",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5)
+      .setAlpha(0.95);
+    this.player.add(piGlyph);
 
     // Shield ring + magnet aura as children (auto-follow the player). Hidden until
     // the matching power-up is active. They do NOT change the hitbox.
@@ -540,13 +588,30 @@ export default class MainScene extends Phaser.Scene {
   private spawnObject(): void {
     // Use the seeded RNG (Daily) / Math.random (Training). Two draws per spawn,
     // in a fixed order, so the Daily sequence is identical across all devices.
-    const lane = Math.floor(this.rng() * LANE_COUNT);
+    let lane = Math.floor(this.rng() * LANE_COUNT);
     const type: FallingType =
       this.rng() < OBJECTS.obstacleChance ? "obstacle" : "energy";
+
+    // Daily token safety window (Phase 11B): an obstacle that would spawn in a
+    // token's lane around its spawn time is shifted one lane, deterministically
+    // and AFTER both draws above — the RNG sequence is untouched. Token spawn
+    // gaps guarantee at most one conflicting token, so one shift always works.
+    if (
+      type === "obstacle" &&
+      this.dailyChallenge &&
+      laneBlockedByToken(this.dailyChallenge.tokens, this.elapsedMs, lane)
+    ) {
+      lane = (lane + 1) % LANE_COUNT;
+    }
+
+    // Daily-only visual: energies render as Chain Blocks (type stays "energy",
+    // so combo/magnet/anti-cheat behave exactly as before).
     const container =
       type === "obstacle"
         ? this.makeHazard(PALETTE.obstacle, OBJECTS.radius)
-        : this.makeOrb(PALETTE.energy, OBJECTS.radius);
+        : this.mode === "daily"
+          ? makeChainBlock(this)
+          : this.makeOrb(PALETTE.energy, OBJECTS.radius);
     container.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
     container.setDepth(5); // above the road/chevrons, below the player
     this.objects.push({ container, type, lane, alive: true });
@@ -611,6 +676,7 @@ export default class MainScene extends Phaser.Scene {
     this.updatePhase();
     this.updateStage();
     this.spawnDuePowerups();
+    this.spawnDueDailyTokens();
     this.updateEvents();
     this.spawnDueEnergyExtras();
     this.spawnDueLifeOrb();
@@ -667,8 +733,10 @@ export default class MainScene extends Phaser.Scene {
           : proj.scale;
       obj.container.setScale(visualScale);
 
-      // Off-screen cleanup.
+      // Off-screen cleanup. A token leaving the screen is missed: marked once,
+      // destroyed cleanly, no points, no combo change.
       if (obj.container.y > GAME_HEIGHT + OBJECTS.radius * 2) {
+        if (obj.type === "token") this.tokensMissed += 1;
         obj.alive = false;
         obj.container.destroy();
         continue;
@@ -699,6 +767,10 @@ export default class MainScene extends Phaser.Scene {
             this.hitObstacle(obj);
           }
         }
+      } else if (obj.type === "token") {
+        // Tokens use the SAME lane + vertical-distance rule and are NEVER
+        // magnet-attracted (the magnet branch above only touches "energy").
+        if (sameLane && dyAbs <= radii) this.collectToken(obj);
       } else if (obj.type === "life") {
         if (sameLane && dyAbs <= radii) this.collectLife(obj);
       } else if (sameLane && dyAbs <= radii) {
@@ -920,7 +992,10 @@ export default class MainScene extends Phaser.Scene {
     this.combo += 1;
     this.maxCombo = Math.max(this.maxCombo, this.combo);
     this.energiesCollected += 1;
-    this.scoreValue += SCORING.energyPoints * this.comboMultiplier();
+    const gained = SCORING.energyPoints * this.comboMultiplier();
+    this.scoreValue += gained;
+    // Daily result detail (Phase 11B): Chain Block points before bonus/penalty.
+    if (this.mode === "daily") this.blockPointsEarned += gained;
 
     // Survival/Campaign: charge the Pi orb and fill the life-recovery gauge.
     if (this.survivalLike()) {
@@ -1091,6 +1166,109 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
+  // ---- Daily Token Rush (Phase 11B) ----------------------------------------
+
+  /**
+   * Spawn manifest tokens when their time comes. The manifest is already sorted
+   * by spawnTimeMs, so a single advancing index is enough — each token spawns
+   * exactly once per run (replays re-init the index).
+   */
+  private spawnDueDailyTokens(): void {
+    const challenge = this.dailyChallenge;
+    if (!challenge) return;
+    while (
+      this.tokenSpawnIndex < challenge.tokens.length &&
+      this.elapsedMs >= challenge.tokens[this.tokenSpawnIndex].spawnTimeMs
+    ) {
+      this.spawnToken(challenge.tokens[this.tokenSpawnIndex]);
+      this.tokenSpawnIndex += 1;
+    }
+  }
+
+  private spawnToken(spec: DailyTokenSpec): void {
+    const container = makeTokenCollectible(this, spec);
+    container.setPosition(this.laneX[spec.lane], -TOKEN_RADIUS * 2);
+    container.setDepth(6); // above energies/obstacles, below the player
+    this.objects.push({ container, type: "token", lane: spec.lane, alive: true, token: spec });
+  }
+
+  /**
+   * Collect a token: FIXED manifest points (never combo-multiplied, combo is
+   * untouched either way), the ID is recorded exactly once, and the feedback is
+   * a local grow-and-fade + light burst + a single compact toast.
+   */
+  private collectToken(obj: FallingObject): void {
+    const spec = obj.token;
+    if (!spec || !obj.alive) return; // double-collision protection
+    obj.alive = false;
+
+    if (!this.tokenIdsCollected.includes(spec.id)) {
+      this.tokenIdsCollected.push(spec.id);
+      this.tokenPointsEarned += spec.points;
+      this.tokenMarketValueUsd += spec.referencePriceUsd;
+      this.scoreValue += spec.points;
+    }
+
+    // Grow-and-fade + soft Rush Pi burst (no aggressive full-screen effect).
+    this.tweens.add({
+      targets: obj.container,
+      scale: obj.container.scale * 1.8,
+      alpha: 0,
+      duration: 200,
+      ease: "Quad.easeOut",
+      onComplete: () => obj.container.destroy(),
+    });
+    const burst = this.add
+      .circle(obj.container.x, obj.container.y, TOKEN_RADIUS + 6, PALETTE.gold, 0)
+      .setStrokeStyle(3, PALETTE.gold, 0.9)
+      .setDepth(11);
+    this.tweens.add({
+      targets: burst,
+      scale: 2.2,
+      alpha: 0,
+      duration: 300,
+      ease: "Quad.easeOut",
+      onComplete: () => burst.destroy(),
+    });
+
+    this.showTokenToast(spec);
+  }
+
+  /** One compact two-line collect toast at a time (new replaces previous). */
+  private showTokenToast(spec: DailyTokenSpec): void {
+    this.tokenToast?.destroy();
+    const title = this.add
+      .text(0, 0, `${spec.symbol.toUpperCase()} +${spec.points}`, {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: "18px",
+        fontStyle: "bold",
+        color: PALETTE.goldCss,
+      })
+      .setOrigin(0.5);
+    const price = this.add
+      .text(0, 18, formatTokenPrice(spec.referencePriceUsd), {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: "12px",
+        color: "#cbb8ff",
+      })
+      .setOrigin(0.5);
+    const toast = this.add
+      .container(this.player.x, this.player.y - PLAYER.radius - 26, [title, price])
+      .setDepth(12);
+    this.tokenToast = toast;
+    this.tweens.add({
+      targets: toast,
+      y: toast.y - 40,
+      alpha: 0,
+      duration: 1000,
+      ease: "Quad.easeOut",
+      onComplete: () => {
+        toast.destroy();
+        if (this.tokenToast === toast) this.tokenToast = null;
+      },
+    });
+  }
+
   // ---- Dynamic events (Phase 8B) ------------------------------------------
 
   private updateEvents(): void {
@@ -1160,7 +1338,9 @@ export default class MainScene extends Phaser.Scene {
   }
 
   private spawnEnergyExtra(lane: number): void {
-    const c = this.makeOrb(PALETTE.energy, OBJECTS.radius);
+    // Energy Zone bonuses use the same Daily Chain Block visual (Phase 11B).
+    const c =
+      this.mode === "daily" ? makeChainBlock(this) : this.makeOrb(PALETTE.energy, OBJECTS.radius);
     c.setPosition(this.laneX[lane], -OBJECTS.radius * 2);
     c.setDepth(5);
     this.objects.push({ container: c, type: "energy", lane, alive: true });
@@ -1367,6 +1547,8 @@ export default class MainScene extends Phaser.Scene {
       this.mode === "campaign" && this.campaignTargetMs > 0
         ? Phaser.Math.Clamp(this.elapsedMs / this.campaignTargetMs, 0, 1)
         : 0;
+    const tokensCollected = this.tokenIdsCollected.length;
+    const tokensTotal = this.dailyChallenge?.tokens.length ?? 0;
     if (
       force ||
       score !== this.lastHud.score ||
@@ -1378,7 +1560,9 @@ export default class MainScene extends Phaser.Scene {
       lives !== this.lastHud.lives ||
       charge !== this.lastHud.charge ||
       stage !== this.lastHud.stage ||
-      Math.abs(progress - this.lastHud.progress) >= 0.01
+      Math.abs(progress - this.lastHud.progress) >= 0.01 ||
+      tokensCollected !== this.lastHud.tokensCollected ||
+      tokensTotal !== this.lastHud.tokensTotal
     ) {
       this.lastHud = {
         score,
@@ -1391,6 +1575,8 @@ export default class MainScene extends Phaser.Scene {
         charge,
         stage,
         progress,
+        tokensCollected,
+        tokensTotal,
       };
       this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     }
@@ -1432,6 +1618,11 @@ export default class MainScene extends Phaser.Scene {
         : 0;
     const campaignSuccess = reachedFinish;
 
+    // Daily Token Rush (Phase 11B): any token still on screen at the finish is
+    // simply missed. Neutral values outside Daily (or when no manifest loaded).
+    const challenge = this.dailyChallenge;
+    const tokensTotal = challenge?.tokens.length ?? 0;
+
     // The scene only reports the raw run; persistence/progression is handled by
     // React via storage.recordRun() (keeps gameplay decoupled from storage).
     const result: GameResult = {
@@ -1453,6 +1644,14 @@ export default class MainScene extends Phaser.Scene {
       reachedFinish,
       campaignSuccess,
       campaignStars,
+      rulesVersion: challenge ? challenge.rulesVersion : 1,
+      dailyChallengeId: challenge ? challenge.challengeId : "",
+      dailyTokenChallengeVersion: challenge ? challenge.tokenChallengeVersion : 0,
+      dailyTokensTotal: tokensTotal,
+      dailyTokenIdsCollected: [...this.tokenIdsCollected],
+      dailyTokenPoints: this.tokenPointsEarned,
+      dailyTokenMarketValueUsd: this.tokenMarketValueUsd,
+      dailyBlockPoints: Math.floor(this.blockPointsEarned),
     };
 
     // Final HUD push (so the on-canvas score matches the result) then notify React.
@@ -1469,6 +1668,8 @@ export default class MainScene extends Phaser.Scene {
       progress: isCampaign && this.campaignTargetMs > 0
         ? Phaser.Math.Clamp(this.elapsedMs / this.campaignTargetMs, 0, 1)
         : 0,
+      tokensCollected: this.tokenIdsCollected.length,
+      tokensTotal,
     };
     this.game.events.emit(GameEvents.HudUpdate, { ...this.lastHud });
     this.game.events.emit(GameEvents.GameOver, result);

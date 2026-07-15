@@ -47,6 +47,9 @@ export interface HudState {
   stage: string;
   /** Campaign progress toward the level finish, 0..1 (Phase 9F). 0 otherwise. */
   progress: number;
+  /** Daily Token Rush (Phase 11B): tokens collected / total. 0/0 outside Daily. */
+  tokensCollected: number;
+  tokensTotal: number;
 }
 
 /** Deterministic power-ups (Phase 8A). */
@@ -86,6 +89,22 @@ export interface GameResult {
   campaignSuccess: boolean;
   /** Stars earned this run (Phase 9F-C), 0..3. 0 for non-campaign. */
   campaignStars: number;
+  /**
+   * Daily Token Rush (Phase 11B). Neutral for non-Daily modes (rulesVersion 1,
+   * empty id/list, zeros). Only ids/counters are stored here — the manifest kept
+   * in App/ResultScreen rebuilds the detailed display.
+   */
+  rulesVersion: number;
+  dailyChallengeId: string;
+  dailyTokenChallengeVersion: number;
+  dailyTokensTotal: number;
+  dailyTokenIdsCollected: string[];
+  /** Fixed token points included in `score` (never combo-multiplied). */
+  dailyTokenPoints: number;
+  /** Informative sum of collected tokens' snapshot prices — never ranked. */
+  dailyTokenMarketValueUsd: number;
+  /** Chain Block points earned before bonuses/penalties (result detail only). */
+  dailyBlockPoints: number;
 }
 
 /**

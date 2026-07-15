@@ -8,7 +8,9 @@
 export type IntroMode = "daily" | "survival" | "campaign";
 
 const INTRO_KEYS: Record<IntroMode, string> = {
-  daily: "rushpi:onboarding:daily:v1",
+  // Daily bumped to v2 for the Token Rush rework (Phase 11B) so existing
+  // players see the new rules once.
+  daily: "rushpi:onboarding:daily:v2",
   survival: "rushpi:onboarding:survival:v1",
   campaign: "rushpi:onboarding:campaign:v1",
 };
@@ -33,25 +35,30 @@ interface IntroContent {
   title: string;
   points: string[];
   legend: { icon: string; label: string }[];
+  /** Small footnote line (e.g. market data attribution). */
+  footnote?: string;
 }
 
 const CONTENT: Record<IntroMode, IntroContent> = {
   daily: {
-    title: "Daily Run",
+    title: "Daily Token Rush",
     points: [
-      "60-second ranked race",
-      "New course every day",
+      "60-second ranked token race",
+      "Collect unique market tokens",
+      "Each token appears once",
+      "Collect Chain Blocks to build combo",
+      "Magnet attracts Chain Blocks only",
+      "Token prices come from today's market snapshot",
       "3 ranked attempts per day",
-      "Collect golden energy",
-      "Avoid red hazards",
-      "Finish before the final gate",
     ],
     legend: [
-      { icon: "🟡", label: "Golden orb = Energy" },
-      { icon: "🔻", label: "Red diamond = Hazard" },
-      { icon: "🛡", label: "Cyan shield = Absorbs one hit" },
-      { icon: "🧲", label: "Magnet = Attracts nearby energy" },
+      { icon: "🪙", label: "Token logo = unique token collectible" },
+      { icon: "🟨", label: "Chain Block = repeatable combo collectible" },
+      { icon: "🔻", label: "Red diamond = hazard" },
+      { icon: "🛡", label: "Shield = absorbs one hit" },
+      { icon: "🧲", label: "Magnet = attracts Chain Blocks only" },
     ],
+    footnote: "Market data by CoinGecko",
   },
   survival: {
     title: "Survival",
@@ -124,6 +131,8 @@ export default function ModeIntroModal({ mode, onPlay, onClose }: ModeIntroModal
             </div>
           ))}
         </div>
+
+        {c.footnote && <p className="intro-modal__footnote">{c.footnote}</p>}
 
         <div className="modal__actions">
           <button className="btn btn--primary" type="button" onClick={onPlay}>

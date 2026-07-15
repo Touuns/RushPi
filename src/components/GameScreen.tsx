@@ -26,6 +26,8 @@ const INITIAL_HUD: HudState = {
   charge: 1,
   stage: "",
   progress: 0,
+  tokensCollected: 0,
+  tokensTotal: 0,
 };
 
 const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
@@ -137,6 +139,13 @@ export default function GameScreen({
           </span>
         </div>
       </div>
+
+      {/* Daily Token Rush (Phase 11B): compact tokens counter under the HUD. */}
+      {mode === "daily" && hud.tokensTotal > 0 && (
+        <div className="token-chip" aria-hidden="true">
+          🪙 Tokens {hud.tokensCollected}/{hud.tokensTotal}
+        </div>
+      )}
 
       {isSurvival && (
         <div className="survival-time" aria-hidden="true">

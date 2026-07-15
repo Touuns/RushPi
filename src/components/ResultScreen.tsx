@@ -259,7 +259,12 @@ export default function ResultScreen({
         { label: "Max Charge", value: `Lv ${result.highestChargeLevel}` },
       ]
     : [
-        { label: "Energy Collected", value: result.energiesCollected },
+        // Daily texts say "Blocks" since Phase 11B (Chain Blocks); Training keeps
+        // its energy orbs and wording.
+        {
+          label: result.mode === "daily" ? "Blocks Collected" : "Energy Collected",
+          value: result.energiesCollected,
+        },
         { label: "Max Combo", value: `x${result.maxCombo}` },
         { label: "Obstacles Hit", value: result.obstaclesHit },
       ];
