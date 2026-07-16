@@ -1,5 +1,6 @@
 const MANIFEST_URL = "../../public/assets/rushpi/asset-manifest.json";
 const ASSET_BASE = "../../public/assets/rushpi/";
+const PRODUCTION_BRIEFS_URL = "../../public/data/art/phase-12a-production-briefs.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -14,6 +15,8 @@ const dialogCategory = document.querySelector("#dialog-category");
 const dialogTitle = document.querySelector("#dialog-title");
 const dialogMeta = document.querySelector("#dialog-meta");
 const dialogNotes = document.querySelector("#dialog-notes");
+const briefsStatus = document.querySelector("#briefs-status");
+const briefsGrid = document.querySelector("#briefs-grid");
 
 let assets = [];
 let activeCategory = "all";
@@ -145,6 +148,78 @@ function buildFilters() {
   }
 }
 
+function formatBytes(value) {
+  if (!Number.isFinite(value) || value <= 0) return "—";
+  return value >= 1024 * 1024
+    ? `${(value / (1024 * 1024)).toFixed(1)} MiB`
+    : `${Math.round(value / 1024)} KiB`;
+}
+
+function briefCard(target) {
+  const article = document.createElement("article");
+  article.className = "brief-card";
+
+  const flag = document.createElement("span");
+  flag.className = "brief-card__flag";
+  flag.textContent = "Brief ready · asset not generated";
+
+  const title = document.createElement("h3");
+  title.textContent = target.id;
+
+  const meta = document.createElement("dl");
+  const runtimeBudgets = Object.entries(target.budgets ?? {})
+    .filter(([key, value]) => /runtime|optional/i.test(key) && Number.isFinite(value))
+    .map(([, value]) => value);
+  const entries = [
+    ["Type", target.type],
+    ["Master", `${target.masterSize.width}×${target.masterSize.height}`],
+    ["Runtime budget max", formatBytes(runtimeBudgets.length ? Math.max(...runtimeBudgets) : 0)],
+    ["Intake", target.intakeStatus],
+  ];
+  for (const [term, description] of entries) {
+    const dt = document.createElement("dt");
+    dt.textContent = term;
+    const dd = document.createElement("dd");
+    dd.textContent = description;
+    meta.append(dt, dd);
+  }
+
+  const criteriaTitle = document.createElement("h4");
+  criteriaTitle.textContent = "Essential checks";
+  const criteria = document.createElement("ul");
+  for (const check of target.acceptanceChecks.slice(0, 3)) {
+    const item = document.createElement("li");
+    item.textContent = check;
+    criteria.append(item);
+  }
+
+  const references = document.createElement("p");
+  references.className = "brief-card__references";
+  references.textContent = `References: ${target.referenceAssetIds.join(" · ")}`;
+
+  article.append(flag, title, meta, criteriaTitle, criteria, references);
+  return article;
+}
+
+async function loadProductionBriefs() {
+  try {
+    const response = await fetch(PRODUCTION_BRIEFS_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    if (!Array.isArray(document.targets) || document.targets.length !== 4) {
+      throw new Error("quatre targets attendues");
+    }
+    if (document.generatedAssets !== false || document.integrationAllowed !== false) {
+      throw new Error("garde-fous de phase invalides");
+    }
+    briefsGrid.replaceChildren(...document.targets.map(briefCard));
+    briefsStatus.textContent = `${document.phase} · ${document.targets.length} targets · integration disabled`;
+  } catch (error) {
+    briefsStatus.textContent = `Briefs indisponibles (${error.message}).`;
+    briefsStatus.classList.add("is-error");
+  }
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -168,3 +243,4 @@ dialog.addEventListener("click", (event) => {
 });
 
 start();
+loadProductionBriefs();
