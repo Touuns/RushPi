@@ -2,6 +2,7 @@ const MANIFEST_URL = "../../public/assets/rushpi/asset-manifest.json";
 const ASSET_BASE = "../../public/assets/rushpi/";
 const PRODUCTION_BRIEFS_URL = "../../public/data/art/phase-12a-production-briefs.json";
 const HOME_CANDIDATES_URL = "../../docs/art/generated/12A_HOME_CANDIDATES_INTAKE.json";
+const DAILY_CANDIDATES_URL = "../../docs/art/generated/12A_DAILY_CANDIDATES_INTAKE.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -22,6 +23,10 @@ const homeCandidatesStatus = document.querySelector("#home-candidates-status");
 const homeCandidatesGrid = document.querySelector("#home-candidates-grid");
 const homeCandidatesComparison = document.querySelector("#home-candidates-comparison");
 const homeUiToggle = document.querySelector("#home-ui-toggle");
+const dailyCandidatesStatus = document.querySelector("#daily-candidates-status");
+const dailyCandidatesGrid = document.querySelector("#daily-candidates-grid");
+const dailyCandidatesComparison = document.querySelector("#daily-candidates-comparison");
+const dailyGameplayToggle = document.querySelector("#daily-gameplay-toggle");
 
 let assets = [];
 let activeCategory = "all";
@@ -341,6 +346,101 @@ async function loadHomeCandidates() {
   }
 }
 
+function dailyGameplaySimulation() {
+  const overlay = document.createElement("div");
+  overlay.className = "daily-gameplay-simulation";
+  overlay.setAttribute("aria-hidden", "true");
+  overlay.innerHTML = `
+    <div class="daily-gameplay-simulation__hud"><span></span><span></span><span></span></div>
+    <div class="daily-gameplay-simulation__track">
+      <i class="lane lane--one"></i><i class="lane lane--two"></i>
+      <b class="chevron chevron--one"></b><b class="chevron chevron--two"></b><b class="chevron chevron--three"></b>
+    </div>
+    <span class="game-object token token--one"></span><span class="game-object token token--two"></span>
+    <span class="game-object chain chain--one"></span><span class="game-object chain chain--two"></span>
+    <span class="game-object obstacle obstacle--one"></span><span class="game-object obstacle obstacle--two"></span>
+    <span class="game-object shield"></span><span class="game-object player"></span>
+    <i class="speed speed--one"></i><i class="speed speed--two"></i><i class="speed speed--three"></i>
+  `;
+  return overlay;
+}
+
+function dailyCandidateFigure(candidate, kind) {
+  const figure = document.createElement("figure");
+  figure.className = `candidate-figure candidate-figure--${kind}`;
+  const stage = document.createElement("div");
+  stage.className = "candidate-stage";
+  const image = new Image();
+  image.src = repoFileUrl(kind === "guides" ? candidate.guidesPath : candidate.previewPath);
+  image.alt = `${candidate.variant} · ${kind === "guides" ? "guides de contrôle" : "simulation gameplay"}`;
+  image.loading = "lazy";
+  image.decoding = "async";
+  stage.append(image);
+  if (kind === "plain") stage.append(dailyGameplaySimulation());
+  const caption = document.createElement("figcaption");
+  caption.textContent = kind === "guides" ? "Guides de contrôle" : "Background / gameplay";
+  figure.append(stage, caption);
+  return figure;
+}
+
+function dailyCandidateCard(candidate) {
+  const article = document.createElement("article");
+  article.className = "candidate-card";
+  const heading = document.createElement("div");
+  heading.className = "candidate-card__heading";
+  const title = document.createElement("h3");
+  title.textContent = candidate.variant;
+  const flag = document.createElement("span");
+  flag.className = "candidate-card__status";
+  flag.textContent = candidate.status;
+  heading.append(title, flag);
+  const previews = document.createElement("div");
+  previews.className = "candidate-card__previews";
+  previews.append(dailyCandidateFigure(candidate, "plain"), dailyCandidateFigure(candidate, "guides"));
+  const meta = document.createElement("dl");
+  for (const [term, description] of [
+    ["Master", `${candidate.width}×${candidate.height}`],
+    ["Master weight", formatBytes(candidate.bytes.master)],
+    ["Horizon", `y≈${candidate.horizonY}`],
+    ["Recommendation", candidate.recommendation],
+  ]) {
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = term;
+    dd.textContent = description;
+    meta.append(dt, dd);
+  }
+  const issues = document.createElement("ul");
+  issues.className = "candidate-card__issues";
+  for (const issue of candidate.issues) {
+    const item = document.createElement("li");
+    item.textContent = issue;
+    issues.append(item);
+  }
+  article.append(heading, previews, meta, issues);
+  return article;
+}
+
+async function loadDailyCandidates() {
+  try {
+    const response = await fetch(DAILY_CANDIDATES_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    if (!Array.isArray(document.candidates) || document.candidates.length !== 3) {
+      throw new Error("trois candidates attendues");
+    }
+    if (document.integrationAllowed !== false || document.candidates.some((candidate) => candidate.status !== "needs-review")) {
+      throw new Error("garde-fous de revue invalides");
+    }
+    dailyCandidatesComparison.src = repoFileUrl(document.comparisonPath);
+    dailyCandidatesGrid.replaceChildren(...document.candidates.map(dailyCandidateCard));
+    dailyCandidatesStatus.textContent = `${document.phase} · 3 candidates · integration disabled`;
+  } catch (error) {
+    dailyCandidatesStatus.textContent = `Candidates indisponibles (${error.message}).`;
+    dailyCandidatesStatus.classList.add("is-error");
+  }
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -369,3 +469,7 @@ dialog.addEventListener("click", (event) => {
 start();
 loadProductionBriefs();
 loadHomeCandidates();
+loadDailyCandidates();
+dailyGameplayToggle.addEventListener("change", () => {
+  document.querySelector("#daily-candidates").classList.toggle("is-gameplay-preview", dailyGameplayToggle.checked);
+});
