@@ -426,15 +426,17 @@ async function loadDailyCandidates() {
     const response = await fetch(DAILY_CANDIDATES_URL, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const document = await response.json();
-    if (!Array.isArray(document.candidates) || document.candidates.length !== 3) {
-      throw new Error("trois candidates attendues");
+    if (!Array.isArray(document.candidates) || document.candidates.length !== 4) {
+      throw new Error("quatre candidates attendues");
     }
-    if (document.integrationAllowed !== false || document.candidates.some((candidate) => candidate.status !== "needs-review")) {
+    if (document.integrationAllowed !== false || document.candidates.some((candidate) => /approved-for/.test(candidate.status))) {
       throw new Error("garde-fous de revue invalides");
     }
+    const primaryCandidates = document.candidates.filter((candidate) => candidate.id.includes("primary-candidate"));
+    if (primaryCandidates.length !== 2) throw new Error("Primary v1 et v2 attendues");
     dailyCandidatesComparison.src = repoFileUrl(document.comparisonPath);
-    dailyCandidatesGrid.replaceChildren(...document.candidates.map(dailyCandidateCard));
-    dailyCandidatesStatus.textContent = `${document.phase} · 3 candidates · integration disabled`;
+    dailyCandidatesGrid.replaceChildren(...primaryCandidates.map(dailyCandidateCard));
+    dailyCandidatesStatus.textContent = `${document.phase} · Primary v1/v2 · integration disabled`;
   } catch (error) {
     dailyCandidatesStatus.textContent = `Candidates indisponibles (${error.message}).`;
     dailyCandidatesStatus.classList.add("is-error");
