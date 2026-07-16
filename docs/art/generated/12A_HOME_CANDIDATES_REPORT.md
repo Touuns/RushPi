@@ -1,12 +1,12 @@
 # Phase 12A-0B-P1 — Home Background Candidates
 
-Statut global : `needs-review`
+Statut global : décision de processing enregistrée, intégration non autorisée
 
 Branche : `phase/12a-0b-generated-art`
 
 Base : `e252af5a79ae67d7212194421be7357a5b906cfd`
 
-Aucune candidate n'est déclarée prête pour intégration. Les fichiers de cette phase sont des sources et previews documentaires ; ils ne sont pas chargés par React ou Phaser et ne sont pas ajoutés au manifest runtime.
+Aucune candidate n'est déclarée prête pour intégration. Primary est validée `approved-for-processing` pour préparer une future production Home. Calm reste `needs-review` comme alternative visuelle. Spectacular v1 est `rejected` et ne sera pas intégrée. Les previews documentaires vivent sous `tools/art-preview/generated/`, hors de l'arbre runtime surveillé ; elles ne sont pas chargées par React ou Phaser et ne sont pas ajoutées au manifest runtime.
 
 ## Méthode
 
@@ -22,13 +22,13 @@ Aucune candidate n'est déclarée prête pour intégration. Les fichiers de cett
 
 | Candidate | Master | Master bytes | Preview | Preview bytes | Guides bytes | Horizon détecté | Obscurité | Recommandation |
 |---|---|---:|---|---:|---:|---:|---:|---|
-| Primary | `home-background-primary-candidate-v1.png` | 1,048,094 | `home-background-primary-candidate-v1.webp` | 15,758 | 16,656 | y=265 | 97.73 % | `shortlist` |
-| Calm | `home-background-calm-candidate-v1.png` | 907,776 | `home-background-calm-candidate-v1.webp` | 7,624 | 8,510 | y=244 | 98.43 % | `shortlist` |
-| Spectacular | `home-background-spectacular-candidate-v1.png` | 1,335,936 | `home-background-spectacular-candidate-v1.webp` | 30,038 | 30,974 | y=1071 | 94.35 % | `reject` |
+| Primary | `home-background-primary-candidate-v1.png` | 1,048,094 | `home-background-primary-candidate-v1.webp` | 15,758 | 16,656 | y=265 | 97.73 % | `approved-for-processing` |
+| Calm | `home-background-calm-candidate-v1.png` | 907,776 | `home-background-calm-candidate-v1.webp` | 7,624 | 8,510 | y=244 | 98.43 % | `needs-review` |
+| Spectacular | `home-background-spectacular-candidate-v1.png` | 1,335,936 | `home-background-spectacular-candidate-v1.webp` | 30,038 | 30,974 | y=1071 | 94.35 % | `rejected` |
 
 Planche comparative :
 
-- `public/assets/rushpi/previews/phase-12a/home-background-candidates-v1-comparison.webp`
+- `tools/art-preview/generated/phase-12a/home-background/home-background-candidates-v1-comparison.webp`
 - `1242×792`
 - 52,842 bytes
 - étiquettes ajoutées pendant la composition de la planche, jamais dans les masters.
@@ -74,7 +74,7 @@ Avoid: photorealism, childish cartoon, dirty cyberpunk clutter, graffiti, dense 
 
 Les détails latéraux supérieurs sont un peu plus présents que le brief Calm et devront être vérifiés avec le vrai header. Le centre reste néanmoins très stable, les cartes dominent clairement et la profondeur ne se transforme pas en piste.
 
-Recommandation : `shortlist`, candidate préférée par Codex pour la prochaine revue humaine.
+Décision humaine enregistrée : `approved-for-processing`. Primary est la candidate choisie pour préparer la future production Home. Ce statut n'autorise aucune intégration runtime.
 
 ## Candidate 2 — Calm
 
@@ -116,7 +116,7 @@ Avoid: dense particles, noisy texture, photorealism, childish cartoon, strong pe
 
 Le trait d'horizon or-violet est très net et atteint un pic de luminance d'environ 91.95 %. Il traverse visuellement le bas de la zone profil et mérite un test avec l'opacité exacte du vrai composant. La candidate offre en revanche la meilleure réserve de contraste pour une Home très dense.
 
-Recommandation : `shortlist`, alternative calme à conserver.
+Décision humaine enregistrée : `needs-review`. Calm est conservée comme alternative et fallback visuel potentiel.
 
 ## Candidate 3 — Spectacular
 
@@ -157,7 +157,7 @@ Avoid: excessive particles, noisy micro-detail, burned-out center, architecture 
 
 La composition se lit comme une avenue ou une piste jouable. L'horizon est près des trois quarts de la hauteur au lieu de 15–18 %. La richesse latérale est réussie, mais ces deux défauts sont structurels et ne peuvent pas être corrigés par le recadrage autorisé sans détruire l'image.
 
-Recommandation : `reject`.
+Décision humaine enregistrée : `rejected`. Spectacular v1 ne sera pas intégrée et aucune nouvelle Spectacular n'est générée dans cette mission.
 
 ## Guides de contrôle
 
@@ -184,21 +184,21 @@ Résultats :
 
 | Viewport | Débordement horizontal | Candidates | Images chargées | Statuts | Manifest historique |
 |---|---|---:|---|---|---|
-| 375×667 | aucun | 3 | 7/7 | uniquement `needs-review` | 56/56 |
-| 414×736 | aucun | 3 | 7/7 | uniquement `needs-review` | 56/56 |
+| 375×667 | aucun | 3 | 7/7 | décisions d'intake affichées | 56/56 |
+| 414×736 | aucun | 3 | 7/7 | décisions d'intake affichées | 56/56 |
 
 Les trois simulations possèdent chacune cinq blocs UI visibles. Les quatre captures temporaires autorisées ont servi à inspecter la comparaison puis Primary, Calm et Spectacular sous l'UI ; elles ne sont pas destinées au commit.
 
 ## Décision proposée
 
-1. Faire examiner **Primary** en premier : meilleur compromis entre profondeur premium, calme central et caractère de marque générique.
-2. Conserver **Calm** comme alternative pour une UI dense, sous réserve d'atténuer ou valider son horizon très net lors d'une future itération.
-3. Rejeter **Spectacular v1** comme background Home ; ses idées de matière latérale peuvent seulement informer un futur prompt, sans réutiliser ce fichier comme base runtime.
+1. **Primary** est validée pour processing et choisie pour la future production Home.
+2. **Calm** reste en revue et est conservée comme alternative pour une UI dense.
+3. **Spectacular v1** est rejetée ; le fichier ne doit pas être intégré et aucune nouvelle variante n'est produite dans cette clôture.
 
 Une validation humaine reste nécessaire pour :
 
-- choisir entre Primary et Calm ;
 - confirmer la tolérance des détails latéraux sous le vrai header ;
 - confirmer l'intensité de l'horizon Calm sous le vrai profile strip ;
-- décider si une nouvelle Spectacular indépendante doit être générée ;
 - valider provenance, usage et qualité artistique avant toute phase de processing ou d'intégration.
+
+La décision de processing ne vaut jamais approbation d'intégration. Aucune candidate n'est `approved-for-integration`.

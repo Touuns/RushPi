@@ -334,7 +334,7 @@ async function loadHomeCandidates() {
     }
     homeCandidatesComparison.src = repoFileUrl(document.comparisonPath);
     homeCandidatesGrid.replaceChildren(...document.candidates.map(candidateCard));
-    homeCandidatesStatus.textContent = `${document.phase} · 3 candidates · needs-review`;
+    homeCandidatesStatus.textContent = `${document.phase} · processing choice recorded · integration disabled`;
   } catch (error) {
     homeCandidatesStatus.textContent = `Candidates indisponibles (${error.message}).`;
     homeCandidatesStatus.classList.add("is-error");
