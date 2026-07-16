@@ -1,6 +1,7 @@
 const MANIFEST_URL = "../../public/assets/rushpi/asset-manifest.json";
 const ASSET_BASE = "../../public/assets/rushpi/";
 const PRODUCTION_BRIEFS_URL = "../../public/data/art/phase-12a-production-briefs.json";
+const HOME_CANDIDATES_URL = "../../docs/art/generated/12A_HOME_CANDIDATES_INTAKE.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -17,12 +18,20 @@ const dialogMeta = document.querySelector("#dialog-meta");
 const dialogNotes = document.querySelector("#dialog-notes");
 const briefsStatus = document.querySelector("#briefs-status");
 const briefsGrid = document.querySelector("#briefs-grid");
+const homeCandidatesStatus = document.querySelector("#home-candidates-status");
+const homeCandidatesGrid = document.querySelector("#home-candidates-grid");
+const homeCandidatesComparison = document.querySelector("#home-candidates-comparison");
+const homeUiToggle = document.querySelector("#home-ui-toggle");
 
 let assets = [];
 let activeCategory = "all";
 
 function assetUrl(asset) {
   return `${ASSET_BASE}${asset.file.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+function repoFileUrl(file) {
+  return `../../${file.split("/").map(encodeURIComponent).join("/")}`;
 }
 
 function isVisual(asset) {
@@ -220,6 +229,118 @@ async function loadProductionBriefs() {
   }
 }
 
+function homeUiSimulation() {
+  const overlay = document.createElement("div");
+  overlay.className = "home-ui-simulation";
+  overlay.setAttribute("aria-hidden", "true");
+
+  const header = document.createElement("div");
+  header.className = "home-ui-simulation__header";
+  header.innerHTML = "<span></span><span></span>";
+
+  const profile = document.createElement("div");
+  profile.className = "home-ui-simulation__profile";
+  profile.innerHTML = "<span></span><span></span><span></span>";
+
+  const daily = document.createElement("div");
+  daily.className = "home-ui-simulation__card home-ui-simulation__card--daily";
+  daily.innerHTML = "<b>DAILY</b><span></span><i>MORE</i>";
+
+  const survival = document.createElement("div");
+  survival.className = "home-ui-simulation__card";
+  survival.innerHTML = "<b>SURVIVAL</b><span></span><i>MORE</i>";
+
+  const campaign = document.createElement("div");
+  campaign.className = "home-ui-simulation__card";
+  campaign.innerHTML = "<b>CAMPAIGN</b><span></span><i>MORE</i>";
+
+  overlay.append(header, profile, daily, survival, campaign);
+  return overlay;
+}
+
+function candidateFigure(candidate, kind) {
+  const figure = document.createElement("figure");
+  figure.className = `candidate-figure candidate-figure--${kind}`;
+  const stage = document.createElement("div");
+  stage.className = "candidate-stage";
+  const image = new Image();
+  image.src = repoFileUrl(kind === "guides" ? candidate.guidesPath : candidate.previewPath);
+  image.alt = `${candidate.variant} · ${kind === "guides" ? "guides de contrôle" : "preview simple"}`;
+  image.loading = "lazy";
+  image.decoding = "async";
+  stage.append(image);
+  if (kind === "plain") stage.append(homeUiSimulation());
+  const caption = document.createElement("figcaption");
+  caption.textContent = kind === "guides" ? "Guides de contrôle" : "Preview simple";
+  figure.append(stage, caption);
+  return figure;
+}
+
+function candidateCard(candidate) {
+  const article = document.createElement("article");
+  article.className = "candidate-card";
+  article.dataset.recommendation = candidate.recommendation;
+
+  const heading = document.createElement("div");
+  heading.className = "candidate-card__heading";
+  const title = document.createElement("h3");
+  title.textContent = candidate.variant;
+  const flag = document.createElement("span");
+  flag.className = "candidate-card__status";
+  flag.textContent = candidate.status;
+  heading.append(title, flag);
+
+  const previews = document.createElement("div");
+  previews.className = "candidate-card__previews";
+  previews.append(candidateFigure(candidate, "plain"), candidateFigure(candidate, "guides"));
+
+  const meta = document.createElement("dl");
+  const entries = [
+    ["Master", `${candidate.width}×${candidate.height}`],
+    ["Master weight", formatBytes(candidate.bytes.master)],
+    ["Preview weight", formatBytes(candidate.bytes.preview)],
+    ["Recommendation", candidate.recommendation],
+  ];
+  for (const [term, description] of entries) {
+    const dt = document.createElement("dt");
+    dt.textContent = term;
+    const dd = document.createElement("dd");
+    dd.textContent = description;
+    meta.append(dt, dd);
+  }
+
+  const issues = document.createElement("ul");
+  issues.className = "candidate-card__issues";
+  for (const issue of candidate.issues) {
+    const item = document.createElement("li");
+    item.textContent = issue;
+    issues.append(item);
+  }
+
+  article.append(heading, previews, meta, issues);
+  return article;
+}
+
+async function loadHomeCandidates() {
+  try {
+    const response = await fetch(HOME_CANDIDATES_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    if (!Array.isArray(document.candidates) || document.candidates.length !== 3) {
+      throw new Error("trois candidates attendues");
+    }
+    if (document.integrationAllowed !== false || document.status !== "needs-review") {
+      throw new Error("garde-fous de revue invalides");
+    }
+    homeCandidatesComparison.src = repoFileUrl(document.comparisonPath);
+    homeCandidatesGrid.replaceChildren(...document.candidates.map(candidateCard));
+    homeCandidatesStatus.textContent = `${document.phase} · 3 candidates · needs-review`;
+  } catch (error) {
+    homeCandidatesStatus.textContent = `Candidates indisponibles (${error.message}).`;
+    homeCandidatesStatus.classList.add("is-error");
+  }
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -238,9 +359,13 @@ async function start() {
 
 search.addEventListener("input", render);
 animationOnly.addEventListener("change", render);
+homeUiToggle.addEventListener("change", () => {
+  document.querySelector("#home-candidates").classList.toggle("is-ui-preview", homeUiToggle.checked);
+});
 dialog.addEventListener("click", (event) => {
   if (event.target === dialog) dialog.close();
 });
 
 start();
 loadProductionBriefs();
+loadHomeCandidates();

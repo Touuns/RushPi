@@ -19,6 +19,7 @@
         <a href="../../docs/IMAGE_GENERATION_PROMPTS.md">Prompts</a>
         <a href="../../docs/ANIMATION_SPECS.md">Animations</a>
         <a href="#production-briefs">12A Briefs</a>
+        <a href="#home-candidates">12A Home Candidates</a>
       </nav>
     </header>
 
@@ -49,6 +50,27 @@
           <p id="briefs-status" aria-live="polite">Chargement des briefs locaux…</p>
         </div>
         <div id="briefs-grid" class="briefs-grid"></div>
+      </section>
+
+      <section id="home-candidates" class="candidates-panel" aria-labelledby="candidates-title">
+        <div class="candidates-heading">
+          <div>
+            <p class="eyebrow">Generated candidates · review only</p>
+            <h2 id="candidates-title">12A Home Candidates</h2>
+          </div>
+          <div class="candidates-heading__controls">
+            <label class="toggle">
+              <input id="home-ui-toggle" type="checkbox" />
+              <span>Simuler les blocs Home</span>
+            </label>
+            <p id="home-candidates-status" aria-live="polite">Chargement des candidates locales…</p>
+          </div>
+        </div>
+        <figure class="candidates-comparison">
+          <img id="home-candidates-comparison" alt="Comparaison Primary, Calm et Spectacular" />
+          <figcaption>Planche comparative · preview documentaire, non runtime</figcaption>
+        </figure>
+        <div id="home-candidates-grid" class="candidates-grid"></div>
       </section>
 
       <section id="gallery" class="gallery" aria-label="Assets Rush Pi"></section>
