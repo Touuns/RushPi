@@ -523,11 +523,12 @@ async function loadChainBlockCandidates() {
     const response = await fetch(CHAIN_BLOCK_CANDIDATES_URL, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const document = await response.json();
-    if (document.integrationAllowed !== false || document.candidates?.length !== 3) {
+    if (
+      document.integrationAllowed !== false ||
+      document.candidates?.length !== 3 ||
+      document.candidates.some((candidate) => candidate.status === "approved-for-integration")
+    ) {
       throw new Error("garde-fous Chain Block invalides");
-    }
-    if (document.candidates.some((candidate) => candidate.status !== "needs-review")) {
-      throw new Error("statut initial inattendu");
     }
     chainBlockComparison.src = repoFileUrl(document.comparisonPath);
     chainBlockGrid.replaceChildren(...document.candidates.map(chainBlockCard));

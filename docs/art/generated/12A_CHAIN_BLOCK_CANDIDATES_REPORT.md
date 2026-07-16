@@ -1,6 +1,6 @@
 # Phase 12A-0B-P3 — Chain Block candidates
 
-Trois candidates indépendantes ont été générées avec OpenAI `imagegen`, sur fond chromatique uniforme puis extraites avec le helper officiel du workflow `imagegen`. Les masters sont des PNG sRGB `512×512` à alpha réel. Les trois statuts restent `needs-review`; `integrationAllowed` reste `false`.
+Trois candidates indépendantes ont été générées avec OpenAI `imagegen`, sur fond chromatique uniforme puis extraites avec le helper officiel du workflow `imagegen`. Les masters sont des PNG sRGB `512×512` à alpha réel. La décision humaine finale sélectionne Primary pour le processing, conserve Core comme fallback robuste et rejette Prism. `integrationAllowed` reste `false`.
 
 ## Traitement commun
 
@@ -26,7 +26,7 @@ Trois candidates indépendantes ont été générées avec OpenAI `imagegen`, su
 - Daily Primary v2 : fort contraste or/violet sans fusion avec l’architecture.
 - Magnet/collecte : les halos simulés restent extérieurs à la silhouette et ne la transforment pas en pièce.
 - Défaut : légère complexité des trois extensions à 32 px.
-- Recommandation : préférence Codex pour la revue humaine.
+- Décision finale : `approved-for-processing`, sélectionnée comme futur Chain Block de production.
 
 ## Prism
 
@@ -42,7 +42,7 @@ Trois candidates indépendantes ont été générées avec OpenAI `imagegen`, su
 - Comparaison : distinct de l’obstacle, du Shield, de la Life Orb et du joueur; risque face au token, car l’octogone cerclé d’or peut évoquer un médaillon.
 - Daily/Magnet/collecte : lisible, mais plusieurs exemplaires simultanés renforcent le risque “pluie de monnaie”.
 - Défaut : silhouette trop proche d’un badge ou d’une pièce.
-- Recommandation : conserver pour revue avec risque explicite.
+- Décision finale : `rejected`, conservée uniquement comme référence historique. Elle ne doit jamais être utilisée comme collectible Daily.
 
 ## Core
 
@@ -59,8 +59,14 @@ Trois candidates indépendantes ont été générées avec OpenAI `imagegen`, su
 - Comparaison : très distinct du token, du losange, des orbes et du joueur.
 - Daily/Magnet/collecte : excellente stabilité, halos lisibles.
 - Défaut : volume visuellement plus lourd, proche d’un coffre technique.
-- Recommandation : meilleure alternative à Primary.
+- Décision finale : `needs-review`, conservée comme fallback robuste, notamment à 32 px; non sélectionnée pour le processing principal.
 
-## Conclusion
+## Conclusion finale
 
-Primary offre la meilleure identité Chain Block et le meilleur équilibre silhouette/connexion. Core est la candidate la plus robuste à 32 px. Prism est techniquement conforme sur alpha et marges mais nécessite une décision humaine à cause de son risque de lecture monétaire. Aucune candidate n’est approuvée automatiquement pour processing ou intégration.
+- Primary est sélectionnée pour le processing de production avec le statut `approved-for-processing`.
+- Core reste `needs-review` et est conservée comme fallback robuste, particulièrement pour sa lisibilité à 32 px.
+- Prism est `rejected` à cause du risque de confusion avec une pièce, un médaillon ou un token. Elle reste une référence historique uniquement.
+- Aucune candidate n’est `approved-for-integration` et aucune intégration runtime n’est autorisée.
+- `integrationAllowed` reste `false`.
+
+La transparence des trois masters a été obtenue par extraction chromatique contrôlée : fond uniforme, détection de couleur de bord, matte douce, despill et contraction de bord. Pendant la Phase 12A-0C, un contrôle final des franges devra être réalisé sur fonds noir, blanc et magenta avant tout traitement destiné au runtime.

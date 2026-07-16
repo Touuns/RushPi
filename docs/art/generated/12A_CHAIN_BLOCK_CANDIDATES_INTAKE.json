@@ -7,7 +7,7 @@
     {
       "id": "chain-block-primary-candidate-v1",
       "variant": "Primary",
-      "status": "needs-review",
+      "status": "approved-for-processing",
       "masterPath": "art-sources/phase-12a/chain-block/chain-block-primary-candidate-v1.png",
       "previewPaths": {
         "512": "tools/art-preview/generated/phase-12a/chain-block/chain-block-primary-candidate-v1-512.webp",
@@ -44,12 +44,12 @@
         "collectionHaloReadable": true
       },
       "issues": ["Les trois extensions de connexion ajoutent une légère complexité à 32 px."],
-      "recommendation": "preferred-for-human-review"
+      "recommendation": "selected-for-production-processing"
     },
     {
       "id": "chain-block-prism-candidate-v1",
       "variant": "Prism",
-      "status": "needs-review",
+      "status": "rejected",
       "masterPath": "art-sources/phase-12a/chain-block/chain-block-prism-candidate-v1.png",
       "previewPaths": {
         "512": "tools/art-preview/generated/phase-12a/chain-block/chain-block-prism-candidate-v1-512.webp",
@@ -86,7 +86,7 @@
         "collectionHaloReadable": true
       },
       "issues": ["La silhouette octogonale et le large contour or peuvent évoquer un médaillon ou une monnaie."],
-      "recommendation": "retain-with-token-silhouette-risk"
+      "recommendation": "rejected-token-silhouette-risk"
     },
     {
       "id": "chain-block-core-candidate-v1",
@@ -128,7 +128,7 @@
         "collectionHaloReadable": true
       },
       "issues": ["Le volume légèrement cubique peut paraître plus lourd que le collectible procédural actuel."],
-      "recommendation": "strong-secondary-for-human-review"
+      "recommendation": "retained-as-robust-fallback"
     }
   ]
 }
