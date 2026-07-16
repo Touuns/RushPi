@@ -87,6 +87,27 @@ async function readReservation(
   return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
 }
 
+/**
+ * Read the stored is_valid flag of the score row bound to a submission (11B-P4.1).
+ * An idempotent retry of an already-completed reservation must answer with the
+ * SAME ranked outcome as the first submission — a plausibility-rejected run
+ * (is_valid=false) can never flip to ranked:true via a replay. Returns null when
+ * no score row exists (inconsistent state → the caller reports SERVER_ERROR).
+ */
+async function readScoreValidity(
+  cfg: ServiceConfig,
+  submissionId: string,
+): Promise<boolean | null> {
+  const r = await fetch(
+    `${cfg.url}/rest/v1/rushpi_scores?submission_id=eq.${submissionId}&select=is_valid&limit=1`,
+    { headers: { apikey: cfg.key, Authorization: `Bearer ${cfg.key}` } },
+  );
+  if (!r.ok) throw new RpcError(`Score validity read failed (${r.status})`);
+  const rows = (await r.json()) as { is_valid: boolean }[];
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0].is_valid === true;
+}
+
 /** Mark a claimed reservation expired (attempt stays consumed). */
 async function markExpired(cfg: ServiceConfig, submissionId: string): Promise<void> {
   await fetch(
@@ -324,7 +345,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : res.status(200).json({ ok: true, ranked: false, code: "SCORE_REJECTED" });
     }
     if (status === "already_completed") {
-      return res.status(200).json({ ok: true, ranked: true, idempotent: true });
+      // Idempotent replay: re-read the STORED is_valid (never trust the client;
+      // never let a rejected score flip to ranked on retry) — 11B-P4.1.
+      const storedValid = await readScoreValidity(cfg, submissionId);
+      if (storedValid === null) {
+        console.error("[submit-score] completed reservation without score row", submissionId);
+        return res
+          .status(500)
+          .json({ error: "Inconsistent submission state", code: "SERVER_ERROR" });
+      }
+      return storedValid
+        ? res.status(200).json({ ok: true, ranked: true, idempotent: true })
+        : res
+            .status(200)
+            .json({ ok: true, ranked: false, code: "SCORE_REJECTED", idempotent: true });
     }
     if (status === "submission_conflict") {
       return res
