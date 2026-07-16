@@ -34,7 +34,7 @@
     {
       "id": "daily-market-tunnel-primary-candidate-v2",
       "variant": "Primary v2",
-      "status": "needs-review",
+      "status": "approved-for-processing",
       "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.png",
       "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.webp",
       "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2-guides.webp",
@@ -65,7 +65,7 @@
         "minimalCropCompliant": true
       },
       "issues": ["Validation humaine requise avant tout traitement ou intégration."],
-      "recommendation": "preferred-for-human-review"
+      "recommendation": "selected-for-production-processing"
     },
     {
       "id": "daily-market-tunnel-cyan-candidate-v1",

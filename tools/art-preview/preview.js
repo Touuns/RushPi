@@ -429,14 +429,15 @@ async function loadDailyCandidates() {
     if (!Array.isArray(document.candidates) || document.candidates.length !== 4) {
       throw new Error("quatre candidates attendues");
     }
-    if (document.integrationAllowed !== false || document.candidates.some((candidate) => /approved-for/.test(candidate.status))) {
+    if (
+      document.integrationAllowed !== false ||
+      document.candidates.some((candidate) => candidate.status === "approved-for-integration")
+    ) {
       throw new Error("garde-fous de revue invalides");
     }
-    const primaryCandidates = document.candidates.filter((candidate) => candidate.id.includes("primary-candidate"));
-    if (primaryCandidates.length !== 2) throw new Error("Primary v1 et v2 attendues");
     dailyCandidatesComparison.src = repoFileUrl(document.comparisonPath);
-    dailyCandidatesGrid.replaceChildren(...primaryCandidates.map(dailyCandidateCard));
-    dailyCandidatesStatus.textContent = `${document.phase} · Primary v1/v2 · integration disabled`;
+    dailyCandidatesGrid.replaceChildren(...document.candidates.map(dailyCandidateCard));
+    dailyCandidatesStatus.textContent = `${document.phase} · 4 décisions enregistrées · integration disabled`;
   } catch (error) {
     dailyCandidatesStatus.textContent = `Candidates indisponibles (${error.message}).`;
     dailyCandidatesStatus.classList.add("is-error");

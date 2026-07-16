@@ -1,6 +1,6 @@
 # Phase 12A-0B-P2 — Daily Market Tunnel candidates
 
-Statut corrigé après décision humaine : Primary v1 `needs-revision`, Cyan v1 et Amber v1 `rejected`, Primary v2 `needs-review`. Aucune candidate n’est approuvée pour traitement ou intégration.
+Décision humaine finale : Primary v2 est `approved-for-processing`. Primary v1 reste `needs-revision`; Cyan v1 et Amber v1 sont `rejected`. Aucune candidate n’est approuvée pour intégration et `integrationAllowed` reste `false`.
 
 ## Correctif 12A-0B-P2.1 — Primary v2
 
@@ -20,17 +20,21 @@ Statut corrigé après décision humaine : Primary v1 `needs-revision`, Cyan v1 
 - Différence avec Home Primary : architecture latérale plus monumentale, profondeur atmosphérique active et orientation course, tout en évitant une piste peinte.
 - Simulation : la piste procédurale, les trois lanes, les chevrons et les objets de gameplay dominent clairement le fond.
 - Tailles logiques : conforme à `375×667` et `414×736`.
-- Recommandation : meilleure candidate Daily pour validation humaine, avec statut initial maintenu à `needs-review`.
+- Décision finale : candidate sélectionnée pour le processing de production, avec le statut `approved-for-processing`. Cette décision n’autorise aucune intégration runtime.
 
 ### Comparaison Primary v1 / v2
 
 Primary v1 conserve une profondeur tunnel plus explicitement architecturale, mais ses deux bordures convergentes imitent des rails. Primary v2 remplace cette construction par un gradient atmosphérique central et des architectures strictement périphériques. La v2 est légèrement moins démonstrative en isolation, mais nettement plus sûre derrière le rendu Phaser.
 
-### Décision humaine appliquée aux v1
+### Décision humaine finale
+
+- Primary v2 : `approved-for-processing`, sélectionnée pour le processing de production.
 
 - Primary v1 : `needs-revision`, non approuvée pour processing.
 - Cyan v1 : `rejected`, conservée uniquement comme référence de palette cyan.
 - Amber v1 : `rejected`, conservée uniquement comme référence de palette chaude.
+- Aucune candidate : `approved-for-integration`.
+- `integrationAllowed` : `false`.
 
 ## Méthode
 
@@ -64,7 +68,7 @@ Les formulations anglaises intégrales utilisées sont conservées dans la missi
 - Couleur : violet/bleu dominant, cyan périphérique lisible, ambre rare.
 - Différence avec Home Primary : profondeur tunnel nettement plus forte, anneaux et fuite directionnelle; aucune composition de support d’interface statique.
 - Simulation : joueur, tokens, obstacles, Shield et Chain Blocks restent distincts; la piste procédurale domine, mais les bordures du fond épaississent visuellement ses rails.
-- Recommandation : candidate préférée pour la revue humaine.
+- Décision : référence historique non sélectionnée, statut `needs-revision`.
 
 ## Cyan
 
@@ -78,7 +82,7 @@ Les formulations anglaises intégrales utilisées sont conservées dans la missi
 - Couleur : séparation cyan latérale propre, presque aucun orange, sans wash uniforme.
 - Différence avec Home Primary : perspective technique et répétition de cadres beaucoup plus dynamiques.
 - Simulation : silhouettes de jeu très lisibles; le bord lointain procédural est toutefois concurrencé par la ligne cyan native.
-- Recommandation : conserver pour revue, derrière Primary.
+- Décision : asset Daily rejeté, conservé uniquement comme référence de palette cyan.
 
 ## Amber
 
@@ -92,7 +96,7 @@ Les formulations anglaises intégrales utilisées sont conservées dans la missi
 - Couleur : ambre présent comme accent latéral, base violet-noir dominante, petites touches cyan; aucune ambiance casino ou lave.
 - Différence avec Home Primary : infrastructure active et perspective de course, contre architecture Home calme.
 - Simulation : piste, joueur, tokens et obstacles lisibles; les Chain Blocks demandent une vérification attentive près des blocs latéraux.
-- Recommandation : conserver pour revue comme option chaude.
+- Décision : asset Daily rejeté, conservé uniquement comme référence de palette chaude.
 
 ## Contrôle aux tailles logiques
 
@@ -100,14 +104,15 @@ Les formulations anglaises intégrales utilisées sont conservées dans la missi
 - `375×667` : la réduction ne coupe aucun élément fonctionnel; les problèmes de faux rails restent visibles et donc évaluables.
 - Les guides affichent HUD, plage d’horizon, trapèze protégé, zone joueur et centres approximatifs des trois lanes.
 
-## Décision Codex
+## Conclusion finale
 
-Ordre recommandé : Primary, Amber, Cyan. Aucune candidate n’est rejetée automatiquement : toutes fournissent une base fonctionnelle et doivent rester disponibles pour la décision humaine. Primary est la plus équilibrée; Amber est la meilleure alternative chaude; Cyan est la plus analytique mais présente la concurrence la plus nette au bord lointain de la piste.
+Primary v2 est la seule candidate choisie pour le processing de production. Primary v1 est conservée comme référence historique non sélectionnée et nécessite une révision si elle devait être réexaminée. Cyan v1 et Amber v1 sont rejetées comme assets Daily, mais restent disponibles comme références de palette cyan et chaude. Cette sélection ne constitue pas une autorisation d’intégration runtime.
 
 ## Garde-fous
 
 - Aucun fichier runtime n’est créé ou référencé.
 - Aucun fichier sous `src/`, `api/`, `supabase/` ou `public/assets/rushpi/` n’est modifié.
-- Les trois masters et tous les documents Home restent hors du périmètre de modification.
-- Les trois images Daily ont le statut `needs-review`.
+- Tous les masters Daily et Home restent hors du périmètre de cette clôture documentaire.
+- Statuts : Primary v2 `approved-for-processing`; Primary v1 `needs-revision`; Cyan v1 et Amber v1 `rejected`.
+- Aucune image n’est `approved-for-integration`.
 - `integrationAllowed` reste `false`.
