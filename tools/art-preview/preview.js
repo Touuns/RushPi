@@ -4,6 +4,7 @@ const PRODUCTION_BRIEFS_URL = "../../public/data/art/phase-12a-production-briefs
 const HOME_CANDIDATES_URL = "../../docs/art/generated/12A_HOME_CANDIDATES_INTAKE.json";
 const DAILY_CANDIDATES_URL = "../../docs/art/generated/12A_DAILY_CANDIDATES_INTAKE.json";
 const CHAIN_BLOCK_CANDIDATES_URL = "../../docs/art/generated/12A_CHAIN_BLOCK_CANDIDATES_INTAKE.json";
+const FINISH_PORTAL_CANDIDATES_URL = "../../docs/art/generated/12A_FINISH_PORTAL_CANDIDATES_INTAKE.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -31,6 +32,9 @@ const dailyGameplayToggle = document.querySelector("#daily-gameplay-toggle");
 const chainBlockStatus = document.querySelector("#chain-block-status");
 const chainBlockGrid = document.querySelector("#chain-block-grid");
 const chainBlockComparison = document.querySelector("#chain-block-comparison");
+const finishPortalStatus = document.querySelector("#finish-portal-status");
+const finishPortalGrid = document.querySelector("#finish-portal-grid");
+const finishPortalComparison = document.querySelector("#finish-portal-comparison");
 
 let assets = [];
 let activeCategory = "all";
@@ -539,6 +543,102 @@ async function loadChainBlockCandidates() {
   }
 }
 
+function finishPortalTrackGate(candidate) {
+  const stage = document.createElement("div");
+  stage.className = "finish-simulation";
+  const background = new Image();
+  background.src = repoFileUrl("tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.webp");
+  background.alt = "";
+  const track = document.createElement("div");
+  track.className = "finish-simulation__track";
+  track.innerHTML = '<i class="finish-lane finish-lane--left"></i><i class="finish-lane finish-lane--right"></i>';
+  const objects = document.createElement("div");
+  objects.className = "finish-simulation__objects";
+  objects.innerHTML = `
+    <span class="finish-label">FINISH</span>
+    <span class="finish-flash"></span>
+    <span class="finish-obstacle"></span>
+    <span class="finish-player">π</span>
+  `;
+  for (const [depth, className] of [["horizon", "horizon"], ["mid", "mid"], ["player", "player-line"]]) {
+    const image = new Image();
+    image.src = repoFileUrl(candidate.previewPaths.preview512);
+    image.alt = `${candidate.variant}, test ${depth}`;
+    image.className = `finish-portal finish-portal--${className}`;
+    objects.append(image);
+  }
+  const chain = new Image();
+  chain.src = repoFileUrl("tools/art-preview/generated/phase-12a/chain-block/chain-block-primary-candidate-v1-128.webp");
+  chain.alt = "Chain Block Primary";
+  chain.className = "finish-chain";
+  objects.append(chain);
+  stage.append(background, track, objects);
+  return stage;
+}
+
+function finishPortalCard(candidate) {
+  const article = document.createElement("article");
+  article.className = "candidate-card";
+  const heading = document.createElement("div");
+  heading.className = "candidate-card__heading";
+  heading.innerHTML = `<h3>${candidate.variant}</h3><span class="candidate-card__status">${candidate.status}</span>`;
+  const checks = document.createElement("div");
+  checks.className = "finish-checks";
+  for (const key of ["preview512", "preview256", "dark", "light", "magenta", "alphaBounds", "pivot", "opening"]) {
+    const image = new Image();
+    image.src = repoFileUrl(candidate.previewPaths[key]);
+    image.alt = `${candidate.variant} · ${key}`;
+    checks.append(image);
+  }
+  const meta = document.createElement("dl");
+  for (const [term, value] of [
+    ["Alpha bounds", `${candidate.alphaBounds.width}×${candidate.alphaBounds.height}`],
+    ["Opening", `${candidate.openingBounds.width}×${candidate.openingBounds.height}`],
+    ["Opening alpha", `${candidate.openingTransparentPercent}% transparent`],
+    ["Pivot", `${candidate.pivot.x}, ${candidate.pivot.y}`],
+    ["Master", formatBytes(candidate.bytes.master)],
+    ["Recommendation", candidate.recommendation],
+  ]) {
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = term;
+    dd.textContent = value;
+    meta.append(dt, dd);
+  }
+  const issues = document.createElement("ul");
+  issues.className = "candidate-card__issues";
+  for (const issue of candidate.issues) {
+    const li = document.createElement("li");
+    li.textContent = issue;
+    issues.append(li);
+  }
+  article.append(heading, checks, finishPortalTrackGate(candidate), meta, issues);
+  return article;
+}
+
+async function loadFinishPortalCandidates() {
+  try {
+    const response = await fetch(FINISH_PORTAL_CANDIDATES_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    const acceptedStatuses = new Set(["needs-review", "approved-for-processing", "rejected"]);
+    if (
+      document.integrationAllowed !== false ||
+      document.candidates?.length !== 3 ||
+      document.candidates.some((candidate) => !acceptedStatuses.has(candidate.status)) ||
+      document.candidates.some((candidate) => candidate.status === "approved-for-integration")
+    ) {
+      throw new Error("garde-fous Finish Portal invalides");
+    }
+    finishPortalComparison.src = repoFileUrl(document.comparisonPath);
+    finishPortalGrid.replaceChildren(...document.candidates.map(finishPortalCard));
+    finishPortalStatus.textContent = `${document.phase} · 3 candidates · integration disabled`;
+  } catch (error) {
+    finishPortalStatus.textContent = `Candidates indisponibles (${error.message}).`;
+    finishPortalStatus.classList.add("is-error");
+  }
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -569,6 +669,7 @@ loadProductionBriefs();
 loadHomeCandidates();
 loadDailyCandidates();
 loadChainBlockCandidates();
+loadFinishPortalCandidates();
 dailyGameplayToggle.addEventListener("change", () => {
   document.querySelector("#daily-candidates").classList.toggle("is-gameplay-preview", dailyGameplayToggle.checked);
 });

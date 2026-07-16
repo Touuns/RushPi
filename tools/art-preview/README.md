@@ -12,6 +12,8 @@ La galerie charge le manifest local des 56 assets existants. La section **12A Pr
 
 La section **12A Home Candidates** charge `docs/art/generated/12A_HOME_CANDIDATES_INTAKE.json`. Elle affiche les trois previews documentaires stockées sous `tools/art-preview/generated/`, leurs guides, la planche comparative, les poids et les décisions d'intake. Le bouton de simulation superpose des blocs HTML/CSS documentaires pour tester la lisibilité du header, du profil et des cartes Home ; il ne modifie ni `HomeScreen.tsx` ni les styles du jeu. Aucune de ces images n'est un asset runtime ou `approved-for-integration`.
 
+La section **12A Finish Portal Candidates** charge `docs/art/generated/12A_FINISH_PORTAL_CANDIDATES_INTAKE.json`. Elle présente les contrôles d’alpha, d’ouverture et de pivot, puis simule chaque arche à l’horizon, à mi-piste et sur la ligne joueur dans Daily Primary v2. La piste, le joueur, Chain Block Primary, l’obstacle, le texte `FINISH` et le flash restent des couches HTML/CSS documentaires séparées du runtime.
+
 Validation des briefs :
 
 ```powershell
