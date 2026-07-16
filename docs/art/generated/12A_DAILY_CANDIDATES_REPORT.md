@@ -1,6 +1,36 @@
 # Phase 12A-0B-P2 — Daily Market Tunnel candidates
 
-Statut : revue humaine requise. Les trois candidates restent `needs-review`; aucune n’est approuvée pour traitement ou intégration.
+Statut corrigé après décision humaine : Primary v1 `needs-revision`, Cyan v1 et Amber v1 `rejected`, Primary v2 `needs-review`. Aucune candidate n’est approuvée pour traitement ou intégration.
+
+## Correctif 12A-0B-P2.1 — Primary v2
+
+- Outil : génération d’images OpenAI via le workflow Codex `imagegen`.
+- Tentatives : 1 génération; 0 génération rejetée avant sélection.
+- Dimension native : `941×1672`, PNG sRGB opaque.
+- Recadrage : rectangle `(x=2, y=0, largeur=936, hauteur=1664)`.
+- Source conservée : `99,47 %` de la largeur et `99,52 %` de la hauteur.
+- Facteur uniforme final : `0,884615` vers `828×1472`; aucun étirement.
+- Horizon final observé : `y≈255`, dans la plage `220–270`.
+- Corridor : champ aubergine/violet atmosphérique continu, sans bordure structurelle, rail, lane, objet ou guide perspectif.
+- Zone joueur : sombre, vide et calme.
+- Faux rails : absents.
+- Ligne horizontale concurrente à l’horizon : absente; le halo est diffus.
+- Faux collectibles : aucun token, cercle, losange, obstacle ou bloc assimilable à un Chain Block dans la zone jouable.
+- `falseGameplayElementsAbsent = true`.
+- Différence avec Home Primary : architecture latérale plus monumentale, profondeur atmosphérique active et orientation course, tout en évitant une piste peinte.
+- Simulation : la piste procédurale, les trois lanes, les chevrons et les objets de gameplay dominent clairement le fond.
+- Tailles logiques : conforme à `375×667` et `414×736`.
+- Recommandation : meilleure candidate Daily pour validation humaine, avec statut initial maintenu à `needs-review`.
+
+### Comparaison Primary v1 / v2
+
+Primary v1 conserve une profondeur tunnel plus explicitement architecturale, mais ses deux bordures convergentes imitent des rails. Primary v2 remplace cette construction par un gradient atmosphérique central et des architectures strictement périphériques. La v2 est légèrement moins démonstrative en isolation, mais nettement plus sûre derrière le rendu Phaser.
+
+### Décision humaine appliquée aux v1
+
+- Primary v1 : `needs-revision`, non approuvée pour processing.
+- Cyan v1 : `rejected`, conservée uniquement comme référence de palette cyan.
+- Amber v1 : `rejected`, conservée uniquement comme référence de palette chaude.
 
 ## Méthode
 

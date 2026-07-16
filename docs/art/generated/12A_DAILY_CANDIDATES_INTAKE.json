@@ -1,14 +1,14 @@
 {
-  "phase": "12A-0B-P2",
+  "phase": "12A-0B-P2.1",
   "asset": "daily-market-tunnel",
   "status": "needs-review",
   "integrationAllowed": false,
-  "comparisonPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-candidates-v1-comparison.webp",
+  "comparisonPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-v1-v2-comparison.webp",
   "candidates": [
     {
       "id": "daily-market-tunnel-primary-candidate-v1",
-      "variant": "Primary",
-      "status": "needs-review",
+      "variant": "Primary v1",
+      "status": "needs-revision",
       "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1.png",
       "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1.webp",
       "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1-guides.webp",
@@ -28,16 +28,49 @@
         "falseGameplayElementsAbsent": false,
         "distinctFromHomePrimary": true
       },
-      "issues": [
-        "Les bordures architecturales convergentes peuvent renforcer visuellement les rails de la piste procédurale.",
-        "La richesse cyan périphérique doit être confirmée sur écran à faible luminosité."
-      ],
+      "issues": ["Bordures convergentes ressemblant à des rails supplémentaires."],
+      "recommendation": "needs-revision"
+    },
+    {
+      "id": "daily-market-tunnel-primary-candidate-v2",
+      "variant": "Primary v2",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.png",
+      "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.webp",
+      "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "crop": { "x": 2, "y": 0, "width": 936, "height": 1664 },
+      "retainedWidthPercent": 99.47,
+      "retainedHeightPercent": 99.52,
+      "resizeFactor": 0.884615,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "horizonY": 255,
+      "bytes": { "master": 1140874, "preview": 11332, "guides": 16904 },
+      "checks": {
+        "hudReadable": true,
+        "horizonInRange": true,
+        "corridorProtected": true,
+        "playerZoneQuiet": true,
+        "laneLikeLinesAbsent": true,
+        "extraRailsAbsent": true,
+        "brightHorizontalHorizonLineAbsent": true,
+        "falseCollectiblesAbsent": true,
+        "falseGameplayElementsAbsent": true,
+        "proceduralTrackDominates": true,
+        "distinctFromHomePrimary": true,
+        "minimalCropCompliant": true
+      },
+      "issues": ["Validation humaine requise avant tout traitement ou intégration."],
       "recommendation": "preferred-for-human-review"
     },
     {
       "id": "daily-market-tunnel-cyan-candidate-v1",
-      "variant": "Cyan",
-      "status": "needs-review",
+      "variant": "Cyan v1",
+      "status": "rejected",
       "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1.png",
       "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1.webp",
       "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1-guides.webp",
@@ -49,24 +82,14 @@
       "colorSpace": "sRGB",
       "horizonY": 252,
       "bytes": { "master": 928286, "preview": 15166, "guides": 20226 },
-      "checks": {
-        "hudReadable": true,
-        "horizonInRange": true,
-        "corridorProtected": true,
-        "playerZoneQuiet": true,
-        "falseGameplayElementsAbsent": false,
-        "distinctFromHomePrimary": true
-      },
-      "issues": [
-        "La ligne lumineuse horizontale à l’horizon peut concurrencer le halo et le bord lointain procéduraux.",
-        "Les doubles contours violets du corridor ressemblent à des rails supplémentaires."
-      ],
-      "recommendation": "retain-for-human-review"
+      "checks": { "falseGameplayElementsAbsent": false },
+      "issues": ["Ligne lumineuse à l’horizon et doubles faux rails."],
+      "recommendation": "palette-reference-only"
     },
     {
       "id": "daily-market-tunnel-amber-candidate-v1",
-      "variant": "Amber",
-      "status": "needs-review",
+      "variant": "Amber v1",
+      "status": "rejected",
       "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1.png",
       "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1.webp",
       "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1-guides.webp",
@@ -78,19 +101,9 @@
       "colorSpace": "sRGB",
       "horizonY": 250,
       "bytes": { "master": 1049000, "preview": 13944, "guides": 19472 },
-      "checks": {
-        "hudReadable": true,
-        "horizonInRange": true,
-        "corridorProtected": true,
-        "playerZoneQuiet": true,
-        "falseGameplayElementsAbsent": false,
-        "distinctFromHomePrimary": true
-      },
-      "issues": [
-        "Quelques blocs ambrés latéraux ont une silhouette proche des futurs Chain Blocks.",
-        "Les bordures sombres du corridor peuvent se superposer aux rails procéduraux."
-      ],
-      "recommendation": "retain-for-human-review"
+      "checks": { "falseGameplayElementsAbsent": false },
+      "issues": ["Blocs ressemblant aux Chain Blocks et faux rails."],
+      "recommendation": "palette-reference-only"
     }
   ]
 }
