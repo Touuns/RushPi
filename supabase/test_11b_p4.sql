@@ -96,6 +96,104 @@ begin
   select * into r from get_rushpi_daily_attempt_status_v2('test-uid-gamma', v_date);
   if r.used_count <> 1 then raise exception 'T14: used=%', r.used_count; end if;
 
+  -- ==== Phase 11B-P4.1 lifecycle scenarios ================================
+
+  -- 15: a claimed reservation older than 30 minutes expires atomically inside
+  -- finalize: status expired, NO score row, attempt still counted.
+  declare
+    s_old uuid := gen_random_uuid();
+    used_before int;
+  begin
+    select * into r from claim_rushpi_daily_attempt_v2(s_old,'test-uid-delta','testDelta',v_date,v_cid,2,1);
+    if r.status <> 'claimed' then raise exception 'T15a: %', r.status; end if;
+    update public.rushpi_ranked_attempts
+      set claimed_at = now() - interval '31 minutes' where submission_id = s_old;
+    select used_count into used_before from get_rushpi_daily_attempt_status_v2('test-uid-delta', v_date);
+    select * into r from finalize_rushpi_daily_score_v2(
+      s_old,'test-uid-delta','testDelta',v_date,v_cid,'digest-old',
+      900,9,2,1,60,2,1,538,1,'["solana"]'::jsonb,true);
+    if r.status <> 'expired' then raise exception 'T15b: %', r.status; end if;
+    if (select count(*) from public.rushpi_scores where submission_id = s_old) <> 0 then
+      raise exception 'T15c: score row created for expired reservation';
+    end if;
+    if (select status from public.rushpi_ranked_attempts where submission_id = s_old) <> 'expired' then
+      raise exception 'T15d: reservation not marked expired';
+    end if;
+    select * into r from get_rushpi_daily_attempt_status_v2('test-uid-delta', v_date);
+    if r.used_count <> used_before then raise exception 'T15e: attempt no longer counted'; end if;
+  end;
+
+  -- 16: re-claim rules — same id must NOT restart a run once closed.
+  declare
+    s_c uuid := gen_random_uuid();
+  begin
+    -- 16a: still-claimed same reservation → already_claimed (same slot).
+    select * into r from claim_rushpi_daily_attempt_v2(s_c,'test-uid-eps','testEps',v_date,v_cid,2,1);
+    if r.status <> 'claimed' then raise exception 'T16a1: %', r.status; end if;
+    select * into r from claim_rushpi_daily_attempt_v2(s_c,'test-uid-eps','testEps',v_date,v_cid,2,1);
+    if r.status <> 'already_claimed' then raise exception 'T16a2: %', r.status; end if;
+
+    -- 16b: same id, DIFFERENT token_challenge_version → conflict.
+    select * into r from claim_rushpi_daily_attempt_v2(s_c,'test-uid-eps','testEps',v_date,v_cid,2,2);
+    if r.status <> 'submission_conflict' then raise exception 'T16b: %', r.status; end if;
+
+    -- 16c: completed reservation → conflict on re-claim.
+    perform finalize_rushpi_daily_score_v2(
+      s_c,'test-uid-eps','testEps',v_date,v_cid,'digest-eps',
+      800,8,2,1,60,2,1,416,1,'["ripple"]'::jsonb,true);
+    select * into r from claim_rushpi_daily_attempt_v2(s_c,'test-uid-eps','testEps',v_date,v_cid,2,1);
+    if r.status <> 'submission_conflict' then raise exception 'T16c: %', r.status; end if;
+  end;
+
+  -- 16d: rejected reservation → conflict on re-claim.
+  declare
+    s_r uuid := gen_random_uuid();
+  begin
+    perform claim_rushpi_daily_attempt_v2(s_r,'test-uid-zeta','testZeta',v_date,v_cid,2,1);
+    perform reject_rushpi_daily_attempt_v2(s_r,'test-uid-zeta',v_date,'X');
+    select * into r from claim_rushpi_daily_attempt_v2(s_r,'test-uid-zeta','testZeta',v_date,v_cid,2,1);
+    if r.status <> 'submission_conflict' then raise exception 'T16d: %', r.status; end if;
+  end;
+
+  -- 16e: expired reservation → conflict on re-claim.
+  declare
+    s_e uuid := gen_random_uuid();
+  begin
+    perform claim_rushpi_daily_attempt_v2(s_e,'test-uid-eta','testEta',v_date,v_cid,2,1);
+    update public.rushpi_ranked_attempts set status='expired', completed_at=now() where submission_id = s_e;
+    select * into r from claim_rushpi_daily_attempt_v2(s_e,'test-uid-eta','testEta',v_date,v_cid,2,1);
+    if r.status <> 'submission_conflict' then raise exception 'T16e: %', r.status; end if;
+  end;
+
+  -- 17: idempotent retry preserves is_valid — an is_valid=false score row stays
+  -- false; already_completed exposes the SAME row (no second row, no flip).
+  declare
+    s_iv uuid := gen_random_uuid();
+    v_row_id text;
+  begin
+    perform claim_rushpi_daily_attempt_v2(s_iv,'test-uid-theta','testTheta',v_date,v_cid,2,1);
+    select * into r from finalize_rushpi_daily_score_v2(
+      s_iv,'test-uid-theta','testTheta',v_date,v_cid,'digest-iv',
+      99999,10,3,2,60,2,1,750,1,'["bitcoin"]'::jsonb,false); -- implausible → is_valid=false
+    if r.status <> 'completed' then raise exception 'T17a: %', r.status; end if;
+    v_row_id := r.score_row_id;
+    if (select is_valid from public.rushpi_scores where submission_id = s_iv) <> false then
+      raise exception 'T17b: stored is_valid should be false';
+    end if;
+    select * into r from finalize_rushpi_daily_score_v2(
+      s_iv,'test-uid-theta','testTheta',v_date,v_cid,'digest-iv',
+      99999,10,3,2,60,2,1,750,1,'["bitcoin"]'::jsonb,false);
+    if r.status <> 'already_completed' or r.score_row_id <> v_row_id then
+      raise exception 'T17c: %/%', r.status, r.score_row_id;
+    end if;
+    if (select count(*) from public.rushpi_scores where submission_id = s_iv) <> 1 then
+      raise exception 'T17d: duplicate score row';
+    end if;
+    if (select is_valid from public.rushpi_scores where submission_id = s_iv) <> false then
+      raise exception 'T17e: is_valid flipped on retry';
+    end if;
+  end;
+
   raise notice 'ALL PHASE 11B-P4 SQL TESTS PASSED';
 end $$;
 

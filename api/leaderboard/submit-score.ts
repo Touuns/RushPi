@@ -44,9 +44,10 @@ const LIMITS = {
   maxObstacles: 1000,
 };
 
-// A claimed reservation can be finalized for its reserved date within this
-// window (covers a run that crosses midnight UTC); beyond it → expired (Bloc 12).
-const FINALIZE_WINDOW_MS = 30 * 60 * 1000;
+// A claimed reservation can be finalized for its reserved date within a
+// 30-minute window after claimed_at (covers a run crossing midnight UTC).
+// Since P4.1 that window is enforced atomically inside the finalize SQL
+// function; this endpoint only relays the resulting 'expired' status.
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isInt(n: unknown): n is number {
@@ -106,27 +107,6 @@ async function readScoreValidity(
   const rows = (await r.json()) as { is_valid: boolean }[];
   if (!Array.isArray(rows) || rows.length === 0) return null;
   return rows[0].is_valid === true;
-}
-
-/** Mark a claimed reservation expired (attempt stays consumed). */
-async function markExpired(cfg: ServiceConfig, submissionId: string): Promise<void> {
-  await fetch(
-    `${cfg.url}/rest/v1/rushpi_ranked_attempts?submission_id=eq.${submissionId}&status=eq.claimed`,
-    {
-      method: "PATCH",
-      headers: {
-        apikey: cfg.key,
-        Authorization: `Bearer ${cfg.key}`,
-        "Content-Type": "application/json",
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify({
-        status: "expired",
-        completed_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }),
-    },
-  ).catch(() => undefined);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -212,15 +192,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const challengeDate = reservation.challenge_date;
 
-  // 4) Expiry window (Bloc 12). Idempotent replays of a completed reservation are
-  // handled by the finalize RPC below, so only guard still-claimed ones here.
-  if (reservation.status === "claimed") {
-    const ageMs = Date.now() - new Date(reservation.claimed_at).getTime();
-    if (ageMs > FINALIZE_WINDOW_MS) {
-      await markExpired(cfg, submissionId);
-      return res.status(200).json({ ok: true, ranked: false, code: "SUBMISSION_EXPIRED" });
-    }
-  }
+  // 4) Expiry window (Bloc 12, hardened in P4.1): a claimed reservation can be
+  // finalized within 30 minutes of claimed_at. The window is now enforced
+  // ATOMICALLY inside finalize_rushpi_daily_score_v2 (same advisory lock/
+  // transaction) — the RPC returns status='expired' and this endpoint just
+  // reports it below. No separate PATCH from here.
 
   // Helper: mark the reservation rejected (structural/manifest failure) and reply.
   const rejectAndRespond = async (httpStatus: number, code: string, message: string) => {

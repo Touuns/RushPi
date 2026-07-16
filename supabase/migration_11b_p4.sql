@@ -161,10 +161,15 @@ begin
   where r.submission_id = p_submission_id;
 
   if found then
+    -- already_claimed ONLY for a still-open reservation of the exact same
+    -- identity/challenge/version (token version compared null-safely). A closed
+    -- reservation (completed/rejected/expired) can never back a new run (P4.1).
     if v_existing.pi_user_uid = p_pi_user_uid
        and v_existing.challenge_date = p_challenge_date
        and v_existing.challenge_id = p_challenge_id
-       and v_existing.rules_version = p_rules_version then
+       and v_existing.rules_version = p_rules_version
+       and v_existing.token_challenge_version is not distinct from p_token_challenge_version
+       and v_existing.status = 'claimed' then
       select count(*)::int into v_used
       from public.rushpi_ranked_attempts r
       where r.pi_user_uid = p_pi_user_uid and r.challenge_date = p_challenge_date;
@@ -173,7 +178,8 @@ begin
                           v_existing.challenge_date, v_existing.challenge_id;
       return;
     end if;
-    -- Same id, different identity/challenge → conflict, consume nothing.
+    -- Same id but different identity/challenge/version, or a closed reservation
+    -- → conflict, consume nothing.
     return query select 'submission_conflict'::text, null::smallint, null::int,
                         null::int, p_submission_id, p_challenge_date, p_challenge_id;
     return;
@@ -287,6 +293,20 @@ begin
     return;
   end if;
 
+  -- 30-minute finalize window, enforced HERE under the advisory lock (P4.1):
+  -- a claimed reservation older than the window expires atomically — no score
+  -- row is created and the attempt stays consumed.
+  if v_res.status = 'claimed'
+     and v_res.claimed_at < now() - interval '30 minutes' then
+    update public.rushpi_ranked_attempts
+    set status = 'expired',
+        completed_at = now(),
+        updated_at = now()
+    where submission_id = p_submission_id;
+    return query select 'expired'::text, null::text, v_res.attempt_number;
+    return;
+  end if;
+
   -- Idempotent replays.
   if v_res.status = 'completed' or v_res.status = 'rejected' then
     if v_res.result_digest is not distinct from p_result_digest then
@@ -302,7 +322,7 @@ begin
     return;
   end if;
 
-  -- status = 'claimed' → insert the score and finalize in one transaction.
+  -- status = 'claimed' (within the window) → insert + finalize, one transaction.
   insert into public.rushpi_scores (
     pi_user_uid, pi_username, score, energy_collected, max_combo, obstacles_hit,
     duration_seconds, game_mode, is_valid, challenge_id, challenge_date,

@@ -236,22 +236,25 @@ export default function App() {
   const playDailyLocalOnly = useCallback(() => goDailyPrep("local-only"), [goDailyPrep]);
   const playDailyUnranked = useCallback(() => goDailyPrep("limit-reached"), [goDailyPrep]);
 
-  /** Connect Pi (from the modal) then start a Daily run respecting the limit. */
+  /**
+   * Connect Pi (from the modal) then start a RANKED Daily preparation. The
+   * local mirror may be stale right after connecting (P4.1) — claim-attempt is
+   * the final authority: if the server says ATTEMPT_LIMIT, the preparation
+   * screen shows the real limit and offers "Play locally".
+   */
   const connectAndPlayDaily = useCallback(async () => {
     const session = await authenticatePi();
     applySession(session);
-    const left = getRankedAttemptsToday().left;
-    goDailyPrep(left > 0 ? "ranked" : "limit-reached");
+    goDailyPrep("ranked");
   }, [goDailyPrep, applySession]);
 
-  /** Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard). */
+  /**
+   * Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard).
+   * Connected → ranked preparation; the server-side claim is the authority on
+   * the 3/day limit (the local mirror only drives display), P4.1.
+   */
   const startDailyAuto = useCallback(() => {
-    if (!piUser) {
-      goDailyPrep("local-only");
-      return;
-    }
-    const left = getRankedAttemptsToday().left;
-    goDailyPrep(left > 0 ? "ranked" : "limit-reached");
+    goDailyPrep(piUser ? "ranked" : "local-only");
   }, [goDailyPrep, piUser]);
 
   /**
