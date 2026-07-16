@@ -1,0 +1,96 @@
+{
+  "phase": "12A-0B-P2",
+  "asset": "daily-market-tunnel",
+  "status": "needs-review",
+  "integrationAllowed": false,
+  "comparisonPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-candidates-v1-comparison.webp",
+  "candidates": [
+    {
+      "id": "daily-market-tunnel-primary-candidate-v1",
+      "variant": "Primary",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1.png",
+      "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1.webp",
+      "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "horizonY": 248,
+      "bytes": { "master": 1218632, "preview": 15910, "guides": 20796 },
+      "checks": {
+        "hudReadable": true,
+        "horizonInRange": true,
+        "corridorProtected": true,
+        "playerZoneQuiet": true,
+        "falseGameplayElementsAbsent": false,
+        "distinctFromHomePrimary": true
+      },
+      "issues": [
+        "Les bordures architecturales convergentes peuvent renforcer visuellement les rails de la piste procédurale.",
+        "La richesse cyan périphérique doit être confirmée sur écran à faible luminosité."
+      ],
+      "recommendation": "preferred-for-human-review"
+    },
+    {
+      "id": "daily-market-tunnel-cyan-candidate-v1",
+      "variant": "Cyan",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1.png",
+      "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1.webp",
+      "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-cyan-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "horizonY": 252,
+      "bytes": { "master": 928286, "preview": 15166, "guides": 20226 },
+      "checks": {
+        "hudReadable": true,
+        "horizonInRange": true,
+        "corridorProtected": true,
+        "playerZoneQuiet": true,
+        "falseGameplayElementsAbsent": false,
+        "distinctFromHomePrimary": true
+      },
+      "issues": [
+        "La ligne lumineuse horizontale à l’horizon peut concurrencer le halo et le bord lointain procéduraux.",
+        "Les doubles contours violets du corridor ressemblent à des rails supplémentaires."
+      ],
+      "recommendation": "retain-for-human-review"
+    },
+    {
+      "id": "daily-market-tunnel-amber-candidate-v1",
+      "variant": "Amber",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1.png",
+      "previewPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1.webp",
+      "guidesPath": "tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-amber-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "horizonY": 250,
+      "bytes": { "master": 1049000, "preview": 13944, "guides": 19472 },
+      "checks": {
+        "hudReadable": true,
+        "horizonInRange": true,
+        "corridorProtected": true,
+        "playerZoneQuiet": true,
+        "falseGameplayElementsAbsent": false,
+        "distinctFromHomePrimary": true
+      },
+      "issues": [
+        "Quelques blocs ambrés latéraux ont une silhouette proche des futurs Chain Blocks.",
+        "Les bordures sombres du corridor peuvent se superposer aux rails procéduraux."
+      ],
+      "recommendation": "retain-for-human-review"
+    }
+  ]
+}
