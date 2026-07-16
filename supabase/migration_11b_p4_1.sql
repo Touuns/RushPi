@@ -219,13 +219,103 @@ begin
 end;
 $$;
 
+-- ---- LEADERBOARDS: one best score per Pi user (P4.1) -----------------------
+-- Deduplicated ranked boards. rushpi_scores keeps EVERY run (audit/attempts/
+-- idempotence untouched); only this leaderboard view picks one row per player.
+-- Best-row selection and global ordering both use the deterministic order:
+--   score DESC, token_points DESC, tokens_collected_count DESC,
+--   obstacles_hit ASC, created_at ASC, id ASC.
+-- pi_user_uid is used for the partition but NEVER returned.
+
+create or replace function public.get_rushpi_daily_leaderboard_v2(
+  p_challenge_date date,
+  p_challenge_id   text,
+  p_limit          integer default 50
+)
+returns table (
+  pi_username            text,
+  score                  integer,
+  energy_collected       integer,
+  max_combo              integer,
+  obstacles_hit          integer,
+  created_at             timestamptz,
+  token_points           integer,
+  tokens_collected_count integer
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select b.pi_username, b.score, b.energy_collected, b.max_combo, b.obstacles_hit,
+         b.created_at, b.token_points, b.tokens_collected_count
+  from (
+    select s.*,
+           row_number() over (
+             partition by s.pi_user_uid
+             order by s.score desc, s.token_points desc, s.tokens_collected_count desc,
+                      s.obstacles_hit asc, s.created_at asc, s.id asc
+           ) as rn
+    from public.rushpi_scores s
+    where s.game_mode = 'daily'
+      and s.is_valid = true
+      and s.rules_version = 2
+      and s.challenge_date = p_challenge_date
+      and s.challenge_id = p_challenge_id
+      and s.pi_user_uid is not null
+  ) b
+  where b.rn = 1
+  order by b.score desc, b.token_points desc, b.tokens_collected_count desc,
+           b.obstacles_hit asc, b.created_at asc, b.id asc
+  limit least(greatest(coalesce(p_limit, 50), 1), 100);
+$$;
+
+create or replace function public.get_rushpi_global_leaderboard_v2(
+  p_limit integer default 50
+)
+returns table (
+  pi_username            text,
+  score                  integer,
+  energy_collected       integer,
+  max_combo              integer,
+  obstacles_hit          integer,
+  created_at             timestamptz,
+  token_points           integer,
+  tokens_collected_count integer
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select b.pi_username, b.score, b.energy_collected, b.max_combo, b.obstacles_hit,
+         b.created_at, b.token_points, b.tokens_collected_count
+  from (
+    select s.*,
+           row_number() over (
+             partition by s.pi_user_uid
+             order by s.score desc, s.token_points desc, s.tokens_collected_count desc,
+                      s.obstacles_hit asc, s.created_at asc, s.id asc
+           ) as rn
+    from public.rushpi_scores s
+    where s.game_mode = 'daily'
+      and s.is_valid = true
+      and s.rules_version = 2
+      and s.pi_user_uid is not null
+  ) b
+  where b.rn = 1
+  order by b.score desc, b.token_points desc, b.tokens_collected_count desc,
+           b.obstacles_hit asc, b.created_at asc, b.id asc
+  limit least(greatest(coalesce(p_limit, 50), 1), 100);
+$$;
+
 -- ---- Re-apply execution grants (service role only) -------------------------
 do $$
 declare fn text;
 begin
   foreach fn in array array[
     'claim_rushpi_daily_attempt_v2(uuid,text,text,date,text,integer,integer)',
-    'finalize_rushpi_daily_score_v2(uuid,text,text,date,text,text,integer,integer,integer,integer,integer,integer,integer,integer,integer,jsonb,boolean)'
+    'finalize_rushpi_daily_score_v2(uuid,text,text,date,text,text,integer,integer,integer,integer,integer,integer,integer,integer,integer,jsonb,boolean)',
+    'get_rushpi_daily_leaderboard_v2(date,text,integer)',
+    'get_rushpi_global_leaderboard_v2(integer)'
   ]
   loop
     execute format('revoke all on function public.%s from public;', fn);

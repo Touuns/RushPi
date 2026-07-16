@@ -1,45 +1,51 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import {
+  callRpc,
+  getServiceConfig,
+  MigrationRequiredError,
+  RpcError,
+} from "../_lib/supabaseRpc";
 
 /**
- * Top 50 valid Daily Token Rush scores of all time (global board).
- * Reads via the Supabase service role (server-side only). Only non-sensitive
- * columns are selected/returned (no pi_user_uid).
+ * All-time Daily Token Rush leaderboard — top 50 DISTINCT users (Phase 11B-P4.1).
  *
- * Phase 11B: filtered to rules_version = 2 so the new Token Rush mode is never
- * compared to legacy v1 scores. Old rows are kept, just not shown here.
+ * Deduplication is done in SQL (get_rushpi_global_leaderboard_v2): one best
+ * valid v2 score per pi_user_uid across all days, using the same deterministic
+ * ordering as the daily board. All runs stay stored; pi_user_uid is never
+ * returned. Missing corrective migration → MIGRATION_REQUIRED (no silent
+ * fallback to the duplicated listing).
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed", code: "SERVER_ERROR" });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
+  const cfg = getServiceConfig();
+  if (!cfg) {
     console.error("[leaderboard global] Supabase env not configured");
-    return res.status(500).json({ error: "Server is missing Supabase configuration" });
+    return res
+      .status(500)
+      .json({ error: "Server is missing Supabase configuration", code: "SERVER_ERROR" });
   }
-
-  const query =
-    `${supabaseUrl}/rest/v1/rushpi_scores` +
-    `?select=pi_username,score,energy_collected,max_combo,obstacles_hit,created_at,token_points,tokens_collected_count` +
-    `&game_mode=eq.daily&is_valid=eq.true` +
-    `&rules_version=eq.2` +
-    `&order=score.desc&limit=50`;
 
   try {
-    const r = await fetch(query, {
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    const scores = await callRpc<unknown[]>(cfg, "get_rushpi_global_leaderboard_v2", {
+      p_limit: 50,
     });
-    if (!r.ok) {
-      const detail = await r.text();
-      console.error("[leaderboard global] Supabase error", r.status, detail);
-      return res.status(502).json({ error: "Failed to load leaderboard" });
+    return res.status(200).json({ ok: true, scores: Array.isArray(scores) ? scores : [] });
+  } catch (err) {
+    if (err instanceof MigrationRequiredError) {
+      return res.status(503).json({ error: err.message, code: "MIGRATION_REQUIRED" });
     }
-    const scores = await r.json();
-    return res.status(200).json({ ok: true, scores });
-  } catch (error) {
-    console.error("[leaderboard global] server error", error);
-    return res.status(500).json({ error: "Server error loading leaderboard" });
+    if (err instanceof RpcError) {
+      console.error("[leaderboard global] rpc error", err.message);
+      return res
+        .status(err.status)
+        .json({ error: "Failed to load leaderboard", code: "SERVER_ERROR" });
+    }
+    console.error("[leaderboard global] server error", err);
+    return res
+      .status(500)
+      .json({ error: "Server error loading leaderboard", code: "SERVER_ERROR" });
   }
 }

@@ -1,50 +1,59 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import {
+  callRpc,
+  getServiceConfig,
+  MigrationRequiredError,
+  RpcError,
+} from "../_lib/supabaseRpc";
 
 /**
- * Top 50 valid scores of TODAY's Daily Token Rush (challenge_date = current UTC
- * day), so the daily board reflects the shared seeded challenge — not a floating
- * 24h window. Reads via the service role; returns only non-sensitive columns.
+ * Today's Daily Token Rush leaderboard — top 50 DISTINCT users (Phase 11B-P4.1).
  *
- * Phase 11B versioning: filtered to rules_version = 2 AND today's Token Rush
- * challenge_id so v2 (Token Rush) scores are never mixed with legacy v1 rows.
+ * Deduplication is done in SQL (get_rushpi_daily_leaderboard_v2): one best
+ * valid v2 score per pi_user_uid for today's server-computed challenge, ranked
+ * by score DESC / token_points DESC / tokens_collected_count DESC /
+ * obstacles_hit ASC / created_at ASC / id ASC. Every historical run stays in
+ * rushpi_scores; pi_user_uid is never returned to the client. If the corrective
+ * migration is missing we fail structurally (MIGRATION_REQUIRED) — never fall
+ * back to the old duplicated listing.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed", code: "SERVER_ERROR" });
   }
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
+  const cfg = getServiceConfig();
+  if (!cfg) {
     console.error("[leaderboard daily] Supabase env not configured");
-    return res.status(500).json({ error: "Server is missing Supabase configuration" });
+    return res
+      .status(500)
+      .json({ error: "Server is missing Supabase configuration", code: "SERVER_ERROR" });
   }
 
+  // Server-authoritative challenge identity (same rules as submit/claim).
   const challengeDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD UTC
   const challengeId = `RUSHPI-${challengeDate}-TOKEN-V1`;
 
-  const query =
-    `${supabaseUrl}/rest/v1/rushpi_scores` +
-    `?select=pi_username,score,energy_collected,max_combo,obstacles_hit,created_at,token_points,tokens_collected_count` +
-    `&game_mode=eq.daily&is_valid=eq.true` +
-    `&rules_version=eq.2` +
-    `&challenge_id=eq.${encodeURIComponent(challengeId)}` +
-    `&challenge_date=eq.${challengeDate}` +
-    `&order=score.desc&limit=50`;
-
   try {
-    const r = await fetch(query, {
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
+    const scores = await callRpc<unknown[]>(cfg, "get_rushpi_daily_leaderboard_v2", {
+      p_challenge_date: challengeDate,
+      p_challenge_id: challengeId,
+      p_limit: 50,
     });
-    if (!r.ok) {
-      const detail = await r.text();
-      console.error("[leaderboard daily] Supabase error", r.status, detail);
-      return res.status(502).json({ error: "Failed to load leaderboard" });
+    return res.status(200).json({ ok: true, scores: Array.isArray(scores) ? scores : [] });
+  } catch (err) {
+    if (err instanceof MigrationRequiredError) {
+      return res.status(503).json({ error: err.message, code: "MIGRATION_REQUIRED" });
     }
-    const scores = await r.json();
-    return res.status(200).json({ ok: true, scores });
-  } catch (error) {
-    console.error("[leaderboard daily] server error", error);
-    return res.status(500).json({ error: "Server error loading leaderboard" });
+    if (err instanceof RpcError) {
+      console.error("[leaderboard daily] rpc error", err.message);
+      return res
+        .status(err.status)
+        .json({ error: "Failed to load leaderboard", code: "SERVER_ERROR" });
+    }
+    console.error("[leaderboard daily] server error", err);
+    return res
+      .status(500)
+      .json({ error: "Server error loading leaderboard", code: "SERVER_ERROR" });
   }
 }

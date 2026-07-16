@@ -194,6 +194,110 @@ begin
     end if;
   end;
 
+  -- ==== Phase 11B-P4.1 leaderboard deduplication ==========================
+  -- Isolated on a past date no real data uses; global assertions use very high
+  -- test scores (< 50000 cap) so they rank first even on a populated database.
+  declare
+    lb_date  date := date '2001-01-01';
+    lb_date2 date := date '2001-01-02';
+    lb_cid   text := 'RUSHPI-2001-01-01-TOKEN-V1';
+    lb_cid2  text := 'RUSHPI-2001-01-02-TOKEN-V1';
+    lb_count int;
+    lb_row   record;
+    has_uid  boolean;
+  begin
+    -- Fixtures. LB1: same UID, three valid Daily v2 scores (1000 / 2500 / 1800).
+    insert into public.rushpi_scores
+      (pi_user_uid, pi_username, score, energy_collected, max_combo, obstacles_hit,
+       duration_seconds, game_mode, is_valid, challenge_id, challenge_date,
+       rules_version, token_points, tokens_collected_count)
+    values
+      ('test-lb-uid1','lbAlpha',1000,10,3,5,60,'daily',true,lb_cid,lb_date,2,300,2),
+      ('test-lb-uid1','lbAlpha',2500,20,5,3,60,'daily',true,lb_cid,lb_date,2,900,4),
+      ('test-lb-uid1','lbAlpha',1800,15,4,4,60,'daily',true,lb_cid,lb_date,2,600,3),
+      -- LB2: same username as another user but a DIFFERENT uid → stays distinct.
+      ('test-lb-uid2','lbAlpha',2000,12,4,6,60,'daily',true,lb_cid,lb_date,2,700,3),
+      -- LB3: higher score but is_valid=false → ignored.
+      ('test-lb-uid1','lbAlpha',9000,30,9,0,60,'daily',false,lb_cid,lb_date,2,1200,6),
+      -- LB4: rules_version=1 row → ignored by v2 boards.
+      ('test-lb-uid1','lbAlpha',8000,25,8,1,60,'daily',true,lb_cid,lb_date,1,0,0),
+      -- LB5: other challenge_date and other challenge_id → ignored by daily.
+      ('test-lb-uid1','lbAlpha',7000,22,7,2,60,'daily',true,lb_cid2,lb_date2,2,800,4),
+      ('test-lb-uid1','lbAlpha',6500,21,6,2,60,'daily',true,'RUSHPI-OTHER',lb_date,2,750,4),
+      -- LB7: exact-score tie between two users → token_points breaks it, then
+      -- tokens_collected_count, then obstacles_hit, then created_at.
+      ('test-lb-uid3','lbTieA',1500,10,3,4,60,'daily',true,lb_cid,lb_date,2,500,3),
+      ('test-lb-uid4','lbTieB',1500,10,3,4,60,'daily',true,lb_cid,lb_date,2,400,3);
+
+    -- 1) One row per uid, best kept: uid1 → 2500 (not 9000/8000/7000/6500).
+    select count(*) into lb_count
+    from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50) t
+    where t.pi_username = 'lbAlpha';
+    if lb_count <> 2 then raise exception 'LB1a: lbAlpha rows=% (want 2: uid1+uid2)', lb_count; end if;
+    select * into lb_row from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50) t
+      order by t.score desc limit 1;
+    if lb_row.score <> 2500 then raise exception 'LB1b: top=% (want 2500)', lb_row.score; end if;
+
+    -- 2) Two uids sharing a username remain two distinct entries (checked above:
+    -- exactly 2 lbAlpha rows — one per uid: 2500 and 2000).
+
+    -- 3/4/5) invalid, v1, other-date and other-cid rows are all absent: the only
+    -- scores present must be 2500, 2000, 1500, 1500.
+    select count(*) into lb_count from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50);
+    if lb_count <> 4 then raise exception 'LB3-5: rows=% (want 4)', lb_count; end if;
+    if exists (select 1 from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50) t
+               where t.score in (9000, 8000, 7000, 6500)) then
+      raise exception 'LB3-5b: excluded rows leaked into the board';
+    end if;
+
+    -- 7) Tie-break: lbTieA (token_points 500) must rank above lbTieB (400).
+    -- Re-apply the documented ordering explicitly so the assertion is stable.
+    select t.pi_username into lb_row
+    from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50) t
+    where t.score = 1500
+    order by t.token_points desc, t.tokens_collected_count desc,
+             t.obstacles_hit asc, t.created_at asc
+    limit 1;
+    if lb_row.pi_username <> 'lbTieA' then
+      raise exception 'LB7: tie winner=%', lb_row.pi_username;
+    end if;
+    if (select count(*) from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 50) t
+        where t.score = 1500) <> 2 then
+      raise exception 'LB7b: both tied users must be present';
+    end if;
+
+    -- 8a) No pi_user_uid column in the result shape.
+    select to_jsonb(t) ? 'pi_user_uid' into has_uid
+    from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 1) t limit 1;
+    if has_uid then raise exception 'LB8a: pi_user_uid exposed'; end if;
+
+    -- 8b) Limit applies AFTER deduplication: 4 distinct users, p_limit=2 → the
+    -- two best users (2500 then 2000), not two rows of the same user.
+    select count(distinct t.pi_username || t.score::text) into lb_count
+    from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 2) t;
+    if lb_count <> 2 then raise exception 'LB8b: limit rows=%', lb_count; end if;
+    if exists (select 1 from get_rushpi_daily_leaderboard_v2(lb_date, lb_cid, 2) t
+               where t.score not in (2500, 2000)) then
+      raise exception 'LB8c: limit kept the wrong users';
+    end if;
+
+    -- 6) Global: best valid v2 across ALL days per uid. Use huge test scores so
+    -- they lead even on a populated database.
+    insert into public.rushpi_scores
+      (pi_user_uid, pi_username, score, energy_collected, max_combo, obstacles_hit,
+       duration_seconds, game_mode, is_valid, challenge_id, challenge_date,
+       rules_version, token_points, tokens_collected_count)
+    values
+      ('test-lb-uid9','lbGlobal',49000,10,3,5,60,'daily',true,lb_cid,lb_date,2,900,4),
+      ('test-lb-uid9','lbGlobal',49900,12,4,4,60,'daily',true,lb_cid2,lb_date2,2,950,5);
+    select count(*) into lb_count
+    from get_rushpi_global_leaderboard_v2(100) t where t.pi_username = 'lbGlobal';
+    if lb_count <> 1 then raise exception 'LB6a: lbGlobal rows=%', lb_count; end if;
+    select t.score into lb_count
+    from get_rushpi_global_leaderboard_v2(100) t where t.pi_username = 'lbGlobal';
+    if lb_count <> 49900 then raise exception 'LB6b: global best=% (want 49900)', lb_count; end if;
+  end;
+
   raise notice 'ALL PHASE 11B-P4 SQL TESTS PASSED';
 end $$;
 
