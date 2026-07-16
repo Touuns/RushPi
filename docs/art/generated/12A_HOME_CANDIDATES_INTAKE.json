@@ -1,0 +1,220 @@
+{
+  "phase": "12A-0B-P1",
+  "status": "needs-review",
+  "generatedAssets": true,
+  "integrationAllowed": false,
+  "baseCommit": "e252af5a79ae67d7212194421be7357a5b906cfd",
+  "generationTool": "OpenAI built-in image_gen",
+  "processingTool": "ImageMagick 7.1.2",
+  "comparisonPath": "public/assets/rushpi/previews/phase-12a/home-background-candidates-v1-comparison.webp",
+  "reviewViewports": [
+    {
+      "width": 375,
+      "height": 667,
+      "fit": true,
+      "allImagesLoaded": true
+    },
+    {
+      "width": 414,
+      "height": 736,
+      "fit": true,
+      "allImagesLoaded": true
+    }
+  ],
+  "candidates": [
+    {
+      "id": "home-background-primary-candidate-v1",
+      "variant": "Primary",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/home-background/home-background-primary-candidate-v1.png",
+      "previewPath": "public/assets/rushpi/previews/phase-12a/home-background-primary-candidate-v1.webp",
+      "guidesPath": "public/assets/rushpi/previews/phase-12a/home-background-primary-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "crop": {
+        "width": 819,
+        "height": 1456,
+        "x": 61,
+        "y": 205,
+        "resizeMode": "uniform",
+        "scale": 1.010989
+      },
+      "bytes": {
+        "master": 1048094,
+        "preview": 15758,
+        "guides": 16656
+      },
+      "sha256": {
+        "master": "6b25af2643b733301876070653752bd4962994448c66410a209415a8ca855ef9",
+        "preview": "097ffb3f7172edd397421336ab74a8a11ad74b9306b2c309c5aac532d1225515",
+        "guides": "f70975dd0f5e0cf3f37cc8a713e2d03491d953efea6613f9522786d69da34797"
+      },
+      "checks": {
+        "exactDimensions": true,
+        "opaque": true,
+        "colorSpaceCompatible": true,
+        "horizon": {
+          "pass": true,
+          "peakY": 265,
+          "allowedY": [221, 265]
+        },
+        "calmCenter": {
+          "pass": true,
+          "x": 223,
+          "width": 382,
+          "meanLuminance": 0.0393364
+        },
+        "safeAreas": {
+          "pass": true,
+          "topMeanLuminance": 0.0713168,
+          "bottomMeanLuminance": 0.0298968
+        },
+        "darkValues": {
+          "pass": true,
+          "grayThreshold": 0.3,
+          "fraction": 0.977257
+        },
+        "noTextOrLogoObserved": true,
+        "uiSimulation": "pass"
+      },
+      "issues": [
+        "Luminous side structures and chain motifs remain visible in the top safe area; verify final header contrast."
+      ],
+      "recommendation": "shortlist"
+    },
+    {
+      "id": "home-background-calm-candidate-v1",
+      "variant": "Calm",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/home-background/home-background-calm-candidate-v1.png",
+      "previewPath": "public/assets/rushpi/previews/phase-12a/home-background-calm-candidate-v1.webp",
+      "guidesPath": "public/assets/rushpi/previews/phase-12a/home-background-calm-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "crop": {
+        "width": 864,
+        "height": 1536,
+        "x": 38,
+        "y": 101,
+        "resizeMode": "uniform",
+        "scale": 0.958333
+      },
+      "bytes": {
+        "master": 907776,
+        "preview": 7624,
+        "guides": 8510
+      },
+      "sha256": {
+        "master": "587233033b02a3dd17be0249cee39f1d84e91d8eda4c13117f78727d8dafd98b",
+        "preview": "44348b3372c1e366297f6f6a41281877197dc18981434ecbf8b633a022841614",
+        "guides": "932c298070df474bad38737a0453d7314ad413cd815a71cba0b95a813973122c"
+      },
+      "checks": {
+        "exactDimensions": true,
+        "opaque": true,
+        "colorSpaceCompatible": true,
+        "horizon": {
+          "pass": true,
+          "peakY": 244,
+          "allowedY": [221, 265]
+        },
+        "calmCenter": {
+          "pass": true,
+          "x": 223,
+          "width": 382,
+          "meanLuminance": 0.0758868
+        },
+        "safeAreas": {
+          "pass": true,
+          "topMeanLuminance": 0.0429562,
+          "bottomMeanLuminance": 0.0229674
+        },
+        "darkValues": {
+          "pass": true,
+          "grayThreshold": 0.3,
+          "fraction": 0.984275
+        },
+        "noTextOrLogoObserved": true,
+        "uiSimulation": "pass-with-horizon-caution"
+      },
+      "issues": [
+        "The gold-violet horizon is very sharp and bright; verify that it does not compete with the profile strip."
+      ],
+      "recommendation": "shortlist"
+    },
+    {
+      "id": "home-background-spectacular-candidate-v1",
+      "variant": "Spectacular",
+      "status": "needs-review",
+      "masterPath": "art-sources/phase-12a/home-background/home-background-spectacular-candidate-v1.png",
+      "previewPath": "public/assets/rushpi/previews/phase-12a/home-background-spectacular-candidate-v1.webp",
+      "guidesPath": "public/assets/rushpi/previews/phase-12a/home-background-spectacular-candidate-v1-guides.webp",
+      "originalWidth": 941,
+      "originalHeight": 1672,
+      "width": 828,
+      "height": 1472,
+      "opaque": true,
+      "colorSpace": "sRGB",
+      "crop": {
+        "width": 936,
+        "height": 1664,
+        "x": 2,
+        "y": 4,
+        "resizeMode": "uniform",
+        "scale": 0.884615
+      },
+      "bytes": {
+        "master": 1335936,
+        "preview": 30038,
+        "guides": 30974
+      },
+      "sha256": {
+        "master": "d34c3ef8e49b98c75d1ce708649d5d25ed44f62c1e26ec736f5e538492cdbc18",
+        "preview": "3fe7d2067a8de1c8cb52eb0ae80a322e2965b11bf84460143c778eb63022d220",
+        "guides": "900ad153e4b22ed83fe360b14e5f6071f2f2657e2d6e5ac8a9bdb46c74d774c1"
+      },
+      "checks": {
+        "exactDimensions": true,
+        "opaque": true,
+        "colorSpaceCompatible": true,
+        "horizon": {
+          "pass": false,
+          "peakY": 1071,
+          "allowedY": [221, 265]
+        },
+        "calmCenter": {
+          "pass": false,
+          "x": 223,
+          "width": 382,
+          "meanLuminance": 0.0627065
+        },
+        "safeAreas": {
+          "pass": true,
+          "topMeanLuminance": 0.0269942,
+          "bottomMeanLuminance": 0.0164071
+        },
+        "darkValues": {
+          "pass": true,
+          "grayThreshold": 0.3,
+          "fraction": 0.943451
+        },
+        "noTextOrLogoObserved": true,
+        "uiSimulation": "readable-but-composition-fails"
+      },
+      "issues": [
+        "The visual horizon is near y=1071 instead of the required y=221-265 range.",
+        "The lower central perspective reads as a road or playable track.",
+        "A corrective crop would destroy the intended lateral architecture and was not applied."
+      ],
+      "recommendation": "reject"
+    }
+  ]
+}
