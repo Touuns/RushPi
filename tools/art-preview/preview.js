@@ -3,6 +3,7 @@ const ASSET_BASE = "../../public/assets/rushpi/";
 const PRODUCTION_BRIEFS_URL = "../../public/data/art/phase-12a-production-briefs.json";
 const HOME_CANDIDATES_URL = "../../docs/art/generated/12A_HOME_CANDIDATES_INTAKE.json";
 const DAILY_CANDIDATES_URL = "../../docs/art/generated/12A_DAILY_CANDIDATES_INTAKE.json";
+const CHAIN_BLOCK_CANDIDATES_URL = "../../docs/art/generated/12A_CHAIN_BLOCK_CANDIDATES_INTAKE.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -27,6 +28,9 @@ const dailyCandidatesStatus = document.querySelector("#daily-candidates-status")
 const dailyCandidatesGrid = document.querySelector("#daily-candidates-grid");
 const dailyCandidatesComparison = document.querySelector("#daily-candidates-comparison");
 const dailyGameplayToggle = document.querySelector("#daily-gameplay-toggle");
+const chainBlockStatus = document.querySelector("#chain-block-status");
+const chainBlockGrid = document.querySelector("#chain-block-grid");
+const chainBlockComparison = document.querySelector("#chain-block-comparison");
 
 let assets = [];
 let activeCategory = "all";
@@ -444,6 +448,96 @@ async function loadDailyCandidates() {
   }
 }
 
+function chainBlockSimulation(candidate) {
+  const stage = document.createElement("div");
+  stage.className = "chain-simulation";
+  const background = new Image();
+  background.src = repoFileUrl("tools/art-preview/generated/phase-12a/daily-market-tunnel/daily-market-tunnel-primary-candidate-v2.webp");
+  background.alt = "";
+  const track = document.createElement("div");
+  track.className = "chain-simulation__track";
+  const objects = document.createElement("div");
+  objects.className = "chain-simulation__objects";
+  objects.innerHTML = `
+    <span class="sim-token">T</span><span class="sim-obstacle"></span>
+    <span class="sim-shield"></span><span class="sim-life">+</span>
+    <span class="sim-player">π</span><span class="sim-magnet"></span>
+  `;
+  for (const [index, position] of [[0, "left"], [1, "center"], [2, "right"]]) {
+    const image = new Image();
+    image.src = repoFileUrl(candidate.previewPaths["128"]);
+    image.alt = "";
+    image.className = `sim-chain sim-chain--${position}`;
+    if (index === 1) image.classList.add("is-collecting");
+    objects.append(image);
+  }
+  stage.append(background, track, objects);
+  return stage;
+}
+
+function chainBlockCard(candidate) {
+  const article = document.createElement("article");
+  article.className = "candidate-card";
+  const heading = document.createElement("div");
+  heading.className = "candidate-card__heading";
+  heading.innerHTML = `<h3>${candidate.variant}</h3><span class="candidate-card__status">${candidate.status}</span>`;
+  const sizes = document.createElement("div");
+  sizes.className = "chain-sizes";
+  for (const size of ["128", "64", "32"]) {
+    const figure = document.createElement("figure");
+    const image = new Image();
+    image.src = repoFileUrl(candidate.previewPaths[size]);
+    image.alt = `${candidate.variant} à ${size} pixels`;
+    figure.append(image);
+    const caption = document.createElement("figcaption");
+    caption.textContent = `${size}px`;
+    figure.append(caption);
+    sizes.append(figure);
+  }
+  const meta = document.createElement("dl");
+  for (const [term, value] of [
+    ["Alpha bounds", `${candidate.alphaBounds.width}×${candidate.alphaBounds.height}`],
+    ["Pivot", `${candidate.pivot.x}, ${candidate.pivot.y}`],
+    ["Master", formatBytes(candidate.bytes.master)],
+    ["Recommendation", candidate.recommendation],
+  ]) {
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = term;
+    dd.textContent = value;
+    meta.append(dt, dd);
+  }
+  const issues = document.createElement("ul");
+  issues.className = "candidate-card__issues";
+  for (const issue of candidate.issues) {
+    const li = document.createElement("li");
+    li.textContent = issue;
+    issues.append(li);
+  }
+  article.append(heading, sizes, chainBlockSimulation(candidate), meta, issues);
+  return article;
+}
+
+async function loadChainBlockCandidates() {
+  try {
+    const response = await fetch(CHAIN_BLOCK_CANDIDATES_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    if (document.integrationAllowed !== false || document.candidates?.length !== 3) {
+      throw new Error("garde-fous Chain Block invalides");
+    }
+    if (document.candidates.some((candidate) => candidate.status !== "needs-review")) {
+      throw new Error("statut initial inattendu");
+    }
+    chainBlockComparison.src = repoFileUrl(document.comparisonPath);
+    chainBlockGrid.replaceChildren(...document.candidates.map(chainBlockCard));
+    chainBlockStatus.textContent = `${document.phase} · 3 candidates · integration disabled`;
+  } catch (error) {
+    chainBlockStatus.textContent = `Candidates indisponibles (${error.message}).`;
+    chainBlockStatus.classList.add("is-error");
+  }
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -473,6 +567,7 @@ start();
 loadProductionBriefs();
 loadHomeCandidates();
 loadDailyCandidates();
+loadChainBlockCandidates();
 dailyGameplayToggle.addEventListener("change", () => {
   document.querySelector("#daily-candidates").classList.toggle("is-gameplay-preview", dailyGameplayToggle.checked);
 });
