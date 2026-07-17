@@ -673,7 +673,7 @@ function productionGroupCard(title, ids, comparisonPath, assets) {
   article.className = "production-card";
   const heading = document.createElement("div");
   heading.className = "candidate-card__heading";
-  heading.innerHTML = `<h3>${title}</h3><span class="candidate-card__status">processed-needs-review</span>`;
+  heading.innerHTML = `<h3>${title}</h3><span class="candidate-card__status">Approved for integration · not yet integrated</span>`;
   const comparison = new Image();
   comparison.src = repoFileUrl(comparisonPath);
   comparison.alt = `${title} · comparaison master et production`;
@@ -704,13 +704,13 @@ async function loadProductionAssets() {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const document = await response.json();
     if (
-      document.integrationAllowed !== false ||
-      document.status !== "needs-review" ||
+      document.integrationAllowed !== true ||
+      document.status !== "approved-for-integration" ||
       document.assets?.length !== 9 ||
-      document.assets.some((asset) => asset.integratedInGameplay !== false || asset.status !== "processed-needs-review")
+      document.assets.some((asset) => asset.integratedInGameplay !== false || asset.status !== "approved-for-integration")
     ) throw new Error("garde-fous Production Assets invalides");
     productionAssetsGrid.replaceChildren(...productionGroups.map(([title, ids, comparison]) => productionGroupCard(title, ids, comparison, document.assets)));
-    productionAssetsStatus.textContent = `${document.phase} · 9 assets · integration disabled`;
+    productionAssetsStatus.textContent = `${document.phase} · Approved for integration · not yet integrated`;
   } catch (error) {
     productionAssetsStatus.textContent = `Assets de production indisponibles (${error.message}).`;
     productionAssetsStatus.classList.add("is-error");

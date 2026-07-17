@@ -1,6 +1,6 @@
 # Phase 12A-0C — Processed production assets
 
-La Phase 12A-0C transforme exclusivement les quatre masters sélectionnés en neuf dérivés runtime optimisés. Tous les dérivés restent `processed-needs-review`, `integratedInGameplay=false` et `integrationAllowed=false`. Aucune intégration React, Phaser ou gameplay n’est réalisée.
+La Phase 12A-0C transforme exclusivement les quatre masters sélectionnés en neuf dérivés runtime optimisés. La décision humaine finale approuve les neuf dérivés pour intégration : le statut global et chaque statut individuel deviennent `approved-for-integration`, avec `integrationAllowed=true`. Les fichiers ne sont pas encore intégrés : `integratedInGameplay=false` reste obligatoire et aucune intégration React, Phaser ou gameplay n’est réalisée dans cette phase.
 
 ## Sources sélectionnées
 
@@ -51,9 +51,15 @@ Les planches documentaires se trouvent uniquement sous `tools/art-preview/genera
 
 ## Manifeste et intégration
 
-La famille `phase-12a-production-raster-kit` et neuf entrées ont été ajoutées sans modifier les 56 entrées historiques. Le manifeste contient désormais 65 assets. Chaque nouvelle entrée déclare `integratedInGameplay=false`, `phase="12A"` et `productionStatus="processed-needs-review"`.
+La famille `phase-12a-production-raster-kit` et neuf entrées ont été ajoutées sans modifier les 56 entrées historiques. Le manifeste contient désormais 65 assets. Chaque nouvelle entrée déclare `integratedInGameplay=false`, `phase="12A"` et `productionStatus="approved-for-integration"`.
 
-Aucun asset n’est `approved-for-integration`. L’intégration reste interdite jusqu’à une nouvelle décision humaine.
+## Décision humaine finale
+
+- Les neuf dérivés sont `approved-for-integration` et peuvent être utilisés par Claude pendant 12A-1 et 12A-2.
+- Les neuf fichiers PNG/WebP restent byte-identiques aux dérivés validés.
+- Aucune intégration React ou Phaser n’a encore eu lieu.
+- `integratedInGameplay` reste `false` jusqu’aux futurs commits d’intégration de Claude.
+- La validation finale réelle devra être effectuée dans la Home et pendant une run Daily après l’intégration.
 
 ## Galerie responsive
 

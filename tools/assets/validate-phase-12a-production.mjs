@@ -74,7 +74,7 @@ for (const [id, relative, format, width, height, budget, alphaExpected] of specs
   else {
     if (entry.file !== `production/${relative}` || entry.format !== format || entry.size !== `${width}x${height}`) fail(`${id}: manifest path/format/size mismatch`);
     if (entry.integratedInGameplay !== false) fail(`${id}: integratedInGameplay must be false`);
-    if (entry.productionStatus !== "processed-needs-review") fail(`${id}: invalid productionStatus`);
+    if (entry.productionStatus !== "approved-for-integration") fail(`${id}: invalid productionStatus`);
     if (!entry.selectedSource || !entry.runtimeRole) fail(`${id}: selectedSource/runtimeRole missing`);
     else {
       const sourceMetadata = await sharp(path.join(root, ...entry.selectedSource.split("/"))).metadata();
@@ -89,11 +89,11 @@ for (const [id, relative, format, width, height, budget, alphaExpected] of specs
 const intakePath = path.join(root, "docs/art/generated/12A_PRODUCTION_ASSETS_INTAKE.json");
 if (fs.existsSync(intakePath)) {
   const intake = JSON.parse(fs.readFileSync(intakePath, "utf8"));
-  if (intake.integrationAllowed !== false) fail("Production intake integrationAllowed must be false");
-  if (intake.assets?.some((asset) => asset.status === "approved-for-integration" || asset.integratedInGameplay !== false)) fail("Production intake authorizes integration");
+  if (intake.status !== "approved-for-integration" || intake.integrationAllowed !== true) fail("Production intake global approval state is invalid");
+  if (intake.assets?.length !== 9 || intake.assets.some((asset) => asset.status !== "approved-for-integration" || asset.integratedInGameplay !== false)) fail("Production intake contains a mixed or already-integrated state");
   for (const [id] of specs) {
     const asset = intake.assets?.find((entry) => entry.id === id);
-    if (!asset?.manifestDeclared || asset.status !== "processed-needs-review" || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);
+    if (!asset?.manifestDeclared || asset.status !== "approved-for-integration" || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);
   }
 } else fail("Missing 12A_PRODUCTION_ASSETS_INTAKE.json");
 
@@ -102,4 +102,4 @@ if (errors.length) {
   for (const error of errors) console.error(`- ${error}`);
   process.exit(1);
 }
-console.log("\nPhase 12A production validation passed: 9 files, 65 manifest assets, integration disabled.");
+console.log("\nPhase 12A production validation passed: 9/9 approved, 65 manifest assets, not yet integrated.");
