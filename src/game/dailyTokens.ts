@@ -3,6 +3,7 @@ import { PALETTE, GLOW } from "./theme";
 import { OBJECTS } from "./gameConfig";
 import type { DailyTokenSpec } from "../market/dailyTokenTypes";
 import { getTokenImage, tokenTextureKey } from "../market/tokenAssetCache";
+import { PROD_TEXTURE_KEYS } from "./productionAssets";
 
 /**
  * Daily Token Rush gameplay helpers (Phase 11B). MainScene orchestrates the run;
@@ -132,6 +133,19 @@ export function makeTokenCollectible(
  */
 export function makeChainBlock(scene: Phaser.Scene): Phaser.GameObjects.Container {
   const r = OBJECTS.radius;
+
+  // Phase 12A-2: production sprite when its texture is registered. Same container
+  // contract, same central origin; the visual footprint matches the procedural
+  // block. The hitbox is NEVER derived from the sprite — MainScene collides on
+  // lane + y + OBJECTS.radius only. The image carries its own glow, so we don't
+  // stack an extra procedural halo behind it.
+  if (scene.textures.exists(PROD_TEXTURE_KEYS.chainBlock)) {
+    const sprite = scene.add.image(0, 0, PROD_TEXTURE_KEYS.chainBlock).setOrigin(0.5);
+    sprite.setDisplaySize(r * 2.4, r * 2.4);
+    return scene.add.container(0, 0, [sprite]);
+  }
+
+  // Procedural fallback (unchanged): gold/violet rounded square + chain link.
   const halo = scene.add.circle(0, 0, r * GLOW.outerScale, PALETTE.gold, GLOW.outerAlpha);
   const size = r * 1.6;
   const body = scene.add.rectangle(0, 0, size, size, PALETTE.gold, 1);

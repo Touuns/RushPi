@@ -874,6 +874,11 @@ export default class MainScene extends Phaser.Scene {
           color: PALETTE.gold,
           label: "FINISH",
           durationMs: 1300,
+          // Phase 12A-2: production Finish Portal — daily-finish ONLY (TrackGate
+          // falls back to the procedural gate if the texture is absent). Timing,
+          // onCross, flash, FINISH text and banner are unchanged.
+          textureKey: PROD_TEXTURE_KEYS.finishPortal,
+          textureOriginY: 0.88,
           onCross: () => {
             this.cameras.main.flash(160, 255, 209, 102);
             this.showBanner("FINISH!");

@@ -17,7 +17,18 @@ export interface GateOptions {
   durationMs?: number;
   /** Fired exactly once when the gate reaches the player line. */
   onCross: () => void;
+  /**
+   * Phase 12A-2 (Finish Portal, daily-finish ONLY): optional production texture
+   * drawn behind the procedural beam. Purely visual, no hitbox. Falls back to
+   * the procedural gate when the texture is missing.
+   */
+  textureKey?: string;
+  /** Vertical pivot of the portal sprite (default 0.88 — base near the road). */
+  textureOriginY?: number;
 }
+
+/** Portal sprite width as a multiple of the road width at its current y. */
+const PORTAL_WIDTH_FACTOR = 1.25;
 
 export class TrackGate {
   private readonly scene: Phaser.Scene;
@@ -25,6 +36,9 @@ export class TrackGate {
   private readonly opts: GateOptions;
   private readonly gfx: Phaser.GameObjects.Graphics;
   private readonly text: Phaser.GameObjects.Text | null;
+  /** Optional Finish Portal sprite (Phase 12A-2); null when no/absent texture. */
+  private readonly portal: Phaser.GameObjects.Image | null;
+  private readonly portalOriginY: number;
   private readonly horizonY = GAME_HEIGHT * TRACK.horizonRatio;
   private readonly targetY = GAME_HEIGHT * PLAYER.yRatio + 26;
   private t = 0;
@@ -34,6 +48,13 @@ export class TrackGate {
     this.scene = scene;
     this.track = track;
     this.opts = opts;
+    // Portal sits at depth 5: BELOW the procedural beam/text (depth 6) and the
+    // player (depth 10), so it never masks the player. Its centre is transparent.
+    this.portalOriginY = opts.textureOriginY ?? 0.88;
+    this.portal =
+      opts.textureKey && scene.textures.exists(opts.textureKey)
+        ? scene.add.image(0, 0, opts.textureKey).setOrigin(0.5, this.portalOriginY).setDepth(5)
+        : null;
     this.gfx = scene.add.graphics().setDepth(6);
     this.text = opts.label
       ? scene.add
@@ -57,9 +78,13 @@ export class TrackGate {
     if (this.t >= 1) {
       this.crossed = true;
       this.opts.onCross();
-      // Quick fade-out so the beam doesn't linger on the player.
+      // Quick fade-out so the beam (and portal) don't linger on the player.
       this.scene.tweens.add({
-        targets: [this.gfx, ...(this.text ? [this.text] : [])],
+        targets: [
+          this.gfx,
+          ...(this.text ? [this.text] : []),
+          ...(this.portal ? [this.portal] : []),
+        ],
         alpha: 0,
         duration: 220,
         onComplete: () => this.destroy(),
@@ -75,6 +100,16 @@ export class TrackGate {
     const eased = this.t * this.t;
     const y = Phaser.Math.Linear(this.horizonY, this.targetY, eased);
     const { left, right, scale } = this.track.roadEdges(y);
+
+    // Finish Portal sprite (if any): follows the same horizon→player travel,
+    // centred between the road edges, sized to the road width (uniform scale
+    // keeps the transparent centre and aspect). Purely visual.
+    if (this.portal) {
+      const width = (right - left) * PORTAL_WIDTH_FACTOR;
+      this.portal.setPosition((left + right) / 2, y);
+      this.portal.setScale(width / this.portal.width);
+    }
+
     const g = this.gfx;
     g.clear();
 
@@ -105,5 +140,6 @@ export class TrackGate {
   destroy(): void {
     this.gfx.destroy();
     this.text?.destroy();
+    this.portal?.destroy();
   }
 }
