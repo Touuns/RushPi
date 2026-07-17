@@ -5,6 +5,7 @@ const HOME_CANDIDATES_URL = "../../docs/art/generated/12A_HOME_CANDIDATES_INTAKE
 const DAILY_CANDIDATES_URL = "../../docs/art/generated/12A_DAILY_CANDIDATES_INTAKE.json";
 const CHAIN_BLOCK_CANDIDATES_URL = "../../docs/art/generated/12A_CHAIN_BLOCK_CANDIDATES_INTAKE.json";
 const FINISH_PORTAL_CANDIDATES_URL = "../../docs/art/generated/12A_FINISH_PORTAL_CANDIDATES_INTAKE.json";
+const PRODUCTION_ASSETS_URL = "../../docs/art/generated/12A_PRODUCTION_ASSETS_INTAKE.json";
 
 const gallery = document.querySelector("#gallery");
 const filters = document.querySelector("#category-filters");
@@ -35,6 +36,8 @@ const chainBlockComparison = document.querySelector("#chain-block-comparison");
 const finishPortalStatus = document.querySelector("#finish-portal-status");
 const finishPortalGrid = document.querySelector("#finish-portal-grid");
 const finishPortalComparison = document.querySelector("#finish-portal-comparison");
+const productionAssetsStatus = document.querySelector("#production-assets-status");
+const productionAssetsGrid = document.querySelector("#production-assets-grid");
 
 let assets = [];
 let activeCategory = "all";
@@ -639,6 +642,94 @@ async function loadFinishPortalCandidates() {
   }
 }
 
+const productionGroups = [
+  ["Home", ["home-background-production-414", "home-background-production-828"], "tools/art-preview/generated/phase-12a/production-validation/home-production-comparison.webp"],
+  ["Daily", ["daily-market-tunnel-production-414", "daily-market-tunnel-production-828"], "tools/art-preview/generated/phase-12a/production-validation/daily-production-comparison.webp"],
+  ["Chain Block", ["chain-block-production-32", "chain-block-production-64", "chain-block-production-128"], "tools/art-preview/generated/phase-12a/production-validation/chain-block-production-validation.webp"],
+  ["Finish Portal", ["finish-portal-production-256", "finish-portal-production-512"], "tools/art-preview/generated/phase-12a/production-validation/finish-portal-production-validation.webp"],
+];
+
+function productionSimulation(title, assets) {
+  if (title === "Chain Block") {
+    const asset = assets.find((entry) => entry.id === "chain-block-production-128");
+    return chainBlockSimulation({ previewPaths: { "128": asset.outputPath } });
+  }
+  if (title === "Finish Portal") {
+    const asset = assets.find((entry) => entry.id === "finish-portal-production-512");
+    return finishPortalTrackGate({ variant: "Production", previewPaths: { preview512: asset.outputPath } });
+  }
+  const stage = document.createElement("div");
+  stage.className = "production-background-simulation";
+  const id = title === "Home" ? "home-background-production-414" : "daily-market-tunnel-production-414";
+  const image = new Image();
+  image.src = repoFileUrl(assets.find((entry) => entry.id === id).outputPath);
+  image.alt = `${title} production simulation`;
+  stage.append(image, title === "Home" ? homeUiSimulation() : dailyGameplaySimulation());
+  return stage;
+}
+
+function productionGroupCard(title, ids, comparisonPath, assets) {
+  const article = document.createElement("article");
+  article.className = "production-card";
+  const heading = document.createElement("div");
+  heading.className = "candidate-card__heading";
+  heading.innerHTML = `<h3>${title}</h3><span class="candidate-card__status">processed-needs-review</span>`;
+  const comparison = new Image();
+  comparison.src = repoFileUrl(comparisonPath);
+  comparison.alt = `${title} · comparaison master et production`;
+  comparison.className = "production-card__comparison";
+  const sizes = document.createElement("div");
+  sizes.className = "production-card__sizes";
+  for (const id of ids) {
+    const asset = assets.find((entry) => entry.id === id);
+    const figure = document.createElement("figure");
+    const image = new Image();
+    image.src = repoFileUrl(asset.outputPath);
+    image.alt = `${asset.id}, ${asset.width} par ${asset.height}`;
+    const caption = document.createElement("figcaption");
+    caption.textContent = `${asset.width}×${asset.height} · ${formatBytes(asset.bytes)}`;
+    figure.append(image, caption);
+    sizes.append(figure);
+  }
+  const simulation = document.createElement("p");
+  simulation.className = "production-card__note";
+  simulation.textContent = title === "Home" ? "Cadre Home documentaire · master/runtime" : title === "Daily" ? "Piste trapézoïdale et trois lanes documentaires" : title === "Chain Block" ? "Fonds noir, blanc, magenta · Magnet et collecte" : "Fonds de contrôle · horizon, mi-piste, ligne joueur, pivot et ouverture";
+  article.append(heading, comparison, sizes, productionSimulation(title, assets), simulation);
+  return article;
+}
+
+async function loadProductionAssets() {
+  try {
+    const response = await fetch(PRODUCTION_ASSETS_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const document = await response.json();
+    if (
+      document.integrationAllowed !== false ||
+      document.status !== "needs-review" ||
+      document.assets?.length !== 9 ||
+      document.assets.some((asset) => asset.integratedInGameplay !== false || asset.status !== "processed-needs-review")
+    ) throw new Error("garde-fous Production Assets invalides");
+    productionAssetsGrid.replaceChildren(...productionGroups.map(([title, ids, comparison]) => productionGroupCard(title, ids, comparison, document.assets)));
+    productionAssetsStatus.textContent = `${document.phase} · 9 assets · integration disabled`;
+  } catch (error) {
+    productionAssetsStatus.textContent = `Assets de production indisponibles (${error.message}).`;
+    productionAssetsStatus.classList.add("is-error");
+  }
+}
+
+async function waitForProductionReadiness() {
+  await document.fonts.ready;
+  const images = [...document.querySelectorAll("#production-assets img")];
+  await Promise.all(images.map(async (image) => {
+    if (!image.complete) await new Promise((resolve, reject) => { image.addEventListener("load", resolve, { once: true }); image.addEventListener("error", reject, { once: true }); });
+    if (image.naturalWidth <= 0) throw new Error(`Image non chargée: ${image.src}`);
+    if (typeof image.decode === "function") await image.decode();
+  }));
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  if (document.querySelector(".is-error")) throw new Error("La galerie contient une erreur");
+  document.documentElement.dataset.phase12aProductionReady = "true";
+}
+
 async function start() {
   try {
     const response = await fetch(MANIFEST_URL, { cache: "no-store" });
@@ -664,12 +755,20 @@ dialog.addEventListener("click", (event) => {
   if (event.target === dialog) dialog.close();
 });
 
-start();
-loadProductionBriefs();
-loadHomeCandidates();
-loadDailyCandidates();
-loadChainBlockCandidates();
-loadFinishPortalCandidates();
 dailyGameplayToggle.addEventListener("change", () => {
   document.querySelector("#daily-candidates").classList.toggle("is-gameplay-preview", dailyGameplayToggle.checked);
 });
+
+async function bootstrap() {
+  await Promise.all([
+    start(), loadProductionBriefs(), loadHomeCandidates(), loadDailyCandidates(),
+    loadChainBlockCandidates(), loadFinishPortalCandidates(), loadProductionAssets(),
+  ]);
+  try { await waitForProductionReadiness(); }
+  catch (error) {
+    productionAssetsStatus.textContent = `Readiness impossible (${error.message}).`;
+    productionAssetsStatus.classList.add("is-error");
+  }
+}
+
+bootstrap();

@@ -342,6 +342,18 @@ main { max-width: 1440px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 4rem) 5rem
 .finish-player { position:absolute; left:50%; top:82%; z-index:8; display:grid; place-items:center; width:12%; aspect-ratio:1; transform:translate(-50%,-50%); border:3px solid #a78bfa; border-radius:50%; color:#fff; background:#8b5cf6; box-shadow:0 0 16px #8b5cf6; font-weight:800; }
 .finish-obstacle { position:absolute; left:68%; top:63%; z-index:7; width:8%; aspect-ratio:1; transform:translate(-50%,-50%) rotate(45deg); border:2px solid #ff9ab0; background:#ff4d6d; }
 .finish-chain { position:absolute; left:31%; top:48%; z-index:7; width:11%; transform:translate(-50%,-50%); filter:drop-shadow(0 0 8px rgba(255,209,102,.7)); }
+.production-assets-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.production-card { min-width:0; padding:.8rem; border:1px solid var(--line); border-radius:12px; background:rgba(12,7,23,.72); }
+.production-card__comparison { display:block; width:100%; max-height:380px; object-fit:contain; border-radius:8px; background:#0c0717; }
+.production-card__sizes { display:flex; align-items:end; justify-content:space-around; gap:.5rem; margin-top:.65rem; padding:.5rem; border:1px solid var(--line); border-radius:8px; background:#0c0717; }
+.production-card__sizes figure { min-width:0; margin:0; text-align:center; }
+.production-card__sizes img { display:block; width:100%; max-height:210px; object-fit:contain; }
+.production-card__sizes figcaption { margin-top:.3rem; color:var(--dim); font-size:.66rem; }
+.production-card__note { margin:.65rem 0 0; color:var(--dim); font-size:.72rem; }
+.production-background-simulation { position:relative; aspect-ratio:414/736; max-height:520px; margin:.65rem auto 0; overflow:hidden; border:1px solid var(--line); border-radius:10px; background:#0c0717; }
+.production-background-simulation > img { width:100%; height:100%; object-fit:cover; }
+.production-background-simulation .home-ui-simulation,
+.production-background-simulation .daily-gameplay-simulation { opacity:1; }
 .home-ui-simulation__header,
 .home-ui-simulation__profile,
 .home-ui-simulation__card {
@@ -468,6 +480,7 @@ main { max-width: 1440px; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 4rem) 5rem
   .candidates-heading { align-items: start; flex-direction: column; }
   .candidates-heading__controls { justify-items: start; }
   .candidates-grid { grid-template-columns: 1fr; }
+  .production-assets-grid { grid-template-columns:1fr; }
   .asset-card[data-category="backgrounds"] .asset-preview,
   .asset-card[data-category="concepts"] .asset-preview { min-height: 330px; }
   .asset-card[data-category="backgrounds"] img,
