@@ -1,6 +1,6 @@
 # Phase 12A-0B-P4 — Finish Portal candidates
 
-Trois candidates indépendantes ont été générées avec le mode intégré OpenAI `imagegen`. Les sources natives opaques `1024×1536` ont été produites sur fond chromatique uniforme, puis extraites avec le helper officiel du workflow `imagegen`. Les masters finaux sont des PNG sRGB `512×768` à alpha réel. Les trois statuts restent `needs-review`; `integrationAllowed` reste `false`.
+Trois candidates indépendantes ont été générées avec le mode intégré OpenAI `imagegen`. Les sources natives opaques `1024×1536` ont été produites sur fond chromatique uniforme, puis extraites avec le helper officiel du workflow `imagegen`. Les masters finaux sont des PNG sRGB `512×768` à alpha réel. La décision humaine finale sélectionne Primary pour le processing de production, conserve Technological et Monumental comme alternatives non sélectionnées, et maintient `integrationAllowed` à `false`.
 
 ## Traitement commun
 
@@ -28,7 +28,7 @@ Trois candidates indépendantes ont été générées avec le mode intégré Ope
 - Daily Primary v2 / Chain Block Primary : contraste violet-or clair, aucune fusion avec le décor ou le collectible.
 - TrackGate : pivot compatible avec le déplacement horizon → joueur; le beam, le flash et `FINISH` restent séparés.
 - Défaut : sommet moins cérémoniel que Monumental.
-- Recommandation Codex : `preferred-balanced-finish-gate`.
+- Décision humaine finale : `approved-for-processing`, recommandation `selected-for-production-processing`. Primary est sélectionnée comme Finish Portal Daily de production.
 
 ## Technological
 
@@ -48,7 +48,7 @@ Trois candidates indépendantes ont été générées avec le mode intégré Ope
 - Daily Primary v2 / Chain Block Primary : accents cyan limités, silhouette très différente du collectible compact.
 - TrackGate : pivot et croissance progressive compatibles; ouverture conservée derrière le joueur et les FX.
 - Défaut : centre de masse décalé de 11,8 px vers la gauche par la perspective.
-- Recommandation Codex : `strong-technical-alternative`.
+- Décision humaine finale : `needs-review`, recommandation `retained-as-technical-fallback`. Technological est conservée comme fallback technique léger et n’est pas sélectionnée pour le processing principal.
 
 ## Monumental
 
@@ -68,7 +68,7 @@ Trois candidates indépendantes ont été générées avec le mode intégré Ope
 - Daily Primary v2 / Chain Block Primary : excellente séparation d’échelle et de fonction, sans ressemblance avec un token ou un obstacle.
 - TrackGate : pivot compatible et centre traversable; destruction visuelle propre possible après passage, sans modifier la logique existante.
 - Défaut : couronne et pointes plus décoratives, structure plus proche des limites latérales.
-- Recommandation Codex : `ceremonial-alternative-needs-silhouette-review`.
+- Décision humaine finale : `needs-review`, recommandation `retained-as-ceremonial-alternative`. Monumental est conservée comme alternative cérémonielle ou pour un futur usage spécial et n’est pas sélectionnée pour le processing principal.
 
 ## Tests documentaires
 
@@ -80,8 +80,16 @@ Trois candidates indépendantes ont été générées avec le mode intégré Ope
 - TrackGate : pivot `(0.5,0.88)`, changement d’échelle, centre traversable, texte `FINISH`, beam/flash séparés et disparition après passage sont compatibles documentairement.
 - Viewports `375×667` et `414×736` : la grille passe en une colonne; les simulations conservent leur ratio et leurs couches dans le viewport.
 
+### Dette de validation responsive
+
+- Les tests responsive structurels sont réussis pour `375×667` et `414×736`.
+- Les captures Chrome headless ont échoué parce que l’ancre était capturée avant la fin du rendu asynchrone, produisant un fond vide non exploitable.
+- Une capture visuelle entièrement chargée dans chacun de ces deux viewports devra être refaite pendant 12A-0C ou avant toute intégration.
+
 ## Conclusion
 
-Primary est la candidate recommandée par Codex pour la validation humaine grâce au meilleur équilibre entre ouverture, masse, lisibilité et neutralité fonctionnelle. Technological constitue une alternative plus légère et précise. Monumental offre la meilleure célébration visuelle, avec une silhouette plus décorative à surveiller.
+Primary est sélectionnée pour le processing de production avec le statut `approved-for-processing` et la recommandation `selected-for-production-processing`.
 
-Les trois candidates restent strictement `needs-review`. Aucune candidate n’est `approved-for-processing` ou `approved-for-integration`. `integrationAllowed` reste `false`; aucune intégration Phaser, React, gameplay ou runtime n’est autorisée par cette phase.
+Technological reste `needs-review` et est conservée comme fallback technique léger avec la recommandation `retained-as-technical-fallback`. Monumental reste `needs-review` et est conservée comme alternative cérémonielle ou pour un futur usage spécial avec la recommandation `retained-as-ceremonial-alternative`.
+
+Aucune candidate n’est `approved-for-integration`. `integrationAllowed` reste `false`; aucune intégration Phaser, React, gameplay ou runtime n’est autorisée par cette phase.

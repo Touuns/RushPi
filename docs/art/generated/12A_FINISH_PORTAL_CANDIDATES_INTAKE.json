@@ -7,7 +7,7 @@
     {
       "id": "finish-portal-primary-candidate-v1",
       "variant": "Primary",
-      "status": "needs-review",
+      "status": "approved-for-processing",
       "masterPath": "art-sources/phase-12a/finish-portal/finish-portal-primary-candidate-v1.png",
       "previewPaths": {
         "preview512": "tools/art-preview/generated/phase-12a/finish-portal/finish-portal-primary-candidate-v1-preview.webp",
@@ -56,7 +56,7 @@
         "trackGateCompatible": true
       },
       "issues": ["Le sommet très horizontal est moins cérémoniel que Monumental."],
-      "recommendation": "preferred-balanced-finish-gate"
+      "recommendation": "selected-for-production-processing"
     },
     {
       "id": "finish-portal-technological-candidate-v1",
@@ -110,7 +110,7 @@
         "trackGateCompatible": true
       },
       "issues": ["L’asymétrie perspective décale légèrement le centre de masse vers la gauche."],
-      "recommendation": "strong-technical-alternative"
+      "recommendation": "retained-as-technical-fallback"
     },
     {
       "id": "finish-portal-monumental-candidate-v1",
@@ -164,7 +164,7 @@
         "trackGateCompatible": true
       },
       "issues": ["La couronne et les pointes latérales sont plus décoratives et plus proches des limites structurelles que les deux autres candidates."],
-      "recommendation": "ceremonial-alternative-needs-silhouette-review"
+      "recommendation": "retained-as-ceremonial-alternative"
     }
   ]
 }
