@@ -1,6 +1,6 @@
 {
   "phase": "12A-0C",
-  "status": "approved-for-integration",
+  "status": "integration-in-progress",
   "integrationAllowed": true,
   "sourceCommit": "94f249362790a59c0611c091f17768b4ffe938f3",
   "assets": [
@@ -13,7 +13,7 @@
       "outputSha256": "d40286edae178261e26a9102b053cc0fef487c33079715e4e0f4506f0c7c9109",
       "format": "webp", "width": 414, "height": 736, "bytes": 17726, "colorSpace": "sRGB", "opaque": true,
       "processingParameters": { "resize": "lanczos3-uniform", "quality": 82, "effort": 6, "smartSubsample": true, "metadata": "stripped" },
-      "budgetBytes": 184320, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 184320, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "home-background-production-828",
@@ -24,7 +24,7 @@
       "outputSha256": "f9b04176e5af900695eaa572223cd2c7ce95fdfd66fdd4e9bd26261ea0fa68d0",
       "format": "webp", "width": 828, "height": 1472, "bytes": 46298, "colorSpace": "sRGB", "opaque": true,
       "processingParameters": { "resize": "lanczos3-uniform", "quality": 82, "effort": 6, "smartSubsample": true, "metadata": "stripped" },
-      "budgetBytes": 358400, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 358400, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "daily-market-tunnel-production-414",

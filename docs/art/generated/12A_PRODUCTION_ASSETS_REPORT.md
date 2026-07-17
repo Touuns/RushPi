@@ -72,3 +72,12 @@ Résultats réels :
 - Les quatre captures contiennent les assets et simulations chargés; aucun fond vide n’a été produit.
 
 Les captures sont temporaires et ne sont pas commitées.
+
+## Phase 12A-1 — Home integration
+
+- **Fichiers React/CSS modifiés** : `src/App.tsx` (couche `.home-bg` avec `<img srcSet>` 1x/2x + `onError`, rendue uniquement quand `screen === "home"`) et `src/styles/global.css` (`.home { z-index:1 }`, `.home-bg`, `.home-bg__img`, `@keyframes home-bg-fade`, `@media (prefers-reduced-motion: reduce)`).
+- **Intégration réelle effectuée** : le fond Home Primary de production s'affiche derrière l'interface Home réelle (pas seulement la galerie), dans le cadre non scrollant `.app-frame`, en frère du conteneur scrollant `.home`. `currentSrc` vérifié : 414w en DPR 1, 828w en DPR 2.
+- **Gradients conservés comme fallback** : les `radial-gradient` de `.app-frame` restent derrière la couche ; en cas d'échec du WebP, `onError` masque l'`<img>` et seul le gradient s'affiche (aucun flash blanc, aucune icône cassée).
+- **Deux assets Home marqués intégrés** : `home-background-production-414` et `home-background-production-828` passent à `productionStatus = integrated-needs-validation` et `integratedInGameplay = true` (intake + manifeste). État global de l'intake : `integration-in-progress` (`integrationAllowed = true`).
+- **Sept assets restants non intégrés** : Daily (×2), Chain Block (×3) et Finish Portal (×2) restent `approved-for-integration` / `integratedInGameplay = false`.
+- **Validation humaine encore requise** : contraste/lisibilité des textes sur le fond réel, rendu Pi Browser mobile, et confirmation du choix « Primary » avant validation finale. Les fichiers image restent byte-identiques (aucun réencodage).

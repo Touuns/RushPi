@@ -26,6 +26,16 @@ const specs = [
 const errors = [];
 const fail = (message) => errors.push(message);
 const sha256 = (file) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+
+// Phase 12A-1: the pipeline moves from a uniform pre-integration state to a
+// partial-integration state. The ONLY two coherent status/flag pairings are:
+//   approved-for-integration   <-> integratedInGameplay === false
+//   integrated-needs-validation <-> integratedInGameplay === true
+// Any other combination is rejected. Dimension/hash/budget/path/pivot checks
+// below are unchanged.
+const validPairing = (status, integrated) =>
+  (status === "approved-for-integration" && integrated === false) ||
+  (status === "integrated-needs-validation" && integrated === true);
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -73,8 +83,7 @@ for (const [id, relative, format, width, height, budget, alphaExpected] of specs
   if (!entry) fail(`${id}: absent from manifest`);
   else {
     if (entry.file !== `production/${relative}` || entry.format !== format || entry.size !== `${width}x${height}`) fail(`${id}: manifest path/format/size mismatch`);
-    if (entry.integratedInGameplay !== false) fail(`${id}: integratedInGameplay must be false`);
-    if (entry.productionStatus !== "approved-for-integration") fail(`${id}: invalid productionStatus`);
+    if (!validPairing(entry.productionStatus, entry.integratedInGameplay)) fail(`${id}: inconsistent manifest productionStatus/integratedInGameplay (${entry.productionStatus}/${entry.integratedInGameplay})`);
     if (!entry.selectedSource || !entry.runtimeRole) fail(`${id}: selectedSource/runtimeRole missing`);
     else {
       const sourceMetadata = await sharp(path.join(root, ...entry.selectedSource.split("/"))).metadata();
@@ -87,13 +96,26 @@ for (const [id, relative, format, width, height, budget, alphaExpected] of specs
 }
 
 const intakePath = path.join(root, "docs/art/generated/12A_PRODUCTION_ASSETS_INTAKE.json");
+let intakeStatus = "missing";
+let intakeIntegratedCount = 0;
 if (fs.existsSync(intakePath)) {
   const intake = JSON.parse(fs.readFileSync(intakePath, "utf8"));
-  if (intake.status !== "approved-for-integration" || intake.integrationAllowed !== true) fail("Production intake global approval state is invalid");
-  if (intake.assets?.length !== 9 || intake.assets.some((asset) => asset.status !== "approved-for-integration" || asset.integratedInGameplay !== false)) fail("Production intake contains a mixed or already-integrated state");
+  intakeStatus = intake.status;
+  // integrationAllowed must always be true; the global status may be either the
+  // pre-integration or the partial-integration state (Phase 12A-1).
+  const allowedGlobal = ["approved-for-integration", "integration-in-progress"];
+  if (!allowedGlobal.includes(intake.status) || intake.integrationAllowed !== true) fail("Production intake global approval state is invalid");
+  if (intake.assets?.length !== 9) fail(`Production intake must list nine assets, got ${intake.assets?.length}`);
+  intakeIntegratedCount = (intake.assets ?? []).filter((asset) => asset.integratedInGameplay === true).length;
+  for (const asset of intake.assets ?? []) {
+    if (!validPairing(asset.status, asset.integratedInGameplay)) fail(`${asset.id}: inconsistent intake status/integratedInGameplay (${asset.status}/${asset.integratedInGameplay})`);
+  }
+  // Global/asset coherence — reject undocumented mixed states.
+  if (intake.status === "approved-for-integration" && intakeIntegratedCount !== 0) fail("Global approved-for-integration but at least one asset is integrated");
+  if (intake.status === "integration-in-progress" && intakeIntegratedCount < 1) fail("Global integration-in-progress but no asset is integrated");
   for (const [id] of specs) {
     const asset = intake.assets?.find((entry) => entry.id === id);
-    if (!asset?.manifestDeclared || asset.status !== "approved-for-integration" || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);
+    if (!asset?.manifestDeclared || !validPairing(asset.status, asset.integratedInGameplay) || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);
   }
 } else fail("Missing 12A_PRODUCTION_ASSETS_INTAKE.json");
 
@@ -102,4 +124,4 @@ if (errors.length) {
   for (const error of errors) console.error(`- ${error}`);
   process.exit(1);
 }
-console.log("\nPhase 12A production validation passed: 9/9 approved, 65 manifest assets, not yet integrated.");
+console.log(`\nPhase 12A production validation passed: 9 assets, 65 manifest assets, global=${intakeStatus}, ${intakeIntegratedCount} integrated / ${9 - intakeIntegratedCount} awaiting.`);
