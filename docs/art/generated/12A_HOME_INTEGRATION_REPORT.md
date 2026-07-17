@@ -23,10 +23,30 @@ Aucun fichier sous `src/game/`, `api/`, `supabase/` ; aucun fichier image ; `pac
 - 1x : `public/assets/rushpi/production/backgrounds/home-background-production-414w.webp` (414×736, sha256 `d40286ed…`)
 - 2x : `public/assets/rushpi/production/backgrounds/home-background-production-828w.webp` (828×1472, sha256 `f9b04176…`)
 
-## Comportement 1x/2x (mesuré)
-- `srcSet="…-414w.webp 1x, …-828w.webp 2x"`, `src=…-414w.webp`.
-- DPR 1 → `currentSrc = home-background-production-414w.webp`.
-- DPR 2 → `currentSrc = home-background-production-828w.webp`.
+## Comportement responsive (mesuré)
+
+Sélection initiale (12A-1) : descripteurs **DPR** (`414w.webp 1x, 828w.webp 2x`).
+Limite : à 480 CSS px et DPR 1, le navigateur choisissait la 414 px et l'agrandissait à 480 px.
+
+Correction (12A-1, source responsive affinée) : descripteurs de **largeur** + `sizes`.
+- `src="…-414w.webp"`
+- `srcSet="…-414w.webp 414w, …-828w.webp 828w"`
+- `sizes="(max-width: 480px) 100vw, 480px"`
+
+Le navigateur choisit désormais selon la largeur de slot (issue de `sizes`) × DPR, au lieu du seul DPR.
+
+`currentSrc` réellement observé (Chromium, navigation fraîche par configuration) :
+
+| Viewport CSS | DPR | currentSrc | Attendu |
+|---|---:|---|---|
+| 375×667 | 1 | `home-background-production-414w.webp` | 414w ✓ |
+| 375×667 | 2 | `home-background-production-828w.webp` | 828w ✓ |
+| 414×736 | 1 | `home-background-production-414w.webp` | 414w ✓ |
+| 414×736 | 2 | `home-background-production-828w.webp` | 828w ✓ |
+| 480×800 | 1 | `home-background-production-828w.webp` | 828w ✓ (était 414w avant) |
+| 1280×800 (cadre 480) | 1 | `home-background-production-828w.webp` | 828w ✓ |
+
+Le choix exact reste sous contrôle du navigateur ; les valeurs ci-dessus sont les `currentSrc` réels mesurés, non falsifiés.
 
 ## Fallback
 - Les gradients `.app-frame` restent visibles avant décodage, si le WebP échoue, si la requête est bloquée ou sur un navigateur ne chargeant pas l'asset.

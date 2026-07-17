@@ -436,9 +436,10 @@ export default function App() {
             className="home-bg__img"
             src="/assets/rushpi/production/backgrounds/home-background-production-414w.webp"
             srcSet={
-              "/assets/rushpi/production/backgrounds/home-background-production-414w.webp 1x, " +
-              "/assets/rushpi/production/backgrounds/home-background-production-828w.webp 2x"
+              "/assets/rushpi/production/backgrounds/home-background-production-414w.webp 414w, " +
+              "/assets/rushpi/production/backgrounds/home-background-production-828w.webp 828w"
             }
+            sizes="(max-width: 480px) 100vw, 480px"
             alt=""
             aria-hidden="true"
             draggable={false}
