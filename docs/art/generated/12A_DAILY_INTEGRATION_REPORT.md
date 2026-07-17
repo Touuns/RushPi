@@ -72,6 +72,18 @@ Le module ne contient aucun `Math.random`, ne consomme aucun tirage RNG, n'ajout
 - `Image().src` ne passe pas par `window.fetch` → pour tester le fallback en MCP, override de `window.Image` (ou retrait des textures au démarrage).
 - Le fond Daily crée son image avant tout enregistrement des autres couches — placé au tout début de `create()` (depth -20).
 
+## Hardening (Phase 12A-2, avant preview/Pi Browser)
+
+**Enregistrement Daily-only.** Dans `MainScene.create()`, `registerDailyProductionTextures(this)` **et** la création du fond sont désormais tous deux contenus dans `if (this.mode === "daily") { … }`. Les logos gardent leur garde `this.dailyChallenge`. Résultat (vérifié MCP) : Daily → 3 clés `prod:*` enregistrées ; Training/Survival/Campaign → **aucune** clé `prod:*` ; après Daily puis Survival (Phaser.Game recréé), le nouveau TextureManager Survival ne contient **aucune** clé `prod:*`.
+
+**Timeout réellement terminal** (`productionAssets.ts`, assets Rush Pi de production uniquement — les logos CoinGecko de `tokenAssetCache.ts` sont hors périmètre). Chaque chargement porte un état `settled` et une fonction `cancel()`. Au timeout de groupe (5 s) : pour chaque `Image` encore active, `cancel()` (1) **détache** `onload`/`onerror` (mis à `null`), (2) marque `settled = true` (toute callback tardive est un no-op), (3) **annule la requête** en assignant une **data URI locale** (jamais `""` → aucune requête vers le document courant), (4) résout la promesse une seule fois **sans** écrire dans `images`. La promesse de groupe est résolue exactement une fois puis le timer est nettoyé ; une complétion normale annule le timer (aucune annulation). Le seul chemin d'écriture au cache est `onload → settle(true) → images.set` ; `onload` étant détaché, une complétion tardive ne peut plus écrire.
+
+**Résultats des tests (MCP réel) :**
+- Chargement normal : 3 images chargées → 3 textures Daily enregistrées.
+- Timeout forcé (production suspendue) : la run démarre (~5,36 s), **0 texture `prod:*`**, fallback procédural ; les 3 `Image` suspendues sont neutralisées (`onload===null`, `onerror===null`, `src` = data URI) ; un `load` tardif dispatché ensuite ne jette pas et n'écrit rien → au **replay** Daily, toujours **0 texture `prod:*`** (cache resté vide, aucune écriture tardive).
+- Daily → `prod:chain-block`, `prod:daily-bg`, `prod:finish-portal` ; Training/Survival/Campaign → aucune ; Daily→Survival → Survival recréé sans `prod:*`.
+- RNG/score/timing/collisions inchangés (aucune modification de gameConfig/seededRandom/spawn ; seuls le garde de mode et le workflow de timeout changent).
+
 ## Décisions humaines restantes
 - **Pi Browser réel non testé ici** — dette : valider par l'utilisateur après déploiement preview (chargement WebP/PNG, FPS, absence de flash vide, portail final, plusieurs runs).
 - Validation visuelle humaine finale de la run Daily (contraste des Chain Blocks/tokens sur le fond de production, lisibilité au soleil).

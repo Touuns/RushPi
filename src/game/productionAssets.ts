@@ -102,38 +102,100 @@ export function allProductionPaths(): string[] {
 }
 
 const GROUP_TIMEOUT_MS = 5000;
+// 1×1 transparent PNG — assigned to a cancelled Image to abort its in-flight
+// same-origin request WITHOUT triggering a request to the current document
+// (which `img.src = ""` would). Local decode only, no network.
+const TRANSPARENT_PIXEL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+
 // Cache of decoded images, keyed by resolved path — survives across Phaser runs.
 const images = new Map<string, HTMLImageElement>();
 
+/**
+ * A single in-flight production image load. `settled` guarantees the load is
+ * counted exactly once; `cancel()` makes a still-running load DEFINITIVELY
+ * terminal (Phase 12A-2 hardening): it detaches the handlers, aborts the pending
+ * request, blocks any later cache write, and resolves. Scope: the three Rush Pi
+ * production assets ONLY — the CoinGecko logo cache (tokenAssetCache.ts) is not
+ * touched by this and keeps its historical behaviour.
+ */
+interface ActiveLoad {
+  cancel: () => void;
+}
+const active = new Set<ActiveLoad>();
+
 function loadOne(path: string): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     if (images.has(path)) {
       resolve();
       return;
     }
     const img = new Image();
-    img.decoding = "async";
-    img.onload = () => {
-      if (img.naturalWidth > 0) images.set(path, img);
+    let settled = false;
+    const load: ActiveLoad = { cancel: () => {} };
+
+    // Central settle: detach handlers, deregister, cache only on success, resolve
+    // exactly once. `cache=false` is used on error AND on cancellation.
+    const settle = (cache: boolean) => {
+      if (settled) return;
+      settled = true;
+      img.onload = null;
+      img.onerror = null;
+      active.delete(load);
+      if (cache && img.naturalWidth > 0) images.set(path, img);
       resolve();
     };
-    img.onerror = () => resolve(); // failure → procedural fallback later
+
+    load.cancel = () => {
+      if (settled) return;
+      // Detach handlers BEFORE neutralising src so the abort/decode can never
+      // reach settle(); mark settled so a stray callback is a no-op; abort the
+      // network request by swapping to a local data URI (never the empty string).
+      img.onload = null;
+      img.onerror = null;
+      settled = true;
+      active.delete(load);
+      img.src = TRANSPARENT_PIXEL; // aborts the in-flight request, no new fetch
+      resolve(); // resolves without caching → no late write to `images`
+    };
+
+    img.onload = () => settle(true);
+    img.onerror = () => settle(false); // failure → procedural fallback later
+    active.add(load);
+    img.decoding = "async";
     img.src = path; // same-origin: no CORS needed
   });
 }
 
 /**
  * Preload the active production images (one per logical asset). Runs in the Daily
- * preparation screen, in parallel with the token logos. Always resolves within
- * the group timeout; a failed asset just stays absent (procedural fallback).
+ * preparation screen, in parallel with the token logos. Always resolves.
+ *
+ * The group timeout is TERMINAL (Phase 12A-2 hardening): when it fires, every
+ * still-active load is cancelled so no late `onload` can register a texture or
+ * write to the cache during a run, and no request keeps running. Applies to the
+ * three Rush Pi production assets only.
  */
 export async function preloadDailyProductionAssets(): Promise<void> {
   const pending = Object.values(activePaths()).filter((p) => !images.has(p));
   if (pending.length === 0) return;
-  await Promise.race([
-    Promise.all(pending.map(loadOne)).then(() => undefined),
-    new Promise<void>((resolve) => setTimeout(resolve, GROUP_TIMEOUT_MS)),
-  ]);
+  await new Promise<void>((resolve) => {
+    let done = false;
+    const finishGroup = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve();
+    };
+    const timer = setTimeout(() => {
+      // Terminal timeout: cancel every in-flight production load (no late cache
+      // write, no lingering request), then resolve the group exactly once.
+      for (const load of [...active]) load.cancel();
+      finishGroup();
+    }, GROUP_TIMEOUT_MS);
+    // Normal completion clears the timer, so no cancellation happens.
+    void Promise.all(pending.map(loadOne)).then(finishGroup);
+  });
 }
 
 /** Loaded image for a logical key at the active resolution, or null if absent. */
