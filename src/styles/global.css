@@ -129,6 +129,47 @@ body {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior: contain;
+  /* Sit explicitly above the decorative production background layer (Phase 12A-1). */
+  z-index: 1;
+}
+
+/* Phase 12A-1 — production Home background.
+   A decorative layer inside the NON-scrolling .app-frame (a sibling of .home),
+   so it stays fixed while the Home content scrolls. It never intercepts input
+   and sits below the content; the .app-frame gradients remain visible behind it
+   as the fallback (before decode / if WebP is unavailable). */
+.home-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.home-bg__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  /* Discreet reveal over the gradient — opacity only, no layout shift. */
+  animation: home-bg-fade 320ms ease both;
+}
+
+@keyframes home-bg-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-bg__img {
+    animation: none;
+  }
 }
 
 .home__brand {

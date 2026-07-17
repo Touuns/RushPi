@@ -425,6 +425,35 @@ export default function App() {
 
   return (
     <div className="app-frame">
+      {/* Phase 12A-1: decorative production Home background. It lives in the
+          NON-scrolling frame (a sibling behind the scrolling .home content), so
+          it stays fixed during Home scroll, never intercepts input, and only
+          exists on the Home screen. The .app-frame gradients remain behind it as
+          the fallback (before decode / if WebP is unavailable). */}
+      {screen === "home" && (
+        <div className="home-bg" aria-hidden="true">
+          <img
+            className="home-bg__img"
+            src="/assets/rushpi/production/backgrounds/home-background-production-414w.webp"
+            srcSet={
+              "/assets/rushpi/production/backgrounds/home-background-production-414w.webp 1x, " +
+              "/assets/rushpi/production/backgrounds/home-background-production-828w.webp 2x"
+            }
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            decoding="async"
+            fetchPriority="high"
+            loading="eager"
+            onError={(e) => {
+              // If the WebP can't load (unsupported/blocked/missing), hide the
+              // <img> so only the .app-frame gradient fallback shows — no broken
+              // image icon, no white flash.
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
+      )}
       {screen === "home" && (
         <HomeScreen
           profile={data.profile}
