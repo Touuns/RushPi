@@ -101,9 +101,16 @@ let intakeIntegratedCount = 0;
 if (fs.existsSync(intakePath)) {
   const intake = JSON.parse(fs.readFileSync(intakePath, "utf8"));
   intakeStatus = intake.status;
-  // integrationAllowed must always be true; the global status may be either the
-  // pre-integration or the partial-integration state (Phase 12A-1).
-  const allowedGlobal = ["approved-for-integration", "integration-in-progress"];
+  // integrationAllowed must always be true; the global status may be any of the
+  // three coherent phases (Phase 12A-1/12A-2):
+  //   approved-for-integration    → 0 of 9 integrated;
+  //   integration-in-progress     → a strict partial (1..8) integrated;
+  //   integrated-needs-validation → all 9 integrated.
+  const allowedGlobal = [
+    "approved-for-integration",
+    "integration-in-progress",
+    "integrated-needs-validation",
+  ];
   if (!allowedGlobal.includes(intake.status) || intake.integrationAllowed !== true) fail("Production intake global approval state is invalid");
   if (intake.assets?.length !== 9) fail(`Production intake must list nine assets, got ${intake.assets?.length}`);
   intakeIntegratedCount = (intake.assets ?? []).filter((asset) => asset.integratedInGameplay === true).length;
@@ -112,7 +119,8 @@ if (fs.existsSync(intakePath)) {
   }
   // Global/asset coherence — reject undocumented mixed states.
   if (intake.status === "approved-for-integration" && intakeIntegratedCount !== 0) fail("Global approved-for-integration but at least one asset is integrated");
-  if (intake.status === "integration-in-progress" && intakeIntegratedCount < 1) fail("Global integration-in-progress but no asset is integrated");
+  if (intake.status === "integration-in-progress" && (intakeIntegratedCount < 1 || intakeIntegratedCount >= 9)) fail(`Global integration-in-progress requires a partial (1..8) integration, got ${intakeIntegratedCount}`);
+  if (intake.status === "integrated-needs-validation" && intakeIntegratedCount !== 9) fail(`Global integrated-needs-validation requires all nine integrated, got ${intakeIntegratedCount}`);
   for (const [id] of specs) {
     const asset = intake.assets?.find((entry) => entry.id === id);
     if (!asset?.manifestDeclared || !validPairing(asset.status, asset.integratedInGameplay) || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);

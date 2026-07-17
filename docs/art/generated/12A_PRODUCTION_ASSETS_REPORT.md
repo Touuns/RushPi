@@ -81,3 +81,11 @@ Les captures sont temporaires et ne sont pas commitées.
 - **Deux assets Home marqués intégrés** : `home-background-production-414` et `home-background-production-828` passent à `productionStatus = integrated-needs-validation` et `integratedInGameplay = true` (intake + manifeste). État global de l'intake : `integration-in-progress` (`integrationAllowed = true`).
 - **Sept assets restants non intégrés** : Daily (×2), Chain Block (×3) et Finish Portal (×2) restent `approved-for-integration` / `integratedInGameplay = false`.
 - **Validation humaine encore requise** : contraste/lisibilité des textes sur le fond réel, rendu Pi Browser mobile, et confirmation du choix « Primary » avant validation finale. Les fichiers image restent byte-identiques (aucun réencodage).
+
+## Phase 12A-2 — Daily production visuals integration
+
+- **Assets intégrés** : les sept assets Daily restants (Daily Market Tunnel 414/828, Chain Block 32/64/128, Finish Portal 256/512) passent à `productionStatus = integrated-needs-validation` / `integratedInGameplay = true` (intake + manifeste). Avec les deux Home déjà intégrés, **les neuf assets** sont désormais intégrés ; l'état global de l'intake devient `integrated-needs-validation` (`integrationAllowed = true`).
+- **Rendu** : fond Daily de production (depth -20, `mode === "daily"` uniquement, sous BackgroundFX/piste/particules) ; Chain Block sprite de production (contrat/hitbox/collision inchangés, fallback procédural) ; Finish Portal (TrackGate `daily-finish` uniquement, origin 0.5/0.88, depth 5 sous le joueur, texte FINISH et timing 1300 ms conservés, fallback procédural). Sélection de résolution déterministe par appareil (DPR + heuristique bas de gamme), aucun tirage RNG.
+- **Fichiers React/Phaser** : `src/game/productionAssets.ts` (nouveau), `src/components/DailyPreparationScreen.tsx`, `src/game/scenes/MainScene.ts`, `src/game/dailyTokens.ts`, `src/game/zoneTransition.ts`. Détails complets dans `12A_DAILY_INTEGRATION_REPORT.md`.
+- **Déterminisme** : schedules seedés (powerup/event/token) byte-identiques avant/après ; aucune modification de gameConfig, seededRandom, spawn, collision, score, durée 60 s. Les neuf images restent byte-identiques.
+- **Validation humaine encore requise** : run Daily réelle + Pi Browser (WebP/PNG, FPS, portail final, plusieurs runs).

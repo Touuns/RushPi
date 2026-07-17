@@ -1,6 +1,6 @@
 {
   "phase": "12A-0C",
-  "status": "integration-in-progress",
+  "status": "integrated-needs-validation",
   "integrationAllowed": true,
   "sourceCommit": "94f249362790a59c0611c091f17768b4ffe938f3",
   "assets": [
@@ -35,7 +35,7 @@
       "outputSha256": "f95dda4f2993caab18a9a8bb7bea7307b3562a57fef83b06240e6c29352013d6",
       "format": "webp", "width": 414, "height": 736, "bytes": 12400, "colorSpace": "sRGB", "opaque": true,
       "processingParameters": { "resize": "lanczos3-uniform", "quality": 82, "effort": 6, "smartSubsample": true, "metadata": "stripped" },
-      "budgetBytes": 204800, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 204800, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "daily-market-tunnel-production-828",
@@ -46,7 +46,7 @@
       "outputSha256": "ed8c001d800fad29f23d8353e62368717f10a32b90beb59aff46db1f7a076289",
       "format": "webp", "width": 828, "height": 1472, "bytes": 36800, "colorSpace": "sRGB", "opaque": true,
       "processingParameters": { "resize": "lanczos3-uniform", "quality": 82, "effort": 6, "smartSubsample": true, "metadata": "stripped" },
-      "budgetBytes": 358400, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 358400, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "chain-block-production-32", "role": "chain-block-small",
@@ -54,7 +54,7 @@
       "outputPath": "public/assets/rushpi/production/collectibles/chain-block-production-32w.png", "outputSha256": "4583736aed43b210d9020d4b0d48922d8b7d4fd9a08313a254a5d7e2d20b30ec",
       "format": "png", "width": 32, "height": 32, "bytes": 2040, "colorSpace": "sRGB", "transparent": true, "pivot": { "x": 0.5, "y": 0.5 },
       "processingParameters": { "resize": "lanczos3-uniform", "lossless": true, "compressionLevel": 9, "adaptiveFiltering": true, "metadata": "stripped" },
-      "budgetBytes": 18432, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 18432, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "chain-block-production-64", "role": "chain-block-standard",
@@ -62,7 +62,7 @@
       "outputPath": "public/assets/rushpi/production/collectibles/chain-block-production-64w.png", "outputSha256": "2413a53f31dc3297ec513e1723dd8e1aebbfd54d27000936173827daaedbcc72",
       "format": "png", "width": 64, "height": 64, "bytes": 5831, "colorSpace": "sRGB", "transparent": true, "pivot": { "x": 0.5, "y": 0.5 },
       "processingParameters": { "resize": "lanczos3-uniform", "lossless": true, "compressionLevel": 9, "adaptiveFiltering": true, "metadata": "stripped" },
-      "budgetBytes": 35840, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 35840, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "chain-block-production-128", "role": "chain-block-high-density",
@@ -70,7 +70,7 @@
       "outputPath": "public/assets/rushpi/production/collectibles/chain-block-production-128w.png", "outputSha256": "9794b9718b39ecf129688b68cdae15078fe595a6c250f05ceeb56306ce94175b",
       "format": "png", "width": 128, "height": 128, "bytes": 18085, "colorSpace": "sRGB", "transparent": true, "pivot": { "x": 0.5, "y": 0.5 },
       "processingParameters": { "resize": "lanczos3-uniform", "lossless": true, "compressionLevel": 9, "adaptiveFiltering": true, "metadata": "stripped" },
-      "budgetBytes": 71680, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 71680, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "finish-portal-production-256", "role": "daily-finish-portal-standard",
@@ -78,7 +78,7 @@
       "outputPath": "public/assets/rushpi/production/portals/finish-portal-production-256w.png", "outputSha256": "1a86d8548d5e8daa2827eb15ac6b342cf6f16941aba94c3e2cf3d6f46b035496",
       "format": "png", "width": 256, "height": 384, "bytes": 37745, "colorSpace": "sRGB", "transparent": true, "pivot": { "x": 0.5, "y": 0.88, "pixelX": 128, "pixelY": 338 },
       "processingParameters": { "resize": "lanczos3-uniform", "lossless": true, "compressionLevel": 9, "adaptiveFiltering": true, "metadata": "stripped" },
-      "budgetBytes": 92160, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 92160, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     },
     {
       "id": "finish-portal-production-512", "role": "daily-finish-portal-high-density",
@@ -86,7 +86,7 @@
       "outputPath": "public/assets/rushpi/production/portals/finish-portal-production-512w.png", "outputSha256": "9a5033697c764fef8cbe9d390d2dcb476cc7ba7732747061bec4cedef9f99c5c",
       "format": "png", "width": 512, "height": 768, "bytes": 122492, "colorSpace": "sRGB", "transparent": true, "pivot": { "x": 0.5, "y": 0.88, "pixelX": 256, "pixelY": 676 },
       "processingParameters": { "resize": "lanczos3-uniform", "lossless": true, "compressionLevel": 9, "adaptiveFiltering": true, "metadata": "stripped" },
-      "budgetBytes": 184320, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": false, "status": "approved-for-integration"
+      "budgetBytes": 184320, "budgetPassed": true, "manifestDeclared": true, "integratedInGameplay": true, "status": "integrated-needs-validation"
     }
   ]
 }
