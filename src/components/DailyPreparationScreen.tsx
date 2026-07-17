@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import { fetchDailyTokenChallenge } from "../market/marketClient";
 import { preloadTokenLogos } from "../market/tokenAssetCache";
+import { preloadDailyProductionAssets } from "../game/productionAssets";
 import { claimAttempt, ServerScoreError, type ClaimResult } from "../utils/serverLeaderboard";
 import { newSubmissionId } from "../utils/submissionId";
 import ScreenBackButton from "./ScreenBackButton";
@@ -106,8 +107,14 @@ export default function DailyPreparationScreen({
           return;
         }
 
+        // Load the visual resources (token logos + Daily production assets) in
+        // parallel. Both always resolve with fallbacks — a visual failure never
+        // blocks the claim, the run, or the submissionId.
         setStep("logos");
-        await preloadTokenLogos(c.challengeDate, c.tokens);
+        await Promise.all([
+          preloadTokenLogos(c.challengeDate, c.tokens),
+          preloadDailyProductionAssets(),
+        ]);
         if (cancelled) return;
 
         // Local (unranked) run: no reservation, start immediately.
@@ -169,7 +176,7 @@ export default function DailyPreparationScreen({
     step === "challenge"
       ? "Loading today's token challenge…"
       : step === "logos"
-        ? "Preparing token logos…"
+        ? "Preparing game assets…"
         : step === "claiming"
           ? "Reserving ranked attempt…"
           : "Starting run…";

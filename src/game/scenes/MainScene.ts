@@ -29,6 +29,10 @@ import {
 import { TrackDrift } from "../trackDrift";
 import { TrackGate } from "../zoneTransition";
 import { ZoneDecor } from "../zoneDecor";
+import {
+  PROD_TEXTURE_KEYS,
+  registerDailyProductionTextures,
+} from "../productionAssets";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import {
   GameEvents,
@@ -341,6 +345,19 @@ export default class MainScene extends Phaser.Scene {
     // no image request ever starts mid-run (missing logos fall back procedurally).
     if (this.dailyChallenge) {
       registerTokenTextures(this, this.dailyChallenge.tokens);
+    }
+    // Daily production visuals (Phase 12A-2): register the preloaded rasters
+    // (background / Chain Block / Finish Portal) into this run's TextureManager.
+    // Purely visual; missing textures fall back to the procedural art.
+    registerDailyProductionTextures(this);
+    // Daily production background: sits BELOW BackgroundFX/track/particles
+    // (depth -20). Daily-only, and only when a valid texture was registered —
+    // otherwise the procedural background is kept exactly as-is.
+    if (this.mode === "daily" && this.textures.exists(PROD_TEXTURE_KEYS.dailyBackground)) {
+      this.add
+        .image(GAME_WIDTH / 2, GAME_HEIGHT / 2, PROD_TEXTURE_KEYS.dailyBackground)
+        .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
+        .setDepth(-20);
     }
     this.bg = new BackgroundFX(this);
     this.bg.create();
