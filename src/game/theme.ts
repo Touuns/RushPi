@@ -146,3 +146,26 @@ export const EVENTS = {
     tunnel: { enabled: true, weight: 1, color: 0xa78bfa },
   },
 } as const;
+
+/**
+ * Daily game-feel polish (Phase 12B-1). PURELY VISUAL tuning for the Daily-only
+ * collection/impact feedback and the RUSH! intro. No gameplay parameter lives
+ * here — scoring/penalty/combo values stay in gameConfig.SCORING and HIT.
+ */
+export const DAILY_FEEL = {
+  /** Fixed pool of reusable feedback texts (never more created per scene). */
+  textPoolSize: 3,
+  /** "+N" collect label: float time / vertical rise. */
+  collectTextDurationMs: 650,
+  collectTextRisePx: 30,
+  /** Micro-burst at the collect point (single persistent emitter, explode()). */
+  burstParticleCount: 5,
+  burstLifespanMs: 300,
+  /** "−N" / HIT / COMBO LOST label: kept a touch longer for readability. */
+  hitTextDurationMs: 800,
+  hitTextRisePx: 26,
+  /** RUSH! intro: total on-screen time (in + hold + out), non-blocking. */
+  introDurationMs: 650,
+  /** RUSH! vertical position as a fraction of game height. */
+  introYRatio: 0.38,
+} as const;

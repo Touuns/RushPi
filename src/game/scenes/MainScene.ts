@@ -11,7 +11,7 @@ import {
   CONTROLS,
   SURVIVAL,
 } from "../gameConfig";
-import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS } from "../theme";
+import { PALETTE, GLOW, TRACK, PHASES, POWERUPS, EVENTS, DAILY_FEEL } from "../theme";
 import { TrackVisuals } from "../track";
 import { BackgroundFX } from "../background";
 import { buildEventSchedule, type EventSlot } from "../events";
@@ -200,6 +200,14 @@ export default class MainScene extends Phaser.Scene {
   // One collect notification at a time — a new one replaces the previous.
   private tokenToast: Phaser.GameObjects.Container | null = null;
 
+  // Daily feel (Phase 12B-1, PURELY VISUAL, Daily-only): fixed pool of reusable
+  // feedback texts ("+N" / "−N" / COMBO LOST) + one persistent collect-burst
+  // emitter (emitting:false, fired via explode()). Never allocates per collect,
+  // never consumes any gameplay RNG, never touches score/combo/collisions.
+  private feedbackPool: Phaser.GameObjects.Text[] = [];
+  private feedbackPoolIndex = 0;
+  private collectBurst: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
+
   // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
   private campaignLevelId = 0;
   private campaignLevel: CampaignLevel | null = null;
@@ -373,6 +381,14 @@ export default class MainScene extends Phaser.Scene {
     this.createPlayerTrail();
     this.setupInput();
 
+    // Daily feel (Phase 12B-1): feedback text pool + collect-burst emitter,
+    // built ONCE per scene, Daily-only. A replay recreates the scene, so these
+    // are always fresh (no accumulation across runs).
+    this.feedbackPool = [];
+    this.feedbackPoolIndex = 0;
+    this.collectBurst = null;
+    if (this.mode === "daily") this.createDailyFeedbackFx();
+
     // Persistent per-stage ambiance tint (Survival, Phase 9D). Normal blend +
     // low alpha so it shifts the mood without hurting readability.
     this.stageTint = this.add
@@ -405,6 +421,10 @@ export default class MainScene extends Phaser.Scene {
 
     // Emit an initial HUD frame so React shows full timer immediately.
     this.emitHud(true);
+
+    // Daily-only RUSH! intro (Phase 12B-1): purely visual overlay while the
+    // course already runs — no pause, no timer/spawn shift, input untouched.
+    if (this.mode === "daily") this.showDailyRushIntro();
   }
 
   // ---- Setup helpers -------------------------------------------------------
@@ -1078,11 +1098,23 @@ export default class MainScene extends Phaser.Scene {
       ease: "Quad.easeOut",
       onComplete: () => obj.container.destroy(),
     });
+
+    // Daily feel (Phase 12B-1): show the EXACT points gained (+N, rounded for
+    // display only — scoreValue/blockPointsEarned keep the raw value above) +
+    // a small pooled burst at the collect point. Visual only, Daily only.
+    if (this.mode === "daily") {
+      this.showCollectFeedback(obj.container.x, obj.container.y, gained);
+    }
   }
 
   private hitObstacle(obj: FallingObject): void {
     obj.alive = false;
     obj.container.destroy();
+
+    // Daily feel (Phase 12B-1): snapshot BEFORE the (unchanged) penalty logic,
+    // purely to display the real loss afterwards. Never alters the mutation.
+    const comboBeforeHit = this.combo;
+    const scoreBeforeHit = this.scoreValue;
 
     this.obstaclesHit += 1;
     this.combo = 0;
@@ -1093,6 +1125,13 @@ export default class MainScene extends Phaser.Scene {
     } else {
       // Time Attack/Training: score penalty, but the player never dies.
       this.scoreValue = Math.max(0, this.scoreValue - SCORING.obstaclePenalty);
+    }
+
+    // Daily feel (Phase 12B-1): show the REAL points lost (−N from the actual
+    // score delta, "HIT" when nothing was left) + combo-lost line for 5+.
+    if (this.mode === "daily") {
+      const actualPenalty = scoreBeforeHit - this.scoreValue;
+      this.showHitFeedback(Math.round(actualPenalty), comboBeforeHit);
     }
 
     // Grant brief invulnerability + a short slow-down so a mistake is recoverable.
@@ -1544,6 +1583,158 @@ export default class MainScene extends Phaser.Scene {
       onComplete: () => burst.destroy(),
     });
     this.floatText("Charge absorbed hit", PALETTE.gold);
+  }
+
+  // ---- Daily feel FX (Phase 12B-1, purely visual, Daily-only) --------------
+
+  /**
+   * Build the fixed feedback-text pool + the single persistent collect-burst
+   * emitter. Called once from create() (Daily only). The pool texts are created
+   * up-front and recycled round-robin — no Phaser.Text allocation ever happens
+   * during the run, and no more than DAILY_FEEL.textPoolSize labels can exist.
+   * The emitter reuses the procedural "spark" texture already generated for the
+   * player trail (no new texture key) and only emits via explode().
+   */
+  private createDailyFeedbackFx(): void {
+    for (let i = 0; i < DAILY_FEEL.textPoolSize; i++) {
+      const label = this.add
+        .text(0, 0, "", {
+          fontFamily: "Segoe UI, system-ui, sans-serif",
+          fontSize: "18px",
+          fontStyle: "bold",
+          color: PALETTE.goldCss,
+          align: "center",
+          stroke: "#140a26",
+          strokeThickness: 4,
+        })
+        .setOrigin(0.5)
+        .setDepth(12)
+        .setVisible(false);
+      this.feedbackPool.push(label);
+    }
+    // Particle randomness here is Phaser's internal cosmetic jitter only — it
+    // never touches this.rng()/this.powerupRng() or any gameplay decision.
+    this.collectBurst = this.add.particles(0, 0, "spark", {
+      speed: { min: 50, max: 120 },
+      lifespan: DAILY_FEEL.burstLifespanMs,
+      scale: { start: 0.7, end: 0 },
+      alpha: { start: 0.9, end: 0 },
+      tint: [PALETTE.gold, PALETTE.violet],
+      blendMode: "ADD",
+      emitting: false,
+    });
+    this.collectBurst.setDepth(11);
+  }
+
+  /**
+   * Show one pooled feedback label. Recycles the oldest slot (round-robin):
+   * kills its tweens, resets alpha/scale/position/text/color, then plays the
+   * rise-and-fade. At most DAILY_FEEL.textPoolSize labels are ever visible.
+   */
+  private showFeedbackText(
+    x: number,
+    y: number,
+    message: string,
+    colorCss: string,
+    durationMs: number,
+    risePx: number,
+  ): void {
+    if (this.feedbackPool.length === 0) return;
+    const label = this.feedbackPool[this.feedbackPoolIndex];
+    this.feedbackPoolIndex = (this.feedbackPoolIndex + 1) % this.feedbackPool.length;
+    // Clean recycle: no orphan tween may keep animating the reused label.
+    this.tweens.killTweensOf(label);
+    label
+      .setText(message)
+      .setColor(colorCss)
+      .setPosition(
+        Phaser.Math.Clamp(x, 44, GAME_WIDTH - 44),
+        Math.max(60, y - OBJECTS.radius - 6),
+      )
+      .setAlpha(1)
+      .setScale(1)
+      .setVisible(true);
+    this.tweens.add({
+      targets: label,
+      y: label.y - risePx,
+      alpha: 0,
+      duration: durationMs,
+      ease: "Quad.easeOut",
+      onComplete: () => label.setVisible(false),
+    });
+  }
+
+  /** "+N" gold label + micro-burst at the collect point (Daily only). */
+  private showCollectFeedback(x: number, y: number, gained: number): void {
+    this.showFeedbackText(
+      x,
+      y,
+      `+${Math.round(gained)}`,
+      PALETTE.goldCss,
+      DAILY_FEEL.collectTextDurationMs,
+      DAILY_FEEL.collectTextRisePx,
+    );
+    this.collectBurst?.explode(DAILY_FEEL.burstParticleCount, x, y);
+  }
+
+  /**
+   * Impact readability (Daily only): the REAL points lost ("−N", never a
+   * hardcoded −50) or "HIT" when there was nothing left to lose, plus a
+   * "COMBO ×N LOST" line when a combo of 5+ was broken. Purely display — the
+   * penalty/combo logic in hitObstacle() is untouched.
+   */
+  private showHitFeedback(penaltyRounded: number, comboBeforeHit: number): void {
+    const first = penaltyRounded > 0 ? `−${penaltyRounded}` : "HIT";
+    const message =
+      comboBeforeHit >= 5 ? `${first}\nCOMBO ×${comboBeforeHit} LOST` : first;
+    this.showFeedbackText(
+      this.player.x,
+      this.player.y,
+      message,
+      "#ff4d6d",
+      DAILY_FEEL.hitTextDurationMs,
+      DAILY_FEEL.hitTextRisePx,
+    );
+  }
+
+  /**
+   * RUSH! intro (Daily only, once per run — a replay recreates the scene and
+   * shows it again). Non-blocking overlay: no pause, no camera change, no veil,
+   * no flash; the timer, spawns and input run normally underneath.
+   */
+  private showDailyRushIntro(): void {
+    const intro = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * DAILY_FEEL.introYRatio, "RUSH!", {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: "46px",
+        fontStyle: "bold",
+        color: PALETTE.goldCss,
+        stroke: "#140a26",
+        strokeThickness: 6,
+      })
+      .setOrigin(0.5)
+      .setDepth(13)
+      .setAlpha(0)
+      .setScale(0.6);
+    const inMs = 180;
+    this.tweens.add({
+      targets: intro,
+      alpha: 1,
+      scale: 1,
+      duration: inMs,
+      ease: "Back.easeOut",
+      onComplete: () => {
+        this.tweens.add({
+          targets: intro,
+          alpha: 0,
+          scale: 1.15,
+          delay: Math.max(0, DAILY_FEEL.introDurationMs - inMs - 200),
+          duration: 200,
+          ease: "Quad.easeIn",
+          onComplete: () => intro.destroy(),
+        });
+      },
+    });
   }
 
   /** Short floating status text above the player. */
