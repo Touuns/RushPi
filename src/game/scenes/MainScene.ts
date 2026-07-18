@@ -20,7 +20,8 @@ import { getCampaignLevel, computeStars, type CampaignLevel } from "../campaign"
 import type { DailyTokenChallenge, DailyTokenSpec } from "../../market/dailyTokenTypes";
 import {
   formatTokenPrice,
-  laneBlockedByToken,
+  pickObstacleLane,
+  type LaneSpawn,
   makeChainBlock,
   makeTokenCollectible,
   registerTokenTextures,
@@ -458,16 +459,27 @@ export default class MainScene extends Phaser.Scene {
    * the round energies even before color is processed.
    */
   private makeHazard(color: number, radius: number): Phaser.GameObjects.Container {
-    const halo = this.add.circle(0, 0, radius * GLOW.outerScale, color, GLOW.outerAlpha);
-    // A square rotated 45° = diamond. Slightly larger so the sharp corners are clear.
+    // Danger read (Phase 12A-2.1): hot additive glow + a warning-border diamond
+    // + a solid core with a bright rim + a crossed "✕" mark. Angular + red reads
+    // as "avoid" in a glance — clearly distinct from the round logo tokens and
+    // the gold/violet Chain Blocks. Collisions still use OBJECTS.radius only, so
+    // the hitbox is unchanged despite the stronger visual presence.
+    const halo = this.add
+      .circle(0, 0, radius * GLOW.outerScale * 1.15, color, 0.3)
+      .setBlendMode(Phaser.BlendModes.ADD);
     const d = radius * 1.7;
+    // Warning border: an outlined diamond slightly larger than the core.
+    const border = this.add.rectangle(0, 0, d * 1.22, d * 1.22, color, 0);
+    border.setStrokeStyle(2.5, color, 0.55);
+    border.setAngle(45);
+    // Solid core diamond with a bright rim.
     const core = this.add.rectangle(0, 0, d, d, color, 1);
-    core.setStrokeStyle(3, PALETTE.white, 0.9);
+    core.setStrokeStyle(3, PALETTE.white, 0.95);
     core.setAngle(45);
-    // Inner dark mark reinforces the "warning" read.
-    const mark = this.add.rectangle(0, 0, d * 0.34, d * 0.34, PALETTE.bg, 0.85);
-    mark.setAngle(45);
-    return this.add.container(0, 0, [halo, core, mark]);
+    // Bright crossed bars (✕) — an unmistakable "hazard" glyph.
+    const barA = this.add.rectangle(0, 0, d * 0.6, 3.5, PALETTE.white, 0.95).setAngle(45);
+    const barB = this.add.rectangle(0, 0, d * 0.6, 3.5, PALETTE.white, 0.95).setAngle(-45);
+    return this.add.container(0, 0, [halo, border, core, barA, barB]);
   }
 
   private createPlayer(): void {
@@ -613,16 +625,25 @@ export default class MainScene extends Phaser.Scene {
     const type: FallingType =
       this.rng() < OBJECTS.obstacleChance ? "obstacle" : "energy";
 
-    // Daily token safety window (Phase 11B): an obstacle that would spawn in a
-    // token's lane around its spawn time is shifted one lane, deterministically
-    // and AFTER both draws above — the RNG sequence is untouched. Token spawn
-    // gaps guarantee at most one conflicting token, so one shift always works.
-    if (
-      type === "obstacle" &&
-      this.dailyChallenge &&
-      laneBlockedByToken(this.dailyChallenge.tokens, this.elapsedMs, lane)
-    ) {
-      lane = (lane + 1) % LANE_COUNT;
+    // Anti-overlap lane pick (Phase 11B token guard, generalised in 12A-2.1): an
+    // obstacle must not fall superimposed on a token, a scheduled power-up, or an
+    // Energy-Zone extra — each spawns from its OWN seeded schedule, independently
+    // of this obstacle stream, which is what let a magnet/Chain Block land under
+    // an obstacle and inflict an unfair penalty on collect. pickObstacleLane runs
+    // AFTER both RNG draws above and reads only the seeded schedules + elapsedMs
+    // (no extra RNG draw, RNG order untouched) → the Daily course stays
+    // byte-identical for every client. Collision still uses lane + y + radius.
+    if (type === "obstacle") {
+      const collectibles: LaneSpawn[] = [
+        ...this.powerupSchedule,
+        ...this.energyExtras,
+      ];
+      if (this.dailyChallenge) {
+        for (const t of this.dailyChallenge.tokens) {
+          collectibles.push({ timeMs: t.spawnTimeMs, lane: t.lane });
+        }
+      }
+      lane = pickObstacleLane(lane, LANE_COUNT, collectibles, this.elapsedMs);
     }
 
     // Daily-only visual: energies render as Chain Blocks (type stays "energy",

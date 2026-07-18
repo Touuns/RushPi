@@ -133,6 +133,20 @@ body {
   z-index: 1;
 }
 
+/* Home vertical balance (Phase 12A-2.1). Auto margins on the outer children
+   centre the whole block vertically WHEN it fits — filling the black space that
+   used to sit at the bottom on tall devices — yet collapse to 0 the moment the
+   content is taller than the viewport, so it top-aligns and scrolls from the very
+   top with no clipping (unlike `justify-content: center`, which traps the top of
+   a scroll container). The three mode cards therefore stay visible and reachable
+   on both 375x667 and taller screens. */
+.home > :first-child {
+  margin-top: auto;
+}
+.home > :last-child {
+  margin-bottom: auto;
+}
+
 /* Phase 12A-1 — production Home background.
    A decorative layer inside the NON-scrolling .app-frame (a sibling of .home),
    so it stays fixed while the Home content scrolls. It never intercepts input
