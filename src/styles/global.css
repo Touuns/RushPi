@@ -139,11 +139,15 @@ body {
    content is taller than the viewport, so it top-aligns and scrolls from the very
    top with no clipping (unlike `justify-content: center`, which traps the top of
    a scroll container). The three mode cards therefore stay visible and reachable
-   on both 375x667 and taller screens. */
-.home > :first-child {
+   on both 375x667 and taller screens.
+
+   The margins target the header and hint EXPLICITLY (not :first-child/:last-child)
+   so that a modal mounted as a child of .home (Connect / No attempts / Daily
+   intro) can never inherit the auto margins and shift the content behind it. */
+.home > .home__header {
   margin-top: auto;
 }
-.home > :last-child {
+.home > .home__hint {
   margin-bottom: auto;
 }
 

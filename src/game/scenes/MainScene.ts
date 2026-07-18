@@ -625,15 +625,17 @@ export default class MainScene extends Phaser.Scene {
     const type: FallingType =
       this.rng() < OBJECTS.obstacleChance ? "obstacle" : "energy";
 
-    // Anti-overlap lane pick (Phase 11B token guard, generalised in 12A-2.1): an
-    // obstacle must not fall superimposed on a token, a scheduled power-up, or an
-    // Energy-Zone extra — each spawns from its OWN seeded schedule, independently
-    // of this obstacle stream, which is what let a magnet/Chain Block land under
-    // an obstacle and inflict an unfair penalty on collect. pickObstacleLane runs
-    // AFTER both RNG draws above and reads only the seeded schedules + elapsedMs
-    // (no extra RNG draw, RNG order untouched) → the Daily course stays
-    // byte-identical for every client. Collision still uses lane + y + radius.
-    if (type === "obstacle") {
+    // Anti-overlap lane pick (Phase 11B token guard, generalised in 12A-2.1),
+    // scoped to Daily ONLY (12A-2.1 hardening): an obstacle must not fall
+    // superimposed on a token, a scheduled power-up, or an Energy-Zone extra —
+    // each spawns from its OWN seeded schedule, independently of this obstacle
+    // stream, which is what let a magnet/Chain Block land under an obstacle and
+    // inflict an unfair penalty on collect. pickObstacleLane runs AFTER both RNG
+    // draws above and reads only the seeded schedules + elapsedMs (no extra RNG
+    // draw, RNG order untouched) → the Daily course stays byte-identical for
+    // every client. Training/Survival/Campaign keep the raw RNG lane exactly as
+    // before (guard is Daily-only). Collision still uses lane + y + radius.
+    if (type === "obstacle" && this.mode === "daily") {
       const collectibles: LaneSpawn[] = [
         ...this.powerupSchedule,
         ...this.energyExtras,
