@@ -86,3 +86,9 @@ Le choix exact reste sous contrôle du navigateur ; les valeurs ci-dessus sont l
 - Validation visuelle humaine finale de la Home réelle (contraste des textes sur le fond choisi, lisibilité au soleil / luminosité réduite, rendu Pi Browser).
 - Confirmer que le fond « Primary » est le choix définitif avant la validation finale.
 - Les sept autres assets (Daily, Chain Block, Finish Portal) restent non intégrés — intégration en Phase 12A-2.
+
+## Phase 12A — Clôture (validation humaine effectuée)
+
+- **Validation Pi Browser effectuée par l'utilisateur** (Preview Vercel, commit `10d1f468`) : fond de production affiché, contenu vertical mieux équilibré (moins de vide noir en bas), modales/intro utilisables, **contenu stable derrière les modales**.
+- **Neuf assets intégrés et validés** : statut passé à **`integrated-validated`** (intake + manifeste), aucune image réencodée (byte-identiques).
+- **Phase 12A ACCEPTÉE** par décision humaine. **Aucune fusion encore effectuée** (branche dédiée `phase/12a-2-1-daily-polish`).

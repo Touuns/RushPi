@@ -27,15 +27,18 @@ const errors = [];
 const fail = (message) => errors.push(message);
 const sha256 = (file) => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
-// Phase 12A-1: the pipeline moves from a uniform pre-integration state to a
-// partial-integration state. The ONLY two coherent status/flag pairings are:
-//   approved-for-integration   <-> integratedInGameplay === false
+// Phase 12A-1/12A-2: the pipeline moves from a uniform pre-integration state to
+// a partial-integration state, then to a human-validated state. The ONLY three
+// coherent status/flag pairings are:
+//   approved-for-integration    <-> integratedInGameplay === false
 //   integrated-needs-validation <-> integratedInGameplay === true
+//   integrated-validated        <-> integratedInGameplay === true  (Phase 12A closure)
 // Any other combination is rejected. Dimension/hash/budget/path/pivot checks
 // below are unchanged.
 const validPairing = (status, integrated) =>
   (status === "approved-for-integration" && integrated === false) ||
-  (status === "integrated-needs-validation" && integrated === true);
+  (status === "integrated-needs-validation" && integrated === true) ||
+  (status === "integrated-validated" && integrated === true);
 function walk(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -102,14 +105,16 @@ if (fs.existsSync(intakePath)) {
   const intake = JSON.parse(fs.readFileSync(intakePath, "utf8"));
   intakeStatus = intake.status;
   // integrationAllowed must always be true; the global status may be any of the
-  // three coherent phases (Phase 12A-1/12A-2):
+  // four coherent phases (Phase 12A-1/12A-2):
   //   approved-for-integration    → 0 of 9 integrated;
   //   integration-in-progress     → a strict partial (1..8) integrated;
-  //   integrated-needs-validation → all 9 integrated.
+  //   integrated-needs-validation → all 9 integrated, awaiting human validation;
+  //   integrated-validated        → all 9 integrated AND human-validated (closure).
   const allowedGlobal = [
     "approved-for-integration",
     "integration-in-progress",
     "integrated-needs-validation",
+    "integrated-validated",
   ];
   if (!allowedGlobal.includes(intake.status) || intake.integrationAllowed !== true) fail("Production intake global approval state is invalid");
   if (intake.assets?.length !== 9) fail(`Production intake must list nine assets, got ${intake.assets?.length}`);
@@ -121,6 +126,23 @@ if (fs.existsSync(intakePath)) {
   if (intake.status === "approved-for-integration" && intakeIntegratedCount !== 0) fail("Global approved-for-integration but at least one asset is integrated");
   if (intake.status === "integration-in-progress" && (intakeIntegratedCount < 1 || intakeIntegratedCount >= 9)) fail(`Global integration-in-progress requires a partial (1..8) integration, got ${intakeIntegratedCount}`);
   if (intake.status === "integrated-needs-validation" && intakeIntegratedCount !== 9) fail(`Global integrated-needs-validation requires all nine integrated, got ${intakeIntegratedCount}`);
+  // Phase 12A closure: integrated-validated requires ALL nine integrated AND
+  // every intake asset status === integrated-validated (no undocumented mix with
+  // integrated-needs-validation).
+  if (intake.status === "integrated-validated") {
+    if (intakeIntegratedCount !== 9) fail(`Global integrated-validated requires all nine integrated, got ${intakeIntegratedCount}`);
+    const notValidated = (intake.assets ?? []).filter((asset) => asset.status !== "integrated-validated");
+    if (notValidated.length) fail(`Global integrated-validated requires all nine asset statuses to be integrated-validated; found ${notValidated.length} other`);
+  }
+  // Reject any mix of validated / needs-validation across the intake AND the nine
+  // manifest entries — the two files must never disagree on the validation stage.
+  const stageStatuses = [
+    ...(intake.assets ?? []).map((asset) => asset.status),
+    ...specs.map(([id]) => manifest.assets.find((entry) => entry.id === id)?.productionStatus),
+  ];
+  if (stageStatuses.includes("integrated-validated") && stageStatuses.includes("integrated-needs-validation")) {
+    fail("Mixed integrated-validated / integrated-needs-validation states across intake + manifest");
+  }
   for (const [id] of specs) {
     const asset = intake.assets?.find((entry) => entry.id === id);
     if (!asset?.manifestDeclared || !validPairing(asset.status, asset.integratedInGameplay) || asset.outputSha256 !== sha256(path.join(root, ...asset.outputPath.split("/")))) fail(`${id}: intake/manifest/hash concordance failed`);

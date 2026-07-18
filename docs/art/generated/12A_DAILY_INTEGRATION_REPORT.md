@@ -88,3 +88,10 @@ Le module ne contient aucun `Math.random`, ne consomme aucun tirage RNG, n'ajout
 - **Pi Browser réel non testé ici** — dette : valider par l'utilisateur après déploiement preview (chargement WebP/PNG, FPS, absence de flash vide, portail final, plusieurs runs).
 - Validation visuelle humaine finale de la run Daily (contraste des Chain Blocks/tokens sur le fond de production, lisibilité au soleil).
 - Ajuster éventuellement `OBJECTS.radius*2.4` (taille du sprite Chain Block) et `PORTAL_WIDTH_FACTOR` (1.25) après revue esthétique.
+
+## Phase 12A — Clôture (validation humaine effectuée)
+
+- **Dette « Pi Browser réel non testé » levée** : l'utilisateur a testé la Preview Vercel (commit `10d1f468`) dans **Pi Browser réel** : fond tunnel affiché, aucun flash noir/écran vide au démarrage, tokens/obstacles/Chain Blocks distincts, obstacles plus lisibles comme dangers, Chain Blocks suffisamment lisibles sur le tunnel mauve, **aucune superposition injuste** obstacle + magnet/token/Chain Block, collecte/gameplay normaux, **portail final correct**, **FINISH/FINISH! visibles**. Isolation confirmée : aucun visuel Daily en Training/Campaign.
+- **Correctif visuel 12A-2.1** (post-12A-2, sur `10d1f468`) : lisibilité danger des obstacles renforcée, séparation des Chain Blocks sur le tunnel mauve, et **correctif anti-superposition** obstacle/collectible (déterministe, Daily uniquement, sans tirage RNG supplémentaire).
+- **Neuf assets intégrés et validés** : statut **`integrated-validated`** (intake + manifeste) ; aucune image réencodée (byte-identiques).
+- **Phase 12A ACCEPTÉE** par décision humaine. **Aucune fusion encore effectuée.** Le **ranked flow n'a pas été modifié** pendant 12A ; aucune validation ranked nouvelle n'a été effectuée ni n'est revendiquée.

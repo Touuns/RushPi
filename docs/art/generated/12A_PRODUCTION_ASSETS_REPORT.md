@@ -89,3 +89,11 @@ Les captures sont temporaires et ne sont pas commitées.
 - **Fichiers React/Phaser** : `src/game/productionAssets.ts` (nouveau), `src/components/DailyPreparationScreen.tsx`, `src/game/scenes/MainScene.ts`, `src/game/dailyTokens.ts`, `src/game/zoneTransition.ts`. Détails complets dans `12A_DAILY_INTEGRATION_REPORT.md`.
 - **Déterminisme** : schedules seedés (powerup/event/token) byte-identiques avant/après ; aucune modification de gameConfig, seededRandom, spawn, collision, score, durée 60 s. Les neuf images restent byte-identiques.
 - **Validation humaine encore requise** : run Daily réelle + Pi Browser (WebP/PNG, FPS, portail final, plusieurs runs).
+
+## Phase 12A — Clôture (validation humaine effectuée)
+
+- **Validation Pi Browser effectuée par l'utilisateur** sur la Preview Vercel du commit `10d1f468` (branche `phase/12a-2-1-daily-polish`) : Home, Daily (fond tunnel, obstacles, Chain Blocks, portail final, FINISH/FINISH!), anti-superposition et isolation Training/Campaign — tous conformes.
+- **Neuf assets intégrés ET validés** : l'intake et le manifeste passent de `integrated-needs-validation` à **`integrated-validated`** (`integratedInGameplay = true`, `integrationAllowed = true`). Les sections 12A-1/12A-2 ci-dessus décrivent l'historique des transitions ; cette section acte l'état final.
+- **Aucune image réencodée** : les neuf PNG/WebP restent **byte-identiques** (SHA-256 inchangés, vérifiés par le validateur).
+- **Décision humaine : PHASE 12A ACCEPTÉE.** Aucune fusion encore effectuée (branche dédiée).
+- **Ranked** : aucun changement au ranked flow en 12A ; aucune validation ranked nouvelle n'a été effectuée et aucune n'est revendiquée (voir `12A_FINAL_ACCEPTANCE_REPORT.md`).
