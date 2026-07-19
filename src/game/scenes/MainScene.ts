@@ -1494,6 +1494,7 @@ export default class MainScene extends Phaser.Scene {
       } else if (this.shieldExpiryWarned) {
         this.tweens.killTweensOf(this.shieldRing);
         this.shieldRing.setAlpha(1).setScale(1);
+        this.shieldExpiryWarned = false; // clean up once, not every frame
       }
       if (magnetActive) {
         if (!this.magnetExpiryWarned && now >= this.magnetUntilMs - DAILY_FEEL.expiryWarnWindowMs) {
@@ -1503,6 +1504,7 @@ export default class MainScene extends Phaser.Scene {
       } else if (this.magnetExpiryWarned) {
         this.tweens.killTweensOf(this.magnetAura);
         this.magnetAura.setAlpha(1).setScale(1);
+        this.magnetExpiryWarned = false; // clean up once, not every frame
       }
     }
 
@@ -1735,13 +1737,15 @@ export default class MainScene extends Phaser.Scene {
       .setVisible(false);
     this.player.add(this.comboRing);
 
-    // One reusable power-up activation ring (Shield/Magnet), positioned at the
-    // player on pickup, recoloured per kind. Above the player, expands + fades.
+    // One reusable power-up activation ring (Shield/Magnet), recoloured per kind
+    // on pickup. Parented to the player at local (0,0) so it follows the orb for
+    // the whole animation; expands + fades. Above the player, hidden when idle.
     this.powerupActivationRing = this.add
       .circle(0, 0, PLAYER.radius + 6, PALETTE.white, 0)
       .setStrokeStyle(3, PALETTE.white, 0.9)
       .setDepth(11)
       .setVisible(false);
+    this.player.add(this.powerupActivationRing);
   }
 
   /**
@@ -1837,9 +1841,10 @@ export default class MainScene extends Phaser.Scene {
     if (!ring) return;
     const color = kind === "shield" ? PALETTE.shield : PALETTE.magnetRing;
     this.tweens.killTweensOf(ring);
+    // Parented to the player at local (0,0): it follows the orb for the whole
+    // animation, so no per-frame world repositioning is needed.
     ring
       .setStrokeStyle(3, color, 0.9)
-      .setPosition(this.player.x, this.player.y)
       .setScale(1)
       .setAlpha(0.9)
       .setVisible(true);
