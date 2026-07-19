@@ -191,4 +191,28 @@ export const DAILY_FEEL = {
   introDurationMs: 650,
   /** RUSH! vertical position as a fraction of game height. */
   introYRatio: 0.38,
+
+  /**
+   * Combo milestones (Phase 12B-2). PURELY COSMETIC thresholds — they only pick
+   * which combo values play a flourish; the combo value and points are unchanged.
+   * The band sits below the HUD/status safe area and above the token-toast band,
+   * so it never overlaps RUSH!, the toast, impact or the Chain Block "+N".
+   */
+  comboMilestoneValues: [5, 10, 15],
+  comboMilestoneY: 370,
+  comboMilestoneFontPx: 28,
+  comboMilestoneDurationMs: 650,
+
+  /** Player combo pulse: a persistent ring expanding outward + a π-glyph pop. */
+  comboRingExpandScale: 2.6,
+  comboRingDurationMs: 420,
+  comboPiPulseScale: 1.35,
+
+  /** Power-up pickup activation ring (reused for Shield & Magnet). */
+  powerupActivationScale: 2.4,
+  powerupActivationDurationMs: 300,
+
+  /** Final-second expiry warning: subtle pulses of the EXISTING ring/aura. */
+  expiryWarnWindowMs: 1000,
+  expiryPulseDurationMs: 250,
 } as const;

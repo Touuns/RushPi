@@ -213,6 +213,17 @@ export default class MainScene extends Phaser.Scene {
   private impactFeedback: Phaser.GameObjects.Text | null = null;
   private collectBurst: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
+  // Daily power-up + combo polish (Phase 12B-2, PURELY VISUAL, Daily-only): one
+  // reusable milestone Text, one persistent combo ring (player child) + the
+  // stored π-glyph, one reusable power-up activation ring, and once-per-activation
+  // expiry-warning flags. Created only in Daily; never touch timers/score/combo.
+  private comboMilestoneText: Phaser.GameObjects.Text | null = null;
+  private comboRing: Phaser.GameObjects.Arc | null = null;
+  private powerupActivationRing: Phaser.GameObjects.Arc | null = null;
+  private piGlyph: Phaser.GameObjects.Text | null = null;
+  private shieldExpiryWarned = false;
+  private magnetExpiryWarned = false;
+
   // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
   private campaignLevelId = 0;
   private campaignLevel: CampaignLevel | null = null;
@@ -284,6 +295,8 @@ export default class MainScene extends Phaser.Scene {
     this.shieldCharges = 0;
     this.shieldUntilMs = 0;
     this.magnetUntilMs = 0;
+    this.shieldExpiryWarned = false;
+    this.magnetExpiryWarned = false;
     this.currentPhase = -1;
     this.lives = this.survivalLike() ? SURVIVAL.startLives : 0;
     this.livesLost = 0;
@@ -394,6 +407,9 @@ export default class MainScene extends Phaser.Scene {
     this.collectSideRight = false;
     this.impactFeedback = null;
     this.collectBurst = null;
+    this.comboMilestoneText = null;
+    this.comboRing = null;
+    this.powerupActivationRing = null;
     if (this.mode === "daily") this.createDailyFeedbackFx();
 
     // Persistent per-stage ambiance tint (Survival, Phase 9D). Normal blend +
@@ -516,7 +532,9 @@ export default class MainScene extends Phaser.Scene {
 
     // Pi identity (Phase 11B): original typographic "π" glyph centered on the
     // orb, in the Rush Pi style — purely cosmetic, hitbox/collisions unchanged.
-    const piGlyph = this.add
+    // Stored as a property (Phase 12B-2) so the Daily combo pulse can pop it
+    // without ever tweening the player container (which owns movement/scale).
+    this.piGlyph = this.add
       .text(0, -1, "π", {
         fontFamily: "Georgia, 'Times New Roman', serif",
         fontSize: `${Math.round(PLAYER.radius * 1.15)}px`,
@@ -525,7 +543,7 @@ export default class MainScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setAlpha(0.95);
-    this.player.add(piGlyph);
+    this.player.add(this.piGlyph);
 
     // Shield ring + magnet aura as children (auto-follow the player). Hidden until
     // the matching power-up is active. They do NOT change the hitbox.
@@ -1111,6 +1129,13 @@ export default class MainScene extends Phaser.Scene {
     // a small pooled burst at the collect point. Visual only, Daily only.
     if (this.mode === "daily") {
       this.showCollectFeedback(obj.container.x, obj.container.y, gained);
+      // Combo milestones (Phase 12B-2): cosmetic flourish at the EXACT thresholds
+      // only. Uses the combo already incremented above; never changes it. Tokens
+      // never reach here (collectToken doesn't touch the combo), so they can't
+      // trigger a milestone.
+      if ((DAILY_FEEL.comboMilestoneValues as readonly number[]).includes(this.combo)) {
+        this.showComboMilestone(this.combo);
+      }
     }
   }
 
@@ -1451,8 +1476,35 @@ export default class MainScene extends Phaser.Scene {
   /** Toggle the player's rings and tune the trail (phase + high combo). */
   private updatePlayerStates(): void {
     const now = this.time.now;
-    this.shieldRing.setVisible(this.shieldCharges > 0 && now < this.shieldUntilMs);
-    this.magnetAura.setVisible(now < this.magnetUntilMs);
+    const shieldActive = this.shieldCharges > 0 && now < this.shieldUntilMs;
+    const magnetActive = now < this.magnetUntilMs;
+    this.shieldRing.setVisible(shieldActive);
+    this.magnetAura.setVisible(magnetActive);
+
+    // Final-second expiry warning (Phase 12B-2, Daily only): pulse the EXISTING
+    // ring/aura once per activation as it nears expiry. When the effect has ended
+    // we make sure no warning tween lingers and the ring is back to normal, so a
+    // later re-activation shows cleanly. Never touches the timers.
+    if (this.mode === "daily") {
+      if (shieldActive) {
+        if (!this.shieldExpiryWarned && now >= this.shieldUntilMs - DAILY_FEEL.expiryWarnWindowMs) {
+          this.shieldExpiryWarned = true;
+          this.pulseExpiry(this.shieldRing);
+        }
+      } else if (this.shieldExpiryWarned) {
+        this.tweens.killTweensOf(this.shieldRing);
+        this.shieldRing.setAlpha(1).setScale(1);
+      }
+      if (magnetActive) {
+        if (!this.magnetExpiryWarned && now >= this.magnetUntilMs - DAILY_FEEL.expiryWarnWindowMs) {
+          this.magnetExpiryWarned = true;
+          this.pulseExpiry(this.magnetAura);
+        }
+      } else if (this.magnetExpiryWarned) {
+        this.tweens.killTweensOf(this.magnetAura);
+        this.magnetAura.setAlpha(1).setScale(1);
+      }
+    }
 
     const t = this.currentPhase / (PHASES.count - 1);
     let freq = Phaser.Math.Linear(TRACK.trailFrequencyMs, TRACK.trailFrequencyMs * 0.55, t);
@@ -1486,8 +1538,16 @@ export default class MainScene extends Phaser.Scene {
     if (obj.type === "shield") {
       this.shieldCharges = 1;
       this.shieldUntilMs = now + POWERUPS.shield.durationMs;
+      // Phase 12B-2: a fresh activation re-arms the (once-per-activation) expiry
+      // warning and clears any leftover pulse on the ring, so it starts clean.
+      this.shieldExpiryWarned = false;
+      this.tweens.killTweensOf(this.shieldRing);
+      this.shieldRing.setAlpha(1).setScale(1);
     } else {
       this.magnetUntilMs = now + POWERUPS.magnet.durationMs;
+      this.magnetExpiryWarned = false;
+      this.tweens.killTweensOf(this.magnetAura);
+      this.magnetAura.setAlpha(1).setScale(1);
     }
     // No score change — power-ups grant no points (fair for the Daily).
     this.tweens.add({
@@ -1498,6 +1558,10 @@ export default class MainScene extends Phaser.Scene {
       ease: "Quad.easeOut",
       onComplete: () => obj.container.destroy(),
     });
+    // Daily pickup activation ring (visual only; timer/charge above unchanged).
+    if (this.mode === "daily") {
+      this.playPowerupActivation(obj.type === "shield" ? "shield" : "magnet");
+    }
   }
 
   /** Shield absorbs one obstacle: no penalty, combo preserved, ring breaks. */
@@ -1645,6 +1709,169 @@ export default class MainScene extends Phaser.Scene {
       emitting: false,
     });
     this.collectBurst.setDepth(11);
+
+    // Phase 12B-2 (Daily only). One reusable combo-milestone label in its own
+    // band (below the HUD/status safe area, above the token toast).
+    this.comboMilestoneText = this.add
+      .text(GAME_WIDTH / 2, DAILY_FEEL.comboMilestoneY, "", {
+        fontFamily: "Segoe UI, system-ui, sans-serif",
+        fontSize: `${DAILY_FEEL.comboMilestoneFontPx}px`,
+        fontStyle: "bold",
+        color: PALETTE.goldCss,
+        align: "center",
+        stroke: "#140a26",
+        strokeThickness: 5,
+      })
+      .setOrigin(0.5)
+      .setDepth(12)
+      .setVisible(false);
+
+    // One persistent combo ring as a PLAYER CHILD (auto-follows). It starts just
+    // OUTSIDE the shield/magnet rings and only expands outward, so a milestone
+    // flourish never hides those rings. Hidden when inactive.
+    this.comboRing = this.add
+      .circle(0, 0, PLAYER.radius + 10, PALETTE.gold, 0)
+      .setStrokeStyle(3, PALETTE.gold, 0.9)
+      .setVisible(false);
+    this.player.add(this.comboRing);
+
+    // One reusable power-up activation ring (Shield/Magnet), positioned at the
+    // player on pickup, recoloured per kind. Above the player, expands + fades.
+    this.powerupActivationRing = this.add
+      .circle(0, 0, PLAYER.radius + 6, PALETTE.white, 0)
+      .setStrokeStyle(3, PALETTE.white, 0.9)
+      .setDepth(11)
+      .setVisible(false);
+  }
+
+  /**
+   * Combo milestone flourish (Phase 12B-2, Daily only) at exactly x5/x10/x15.
+   * PURELY COSMETIC: called AFTER collectEnergy() has already updated the combo
+   * and score — it reads the combo, never changes it. Reuses the single
+   * persistent label (scale-in → hold → fade) + the player pulse. No flash,
+   * no shake, no pause.
+   */
+  private showComboMilestone(combo: number): void {
+    const text = this.comboMilestoneText;
+    // x5 → violet ring/gold text; x10 → full gold; x15 → gold/orange.
+    const style =
+      combo >= 15
+        ? { textCss: PALETTE.orangeCss, ring: PALETTE.orange }
+        : combo >= 10
+          ? { textCss: PALETTE.goldCss, ring: PALETTE.gold }
+          : { textCss: PALETTE.goldCss, ring: PALETTE.violet };
+    if (text) {
+      this.tweens.killTweensOf(text);
+      text
+        .setText(`COMBO ×${combo}`)
+        .setColor(style.textCss)
+        .setScale(0.5)
+        .setAlpha(1)
+        .setVisible(true);
+      this.tweens.add({
+        targets: text,
+        scale: 1,
+        duration: 170,
+        ease: "Back.easeOut",
+        onComplete: () => {
+          this.tweens.add({
+            targets: text,
+            alpha: 0,
+            scale: 1.1,
+            delay: Math.max(0, DAILY_FEEL.comboMilestoneDurationMs - 170 - 200),
+            duration: 200,
+            ease: "Quad.easeIn",
+            onComplete: () => text.setVisible(false),
+          });
+        },
+      });
+    }
+    this.pulsePlayerCombo(style.ring);
+  }
+
+  /**
+   * Player-centred combo celebration (Phase 12B-2): a quick π-glyph pop + a combo
+   * ring expanding outward and fading. Both reuse persistent objects, never touch
+   * the player container's scale/position (movement) or the hitbox, and never
+   * hide the Shield/Magnet rings (the combo ring starts outside them).
+   */
+  private pulsePlayerCombo(ringColor: number): void {
+    if (this.piGlyph) {
+      this.tweens.killTweensOf(this.piGlyph);
+      this.piGlyph.setScale(1);
+      this.tweens.add({
+        targets: this.piGlyph,
+        scale: DAILY_FEEL.comboPiPulseScale,
+        duration: 160,
+        yoyo: true,
+        ease: "Quad.easeOut",
+        onComplete: () => this.piGlyph?.setScale(1),
+      });
+    }
+    if (this.comboRing) {
+      this.tweens.killTweensOf(this.comboRing);
+      this.comboRing
+        .setStrokeStyle(3, ringColor, 0.9)
+        .setScale(1)
+        .setAlpha(0.9)
+        .setVisible(true);
+      this.tweens.add({
+        targets: this.comboRing,
+        scale: DAILY_FEEL.comboRingExpandScale,
+        alpha: 0,
+        duration: DAILY_FEEL.comboRingDurationMs,
+        ease: "Quad.easeOut",
+        onComplete: () => this.comboRing?.setVisible(false),
+      });
+    }
+  }
+
+  /**
+   * Power-up pickup activation ring (Phase 12B-2, Daily only): one short expanding
+   * ring at the player — cyan for Shield, violet for Magnet. Reuses the single
+   * persistent ring. No text (the React status channel already shows the timer),
+   * no flash, no shake. Never alters the timer/charge set in collectPowerup().
+   */
+  private playPowerupActivation(kind: PowerupKind): void {
+    const ring = this.powerupActivationRing;
+    if (!ring) return;
+    const color = kind === "shield" ? PALETTE.shield : PALETTE.magnetRing;
+    this.tweens.killTweensOf(ring);
+    ring
+      .setStrokeStyle(3, color, 0.9)
+      .setPosition(this.player.x, this.player.y)
+      .setScale(1)
+      .setAlpha(0.9)
+      .setVisible(true);
+    this.tweens.add({
+      targets: ring,
+      scale: DAILY_FEEL.powerupActivationScale,
+      alpha: 0,
+      duration: DAILY_FEEL.powerupActivationDurationMs,
+      ease: "Quad.easeOut",
+      onComplete: () => ring.setVisible(false),
+    });
+  }
+
+  /**
+   * Final-second expiry warning (Phase 12B-2, Daily only): 2 subtle alpha/scale
+   * pulses of the EXISTING ring/aura (never a new object/text/flash/shake). The
+   * onComplete restores the ring to its normal alpha/scale so a later show is
+   * clean; the timer itself is never touched.
+   */
+  private pulseExpiry(ring: Phaser.GameObjects.Arc): void {
+    this.tweens.killTweensOf(ring);
+    ring.setAlpha(1).setScale(1);
+    this.tweens.add({
+      targets: ring,
+      alpha: 0.4,
+      scale: 1.12,
+      duration: DAILY_FEEL.expiryPulseDurationMs,
+      yoyo: true,
+      repeat: 1, // 2 full pulses ≈ 1000 ms
+      ease: "Sine.easeInOut",
+      onComplete: () => ring.setAlpha(1).setScale(1),
+    });
   }
 
   /**
