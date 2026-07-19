@@ -37,6 +37,36 @@ const EVENT_LABEL: Record<NonNullable<HudState["event"]>, string> = {
   tunnel: "Tunnel Pulse",
 };
 
+// Phase 12B-1.1: an icon (shape, not colour alone) per event kind for the
+// single-slot gameplay status channel.
+const EVENT_ICON: Record<NonNullable<HudState["event"]>, string> = {
+  speed: "»",
+  energy: "✦",
+  danger: "▲",
+  tunnel: "◎",
+};
+
+/** Kinds that can occupy the single gameplay-status slot (for CSS styling). */
+type StatusKind = "shield" | "magnet" | NonNullable<HudState["event"]>;
+
+/**
+ * Pick the ONE gameplay status to show (Phase 12B-1.1). Priority: an active
+ * Shield, else an active Magnet, else the active event — at most one at a time,
+ * so the status channel never stacks. The player rings still show Shield/Magnet
+ * independently, so no information is lost.
+ */
+function pickStatus(
+  hud: HudState,
+): { kind: StatusKind; icon: string; text: string } | null {
+  if (hud.shieldSecs > 0)
+    return { kind: "shield", icon: "🛡", text: `SHIELD · ${hud.shieldSecs}s` };
+  if (hud.magnetSecs > 0)
+    return { kind: "magnet", icon: "🧲", text: `MAGNET · ${hud.magnetSecs}s` };
+  if (hud.event)
+    return { kind: hud.event, icon: EVENT_ICON[hud.event], text: EVENT_LABEL[hud.event] };
+  return null;
+}
+
 /**
  * Hosts the Phaser canvas and overlays the HUD in React.
  *
@@ -88,6 +118,8 @@ export default function GameScreen({
   const isCampaign = mode === "campaign";
   const isSurvivalLike = isSurvival || isCampaign;
   const lowTime = !isSurvivalLike && hud.timeLeft <= 10;
+  // Single gameplay status to display this frame (Phase 12B-1.1).
+  const status = pickStatus(hud);
 
   // Quit flow: pause the scene while the confirmation is open so nothing can be
   // collected / no lane can change behind the modal; resume cleanly on cancel.
@@ -169,24 +201,18 @@ export default function GameScreen({
         </div>
       )}
 
-      {/* Active power-up + event chips (only shown while active). */}
-      {(hud.shieldSecs > 0 || hud.magnetSecs > 0 || hud.event) && (
-        <div className="powerups" aria-hidden="true">
-          {hud.shieldSecs > 0 && (
-            <span className="powerup-chip powerup-chip--shield">
-              🛡 Shield {hud.shieldSecs}s
-            </span>
-          )}
-          {hud.magnetSecs > 0 && (
-            <span className="powerup-chip powerup-chip--magnet">
-              🧲 Magnet {hud.magnetSecs}s
-            </span>
-          )}
-          {hud.event && (
-            <span className={`powerup-chip powerup-chip--event is-${hud.event}`}>
-              {EVENT_LABEL[hud.event]}
-            </span>
-          )}
+      {/* Single-slot gameplay status channel (Phase 12B-1.1): at most ONE status
+          at a time (Shield > Magnet > event), on its own fixed row below the HUD
+          — never stacked, never overlapping the Tokens X/N chip. */}
+      {status && (
+        <div
+          className={`status-channel ${isSurvivalLike ? "status-channel--low" : ""}`}
+          aria-hidden="true"
+        >
+          <span className={`status-chip status-chip--${status.kind}`}>
+            <span className="status-chip__icon">{status.icon}</span>
+            {status.text}
+          </span>
         </div>
       )}
 

@@ -153,17 +153,40 @@ export const EVENTS = {
  * here — scoring/penalty/combo values stay in gameConfig.SCORING and HIT.
  */
 export const DAILY_FEEL = {
-  /** Fixed pool of reusable feedback texts (never more created per scene). */
-  textPoolSize: 3,
-  /** "+N" collect label: float time / vertical rise. */
-  collectTextDurationMs: 650,
-  collectTextRisePx: 30,
-  /** Micro-burst at the collect point (single persistent emitter, explode()). */
+  /**
+   * Separated feedback channels (Phase 12B-1.1). Each family owns its own
+   * vertical band so no two ever overlap; nothing may enter the HUD safe area.
+   * `safeTopY` is the lowest logical Y a Phaser feedback object may reach — it
+   * clears the React HUD row + the Tokens X/N chip + the status channel below.
+   */
+  safeTopY: 150,
+
+  /**
+   * Chain Block "+N": TWO dedicated persistent labels below the player, used
+   * alternately (left/right) — never summed. Slightly smaller than the token
+   * toast; gold with a dark outline.
+   */
+  collectFontPx: 16,
+  collectTextDurationMs: 620,
+  collectTextRisePx: 20,
+  collectSideOffsetPx: 48, // horizontal offset each side of the player
+  collectBelowPlayerPx: 26, // gap below the player radius (label sits under it)
+
+  /** Micro-burst at the REAL collect point (single persistent emitter). */
   burstParticleCount: 5,
   burstLifespanMs: 300,
-  /** "−N" / HIT / COMBO LOST label: kept a touch longer for readability. */
+
+  /**
+   * Impact "−N" / HIT / "COMBO ×N LOST" — VALIDATED look, do not retune. Its own
+   * dedicated persistent label; sits above the player, below the token band.
+   */
   hitTextDurationMs: 800,
   hitTextRisePx: 26,
+
+  /** Token toast dedicated band above the player (never crosses impact/HUD). */
+  tokenToastAbovePlayerPx: 72,
+  tokenToastRisePx: 30,
+
   /** RUSH! intro: total on-screen time (in + hold + out), non-blocking. */
   introDurationMs: 650,
   /** RUSH! vertical position as a fraction of game height. */

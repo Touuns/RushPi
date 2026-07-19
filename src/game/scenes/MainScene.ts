@@ -200,12 +200,17 @@ export default class MainScene extends Phaser.Scene {
   // One collect notification at a time — a new one replaces the previous.
   private tokenToast: Phaser.GameObjects.Container | null = null;
 
-  // Daily feel (Phase 12B-1, PURELY VISUAL, Daily-only): fixed pool of reusable
-  // feedback texts ("+N" / "−N" / COMBO LOST) + one persistent collect-burst
-  // emitter (emitting:false, fired via explode()). Never allocates per collect,
-  // never consumes any gameplay RNG, never touches score/combo/collisions.
-  private feedbackPool: Phaser.GameObjects.Text[] = [];
-  private feedbackPoolIndex = 0;
+  // Daily feel (Phase 12B-1 / 12B-1.1, PURELY VISUAL, Daily-only): strictly
+  // SEPARATED feedback channels, each with its own persistent label(s) so no two
+  // families ever overlap and nothing is ever summed. Two Chain Block "+N" labels
+  // (alternated below the player), one dedicated impact label (above the player),
+  // and one persistent collect-burst emitter (emitting:false, fired via explode()).
+  // Never allocates per collect, never consumes gameplay RNG, never touches
+  // score/combo/collisions. The token toast keeps its own single-at-a-time object.
+  private collectFeedbackLeft: Phaser.GameObjects.Text | null = null;
+  private collectFeedbackRight: Phaser.GameObjects.Text | null = null;
+  private collectSideRight = false;
+  private impactFeedback: Phaser.GameObjects.Text | null = null;
   private collectBurst: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
 
   // Campaign (Phase 9F): fixed-finish level. 0/null outside campaign.
@@ -384,8 +389,10 @@ export default class MainScene extends Phaser.Scene {
     // Daily feel (Phase 12B-1): feedback text pool + collect-burst emitter,
     // built ONCE per scene, Daily-only. A replay recreates the scene, so these
     // are always fresh (no accumulation across runs).
-    this.feedbackPool = [];
-    this.feedbackPoolIndex = 0;
+    this.collectFeedbackLeft = null;
+    this.collectFeedbackRight = null;
+    this.collectSideRight = false;
+    this.impactFeedback = null;
     this.collectBurst = null;
     if (this.mode === "daily") this.createDailyFeedbackFx();
 
@@ -1340,13 +1347,20 @@ export default class MainScene extends Phaser.Scene {
         color: "#cbb8ff",
       })
       .setOrigin(0.5);
+    // Dedicated token band ABOVE the player (Phase 12B-1.1): sits between the
+    // player and the HUD, well clear of the impact channel below it and the +N
+    // Chain Block labels under the player — trajectories never cross.
+    const toastY = Math.max(
+      DAILY_FEEL.safeTopY,
+      this.player.y - PLAYER.radius - DAILY_FEEL.tokenToastAbovePlayerPx,
+    );
     const toast = this.add
-      .container(this.player.x, this.player.y - PLAYER.radius - 26, [title, price])
+      .container(this.player.x, toastY, [title, price])
       .setDepth(12);
     this.tokenToast = toast;
     this.tweens.add({
       targets: toast,
-      y: toast.y - 40,
+      y: toast.y - DAILY_FEEL.tokenToastRisePx,
       alpha: 0,
       duration: 1000,
       ease: "Quad.easeOut",
@@ -1588,21 +1602,23 @@ export default class MainScene extends Phaser.Scene {
   // ---- Daily feel FX (Phase 12B-1, purely visual, Daily-only) --------------
 
   /**
-   * Build the fixed feedback-text pool + the single persistent collect-burst
-   * emitter. Called once from create() (Daily only). The pool texts are created
-   * up-front and recycled round-robin — no Phaser.Text allocation ever happens
-   * during the run, and no more than DAILY_FEEL.textPoolSize labels can exist.
+   * Build the dedicated feedback labels + the single persistent collect-burst
+   * emitter. Called once from create() (Daily only). All labels are created
+   * up-front and reused — no Phaser.Text is ever allocated during the run:
+   *   - collectFeedbackLeft / collectFeedbackRight: the two "+N" Chain Block
+   *     labels (alternated, never summed, at most two visible), gold;
+   *   - impactFeedback: the "−N / COMBO ×N LOST" label (its own channel), red.
    * The emitter reuses the procedural "spark" texture already generated for the
    * player trail (no new texture key) and only emits via explode().
    */
   private createDailyFeedbackFx(): void {
-    for (let i = 0; i < DAILY_FEEL.textPoolSize; i++) {
-      const label = this.add
+    const makeLabel = (colorCss: string, fontPx: number): Phaser.GameObjects.Text =>
+      this.add
         .text(0, 0, "", {
           fontFamily: "Segoe UI, system-ui, sans-serif",
-          fontSize: "18px",
+          fontSize: `${fontPx}px`,
           fontStyle: "bold",
-          color: PALETTE.goldCss,
+          color: colorCss,
           align: "center",
           stroke: "#140a26",
           strokeThickness: 4,
@@ -1610,8 +1626,13 @@ export default class MainScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setDepth(12)
         .setVisible(false);
-      this.feedbackPool.push(label);
-    }
+
+    this.collectFeedbackLeft = makeLabel(PALETTE.goldCss, DAILY_FEEL.collectFontPx);
+    this.collectFeedbackRight = makeLabel(PALETTE.goldCss, DAILY_FEEL.collectFontPx);
+    // Impact label keeps the VALIDATED look (18px bold, red, stroke) — its own
+    // dedicated channel, never a recycled Chain Block / token / status object.
+    this.impactFeedback = makeLabel("#ff4d6d", 18);
+
     // Particle randomness here is Phaser's internal cosmetic jitter only — it
     // never touches this.rng()/this.powerupRng() or any gameplay decision.
     this.collectBurst = this.add.particles(0, 0, "spark", {
@@ -1627,29 +1648,24 @@ export default class MainScene extends Phaser.Scene {
   }
 
   /**
-   * Show one pooled feedback label. Recycles the oldest slot (round-robin):
-   * kills its tweens, resets alpha/scale/position/text/color, then plays the
-   * rise-and-fade. At most DAILY_FEEL.textPoolSize labels are ever visible.
+   * Rise-and-fade a persistent feedback label. Kills any in-flight tween on that
+   * exact label first (clean recycle, no orphan tween), clamps X inside the
+   * canvas and Y below the HUD safe area, then plays the animation.
    */
-  private showFeedbackText(
+  private animateFeedbackLabel(
+    label: Phaser.GameObjects.Text,
     x: number,
     y: number,
     message: string,
-    colorCss: string,
     durationMs: number,
     risePx: number,
   ): void {
-    if (this.feedbackPool.length === 0) return;
-    const label = this.feedbackPool[this.feedbackPoolIndex];
-    this.feedbackPoolIndex = (this.feedbackPoolIndex + 1) % this.feedbackPool.length;
-    // Clean recycle: no orphan tween may keep animating the reused label.
     this.tweens.killTweensOf(label);
     label
       .setText(message)
-      .setColor(colorCss)
       .setPosition(
         Phaser.Math.Clamp(x, 44, GAME_WIDTH - 44),
-        Math.max(60, y - OBJECTS.radius - 6),
+        Math.max(DAILY_FEEL.safeTopY, y),
       )
       .setAlpha(1)
       .setScale(1)
@@ -1664,37 +1680,52 @@ export default class MainScene extends Phaser.Scene {
     });
   }
 
-  /** "+N" gold label + micro-burst at the collect point (Daily only). */
-  private showCollectFeedback(x: number, y: number, gained: number): void {
-    this.showFeedbackText(
-      x,
-      y,
-      `+${Math.round(gained)}`,
-      PALETTE.goldCss,
-      DAILY_FEEL.collectTextDurationMs,
-      DAILY_FEEL.collectTextRisePx,
-    );
-    this.collectBurst?.explode(DAILY_FEEL.burstParticleCount, x, y);
+  /**
+   * Chain Block collect (Daily only): the EXACT points gained, shown as a
+   * standalone "+N" in its own channel BELOW the player, alternating between the
+   * left and right label so consecutive collects never sum and at most two are
+   * visible. A third collect while both are active reuses the older side (its
+   * tween is killed first). The 5-particle burst stays at the REAL collect point.
+   */
+  private showCollectFeedback(collectX: number, collectY: number, gained: number): void {
+    this.collectSideRight = !this.collectSideRight;
+    const label = this.collectSideRight ? this.collectFeedbackRight : this.collectFeedbackLeft;
+    if (label) {
+      const dir = this.collectSideRight ? 1 : -1;
+      this.animateFeedbackLabel(
+        label,
+        this.player.x + dir * DAILY_FEEL.collectSideOffsetPx,
+        this.player.y + PLAYER.radius + DAILY_FEEL.collectBelowPlayerPx,
+        `+${Math.round(gained)}`,
+        DAILY_FEEL.collectTextDurationMs,
+        DAILY_FEEL.collectTextRisePx,
+      );
+    }
+    this.collectBurst?.explode(DAILY_FEEL.burstParticleCount, collectX, collectY);
   }
 
   /**
    * Impact readability (Daily only): the REAL points lost ("−N", never a
    * hardcoded −50) or "HIT" when there was nothing left to lose, plus a
-   * "COMBO ×N LOST" line when a combo of 5+ was broken. Purely display — the
-   * penalty/combo logic in hitObstacle() is untouched.
+   * "COMBO ×N LOST" line when a combo of 5+ was broken. Its own dedicated label
+   * (validated placement above the player). Purely display — the penalty/combo
+   * logic in hitObstacle() is untouched.
    */
   private showHitFeedback(penaltyRounded: number, comboBeforeHit: number): void {
+    if (!this.impactFeedback) return;
     const first = penaltyRounded > 0 ? `−${penaltyRounded}` : "HIT";
     const message =
       comboBeforeHit >= 5 ? `${first}\nCOMBO ×${comboBeforeHit} LOST` : first;
-    this.showFeedbackText(
+    // Validated placement: player.x, player.y − OBJECTS.radius − 6 (unchanged).
+    this.animateFeedbackLabel(
+      this.impactFeedback,
       this.player.x,
-      this.player.y,
+      this.player.y - OBJECTS.radius - 6,
       message,
-      "#ff4d6d",
       DAILY_FEEL.hitTextDurationMs,
       DAILY_FEEL.hitTextRisePx,
     );
+    this.impactFeedback.setDepth(13); // impact takes visual priority on a hit
   }
 
   /**
