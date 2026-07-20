@@ -1,0 +1,760 @@
+{
+  "schemaVersion": 2,
+  "catalogStage": "proposal",
+  "catalogVersion": "token-registry-v2-9eebaaf6df58dc59",
+  "contentHash": "9eebaaf6df58dc597f19df9e98f8140e2deb2d0610c11e82f921d71c8f69707e",
+  "provider": {
+    "name": "coingecko",
+    "endpoint": "https://api.coingecko.com/api/v3/coins/markets",
+    "retrievedAt": "2026-07-20T21:32:06.813Z",
+    "pages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "candidateUniverse": 500
+  },
+  "finalCount": 250,
+  "preservedV1Count": 36,
+  "v1PresentInCaptureCount": 36,
+  "newCount": 214,
+  "anchors": [
+    "BTC",
+    "ETH"
+  ],
+  "tierCounts": {
+    "anchor": 2,
+    "core": 40,
+    "discovery": 169,
+    "established": 39
+  },
+  "categoryCounts": {
+    "ai": 11,
+    "data-storage": 2,
+    "defi": 42,
+    "depin": 15,
+    "exchange": 11,
+    "gaming": 13,
+    "infrastructure": 14,
+    "interoperability": 11,
+    "layer-2": 9,
+    "liquid-staking": 5,
+    "meme": 20,
+    "oracle": 3,
+    "payments": 10,
+    "privacy": 10,
+    "rwa": 5,
+    "smart-contract": 45,
+    "social": 4,
+    "stablecoin": 15,
+    "store-of-value": 5
+  },
+  "assetClassCounts": {
+    "meme": 18,
+    "native": 93,
+    "stablecoin": 15,
+    "token": 124
+  },
+  "exclusionCountsByReason": {
+    "duplicate-underlying": 2,
+    "identity-not-sufficiently-verified": 11,
+    "inactive-or-abandoned": 2,
+    "lower-priority-capacity-cutoff": 170,
+    "unsupported-asset-form": 61,
+    "wrapped-or-bridged": 4
+  },
+  "symbolConflictGroups": [],
+  "diversitySubstitutions": {
+    "count": 102,
+    "picks": [
+      {
+        "tokenId": "rpt-0247",
+        "providerId": "safepal",
+        "symbol": "SFP",
+        "marketCapRank": 252
+      },
+      {
+        "tokenId": "rpt-0089",
+        "providerId": "mimblewimblecoin",
+        "symbol": "MWC",
+        "marketCapRank": 253
+      },
+      {
+        "tokenId": "rpt-0143",
+        "providerId": "rollbit-coin",
+        "symbol": "RLB",
+        "marketCapRank": 254
+      },
+      {
+        "tokenId": "rpt-0073",
+        "providerId": "immutable-x",
+        "symbol": "IMX",
+        "marketCapRank": 258
+      },
+      {
+        "tokenId": "rpt-0127",
+        "providerId": "debridge",
+        "symbol": "DBR",
+        "marketCapRank": 259
+      },
+      {
+        "tokenId": "rpt-0155",
+        "providerId": "1inch",
+        "symbol": "1INCH",
+        "marketCapRank": 260
+      },
+      {
+        "tokenId": "rpt-0162",
+        "providerId": "dydx-chain",
+        "symbol": "DYDX",
+        "marketCapRank": 261
+      },
+      {
+        "tokenId": "rpt-0244",
+        "providerId": "tokenize-xchange",
+        "symbol": "TKX",
+        "marketCapRank": 262
+      },
+      {
+        "tokenId": "rpt-0137",
+        "providerId": "gala",
+        "symbol": "GALA",
+        "marketCapRank": 268
+      },
+      {
+        "tokenId": "rpt-0197",
+        "providerId": "golem",
+        "symbol": "GLM",
+        "marketCapRank": 271
+      },
+      {
+        "tokenId": "rpt-0169",
+        "providerId": "kamino",
+        "symbol": "KMNO",
+        "marketCapRank": 277
+      },
+      {
+        "tokenId": "rpt-0055",
+        "providerId": "elrond-erd-2",
+        "symbol": "EGLD",
+        "marketCapRank": 279
+      },
+      {
+        "tokenId": "rpt-0108",
+        "providerId": "sonic-3",
+        "symbol": "S",
+        "marketCapRank": 281
+      },
+      {
+        "tokenId": "rpt-0131",
+        "providerId": "zksync",
+        "symbol": "ZK",
+        "marketCapRank": 282
+      },
+      {
+        "tokenId": "rpt-0175",
+        "providerId": "meteora",
+        "symbol": "MET",
+        "marketCapRank": 283
+      },
+      {
+        "tokenId": "rpt-0192",
+        "providerId": "aethir",
+        "symbol": "ATH",
+        "marketCapRank": 284
+      },
+      {
+        "tokenId": "rpt-0174",
+        "providerId": "nxm",
+        "symbol": "NXM",
+        "marketCapRank": 288
+      },
+      {
+        "tokenId": "rpt-0195",
+        "providerId": "geodnet",
+        "symbol": "GEOD",
+        "marketCapRank": 289
+      },
+      {
+        "tokenId": "rpt-0168",
+        "providerId": "reserve-rights-token",
+        "symbol": "RSR",
+        "marketCapRank": 295
+      },
+      {
+        "tokenId": "rpt-0165",
+        "providerId": "instadapp",
+        "symbol": "FLUID",
+        "marketCapRank": 296
+      },
+      {
+        "tokenId": "rpt-0164",
+        "providerId": "cow-protocol",
+        "symbol": "COW",
+        "marketCapRank": 301
+      },
+      {
+        "tokenId": "rpt-0136",
+        "providerId": "beam-2",
+        "symbol": "BEAM",
+        "marketCapRank": 302
+      },
+      {
+        "tokenId": "rpt-0121",
+        "providerId": "quantum-resistant-ledger",
+        "symbol": "QRL",
+        "marketCapRank": 303
+      },
+      {
+        "tokenId": "rpt-0103",
+        "providerId": "qtum",
+        "symbol": "QTUM",
+        "marketCapRank": 307
+      },
+      {
+        "tokenId": "rpt-0086",
+        "providerId": "zencash",
+        "symbol": "ZEN",
+        "marketCapRank": 309
+      },
+      {
+        "tokenId": "rpt-0231",
+        "providerId": "ordinals",
+        "symbol": "ORDI",
+        "marketCapRank": 310
+      },
+      {
+        "tokenId": "rpt-0158",
+        "providerId": "yearn-finance",
+        "symbol": "YFI",
+        "marketCapRank": 311
+      },
+      {
+        "tokenId": "rpt-0156",
+        "providerId": "0x",
+        "symbol": "ZRX",
+        "marketCapRank": 318
+      },
+      {
+        "tokenId": "rpt-0170",
+        "providerId": "orca",
+        "symbol": "ORCA",
+        "marketCapRank": 330
+      },
+      {
+        "tokenId": "rpt-0196",
+        "providerId": "livepeer",
+        "symbol": "LPT",
+        "marketCapRank": 334
+      },
+      {
+        "tokenId": "rpt-0186",
+        "providerId": "arkham",
+        "symbol": "ARKM",
+        "marketCapRank": 336
+      },
+      {
+        "tokenId": "rpt-0206",
+        "providerId": "walrus-2",
+        "symbol": "WAL",
+        "marketCapRank": 337
+      },
+      {
+        "tokenId": "rpt-0141",
+        "providerId": "nexpace",
+        "symbol": "NXPC",
+        "marketCapRank": 341
+      },
+      {
+        "tokenId": "rpt-0161",
+        "providerId": "gmx",
+        "symbol": "GMX",
+        "marketCapRank": 345
+      },
+      {
+        "tokenId": "rpt-0250",
+        "providerId": "gas",
+        "symbol": "GAS",
+        "marketCapRank": 346
+      },
+      {
+        "tokenId": "rpt-0096",
+        "providerId": "keeta",
+        "symbol": "KTA",
+        "marketCapRank": 348
+      },
+      {
+        "tokenId": "rpt-0184",
+        "providerId": "numeraire",
+        "symbol": "NMR",
+        "marketCapRank": 349
+      },
+      {
+        "tokenId": "rpt-0093",
+        "providerId": "digibyte",
+        "symbol": "DGB",
+        "marketCapRank": 350
+      },
+      {
+        "tokenId": "rpt-0214",
+        "providerId": "centrifuge-2",
+        "symbol": "CFG",
+        "marketCapRank": 355
+      },
+      {
+        "tokenId": "rpt-0216",
+        "providerId": "plume",
+        "symbol": "PLUME",
+        "marketCapRank": 358
+      },
+      {
+        "tokenId": "rpt-0194",
+        "providerId": "aioz-network",
+        "symbol": "AIOZ",
+        "marketCapRank": 366
+      },
+      {
+        "tokenId": "rpt-0120",
+        "providerId": "qubic-network",
+        "symbol": "QUBIC",
+        "marketCapRank": 367
+      },
+      {
+        "tokenId": "rpt-0209",
+        "providerId": "ravencoin",
+        "symbol": "RVN",
+        "marketCapRank": 369
+      },
+      {
+        "tokenId": "rpt-0213",
+        "providerId": "safe",
+        "symbol": "SAFE",
+        "marketCapRank": 372
+      },
+      {
+        "tokenId": "rpt-0198",
+        "providerId": "holotoken",
+        "symbol": "HOT",
+        "marketCapRank": 374
+      },
+      {
+        "tokenId": "rpt-0123",
+        "providerId": "kusama",
+        "symbol": "KSM",
+        "marketCapRank": 378
+      },
+      {
+        "tokenId": "rpt-0230",
+        "providerId": "dog-go-to-the-moon-rune",
+        "symbol": "DOG",
+        "marketCapRank": 379
+      },
+      {
+        "tokenId": "rpt-0130",
+        "providerId": "linea",
+        "symbol": "LINEA",
+        "marketCapRank": 381
+      },
+      {
+        "tokenId": "rpt-0097",
+        "providerId": "velo",
+        "symbol": "VELO",
+        "marketCapRank": 385
+      },
+      {
+        "tokenId": "rpt-0189",
+        "providerId": "cortex-2",
+        "symbol": "CX",
+        "marketCapRank": 387
+      },
+      {
+        "tokenId": "rpt-0201",
+        "providerId": "theta-fuel",
+        "symbol": "TFUEL",
+        "marketCapRank": 389
+      },
+      {
+        "tokenId": "rpt-0100",
+        "providerId": "mina-protocol",
+        "symbol": "MINA",
+        "marketCapRank": 391
+      },
+      {
+        "tokenId": "rpt-0118",
+        "providerId": "metal-blockchain",
+        "symbol": "METAL",
+        "marketCapRank": 392
+      },
+      {
+        "tokenId": "rpt-0126",
+        "providerId": "wormhole",
+        "symbol": "W",
+        "marketCapRank": 393
+      },
+      {
+        "tokenId": "rpt-0223",
+        "providerId": "turbo",
+        "symbol": "TURBO",
+        "marketCapRank": 394
+      },
+      {
+        "tokenId": "rpt-0138",
+        "providerId": "enjincoin",
+        "symbol": "ENJ",
+        "marketCapRank": 395
+      },
+      {
+        "tokenId": "rpt-0056",
+        "providerId": "berachain-bera",
+        "symbol": "BERA",
+        "marketCapRank": 396
+      },
+      {
+        "tokenId": "rpt-0225",
+        "providerId": "baby-doge-coin",
+        "symbol": "BABYDOGE",
+        "marketCapRank": 397
+      },
+      {
+        "tokenId": "rpt-0188",
+        "providerId": "bio-protocol",
+        "symbol": "BIO",
+        "marketCapRank": 400
+      },
+      {
+        "tokenId": "rpt-0140",
+        "providerId": "superfarm",
+        "symbol": "SUPER",
+        "marketCapRank": 403
+      },
+      {
+        "tokenId": "rpt-0193",
+        "providerId": "io",
+        "symbol": "IO",
+        "marketCapRank": 404
+      },
+      {
+        "tokenId": "rpt-0229",
+        "providerId": "non-playable-coin",
+        "symbol": "NPC",
+        "marketCapRank": 415
+      },
+      {
+        "tokenId": "rpt-0182",
+        "providerId": "babylon",
+        "symbol": "BABY",
+        "marketCapRank": 419
+      },
+      {
+        "tokenId": "rpt-0124",
+        "providerId": "zetachain",
+        "symbol": "ZETA",
+        "marketCapRank": 422
+      },
+      {
+        "tokenId": "rpt-0222",
+        "providerId": "based-brett",
+        "symbol": "BRETT",
+        "marketCapRank": 423
+      },
+      {
+        "tokenId": "rpt-0117",
+        "providerId": "aelf",
+        "symbol": "ELF",
+        "marketCapRank": 429
+      },
+      {
+        "tokenId": "rpt-0125",
+        "providerId": "axelar",
+        "symbol": "AXL",
+        "marketCapRank": 435
+      },
+      {
+        "tokenId": "rpt-0094",
+        "providerId": "nano",
+        "symbol": "XNO",
+        "marketCapRank": 436
+      },
+      {
+        "tokenId": "rpt-0090",
+        "providerId": "verus-coin",
+        "symbol": "VRSC",
+        "marketCapRank": 437
+      },
+      {
+        "tokenId": "rpt-0246",
+        "providerId": "bitkub-coin",
+        "symbol": "KUB",
+        "marketCapRank": 439
+      },
+      {
+        "tokenId": "rpt-0102",
+        "providerId": "zilliqa",
+        "symbol": "ZIL",
+        "marketCapRank": 443
+      },
+      {
+        "tokenId": "rpt-0215",
+        "providerId": "polymesh",
+        "symbol": "POLYX",
+        "marketCapRank": 444
+      },
+      {
+        "tokenId": "rpt-0101",
+        "providerId": "kava",
+        "symbol": "KAVA",
+        "marketCapRank": 445
+      },
+      {
+        "tokenId": "rpt-0119",
+        "providerId": "concordium",
+        "symbol": "CCD",
+        "marketCapRank": 446
+      },
+      {
+        "tokenId": "rpt-0226",
+        "providerId": "degen-base",
+        "symbol": "DEGEN",
+        "marketCapRank": 448
+      },
+      {
+        "tokenId": "rpt-0227",
+        "providerId": "toshi",
+        "symbol": "TOSHI",
+        "marketCapRank": 449
+      },
+      {
+        "tokenId": "rpt-0128",
+        "providerId": "synapse-2",
+        "symbol": "SYN",
+        "marketCapRank": 454
+      },
+      {
+        "tokenId": "rpt-0142",
+        "providerId": "funfair",
+        "symbol": "FUN",
+        "marketCapRank": 455
+      },
+      {
+        "tokenId": "rpt-0167",
+        "providerId": "venus",
+        "symbol": "XVS",
+        "marketCapRank": 457
+      },
+      {
+        "tokenId": "rpt-0177",
+        "providerId": "deep",
+        "symbol": "DEEP",
+        "marketCapRank": 461
+      },
+      {
+        "tokenId": "rpt-0149",
+        "providerId": "holoworld",
+        "symbol": "HOLO",
+        "marketCapRank": 462
+      },
+      {
+        "tokenId": "rpt-0178",
+        "providerId": "redstone-oracles",
+        "symbol": "RED",
+        "marketCapRank": 464
+      },
+      {
+        "tokenId": "rpt-0157",
+        "providerId": "sushi",
+        "symbol": "SUSHI",
+        "marketCapRank": 466
+      },
+      {
+        "tokenId": "rpt-0129",
+        "providerId": "movement",
+        "symbol": "MOVE",
+        "marketCapRank": 468
+      },
+      {
+        "tokenId": "rpt-0107",
+        "providerId": "astar",
+        "symbol": "ASTR",
+        "marketCapRank": 469
+      },
+      {
+        "tokenId": "rpt-0134",
+        "providerId": "espresso",
+        "symbol": "ESP",
+        "marketCapRank": 470
+      },
+      {
+        "tokenId": "rpt-0148",
+        "providerId": "blur",
+        "symbol": "BLUR",
+        "marketCapRank": 471
+      },
+      {
+        "tokenId": "rpt-0122",
+        "providerId": "pharos-network",
+        "symbol": "PROS",
+        "marketCapRank": 472
+      },
+      {
+        "tokenId": "rpt-0114",
+        "providerId": "nervos-network",
+        "symbol": "CKB",
+        "marketCapRank": 473
+      },
+      {
+        "tokenId": "rpt-0217",
+        "providerId": "creditcoin-2",
+        "symbol": "CTC",
+        "marketCapRank": 476
+      },
+      {
+        "tokenId": "rpt-0221",
+        "providerId": "popcat",
+        "symbol": "POPCAT",
+        "marketCapRank": 479
+      },
+      {
+        "tokenId": "rpt-0176",
+        "providerId": "vvs-finance",
+        "symbol": "VVS",
+        "marketCapRank": 482
+      },
+      {
+        "tokenId": "rpt-0135",
+        "providerId": "ronin",
+        "symbol": "RON",
+        "marketCapRank": 483
+      },
+      {
+        "tokenId": "rpt-0088",
+        "providerId": "oasis-network",
+        "symbol": "ROSE",
+        "marketCapRank": 484
+      },
+      {
+        "tokenId": "rpt-0202",
+        "providerId": "peaq-2",
+        "symbol": "PEAQ",
+        "marketCapRank": 492
+      },
+      {
+        "tokenId": "rpt-0099",
+        "providerId": "flow",
+        "symbol": "FLOW",
+        "marketCapRank": 493
+      },
+      {
+        "tokenId": "rpt-0105",
+        "providerId": "ontology",
+        "symbol": "ONT",
+        "marketCapRank": 494
+      },
+      {
+        "tokenId": "rpt-0183",
+        "providerId": "lombard-protocol",
+        "symbol": "BARD",
+        "marketCapRank": 495
+      },
+      {
+        "tokenId": "rpt-0087",
+        "providerId": "pirate-chain",
+        "symbol": "ARRR",
+        "marketCapRank": 496
+      },
+      {
+        "tokenId": "rpt-0133",
+        "providerId": "altlayer",
+        "symbol": "ALT",
+        "marketCapRank": 497
+      },
+      {
+        "tokenId": "rpt-0204",
+        "providerId": "xyo-network",
+        "symbol": "XYO",
+        "marketCapRank": 498
+      },
+      {
+        "tokenId": "rpt-0179",
+        "providerId": "tellor",
+        "symbol": "TRB",
+        "marketCapRank": 500
+      }
+    ]
+  },
+  "manuallyReviewedAmbiguousCount": 11,
+  "unresolvedExcludedCount": 11,
+  "highestUncertaintyIncluded": [
+    {
+      "tokenId": "rpt-0038",
+      "providerId": "the-open-network",
+      "name": "Toncoin",
+      "symbol": "TON",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0061",
+      "providerId": "eigenlayer",
+      "name": "EigenLayer",
+      "symbol": "EIGEN",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0070",
+      "providerId": "fetch-ai",
+      "name": "Artificial Superintelligence Alliance",
+      "symbol": "FET",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0108",
+      "providerId": "sonic-3",
+      "name": "Sonic",
+      "symbol": "S",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0111",
+      "providerId": "kaia",
+      "name": "Kaia",
+      "symbol": "KAIA",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0115",
+      "providerId": "vaulta",
+      "name": "Vaulta",
+      "symbol": "A",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0153",
+      "providerId": "sky",
+      "name": "Sky",
+      "symbol": "SKY",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0212",
+      "providerId": "chain-2",
+      "name": "Onyxcoin",
+      "symbol": "XCN",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0213",
+      "providerId": "safe",
+      "name": "Safe",
+      "symbol": "SAFE",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    },
+    {
+      "tokenId": "rpt-0250",
+      "providerId": "gas",
+      "name": "Gas",
+      "symbol": "GAS",
+      "note": "canonical rename/rebrand or deep-tail diversity pick"
+    }
+  ]
+}

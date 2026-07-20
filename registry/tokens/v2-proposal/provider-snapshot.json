@@ -1,0 +1,4025 @@
+{
+  "schemaVersion": 2,
+  "catalogStage": "proposal",
+  "provider": "coingecko",
+  "endpoint": "https://api.coingecko.com/api/v3/coins/markets",
+  "queryParams": {
+    "vs_currency": "usd",
+    "order": "market_cap_desc",
+    "per_page": "100",
+    "sparkline": "false",
+    "price_change_percentage": "",
+    "locale": "en",
+    "pages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "retrievedAt": "2026-07-20T21:32:06.813Z",
+  "rowCount": 500,
+  "rows": [
+    {
+      "id": "bitcoin",
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "marketCapRank": 1,
+      "marketCap": 1309423014333,
+      "lastUpdated": "2026-07-20T21:31:46.229Z"
+    },
+    {
+      "id": "ethereum",
+      "symbol": "ETH",
+      "name": "Ethereum",
+      "marketCapRank": 2,
+      "marketCap": 229737268902,
+      "lastUpdated": "2026-07-20T21:31:42.816Z"
+    },
+    {
+      "id": "tether",
+      "symbol": "USDT",
+      "name": "Tether",
+      "marketCapRank": 3,
+      "marketCap": 184084564057,
+      "lastUpdated": "2026-07-20T21:31:41.468Z"
+    },
+    {
+      "id": "binancecoin",
+      "symbol": "BNB",
+      "name": "BNB",
+      "marketCapRank": 4,
+      "marketCap": 76046761001,
+      "lastUpdated": "2026-07-20T21:31:42.996Z"
+    },
+    {
+      "id": "usd-coin",
+      "symbol": "USDC",
+      "name": "USDC",
+      "marketCapRank": 5,
+      "marketCap": 73211864368,
+      "lastUpdated": "2026-07-20T21:31:47.673Z"
+    },
+    {
+      "id": "ripple",
+      "symbol": "XRP",
+      "name": "XRP",
+      "marketCapRank": 6,
+      "marketCap": 69685932671,
+      "lastUpdated": "2026-07-20T21:31:44.673Z"
+    },
+    {
+      "id": "solana",
+      "symbol": "SOL",
+      "name": "Solana",
+      "marketCapRank": 7,
+      "marketCap": 45391029726,
+      "lastUpdated": "2026-07-20T21:31:44.317Z"
+    },
+    {
+      "id": "tron",
+      "symbol": "TRX",
+      "name": "TRON",
+      "marketCapRank": 8,
+      "marketCap": 30982399781,
+      "lastUpdated": "2026-07-20T21:31:35.521Z"
+    },
+    {
+      "id": "figure-heloc",
+      "symbol": "FIGR_HELOC",
+      "name": "Figure Heloc",
+      "marketCapRank": 9,
+      "marketCap": 20130840766,
+      "lastUpdated": "2026-07-20T21:31:30.237Z"
+    },
+    {
+      "id": "hyperliquid",
+      "symbol": "HYPE",
+      "name": "Hyperliquid",
+      "marketCapRank": 10,
+      "marketCap": 13951859947,
+      "lastUpdated": "2026-07-20T21:31:44.605Z"
+    },
+    {
+      "id": "dogecoin",
+      "symbol": "DOGE",
+      "name": "Dogecoin",
+      "marketCapRank": 11,
+      "marketCap": 11201426681,
+      "lastUpdated": "2026-07-20T21:31:44.411Z"
+    },
+    {
+      "id": "usds",
+      "symbol": "USDS",
+      "name": "USDS",
+      "marketCapRank": 12,
+      "marketCap": 9905170077,
+      "lastUpdated": "2026-07-20T21:31:44.004Z"
+    },
+    {
+      "id": "rain",
+      "symbol": "RAIN",
+      "name": "Rain",
+      "marketCapRank": 13,
+      "marketCap": 9832081368,
+      "lastUpdated": "2026-07-20T21:31:31.134Z"
+    },
+    {
+      "id": "zcash",
+      "symbol": "ZEC",
+      "name": "Zcash",
+      "marketCapRank": 14,
+      "marketCap": 9224233401,
+      "lastUpdated": "2026-07-20T21:31:44.573Z"
+    },
+    {
+      "id": "leo-token",
+      "symbol": "LEO",
+      "name": "LEO Token",
+      "marketCapRank": 15,
+      "marketCap": 8957063371,
+      "lastUpdated": "2026-07-20T21:31:32.996Z"
+    },
+    {
+      "id": "whitebit",
+      "symbol": "WBT",
+      "name": "WhiteBIT Coin",
+      "marketCapRank": 16,
+      "marketCap": 6714028034,
+      "lastUpdated": "2026-07-20T21:31:39.247Z"
+    },
+    {
+      "id": "stellar",
+      "symbol": "XLM",
+      "name": "Stellar",
+      "marketCapRank": 17,
+      "marketCap": 6452895771,
+      "lastUpdated": "2026-07-20T21:31:33.803Z"
+    },
+    {
+      "id": "chainlink",
+      "symbol": "LINK",
+      "name": "Chainlink",
+      "marketCapRank": 18,
+      "marketCap": 6422971733,
+      "lastUpdated": "2026-07-20T21:31:33.336Z"
+    },
+    {
+      "id": "cardano",
+      "symbol": "ADA",
+      "name": "Cardano",
+      "marketCapRank": 19,
+      "marketCap": 6335671194,
+      "lastUpdated": "2026-07-20T21:31:34.419Z"
+    },
+    {
+      "id": "monero",
+      "symbol": "XMR",
+      "name": "Monero",
+      "marketCapRank": 20,
+      "marketCap": 6334217085,
+      "lastUpdated": "2026-07-20T21:31:30.869Z"
+    },
+    {
+      "id": "canton-network",
+      "symbol": "CC",
+      "name": "Canton",
+      "marketCapRank": 21,
+      "marketCap": 4845194924,
+      "lastUpdated": "2026-07-20T21:31:31.892Z"
+    },
+    {
+      "id": "dai",
+      "symbol": "DAI",
+      "name": "Dai",
+      "marketCapRank": 22,
+      "marketCap": 4642172954,
+      "lastUpdated": "2026-07-20T21:31:33.663Z"
+    },
+    {
+      "id": "bitcoin-cash",
+      "symbol": "BCH",
+      "name": "Bitcoin Cash",
+      "marketCapRank": 23,
+      "marketCap": 4427869159,
+      "lastUpdated": "2026-07-20T21:31:33.184Z"
+    },
+    {
+      "id": "usd1-wlfi",
+      "symbol": "USD1",
+      "name": "USD1",
+      "marketCapRank": 24,
+      "marketCap": 4223301055,
+      "lastUpdated": "2026-07-20T21:31:47.484Z"
+    },
+    {
+      "id": "ethena-usde",
+      "symbol": "USDE",
+      "name": "Ethena USDe",
+      "marketCapRank": 25,
+      "marketCap": 4015566775,
+      "lastUpdated": "2026-07-20T21:31:41.554Z"
+    },
+    {
+      "id": "the-open-network",
+      "symbol": "GRAM",
+      "name": "Gram (prev. Toncoin)",
+      "marketCapRank": 26,
+      "marketCap": 3912433669,
+      "lastUpdated": "2026-07-20T21:31:37.984Z"
+    },
+    {
+      "id": "litecoin",
+      "symbol": "LTC",
+      "name": "Litecoin",
+      "marketCapRank": 27,
+      "marketCap": 3674992359,
+      "lastUpdated": "2026-07-20T21:31:38.327Z"
+    },
+    {
+      "id": "global-dollar",
+      "symbol": "USDG",
+      "name": "Global Dollar",
+      "marketCapRank": 28,
+      "marketCap": 3225997616,
+      "lastUpdated": "2026-07-20T21:31:45.222Z"
+    },
+    {
+      "id": "sui",
+      "symbol": "SUI",
+      "name": "Sui",
+      "marketCapRank": 29,
+      "marketCap": 3114398216,
+      "lastUpdated": "2026-07-20T21:31:39.674Z"
+    },
+    {
+      "id": "hashnote-usyc",
+      "symbol": "USYC",
+      "name": "Circle USYC",
+      "marketCapRank": 30,
+      "marketCap": 2958335744,
+      "lastUpdated": "2026-07-20T03:55:35.013Z"
+    },
+    {
+      "id": "hedera-hashgraph",
+      "symbol": "HBAR",
+      "name": "Hedera",
+      "marketCapRank": 31,
+      "marketCap": 2915856769,
+      "lastUpdated": "2026-07-20T21:31:42.725Z"
+    },
+    {
+      "id": "paypal-usd",
+      "symbol": "PYUSD",
+      "name": "PayPal USD",
+      "marketCapRank": 32,
+      "marketCap": 2891062294,
+      "lastUpdated": "2026-07-20T21:31:40.685Z"
+    },
+    {
+      "id": "avalanche-2",
+      "symbol": "AVAX",
+      "name": "Avalanche",
+      "marketCapRank": 33,
+      "marketCap": 2850112237,
+      "lastUpdated": "2026-07-20T21:31:35.921Z"
+    },
+    {
+      "id": "crypto-com-chain",
+      "symbol": "CRO",
+      "name": "Cronos",
+      "marketCapRank": 34,
+      "marketCap": 2731763223,
+      "lastUpdated": "2026-07-20T21:31:32.943Z"
+    },
+    {
+      "id": "near",
+      "symbol": "NEAR",
+      "name": "NEAR Protocol",
+      "marketCapRank": 35,
+      "marketCap": 2569343249,
+      "lastUpdated": "2026-07-20T21:31:35.347Z"
+    },
+    {
+      "id": "blackrock-usd-institutional-digital-liquidity-fund",
+      "symbol": "BUIDL",
+      "name": "BlackRock USD Institutional Digital Liquidity Fund",
+      "marketCapRank": 36,
+      "marketCap": 2533621257,
+      "lastUpdated": "2026-07-20T21:20:12.487Z"
+    },
+    {
+      "id": "shiba-inu",
+      "symbol": "SHIB",
+      "name": "Shiba Inu",
+      "marketCapRank": 37,
+      "marketCap": 2501875603,
+      "lastUpdated": "2026-07-20T21:31:35.852Z"
+    },
+    {
+      "id": "tether-gold",
+      "symbol": "XAUT",
+      "name": "Tether Gold",
+      "marketCapRank": 38,
+      "marketCap": 2456857368,
+      "lastUpdated": "2026-07-20T21:31:35.317Z"
+    },
+    {
+      "id": "uniswap",
+      "symbol": "UNI",
+      "name": "Uniswap",
+      "marketCapRank": 39,
+      "marketCap": 2267109423,
+      "lastUpdated": "2026-07-20T21:31:36.115Z"
+    },
+    {
+      "id": "ondo-us-dollar-yield",
+      "symbol": "USDY",
+      "name": "Ondo US Dollar Yield",
+      "marketCapRank": 40,
+      "marketCap": 2157333821,
+      "lastUpdated": "2026-07-20T21:31:40.712Z"
+    },
+    {
+      "id": "bittensor",
+      "symbol": "TAO",
+      "name": "Bittensor",
+      "marketCapRank": 41,
+      "marketCap": 1874189776,
+      "lastUpdated": "2026-07-20T21:31:40.148Z"
+    },
+    {
+      "id": "world-liberty-financial",
+      "symbol": "WLFI",
+      "name": "World Liberty Financial",
+      "marketCapRank": 42,
+      "marketCap": 1808333599,
+      "lastUpdated": "2026-07-20T21:31:44.535Z"
+    },
+    {
+      "id": "pax-gold",
+      "symbol": "PAXG",
+      "name": "PAX Gold",
+      "marketCapRank": 43,
+      "marketCap": 1797278699,
+      "lastUpdated": "2026-07-20T21:31:33.391Z"
+    },
+    {
+      "id": "ondo-finance",
+      "symbol": "ONDO",
+      "name": "Ondo",
+      "marketCapRank": 44,
+      "marketCap": 1736887015,
+      "lastUpdated": "2026-07-20T21:31:39.466Z"
+    },
+    {
+      "id": "okb",
+      "symbol": "OKB",
+      "name": "OKB",
+      "marketCapRank": 45,
+      "marketCap": 1714974936,
+      "lastUpdated": "2026-07-20T21:31:44.052Z"
+    },
+    {
+      "id": "dexe",
+      "symbol": "DEXE",
+      "name": "DeXe",
+      "marketCapRank": 46,
+      "marketCap": 1686360533,
+      "lastUpdated": "2026-07-20T21:31:35.985Z"
+    },
+    {
+      "id": "aster-2",
+      "symbol": "ASTER",
+      "name": "Aster",
+      "marketCapRank": 47,
+      "marketCap": 1677570140,
+      "lastUpdated": "2026-07-20T21:31:31.063Z"
+    },
+    {
+      "id": "htx-dao",
+      "symbol": "HTX",
+      "name": "HTX DAO",
+      "marketCapRank": 48,
+      "marketCap": 1658211946,
+      "lastUpdated": "2026-07-20T21:31:41.984Z"
+    },
+    {
+      "id": "ripple-usd",
+      "symbol": "RLUSD",
+      "name": "Ripple USD",
+      "marketCapRank": 49,
+      "marketCap": 1633291729,
+      "lastUpdated": "2026-07-20T21:31:43.432Z"
+    },
+    {
+      "id": "memecore",
+      "symbol": "M",
+      "name": "MemeCore",
+      "marketCapRank": 50,
+      "marketCap": 1605902650,
+      "lastUpdated": "2026-07-20T21:31:45.557Z"
+    },
+    {
+      "id": "usdd",
+      "symbol": "USDD",
+      "name": "USDD",
+      "marketCapRank": 51,
+      "marketCap": 1527181789,
+      "lastUpdated": "2026-07-20T21:31:42.594Z"
+    },
+    {
+      "id": "sky",
+      "symbol": "SKY",
+      "name": "Sky",
+      "marketCapRank": 52,
+      "marketCap": 1441252624,
+      "lastUpdated": "2026-07-20T21:31:43.820Z"
+    },
+    {
+      "id": "falcon-finance",
+      "symbol": "USDF",
+      "name": "Falcon USD",
+      "marketCapRank": 53,
+      "marketCap": 1419226144,
+      "lastUpdated": "2026-07-20T21:31:46.164Z"
+    },
+    {
+      "id": "mantle",
+      "symbol": "MNT",
+      "name": "Mantle",
+      "marketCapRank": 54,
+      "marketCap": 1406187173,
+      "lastUpdated": "2026-07-20T21:31:40.547Z"
+    },
+    {
+      "id": "polkadot",
+      "symbol": "DOT",
+      "name": "Polkadot",
+      "marketCapRank": 55,
+      "marketCap": 1403140024,
+      "lastUpdated": "2026-07-20T21:31:36.327Z"
+    },
+    {
+      "id": "aave",
+      "symbol": "AAVE",
+      "name": "Aave",
+      "marketCapRank": 56,
+      "marketCap": 1383679605,
+      "lastUpdated": "2026-07-20T21:31:36.586Z"
+    },
+    {
+      "id": "worldcoin-wld",
+      "symbol": "WLD",
+      "name": "Worldcoin",
+      "marketCapRank": 57,
+      "marketCap": 1334316524,
+      "lastUpdated": "2026-07-20T21:31:40.697Z"
+    },
+    {
+      "id": "bfusd",
+      "symbol": "BFUSD",
+      "name": "BFUSD",
+      "marketCapRank": 58,
+      "marketCap": 1317769930,
+      "lastUpdated": "2026-07-20T21:31:30.074Z"
+    },
+    {
+      "id": "morpho",
+      "symbol": "MORPHO",
+      "name": "Morpho",
+      "marketCapRank": 59,
+      "marketCap": 1306283018,
+      "lastUpdated": "2026-07-20T21:31:40.480Z"
+    },
+    {
+      "id": "pepe",
+      "symbol": "PEPE",
+      "name": "Pepe",
+      "marketCapRank": 60,
+      "marketCap": 1234381171,
+      "lastUpdated": "2026-07-20T21:31:40.345Z"
+    },
+    {
+      "id": "internet-computer",
+      "symbol": "ICP",
+      "name": "Internet Computer",
+      "marketCapRank": 61,
+      "marketCap": 1211559048,
+      "lastUpdated": "2026-07-20T21:31:36.956Z"
+    },
+    {
+      "id": "bitget-token",
+      "symbol": "BGB",
+      "name": "Bitget Token",
+      "marketCapRank": 62,
+      "marketCap": 1162096343,
+      "lastUpdated": "2026-07-20T21:31:35.456Z"
+    },
+    {
+      "id": "ethereum-classic",
+      "symbol": "ETC",
+      "name": "Ethereum Classic",
+      "marketCapRank": 63,
+      "marketCap": 1094711407,
+      "lastUpdated": "2026-07-20T21:31:44.151Z"
+    },
+    {
+      "id": "pi-network",
+      "symbol": "PI",
+      "name": "Pi Network",
+      "marketCapRank": 64,
+      "marketCap": 1086845640,
+      "lastUpdated": "2026-07-20T21:31:46.054Z"
+    },
+    {
+      "id": "united-stables",
+      "symbol": "U",
+      "name": "United Stables",
+      "marketCapRank": 65,
+      "marketCap": 1041021850,
+      "lastUpdated": "2026-07-20T21:31:32.556Z"
+    },
+    {
+      "id": "eutbl",
+      "symbol": "EUTBL",
+      "name": "Spiko EU T-Bills Money Market Fund",
+      "marketCapRank": 66,
+      "marketCap": 1033265026,
+      "lastUpdated": "2026-07-20T21:30:02.813Z"
+    },
+    {
+      "id": "usdgo",
+      "symbol": "USDGO",
+      "name": "USDGO",
+      "marketCapRank": 67,
+      "marketCap": 1000669110,
+      "lastUpdated": "2026-07-20T21:31:33.650Z"
+    },
+    {
+      "id": "blockchain-capital",
+      "symbol": "BCAP",
+      "name": "Blockchain Capital",
+      "marketCapRank": 68,
+      "marketCap": 967615067,
+      "lastUpdated": "2026-07-20T21:25:08.947Z"
+    },
+    {
+      "id": "quant-network",
+      "symbol": "QNT",
+      "name": "Quant",
+      "marketCapRank": 69,
+      "marketCap": 939447766,
+      "lastUpdated": "2026-07-20T21:31:41.547Z"
+    },
+    {
+      "id": "kucoin-shares",
+      "symbol": "KCS",
+      "name": "KuCoin",
+      "marketCapRank": 70,
+      "marketCap": 918849696,
+      "lastUpdated": "2026-07-20T21:31:35.177Z"
+    },
+    {
+      "id": "stable-2",
+      "symbol": "STABLE",
+      "name": "​​Stable",
+      "marketCapRank": 71,
+      "marketCap": 881241513,
+      "lastUpdated": "2026-07-20T21:31:31.126Z"
+    },
+    {
+      "id": "janus-henderson-anemoy-treasury-fund",
+      "symbol": "JTRSY",
+      "name": "Janus Henderson Anemoy Treasury Fund",
+      "marketCapRank": 72,
+      "marketCap": 870013799,
+      "lastUpdated": "2026-07-20T21:25:06.268Z"
+    },
+    {
+      "id": "polygon-ecosystem-token",
+      "symbol": "POL",
+      "name": "POL (ex-MATIC)",
+      "marketCapRank": 73,
+      "marketCap": 857300710,
+      "lastUpdated": "2026-07-20T21:31:41.205Z"
+    },
+    {
+      "id": "adi-token",
+      "symbol": "ADI",
+      "name": "ADI",
+      "marketCapRank": 74,
+      "marketCap": 841253561,
+      "lastUpdated": "2026-07-20T21:31:30.714Z"
+    },
+    {
+      "id": "spiko-amundi-overnight-swap-fund-eur",
+      "symbol": "EURSAFO",
+      "name": "Spiko Amundi Overnight Swap Fund (EUR)",
+      "marketCapRank": 75,
+      "marketCap": 838862693,
+      "lastUpdated": "2026-07-20T21:05:12.878Z"
+    },
+    {
+      "id": "just",
+      "symbol": "JST",
+      "name": "JUST",
+      "marketCapRank": 76,
+      "marketCap": 829915003,
+      "lastUpdated": "2026-07-20T21:31:41.810Z"
+    },
+    {
+      "id": "pump-fun",
+      "symbol": "PUMP",
+      "name": "Pump.fun",
+      "marketCapRank": 77,
+      "marketCap": 808971030,
+      "lastUpdated": "2026-07-20T21:31:29.764Z"
+    },
+    {
+      "id": "ethena",
+      "symbol": "ENA",
+      "name": "Ethena",
+      "marketCapRank": 78,
+      "marketCap": 791146351,
+      "lastUpdated": "2026-07-20T21:31:42.467Z"
+    },
+    {
+      "id": "render-token",
+      "symbol": "RENDER",
+      "name": "Render",
+      "marketCapRank": 79,
+      "marketCap": 784680004,
+      "lastUpdated": "2026-07-20T21:31:35.570Z"
+    },
+    {
+      "id": "cosmos",
+      "symbol": "ATOM",
+      "name": "Cosmos Hub",
+      "marketCapRank": 80,
+      "marketCap": 779494626,
+      "lastUpdated": "2026-07-20T21:31:37.175Z"
+    },
+    {
+      "id": "kaspa",
+      "symbol": "KAS",
+      "name": "Kaspa",
+      "marketCapRank": 81,
+      "marketCap": 779104806,
+      "lastUpdated": "2026-07-20T21:31:38.911Z"
+    },
+    {
+      "id": "superstate-short-duration-us-government-securities-fund-ustb",
+      "symbol": "USTB",
+      "name": "Invesco Short Duration US Government Securities Fund",
+      "marketCapRank": 82,
+      "marketCap": 774976031,
+      "lastUpdated": "2026-07-20T21:30:23.783Z"
+    },
+    {
+      "id": "audiera",
+      "symbol": "BEAT",
+      "name": "Audiera",
+      "marketCapRank": 83,
+      "marketCap": 767967985,
+      "lastUpdated": "2026-07-20T21:31:31.900Z"
+    },
+    {
+      "id": "nexo",
+      "symbol": "NEXO",
+      "name": "NEXO",
+      "marketCapRank": 84,
+      "marketCap": 766180127,
+      "lastUpdated": "2026-07-20T21:31:42.467Z"
+    },
+    {
+      "id": "algorand",
+      "symbol": "ALGO",
+      "name": "Algorand",
+      "marketCapRank": 85,
+      "marketCap": 748900962,
+      "lastUpdated": "2026-07-20T21:31:44.248Z"
+    },
+    {
+      "id": "gatechain-token",
+      "symbol": "GT",
+      "name": "Gate",
+      "marketCapRank": 86,
+      "marketCap": 717002647,
+      "lastUpdated": "2026-07-20T21:31:32.973Z"
+    },
+    {
+      "id": "janus-henderson-anemoy-aaa-clo-fund",
+      "symbol": "JAAA",
+      "name": "Janus Henderson Anemoy AAA CLO Fund",
+      "marketCapRank": 87,
+      "marketCap": 684118104,
+      "lastUpdated": "2026-07-20T21:20:14.490Z"
+    },
+    {
+      "id": "jupiter-exchange-solana",
+      "symbol": "JUP",
+      "name": "Jupiter",
+      "marketCapRank": 88,
+      "marketCap": 651696727,
+      "lastUpdated": "2026-07-20T21:31:42.071Z"
+    },
+    {
+      "id": "beldex",
+      "symbol": "BDX",
+      "name": "Beldex",
+      "marketCapRank": 89,
+      "marketCap": 650680023,
+      "lastUpdated": "2026-07-20T21:31:44.483Z"
+    },
+    {
+      "id": "gho",
+      "symbol": "GHO",
+      "name": "GHO",
+      "marketCapRank": 90,
+      "marketCap": 648057653,
+      "lastUpdated": "2026-07-20T21:31:40.318Z"
+    },
+    {
+      "id": "bianrensheng",
+      "symbol": "币安人生",
+      "name": "币安人生 (BinanceLife)",
+      "marketCapRank": 91,
+      "marketCap": 635166972,
+      "lastUpdated": "2026-07-20T21:31:31.627Z"
+    },
+    {
+      "id": "arbitrum",
+      "symbol": "ARB",
+      "name": "Arbitrum",
+      "marketCapRank": 92,
+      "marketCap": 592948344,
+      "lastUpdated": "2026-07-20T21:31:38.129Z"
+    },
+    {
+      "id": "filecoin",
+      "symbol": "FIL",
+      "name": "Filecoin",
+      "marketCapRank": 93,
+      "marketCap": 589091239,
+      "lastUpdated": "2026-07-20T21:31:36.229Z"
+    },
+    {
+      "id": "xdce-crowd-sale",
+      "symbol": "XDC",
+      "name": "XDC Network",
+      "marketCapRank": 94,
+      "marketCap": 561716692,
+      "lastUpdated": "2026-07-20T21:31:39.919Z"
+    },
+    {
+      "id": "flare-networks",
+      "symbol": "FLR",
+      "name": "Flare",
+      "marketCapRank": 95,
+      "marketCap": 561576721,
+      "lastUpdated": "2026-07-20T21:31:39.796Z"
+    },
+    {
+      "id": "ylds",
+      "symbol": "YLDS",
+      "name": "YLDS",
+      "marketCapRank": 96,
+      "marketCap": 557706376,
+      "lastUpdated": "2026-07-20T21:31:29.169Z"
+    },
+    {
+      "id": "usual-usd",
+      "symbol": "USD0",
+      "name": "Usual USD",
+      "marketCapRank": 97,
+      "marketCap": 552658543,
+      "lastUpdated": "2026-07-20T21:31:46.997Z"
+    },
+    {
+      "id": "lighter",
+      "symbol": "LIT",
+      "name": "Lighter",
+      "marketCapRank": 98,
+      "marketCap": 552228205,
+      "lastUpdated": "2026-07-20T21:31:32.518Z"
+    },
+    {
+      "id": "venice-token",
+      "symbol": "VVV",
+      "name": "Venice Token",
+      "marketCapRank": 99,
+      "marketCap": 543464674,
+      "lastUpdated": "2026-07-20T21:31:45.925Z"
+    },
+    {
+      "id": "injective-protocol",
+      "symbol": "INJ",
+      "name": "Injective",
+      "marketCapRank": 100,
+      "marketCap": 536609539,
+      "lastUpdated": "2026-07-20T21:31:36.197Z"
+    },
+    {
+      "id": "usx",
+      "symbol": "USX",
+      "name": "USX",
+      "marketCapRank": 101,
+      "marketCap": 522900276,
+      "lastUpdated": "2026-07-20T21:32:07.663Z"
+    },
+    {
+      "id": "aptos",
+      "symbol": "APT",
+      "name": "Aptos",
+      "marketCapRank": 102,
+      "marketCap": 508932126,
+      "lastUpdated": "2026-07-20T21:32:08.949Z"
+    },
+    {
+      "id": "true-usd",
+      "symbol": "TUSD",
+      "name": "TrueUSD",
+      "marketCapRank": 103,
+      "marketCap": 492653631,
+      "lastUpdated": "2026-07-20T21:32:09.084Z"
+    },
+    {
+      "id": "a7a5",
+      "symbol": "A7A5",
+      "name": "A7A5",
+      "marketCapRank": 104,
+      "marketCap": 479448463,
+      "lastUpdated": "2026-07-20T21:32:06.569Z"
+    },
+    {
+      "id": "pancakeswap-token",
+      "symbol": "CAKE",
+      "name": "PancakeSwap",
+      "marketCapRank": 105,
+      "marketCap": 452064303,
+      "lastUpdated": "2026-07-20T21:31:54.506Z"
+    },
+    {
+      "id": "ether-fi",
+      "symbol": "ETHFI",
+      "name": "Ether.fi",
+      "marketCapRank": 106,
+      "marketCap": 442637259,
+      "lastUpdated": "2026-07-20T21:32:00.538Z"
+    },
+    {
+      "id": "hash-2",
+      "symbol": "HASH",
+      "name": "Provenance Blockchain",
+      "marketCapRank": 107,
+      "marketCap": 439348004,
+      "lastUpdated": "2026-07-20T21:32:05.927Z"
+    },
+    {
+      "id": "dash",
+      "symbol": "DASH",
+      "name": "Dash",
+      "marketCapRank": 108,
+      "marketCap": 438498357,
+      "lastUpdated": "2026-07-20T21:31:56.326Z"
+    },
+    {
+      "id": "euro-coin",
+      "symbol": "EURC",
+      "name": "EURC",
+      "marketCapRank": 109,
+      "marketCap": 428355228,
+      "lastUpdated": "2026-07-20T21:31:59.783Z"
+    },
+    {
+      "id": "virtual-protocol",
+      "symbol": "VIRTUAL",
+      "name": "Virtuals Protocol",
+      "marketCapRank": 110,
+      "marketCap": 419694197,
+      "lastUpdated": "2026-07-20T21:32:00.144Z"
+    },
+    {
+      "id": "aerodrome-finance",
+      "symbol": "AERO",
+      "name": "Aerodrome Finance",
+      "marketCapRank": 111,
+      "marketCap": 419513735,
+      "lastUpdated": "2026-07-20T21:31:59.061Z"
+    },
+    {
+      "id": "hastra-prime",
+      "symbol": "PRIME",
+      "name": "Hastra PRIME",
+      "marketCapRank": 112,
+      "marketCap": 417933809,
+      "lastUpdated": "2026-07-20T21:32:09.618Z"
+    },
+    {
+      "id": "vechain",
+      "symbol": "VET",
+      "name": "VeChain",
+      "marketCapRank": 113,
+      "marketCap": 406087602,
+      "lastUpdated": "2026-07-20T21:31:57.794Z"
+    },
+    {
+      "id": "ousg",
+      "symbol": "OUSG",
+      "name": "Ondo Short-Term U.S. Government Bond Fund",
+      "marketCapRank": 114,
+      "marketCap": 405546591,
+      "lastUpdated": "2026-07-20T21:30:16.224Z"
+    },
+    {
+      "id": "pudgy-penguins",
+      "symbol": "PENGU",
+      "name": "Pudgy Penguins",
+      "marketCapRank": 115,
+      "marketCap": 397762426,
+      "lastUpdated": "2026-07-20T21:32:04.137Z"
+    },
+    {
+      "id": "official-trump",
+      "symbol": "TRUMP",
+      "name": "Official Trump",
+      "marketCapRank": 116,
+      "marketCap": 378952987,
+      "lastUpdated": "2026-07-20T21:32:04.590Z"
+    },
+    {
+      "id": "pyth-network",
+      "symbol": "PYTH",
+      "name": "Pyth Network",
+      "marketCapRank": 117,
+      "marketCap": 372072526,
+      "lastUpdated": "2026-07-20T21:32:06.956Z"
+    },
+    {
+      "id": "sun-token",
+      "symbol": "SUN",
+      "name": "Sun Token",
+      "marketCapRank": 118,
+      "marketCap": 357153365,
+      "lastUpdated": "2026-07-20T21:31:54.506Z"
+    },
+    {
+      "id": "usdtb",
+      "symbol": "USDTB",
+      "name": "USDtb",
+      "marketCapRank": 119,
+      "marketCap": 354375397,
+      "lastUpdated": "2026-07-20T21:32:03.864Z"
+    },
+    {
+      "id": "first-digital-usd",
+      "symbol": "FDUSD",
+      "name": "First Digital USD",
+      "marketCapRank": 120,
+      "marketCap": 346231796,
+      "lastUpdated": "2026-07-20T21:31:58.915Z"
+    },
+    {
+      "id": "fetch-ai",
+      "symbol": "FET",
+      "name": "Artificial Superintelligence Alliance",
+      "marketCapRank": 121,
+      "marketCap": 344859751,
+      "lastUpdated": "2026-07-20T21:32:09.226Z"
+    },
+    {
+      "id": "celestia",
+      "symbol": "TIA",
+      "name": "Celestia",
+      "marketCapRank": 122,
+      "marketCap": 341448912,
+      "lastUpdated": "2026-07-20T21:31:59.199Z"
+    },
+    {
+      "id": "curve-dao-token",
+      "symbol": "CRV",
+      "name": "Curve DAO",
+      "marketCapRank": 123,
+      "marketCap": 334709838,
+      "lastUpdated": "2026-07-20T21:31:54.243Z"
+    },
+    {
+      "id": "spx6900",
+      "symbol": "SPX",
+      "name": "SPX6900",
+      "marketCapRank": 124,
+      "marketCap": 330404553,
+      "lastUpdated": "2026-07-20T21:31:59.160Z"
+    },
+    {
+      "id": "lido-dao",
+      "symbol": "LDO",
+      "name": "Lido DAO",
+      "marketCapRank": 125,
+      "marketCap": 318301391,
+      "lastUpdated": "2026-07-20T21:31:54.966Z"
+    },
+    {
+      "id": "kinesis-gold",
+      "symbol": "KAU",
+      "name": "Kinesis Gold",
+      "marketCapRank": 126,
+      "marketCap": 316052904,
+      "lastUpdated": "2026-07-20T21:32:07.455Z"
+    },
+    {
+      "id": "terra-luna",
+      "symbol": "LUNC",
+      "name": "Terra Luna Classic",
+      "marketCapRank": 127,
+      "marketCap": 314200059,
+      "lastUpdated": "2026-07-20T21:32:06.355Z"
+    },
+    {
+      "id": "sei-network",
+      "symbol": "SEI",
+      "name": "Sei",
+      "marketCapRank": 128,
+      "marketCap": 312780696,
+      "lastUpdated": "2026-07-20T21:32:04.052Z"
+    },
+    {
+      "id": "jito-governance-token",
+      "symbol": "JTO",
+      "name": "Jito",
+      "marketCapRank": 129,
+      "marketCap": 311352369,
+      "lastUpdated": "2026-07-20T21:32:07.102Z"
+    },
+    {
+      "id": "blockstack",
+      "symbol": "STX",
+      "name": "Stacks",
+      "marketCapRank": 130,
+      "marketCap": 307341940,
+      "lastUpdated": "2026-07-20T21:31:58.120Z"
+    },
+    {
+      "id": "midnight-3",
+      "symbol": "NIGHT",
+      "name": "Midnight",
+      "marketCapRank": 131,
+      "marketCap": 297496019,
+      "lastUpdated": "2026-07-20T21:32:09.803Z"
+    },
+    {
+      "id": "gnosis",
+      "symbol": "GNO",
+      "name": "Gnosis",
+      "marketCapRank": 132,
+      "marketCap": 296237125,
+      "lastUpdated": "2026-07-20T21:32:06.036Z"
+    },
+    {
+      "id": "apxusd",
+      "symbol": "APXUSD",
+      "name": "apxUSD",
+      "marketCapRank": 133,
+      "marketCap": 295461765,
+      "lastUpdated": "2026-07-20T21:31:54.059Z"
+    },
+    {
+      "id": "antfun",
+      "symbol": "ANTFUN",
+      "name": "AntFun",
+      "marketCapRank": 134,
+      "marketCap": 283128392,
+      "lastUpdated": "2026-07-20T21:31:53.590Z"
+    },
+    {
+      "id": "bonk",
+      "symbol": "BONK",
+      "name": "Bonk",
+      "marketCapRank": 135,
+      "marketCap": 280638614,
+      "lastUpdated": "2026-07-20T21:31:58.141Z"
+    },
+    {
+      "id": "layerzero",
+      "symbol": "ZRO",
+      "name": "LayerZero",
+      "marketCapRank": 136,
+      "marketCap": 280329582,
+      "lastUpdated": "2026-07-20T21:32:05.360Z"
+    },
+    {
+      "id": "olympus",
+      "symbol": "OHM",
+      "name": "Olympus",
+      "marketCapRank": 137,
+      "marketCap": 278402360,
+      "lastUpdated": "2026-07-20T21:32:05.420Z"
+    },
+    {
+      "id": "pendle",
+      "symbol": "PENDLE",
+      "name": "Pendle",
+      "marketCapRank": 138,
+      "marketCap": 278457646,
+      "lastUpdated": "2026-07-20T21:31:55.630Z"
+    },
+    {
+      "id": "kite-2",
+      "symbol": "KITE",
+      "name": "Kite",
+      "marketCapRank": 139,
+      "marketCap": 275827686,
+      "lastUpdated": "2026-07-20T21:32:09.251Z"
+    },
+    {
+      "id": "monad",
+      "symbol": "MON",
+      "name": "Monad",
+      "marketCapRank": 140,
+      "marketCap": 273923364,
+      "lastUpdated": "2026-07-20T21:32:01.429Z"
+    },
+    {
+      "id": "bitcoin-cash-sv",
+      "symbol": "BSV",
+      "name": "Bitcoin SV",
+      "marketCapRank": 141,
+      "marketCap": 273161037,
+      "lastUpdated": "2026-07-20T21:32:07.448Z"
+    },
+    {
+      "id": "bittorrent",
+      "symbol": "BTT",
+      "name": "BitTorrent",
+      "marketCapRank": 142,
+      "marketCap": 270211181,
+      "lastUpdated": "2026-07-20T21:31:56.725Z"
+    },
+    {
+      "id": "apenft",
+      "symbol": "NFT",
+      "name": "AINFT",
+      "marketCapRank": 143,
+      "marketCap": 265002543,
+      "lastUpdated": "2026-07-20T21:31:55.707Z"
+    },
+    {
+      "id": "unibase",
+      "symbol": "UB",
+      "name": "Unibase",
+      "marketCapRank": 144,
+      "marketCap": 249966637,
+      "lastUpdated": "2026-07-20T21:32:08.305Z"
+    },
+    {
+      "id": "tezos",
+      "symbol": "XTZ",
+      "name": "Tezos",
+      "marketCapRank": 145,
+      "marketCap": 247366433,
+      "lastUpdated": "2026-07-20T21:31:52.234Z"
+    },
+    {
+      "id": "reallink",
+      "symbol": "REAL",
+      "name": "RealLink",
+      "marketCapRank": 146,
+      "marketCap": 246869564,
+      "lastUpdated": "2026-07-20T21:31:56.472Z"
+    },
+    {
+      "id": "onyc",
+      "symbol": "ONYC",
+      "name": "OnRe Tokenized Reinsurance",
+      "marketCapRank": 147,
+      "marketCap": 238700284,
+      "lastUpdated": "2026-07-20T21:32:08.082Z"
+    },
+    {
+      "id": "build-on",
+      "symbol": "B",
+      "name": "BUILDon",
+      "marketCapRank": 148,
+      "marketCap": 237707036,
+      "lastUpdated": "2026-07-20T21:32:05.901Z"
+    },
+    {
+      "id": "frax",
+      "symbol": "FRAX",
+      "name": "Legacy Frax Dollar",
+      "marketCapRank": 149,
+      "marketCap": 237470904,
+      "lastUpdated": "2026-07-20T21:31:54.856Z"
+    },
+    {
+      "id": "kaito",
+      "symbol": "KAITO",
+      "name": "KAITO",
+      "marketCapRank": 150,
+      "marketCap": 235783906,
+      "lastUpdated": "2026-07-20T21:32:04.697Z"
+    },
+    {
+      "id": "conflux-token",
+      "symbol": "CFX",
+      "name": "Conflux",
+      "marketCapRank": 151,
+      "marketCap": 234174542,
+      "lastUpdated": "2026-07-20T21:32:09.796Z"
+    },
+    {
+      "id": "grass",
+      "symbol": "GRASS",
+      "name": "Grass",
+      "marketCapRank": 152,
+      "marketCap": 234002410,
+      "lastUpdated": "2026-07-20T21:32:02.464Z"
+    },
+    {
+      "id": "velvet",
+      "symbol": "VELVET",
+      "name": "Velvet",
+      "marketCapRank": 153,
+      "marketCap": 229403947,
+      "lastUpdated": "2026-07-20T21:32:07.083Z"
+    },
+    {
+      "id": "peanut-2-2",
+      "symbol": "PEANUT",
+      "name": "Peanut",
+      "marketCapRank": 154,
+      "marketCap": 228181317,
+      "lastUpdated": "2026-06-30T02:51:08.390Z"
+    },
+    {
+      "id": "jasmycoin",
+      "symbol": "JASMY",
+      "name": "JasmyCoin",
+      "marketCapRank": 155,
+      "marketCap": 226376591,
+      "lastUpdated": "2026-07-20T21:32:00.321Z"
+    },
+    {
+      "id": "doublezero",
+      "symbol": "2Z",
+      "name": "DoubleZero",
+      "marketCapRank": 156,
+      "marketCap": 224492601,
+      "lastUpdated": "2026-07-20T21:32:08.869Z"
+    },
+    {
+      "id": "plasma",
+      "symbol": "XPL",
+      "name": "Plasma",
+      "marketCapRank": 157,
+      "marketCap": 223353111,
+      "lastUpdated": "2026-07-20T21:32:06.589Z"
+    },
+    {
+      "id": "decred",
+      "symbol": "DCR",
+      "name": "Decred",
+      "marketCapRank": 158,
+      "marketCap": 222128121,
+      "lastUpdated": "2026-07-20T21:32:00.868Z"
+    },
+    {
+      "id": "syrup",
+      "symbol": "SYRUP",
+      "name": "Maple Finance",
+      "marketCapRank": 159,
+      "marketCap": 220349787,
+      "lastUpdated": "2026-07-20T21:32:03.402Z"
+    },
+    {
+      "id": "bnb48-club-token",
+      "symbol": "KOGE",
+      "name": "KOGE",
+      "marketCapRank": 160,
+      "marketCap": 215967253,
+      "lastUpdated": "2026-07-20T21:31:55.034Z"
+    },
+    {
+      "id": "kinesis-silver",
+      "symbol": "KAG",
+      "name": "Kinesis Silver",
+      "marketCapRank": 161,
+      "marketCap": 212562508,
+      "lastUpdated": "2026-07-20T21:32:07.247Z"
+    },
+    {
+      "id": "optimism",
+      "symbol": "OP",
+      "name": "Optimism",
+      "marketCapRank": 162,
+      "marketCap": 211429445,
+      "lastUpdated": "2026-07-20T21:31:57.299Z"
+    },
+    {
+      "id": "crvusd",
+      "symbol": "CRVUSD",
+      "name": "crvUSD",
+      "marketCapRank": 163,
+      "marketCap": 209986575,
+      "lastUpdated": "2026-07-20T21:32:10.243Z"
+    },
+    {
+      "id": "floki",
+      "symbol": "FLOKI",
+      "name": "FLOKI",
+      "marketCapRank": 164,
+      "marketCap": 207032763,
+      "lastUpdated": "2026-07-20T21:31:56.642Z"
+    },
+    {
+      "id": "fgrs-figure-tokenized-stock",
+      "symbol": "FGRS",
+      "name": "FGRS (Figure Tokenized Stock)",
+      "marketCapRank": 165,
+      "marketCap": 204079167,
+      "lastUpdated": "2026-07-20T21:31:53.136Z"
+    },
+    {
+      "id": "usdai",
+      "symbol": "USDAI",
+      "name": "USDai",
+      "marketCapRank": 166,
+      "marketCap": 202843868,
+      "lastUpdated": "2026-07-20T21:32:05.811Z"
+    },
+    {
+      "id": "zebec-network",
+      "symbol": "ZBCN",
+      "name": "Zebec Network",
+      "marketCapRank": 167,
+      "marketCap": 202720420,
+      "lastUpdated": "2026-07-20T21:32:00.835Z"
+    },
+    {
+      "id": "tradable-na-rent-financing-platform-sstn",
+      "symbol": "PC0000031",
+      "name": "Tradable NA Rent Financing Platform SSTN",
+      "marketCapRank": 168,
+      "marketCap": 202500000,
+      "lastUpdated": "2026-07-20T21:20:07.967Z"
+    },
+    {
+      "id": "ultima",
+      "symbol": "ULTIMA",
+      "name": "Ultima",
+      "marketCapRank": 169,
+      "marketCap": 200756846,
+      "lastUpdated": "2026-07-20T21:31:59.170Z"
+    },
+    {
+      "id": "ape-and-pepe",
+      "symbol": "APEPE",
+      "name": "Ape and Pepe",
+      "marketCapRank": 170,
+      "marketCap": 200681263,
+      "lastUpdated": "2026-07-20T21:32:01.816Z"
+    },
+    {
+      "id": "coco-2",
+      "symbol": "COCO",
+      "name": "coco",
+      "marketCapRank": 171,
+      "marketCap": 199737982,
+      "lastUpdated": "2026-07-20T21:32:09.788Z"
+    },
+    {
+      "id": "agora-dollar",
+      "symbol": "AUSD",
+      "name": "AUSD",
+      "marketCapRank": 172,
+      "marketCap": 199810423,
+      "lastUpdated": "2026-07-20T21:32:01.657Z"
+    },
+    {
+      "id": "starknet",
+      "symbol": "STRK",
+      "name": "Starknet",
+      "marketCapRank": 173,
+      "marketCap": 196751670,
+      "lastUpdated": "2026-07-20T21:31:58.783Z"
+    },
+    {
+      "id": "vaneck-treasury-fund",
+      "symbol": "VBILL",
+      "name": "VanEck Treasury Fund",
+      "marketCapRank": 174,
+      "marketCap": 191897885,
+      "lastUpdated": "2026-07-20T21:30:04.295Z"
+    },
+    {
+      "id": "raydium",
+      "symbol": "RAY",
+      "name": "Raydium",
+      "marketCapRank": 175,
+      "marketCap": 190566530,
+      "lastUpdated": "2026-07-20T21:31:57.950Z"
+    },
+    {
+      "id": "kaia",
+      "symbol": "KAIA",
+      "name": "Kaia",
+      "marketCapRank": 176,
+      "marketCap": 189748758,
+      "lastUpdated": "2026-07-20T21:32:02.170Z"
+    },
+    {
+      "id": "usa",
+      "symbol": "USAT",
+      "name": "USAT",
+      "marketCapRank": 177,
+      "marketCap": 185267531,
+      "lastUpdated": "2026-07-20T21:32:10.272Z"
+    },
+    {
+      "id": "ethereum-name-service",
+      "symbol": "ENS",
+      "name": "Ethereum Name Service",
+      "marketCapRank": 178,
+      "marketCap": 184876768,
+      "lastUpdated": "2026-07-20T21:32:08.685Z"
+    },
+    {
+      "id": "pieverse",
+      "symbol": "PIEVERSE",
+      "name": "Pieverse",
+      "marketCapRank": 179,
+      "marketCap": 183797179,
+      "lastUpdated": "2026-07-20T21:32:08.512Z"
+    },
+    {
+      "id": "wefi",
+      "symbol": "WFI",
+      "name": "WeFi",
+      "marketCapRank": 180,
+      "marketCap": 183109962,
+      "lastUpdated": "2026-07-20T21:32:03.533Z"
+    },
+    {
+      "id": "telcoin",
+      "symbol": "TEL",
+      "name": "Telcoin",
+      "marketCapRank": 181,
+      "marketCap": 182831269,
+      "lastUpdated": "2026-07-20T21:31:56.379Z"
+    },
+    {
+      "id": "the-graph",
+      "symbol": "GRT",
+      "name": "The Graph",
+      "marketCapRank": 182,
+      "marketCap": 180035150,
+      "lastUpdated": "2026-07-20T21:32:02.085Z"
+    },
+    {
+      "id": "falcon-finance-ff",
+      "symbol": "FF",
+      "name": "Falcon Finance",
+      "marketCapRank": 183,
+      "marketCap": 178477111,
+      "lastUpdated": "2026-07-20T21:32:08.316Z"
+    },
+    {
+      "id": "bc-token",
+      "symbol": "BC",
+      "name": "BCGame Coin",
+      "marketCapRank": 184,
+      "marketCap": 173720791,
+      "lastUpdated": "2026-07-20T21:32:04.083Z"
+    },
+    {
+      "id": "eigenlayer",
+      "symbol": "EIGEN",
+      "name": "EigenCloud (prev. EigenLayer)",
+      "marketCapRank": 185,
+      "marketCap": 172229626,
+      "lastUpdated": "2026-07-20T21:32:00.962Z"
+    },
+    {
+      "id": "spark-usdc",
+      "symbol": "SUSDC",
+      "name": "Spark USDC",
+      "marketCapRank": 186,
+      "marketCap": 169614521,
+      "lastUpdated": "2026-07-07T20:15:30.805Z"
+    },
+    {
+      "id": "iota",
+      "symbol": "IOTA",
+      "name": "IOTA",
+      "marketCapRank": 187,
+      "marketCap": 164485157,
+      "lastUpdated": "2026-07-20T21:32:08.384Z"
+    },
+    {
+      "id": "compound-governance-token",
+      "symbol": "COMP",
+      "name": "Compound",
+      "marketCapRank": 188,
+      "marketCap": 163830612,
+      "lastUpdated": "2026-07-20T21:31:54.078Z"
+    },
+    {
+      "id": "tradable-apac-diversified-finance-provider-sstn",
+      "symbol": "PC0000033",
+      "name": "Tradable APAC Diversified Finance Provider SSTN",
+      "marketCapRank": 189,
+      "marketCap": 162500000,
+      "lastUpdated": "2026-07-20T21:25:08.951Z"
+    },
+    {
+      "id": "axie-infinity",
+      "symbol": "AXS",
+      "name": "Axie Infinity",
+      "marketCapRank": 190,
+      "marketCap": 161186857,
+      "lastUpdated": "2026-07-20T21:31:55.531Z"
+    },
+    {
+      "id": "re-protocol-reusd",
+      "symbol": "REUSD",
+      "name": "Re Protocol reUSD",
+      "marketCapRank": 191,
+      "marketCap": 161097513,
+      "lastUpdated": "2026-07-20T21:32:06.071Z"
+    },
+    {
+      "id": "spiko-us-t-bills-money-market-fund",
+      "symbol": "USTBL",
+      "name": "Spiko US T-Bills Money Market Fund",
+      "marketCapRank": 192,
+      "marketCap": 160821886,
+      "lastUpdated": "2026-07-20T21:30:22.676Z"
+    },
+    {
+      "id": "chiliz",
+      "symbol": "CHZ",
+      "name": "Chiliz",
+      "marketCapRank": 193,
+      "marketCap": 160833340,
+      "lastUpdated": "2026-07-20T21:31:52.099Z"
+    },
+    {
+      "id": "akash-network",
+      "symbol": "AKT",
+      "name": "Akash Network",
+      "marketCapRank": 194,
+      "marketCap": 156586789,
+      "lastUpdated": "2026-07-20T21:31:55.065Z"
+    },
+    {
+      "id": "ecash",
+      "symbol": "XEC",
+      "name": "eCash",
+      "marketCapRank": 195,
+      "marketCap": 154811496,
+      "lastUpdated": "2026-07-20T21:31:55.903Z"
+    },
+    {
+      "id": "dogwifcoin",
+      "symbol": "WIF",
+      "name": "dogwifhat",
+      "marketCapRank": 196,
+      "marketCap": 153619513,
+      "lastUpdated": "2026-07-20T21:31:59.797Z"
+    },
+    {
+      "id": "apyusd",
+      "symbol": "APYUSD",
+      "name": "apyUSD",
+      "marketCapRank": 197,
+      "marketCap": 152811397,
+      "lastUpdated": "2026-07-20T21:32:02.326Z"
+    },
+    {
+      "id": "mx-token",
+      "symbol": "MX",
+      "name": "MX",
+      "marketCapRank": 198,
+      "marketCap": 151809437,
+      "lastUpdated": "2026-07-20T21:31:51.783Z"
+    },
+    {
+      "id": "thorchain",
+      "symbol": "RUNE",
+      "name": "THORChain",
+      "marketCapRank": 199,
+      "marketCap": 150955574,
+      "lastUpdated": "2026-07-20T21:32:06.108Z"
+    },
+    {
+      "id": "swissborg",
+      "symbol": "BORG",
+      "name": "SwissBorg",
+      "marketCapRank": 200,
+      "marketCap": 151170090,
+      "lastUpdated": "2026-07-20T21:31:56.555Z"
+    },
+    {
+      "id": "gusd",
+      "symbol": "GUSD",
+      "name": "GUSD",
+      "marketCapRank": 201,
+      "marketCap": 149540537,
+      "lastUpdated": "2026-07-20T21:32:08.134Z"
+    },
+    {
+      "id": "btse-token",
+      "symbol": "BTSE",
+      "name": "BTSE Token",
+      "marketCapRank": 202,
+      "marketCap": 148015864,
+      "lastUpdated": "2026-07-20T21:32:12.618Z"
+    },
+    {
+      "id": "societe-generale-forge-eurcv",
+      "symbol": "EURCV",
+      "name": "EUR CoinVertible",
+      "marketCapRank": 203,
+      "marketCap": 147376982,
+      "lastUpdated": "2026-07-20T21:31:59.507Z"
+    },
+    {
+      "id": "edgex",
+      "symbol": "EDGE",
+      "name": "edgeX",
+      "marketCapRank": 204,
+      "marketCap": 146670206,
+      "lastUpdated": "2026-07-20T21:32:11.626Z"
+    },
+    {
+      "id": "lido-earn-eth",
+      "symbol": "EARNETH",
+      "name": "Lido Earn ETH",
+      "marketCapRank": 205,
+      "marketCap": 145403988,
+      "lastUpdated": "2026-07-20T21:25:09.364Z"
+    },
+    {
+      "id": "bitway",
+      "symbol": "BTW",
+      "name": "Bitway",
+      "marketCapRank": 206,
+      "marketCap": 145257637,
+      "lastUpdated": "2026-07-20T21:32:10.098Z"
+    },
+    {
+      "id": "zano",
+      "symbol": "ZANO",
+      "name": "Zano",
+      "marketCapRank": 207,
+      "marketCap": 144614585,
+      "lastUpdated": "2026-07-20T21:32:10.482Z"
+    },
+    {
+      "id": "safo",
+      "symbol": "SAFO",
+      "name": "Spiko Amundi Overnight Swap Fund",
+      "marketCapRank": 208,
+      "marketCap": 144244485,
+      "lastUpdated": "2026-07-20T21:30:01.579Z"
+    },
+    {
+      "id": "apecoin",
+      "symbol": "APE",
+      "name": "ApeCoin",
+      "marketCapRank": 209,
+      "marketCap": 143562706,
+      "lastUpdated": "2026-07-20T21:31:57.082Z"
+    },
+    {
+      "id": "neo",
+      "symbol": "NEO",
+      "name": "NEO",
+      "marketCapRank": 210,
+      "marketCap": 141725767,
+      "lastUpdated": "2026-07-20T21:32:02.603Z"
+    },
+    {
+      "id": "trust-wallet-token",
+      "symbol": "TWT",
+      "name": "Trust Wallet",
+      "marketCapRank": 211,
+      "marketCap": 141210173,
+      "lastUpdated": "2026-07-20T21:32:12.852Z"
+    },
+    {
+      "id": "chain-2",
+      "symbol": "XCN",
+      "name": "Onyxcoin",
+      "marketCapRank": 212,
+      "marketCap": 140524629,
+      "lastUpdated": "2026-07-20T21:32:01.094Z"
+    },
+    {
+      "id": "fartcoin",
+      "symbol": "FARTCOIN",
+      "name": "Fartcoin",
+      "marketCapRank": 213,
+      "marketCap": 139524564,
+      "lastUpdated": "2026-07-20T21:32:05.628Z"
+    },
+    {
+      "id": "strategy-pp-variable-xstock",
+      "symbol": "STRCX",
+      "name": "Strategy PP Variable xStock",
+      "marketCapRank": 214,
+      "marketCap": 137213357,
+      "lastUpdated": "2026-07-20T21:32:09.722Z"
+    },
+    {
+      "id": "theta-token",
+      "symbol": "THETA",
+      "name": "Theta Network",
+      "marketCapRank": 215,
+      "marketCap": 136215761,
+      "lastUpdated": "2026-07-20T21:31:57.192Z"
+    },
+    {
+      "id": "decentraland",
+      "symbol": "MANA",
+      "name": "Decentraland",
+      "marketCapRank": 216,
+      "marketCap": 135682141,
+      "lastUpdated": "2026-07-20T21:32:11.231Z"
+    },
+    {
+      "id": "havven",
+      "symbol": "SNX",
+      "name": "Synthetix",
+      "marketCapRank": 217,
+      "marketCap": 134975273,
+      "lastUpdated": "2026-07-20T21:32:07.002Z"
+    },
+    {
+      "id": "tradable-latam-fintech-sstn",
+      "symbol": "PC0000097",
+      "name": "Tradable LatAm Fintech SSTN",
+      "marketCapRank": 218,
+      "marketCap": 134000000,
+      "lastUpdated": "2026-07-20T21:30:01.627Z"
+    },
+    {
+      "id": "origintrail",
+      "symbol": "TRAC",
+      "name": "OriginTrail",
+      "marketCapRank": 219,
+      "marketCap": 134183603,
+      "lastUpdated": "2026-07-20T21:31:56.247Z"
+    },
+    {
+      "id": "vision-3",
+      "symbol": "VSN",
+      "name": "Vision",
+      "marketCapRank": 220,
+      "marketCap": 130555344,
+      "lastUpdated": "2026-07-20T21:32:07.105Z"
+    },
+    {
+      "id": "cash-4",
+      "symbol": "CASH",
+      "name": "CASH",
+      "marketCapRank": 221,
+      "marketCap": 127725221,
+      "lastUpdated": "2026-07-20T21:32:08.996Z"
+    },
+    {
+      "id": "the-sandbox",
+      "symbol": "SAND",
+      "name": "The Sandbox",
+      "marketCapRank": 222,
+      "marketCap": 126416538,
+      "lastUpdated": "2026-07-20T21:32:13.189Z"
+    },
+    {
+      "id": "ozone-chain",
+      "symbol": "OZO",
+      "name": "Ozone Chain",
+      "marketCapRank": 223,
+      "marketCap": 125155596,
+      "lastUpdated": "2026-07-20T21:31:58.922Z"
+    },
+    {
+      "id": "arweave",
+      "symbol": "AR",
+      "name": "Arweave",
+      "marketCapRank": 224,
+      "marketCap": 125049299,
+      "lastUpdated": "2026-07-20T21:32:02.434Z"
+    },
+    {
+      "id": "grx-chain",
+      "symbol": "GRX",
+      "name": "GRX Chain",
+      "marketCapRank": 225,
+      "marketCap": 124371907,
+      "lastUpdated": "2026-07-20T21:32:09.663Z"
+    },
+    {
+      "id": "derive",
+      "symbol": "DRV",
+      "name": "Derive",
+      "marketCapRank": 226,
+      "marketCap": 123293259,
+      "lastUpdated": "2026-07-20T21:32:03.958Z"
+    },
+    {
+      "id": "tagger",
+      "symbol": "TAG",
+      "name": "TAGGER",
+      "marketCapRank": 227,
+      "marketCap": 121354340,
+      "lastUpdated": "2026-07-20T21:32:04.147Z"
+    },
+    {
+      "id": "rif-token",
+      "symbol": "RIF",
+      "name": "Rootstock Infrastructure Framework",
+      "marketCapRank": 228,
+      "marketCap": 121070316,
+      "lastUpdated": "2026-07-20T21:32:10.336Z"
+    },
+    {
+      "id": "lorenzo-protocol",
+      "symbol": "BANK",
+      "name": "Lorenzo Protocol",
+      "marketCapRank": 229,
+      "marketCap": 120774604,
+      "lastUpdated": "2026-07-20T21:32:05.386Z"
+    },
+    {
+      "id": "wemix-token",
+      "symbol": "WEMIX",
+      "name": "WEMIX",
+      "marketCapRank": 230,
+      "marketCap": 119152334,
+      "lastUpdated": "2026-07-20T21:32:12.221Z"
+    },
+    {
+      "id": "theo-short-duration-us-treasury-fund",
+      "symbol": "THBILL",
+      "name": "Theo Short Duration US Treasury Fund",
+      "marketCapRank": 231,
+      "marketCap": 117822632,
+      "lastUpdated": "2026-07-20T21:32:07.166Z"
+    },
+    {
+      "id": "humanity",
+      "symbol": "H",
+      "name": "Humanity",
+      "marketCapRank": 232,
+      "marketCap": 117645631,
+      "lastUpdated": "2026-07-20T21:32:06.707Z"
+    },
+    {
+      "id": "gmt-token",
+      "symbol": "GOMINING",
+      "name": "GoMining Token",
+      "marketCapRank": 233,
+      "marketCap": 116205778,
+      "lastUpdated": "2026-07-20T21:31:55.715Z"
+    },
+    {
+      "id": "basic-attention-token",
+      "symbol": "BAT",
+      "name": "Basic Attention",
+      "marketCapRank": 234,
+      "marketCap": 115247804,
+      "lastUpdated": "2026-07-20T21:32:07.451Z"
+    },
+    {
+      "id": "apollo-diversified-credit-securitize-fund",
+      "symbol": "ACRED",
+      "name": "Apollo Diversified Credit Securitize Fund",
+      "marketCapRank": 235,
+      "marketCap": 115314464,
+      "lastUpdated": "2026-07-20T21:30:20.004Z"
+    },
+    {
+      "id": "avant-usd",
+      "symbol": "AVUSD",
+      "name": "Avant USD",
+      "marketCapRank": 236,
+      "marketCap": 115284645,
+      "lastUpdated": "2026-07-20T21:32:04.179Z"
+    },
+    {
+      "id": "tradable-singapore-fintech-ssl-2",
+      "symbol": "PC0000023",
+      "name": "Tradable Singapore Fintech SSL",
+      "marketCapRank": 237,
+      "marketCap": 114500000,
+      "lastUpdated": "2026-07-10T19:20:16.509Z"
+    },
+    {
+      "id": "alpha-bulgaria-warrants",
+      "symbol": "ALFW",
+      "name": "Alpha Bulgaria Warrants",
+      "marketCapRank": 238,
+      "marketCap": 114330001,
+      "lastUpdated": "2026-07-20T21:30:08.399Z"
+    },
+    {
+      "id": "talus",
+      "symbol": "US",
+      "name": "Talus",
+      "marketCapRank": 239,
+      "marketCap": 113689324,
+      "lastUpdated": "2026-07-20T21:32:09.432Z"
+    },
+    {
+      "id": "stp-network",
+      "symbol": "AWE",
+      "name": "AWE Network",
+      "marketCapRank": 240,
+      "marketCap": 112968666,
+      "lastUpdated": "2026-07-20T21:32:10.773Z"
+    },
+    {
+      "id": "convex-finance",
+      "symbol": "CVX",
+      "name": "Convex Finance",
+      "marketCapRank": 241,
+      "marketCap": 112804996,
+      "lastUpdated": "2026-07-20T21:31:55.665Z"
+    },
+    {
+      "id": "allora",
+      "symbol": "ALLO",
+      "name": "Allora",
+      "marketCapRank": 242,
+      "marketCap": 111557034,
+      "lastUpdated": "2026-07-20T21:32:09.555Z"
+    },
+    {
+      "id": "astherus-usdf",
+      "symbol": "USDF",
+      "name": "Aster USDF",
+      "marketCapRank": 243,
+      "marketCap": 111216501,
+      "lastUpdated": "2026-07-20T21:32:04.501Z"
+    },
+    {
+      "id": "backpack",
+      "symbol": "BP",
+      "name": "Backpack",
+      "marketCapRank": 244,
+      "marketCap": 110695811,
+      "lastUpdated": "2026-07-20T21:32:11.157Z"
+    },
+    {
+      "id": "shuffle-2",
+      "symbol": "SHFL",
+      "name": "Shuffle",
+      "marketCapRank": 245,
+      "marketCap": 109937873,
+      "lastUpdated": "2026-07-20T21:32:00.761Z"
+    },
+    {
+      "id": "tradable-na-third-party-online-merchant-sstn",
+      "symbol": "PC0000015",
+      "name": "Tradable NA Third Party Online Merchant SSTN",
+      "marketCapRank": 246,
+      "marketCap": 110225974,
+      "lastUpdated": "2026-07-20T21:30:18.591Z"
+    },
+    {
+      "id": "frax-usd",
+      "symbol": "FRXUSD",
+      "name": "Frax USD",
+      "marketCapRank": 247,
+      "marketCap": 109829538,
+      "lastUpdated": "2026-07-20T21:32:04.416Z"
+    },
+    {
+      "id": "vaulta",
+      "symbol": "A",
+      "name": "Vaulta",
+      "marketCapRank": 248,
+      "marketCap": 109582958,
+      "lastUpdated": "2026-07-20T21:32:10.784Z"
+    },
+    {
+      "id": "ribbita-by-virtuals",
+      "symbol": "TIBBIR",
+      "name": "Ribbita by Virtuals",
+      "marketCapRank": 249,
+      "marketCap": 109251856,
+      "lastUpdated": "2026-07-20T21:32:05.190Z"
+    },
+    {
+      "id": "genius-3",
+      "symbol": "GENIUS",
+      "name": "Genius",
+      "marketCapRank": 250,
+      "marketCap": 109144096,
+      "lastUpdated": "2026-07-20T21:32:10.155Z"
+    },
+    {
+      "id": "saturn-dollar",
+      "symbol": "USDAT",
+      "name": "Saturn Dollar",
+      "marketCapRank": 251,
+      "marketCap": 108890827,
+      "lastUpdated": "2026-07-20T21:32:11.560Z"
+    },
+    {
+      "id": "safepal",
+      "symbol": "SFP",
+      "name": "SafePal",
+      "marketCapRank": 252,
+      "marketCap": 108000790,
+      "lastUpdated": "2026-07-20T21:31:55.145Z"
+    },
+    {
+      "id": "mimblewimblecoin",
+      "symbol": "MWC",
+      "name": "MimbleWimbleCoin",
+      "marketCapRank": 253,
+      "marketCap": 107516505,
+      "lastUpdated": "2026-07-20T21:32:10.999Z"
+    },
+    {
+      "id": "rollbit-coin",
+      "symbol": "RLB",
+      "name": "Rollbit Coin",
+      "marketCapRank": 254,
+      "marketCap": 107244362,
+      "lastUpdated": "2026-07-20T21:31:58.236Z"
+    },
+    {
+      "id": "tradable-latam-middle-market-lender-sstl",
+      "symbol": "PC0000085",
+      "name": "Tradable LatAm Middle-Market Lender SSTL",
+      "marketCapRank": 255,
+      "marketCap": 106500000,
+      "lastUpdated": "2026-07-20T21:30:11.586Z"
+    },
+    {
+      "id": "bitmart-token",
+      "symbol": "BMX",
+      "name": "BitMart",
+      "marketCapRank": 256,
+      "marketCap": 105563081,
+      "lastUpdated": "2026-07-20T21:32:03.775Z"
+    },
+    {
+      "id": "standx-dusd",
+      "symbol": "DUSD",
+      "name": "StandX DUSD",
+      "marketCapRank": 257,
+      "marketCap": 105404991,
+      "lastUpdated": "2026-07-20T21:32:07.290Z"
+    },
+    {
+      "id": "immutable-x",
+      "symbol": "IMX",
+      "name": "Immutable",
+      "marketCapRank": 258,
+      "marketCap": 105261591,
+      "lastUpdated": "2026-07-20T21:31:56.096Z"
+    },
+    {
+      "id": "debridge",
+      "symbol": "DBR",
+      "name": "deBridge",
+      "marketCapRank": 259,
+      "marketCap": 104177024,
+      "lastUpdated": "2026-07-20T21:32:01.111Z"
+    },
+    {
+      "id": "1inch",
+      "symbol": "1INCH",
+      "name": "1INCH",
+      "marketCapRank": 260,
+      "marketCap": 104067626,
+      "lastUpdated": "2026-07-20T21:32:08.749Z"
+    },
+    {
+      "id": "dydx-chain",
+      "symbol": "DYDX",
+      "name": "dYdX",
+      "marketCapRank": 261,
+      "marketCap": 103044736,
+      "lastUpdated": "2026-07-20T21:31:59.390Z"
+    },
+    {
+      "id": "tokenize-xchange",
+      "symbol": "TKX",
+      "name": "Tokenize Xchange",
+      "marketCapRank": 262,
+      "marketCap": 102767813,
+      "lastUpdated": "2026-07-20T21:32:03.103Z"
+    },
+    {
+      "id": "securitize-tokenized-aaa-clo-fund",
+      "symbol": "STAC",
+      "name": "Securitize Tokenized AAA CLO Fund",
+      "marketCapRank": 263,
+      "marketCap": 102630760,
+      "lastUpdated": "2026-07-20T21:30:03.041Z"
+    },
+    {
+      "id": "nexus-4",
+      "symbol": "NEX",
+      "name": "Nexus",
+      "marketCapRank": 264,
+      "marketCap": 101734282,
+      "lastUpdated": "2026-07-20T21:32:11.912Z"
+    },
+    {
+      "id": "tradable-singapore-fintech-ssl",
+      "symbol": "PC0000077",
+      "name": "Tradable Singapore Fintech SSL",
+      "marketCapRank": 265,
+      "marketCap": 100000000,
+      "lastUpdated": "2026-07-20T21:30:18.235Z"
+    },
+    {
+      "id": "unity-usd",
+      "symbol": "UUSD",
+      "name": "Unity USD",
+      "marketCapRank": 266,
+      "marketCap": 99901775,
+      "lastUpdated": "2026-07-20T21:32:11.392Z"
+    },
+    {
+      "id": "meta-2-2",
+      "symbol": "META",
+      "name": "MetaDAO",
+      "marketCapRank": 267,
+      "marketCap": 99818078,
+      "lastUpdated": "2026-07-20T21:32:07.586Z"
+    },
+    {
+      "id": "gala",
+      "symbol": "GALA",
+      "name": "GALA",
+      "marketCapRank": 268,
+      "marketCap": 99785852,
+      "lastUpdated": "2026-07-20T21:32:13.464Z"
+    },
+    {
+      "id": "sentient",
+      "symbol": "SENT",
+      "name": "Sentient",
+      "marketCapRank": 269,
+      "marketCap": 99624826,
+      "lastUpdated": "2026-07-20T21:32:09.364Z"
+    },
+    {
+      "id": "circle-internet-group-ondo-tokenized-stock",
+      "symbol": "CRCLON",
+      "name": "Circle Internet Group (Ondo Tokenized Stock)",
+      "marketCapRank": 270,
+      "marketCap": 98319005,
+      "lastUpdated": "2026-07-20T21:32:07.889Z"
+    },
+    {
+      "id": "golem",
+      "symbol": "GLM",
+      "name": "Golem",
+      "marketCapRank": 271,
+      "marketCap": 97901970,
+      "lastUpdated": "2026-07-20T21:32:04.717Z"
+    },
+    {
+      "id": "sosovalue",
+      "symbol": "SOSO",
+      "name": "SoSoValue",
+      "marketCapRank": 272,
+      "marketCap": 97412501,
+      "lastUpdated": "2026-07-20T21:32:04.361Z"
+    },
+    {
+      "id": "cheems-token",
+      "symbol": "CHEEMS",
+      "name": "Cheems Token",
+      "marketCapRank": 273,
+      "marketCap": 96750049,
+      "lastUpdated": "2026-07-20T21:32:11.141Z"
+    },
+    {
+      "id": "newton-project",
+      "symbol": "AB",
+      "name": "AB",
+      "marketCapRank": 274,
+      "marketCap": 96462822,
+      "lastUpdated": "2026-07-20T21:32:07.433Z"
+    },
+    {
+      "id": "o1-exchange",
+      "symbol": "O",
+      "name": "o1.exchange",
+      "marketCapRank": 275,
+      "marketCap": 96314450,
+      "lastUpdated": "2026-07-20T21:32:12.268Z"
+    },
+    {
+      "id": "usda-2",
+      "symbol": "USDA",
+      "name": "USDa",
+      "marketCapRank": 276,
+      "marketCap": 96186441,
+      "lastUpdated": "2026-07-06T20:09:59.915Z"
+    },
+    {
+      "id": "kamino",
+      "symbol": "KMNO",
+      "name": "Kamino",
+      "marketCapRank": 277,
+      "marketCap": 96211457,
+      "lastUpdated": "2026-07-20T21:32:00.478Z"
+    },
+    {
+      "id": "railgun",
+      "symbol": "RAIL",
+      "name": "Railgun",
+      "marketCapRank": 278,
+      "marketCap": 96033292,
+      "lastUpdated": "2026-07-20T21:31:55.843Z"
+    },
+    {
+      "id": "elrond-erd-2",
+      "symbol": "EGLD",
+      "name": "MultiversX",
+      "marketCapRank": 279,
+      "marketCap": 95784829,
+      "lastUpdated": "2026-07-20T21:32:13.560Z"
+    },
+    {
+      "id": "story-2",
+      "symbol": "DATA",
+      "name": "Data Network",
+      "marketCapRank": 280,
+      "marketCap": 95672616,
+      "lastUpdated": "2026-07-20T21:32:04.423Z"
+    },
+    {
+      "id": "sonic-3",
+      "symbol": "S",
+      "name": "Sonic",
+      "marketCapRank": 281,
+      "marketCap": 95349357,
+      "lastUpdated": "2026-07-20T21:32:01.344Z"
+    },
+    {
+      "id": "zksync",
+      "symbol": "ZK",
+      "name": "ZKsync",
+      "marketCapRank": 282,
+      "marketCap": 93406544,
+      "lastUpdated": "2026-07-20T21:32:09.819Z"
+    },
+    {
+      "id": "meteora",
+      "symbol": "MET",
+      "name": "Meteora",
+      "marketCapRank": 283,
+      "marketCap": 93142278,
+      "lastUpdated": "2026-07-20T21:32:08.441Z"
+    },
+    {
+      "id": "aethir",
+      "symbol": "ATH",
+      "name": "Aethir",
+      "marketCapRank": 284,
+      "marketCap": 92326294,
+      "lastUpdated": "2026-07-20T21:32:08.824Z"
+    },
+    {
+      "id": "the-black-bull",
+      "symbol": "ANSEM",
+      "name": "The Black Bull",
+      "marketCapRank": 285,
+      "marketCap": 88862453,
+      "lastUpdated": "2026-07-20T21:32:12.296Z"
+    },
+    {
+      "id": "sandisk-bstocks-tokenized-stock",
+      "symbol": "SNDKB",
+      "name": "SanDisk (bStocks Tokenized Stock)",
+      "marketCapRank": 286,
+      "marketCap": 88721975,
+      "lastUpdated": "2026-07-20T21:32:12.238Z"
+    },
+    {
+      "id": "smilek",
+      "symbol": "SMILEK",
+      "name": "Smilek to the Bank",
+      "marketCapRank": 287,
+      "marketCap": 87433967,
+      "lastUpdated": "2026-07-20T21:32:11.463Z"
+    },
+    {
+      "id": "nxm",
+      "symbol": "NXM",
+      "name": "Nexus Mutual",
+      "marketCapRank": 288,
+      "marketCap": 87001706,
+      "lastUpdated": "2026-07-20T21:30:14.793Z"
+    },
+    {
+      "id": "geodnet",
+      "symbol": "GEOD",
+      "name": "Geodnet",
+      "marketCapRank": 289,
+      "marketCap": 86798372,
+      "lastUpdated": "2026-07-20T21:32:07.286Z"
+    },
+    {
+      "id": "wrappedm-by-m0",
+      "symbol": "WM",
+      "name": "WrappedM by M0",
+      "marketCapRank": 290,
+      "marketCap": 85961346,
+      "lastUpdated": "2026-07-20T21:32:05.174Z"
+    },
+    {
+      "id": "chutes",
+      "symbol": "SN64",
+      "name": "Chutes",
+      "marketCapRank": 291,
+      "marketCap": 85668274,
+      "lastUpdated": "2026-07-20T21:32:06.074Z"
+    },
+    {
+      "id": "usda-3",
+      "symbol": "USDA",
+      "name": "USDA",
+      "marketCapRank": 292,
+      "marketCap": 83979684,
+      "lastUpdated": "2026-07-20T21:32:07.941Z"
+    },
+    {
+      "id": "zama",
+      "symbol": "ZAMA",
+      "name": "Zama",
+      "marketCapRank": 293,
+      "marketCap": 83482661,
+      "lastUpdated": "2026-07-20T21:32:09.725Z"
+    },
+    {
+      "id": "would",
+      "symbol": "WOULD",
+      "name": "would",
+      "marketCapRank": 294,
+      "marketCap": 81741046,
+      "lastUpdated": "2026-07-20T21:32:03.702Z"
+    },
+    {
+      "id": "reserve-rights-token",
+      "symbol": "RSR",
+      "name": "Reserve Rights",
+      "marketCapRank": 295,
+      "marketCap": 81407535,
+      "lastUpdated": "2026-07-20T21:32:10.611Z"
+    },
+    {
+      "id": "instadapp",
+      "symbol": "FLUID",
+      "name": "Fluid",
+      "marketCapRank": 296,
+      "marketCap": 80085387,
+      "lastUpdated": "2026-07-20T21:32:06.413Z"
+    },
+    {
+      "id": "spacex-bstocks-tokenized-stock",
+      "symbol": "SPCXB",
+      "name": "SpaceX (bStocks Tokenized Stock)",
+      "marketCapRank": 297,
+      "marketCap": 80048350,
+      "lastUpdated": "2026-07-20T21:32:12.200Z"
+    },
+    {
+      "id": "quack-ai",
+      "symbol": "Q",
+      "name": "Quack AI",
+      "marketCapRank": 298,
+      "marketCap": 79153548,
+      "lastUpdated": "2026-07-20T21:32:13.076Z"
+    },
+    {
+      "id": "pleasing-gold",
+      "symbol": "PGOLD",
+      "name": "Pleasing Gold",
+      "marketCapRank": 299,
+      "marketCap": 78863798,
+      "lastUpdated": "2026-07-20T20:49:52.996Z"
+    },
+    {
+      "id": "dai-on-pulsechain",
+      "symbol": "DAI",
+      "name": "DAI on PulseChain",
+      "marketCapRank": 300,
+      "marketCap": 78353449,
+      "lastUpdated": "2026-07-20T21:32:00.932Z"
+    },
+    {
+      "id": "cow-protocol",
+      "symbol": "COW",
+      "name": "CoW Protocol",
+      "marketCapRank": 301,
+      "marketCap": 77938774,
+      "lastUpdated": "2026-07-20T21:32:08.838Z"
+    },
+    {
+      "id": "beam-2",
+      "symbol": "BEAM",
+      "name": "Beam",
+      "marketCapRank": 302,
+      "marketCap": 77327687,
+      "lastUpdated": "2026-07-20T21:32:09.315Z"
+    },
+    {
+      "id": "quantum-resistant-ledger",
+      "symbol": "QRL",
+      "name": "Quantum Resistant Ledger",
+      "marketCapRank": 303,
+      "marketCap": 77045884,
+      "lastUpdated": "2026-07-20T21:32:08.939Z"
+    },
+    {
+      "id": "unifai-network",
+      "symbol": "UAI",
+      "name": "UnifAI Network",
+      "marketCapRank": 304,
+      "marketCap": 76696462,
+      "lastUpdated": "2026-07-20T21:32:13.320Z"
+    },
+    {
+      "id": "na-post-settlement-legal-financing-receivables",
+      "symbol": "PC0000101",
+      "name": "Tradable NA Post-Settlement Legal Financing Receivables",
+      "marketCapRank": 305,
+      "marketCap": 76722081,
+      "lastUpdated": "2026-07-20T21:25:15.118Z"
+    },
+    {
+      "id": "cap-usd",
+      "symbol": "CUSD",
+      "name": "Cap USD",
+      "marketCapRank": 306,
+      "marketCap": 76567057,
+      "lastUpdated": "2026-07-20T21:32:07.417Z"
+    },
+    {
+      "id": "qtum",
+      "symbol": "QTUM",
+      "name": "Qtum",
+      "marketCapRank": 307,
+      "marketCap": 76413083,
+      "lastUpdated": "2026-07-20T21:32:07.654Z"
+    },
+    {
+      "id": "cygnus-finance-global-usd",
+      "symbol": "CGUSD",
+      "name": "Cygnus Finance Global USD",
+      "marketCapRank": 308,
+      "marketCap": 75860320,
+      "lastUpdated": "2026-07-20T21:32:00.276Z"
+    },
+    {
+      "id": "zencash",
+      "symbol": "ZEN",
+      "name": "Horizen",
+      "marketCapRank": 309,
+      "marketCap": 75726082,
+      "lastUpdated": "2026-07-20T21:32:08.310Z"
+    },
+    {
+      "id": "ordinals",
+      "symbol": "ORDI",
+      "name": "ORDI",
+      "marketCapRank": 310,
+      "marketCap": 75707756,
+      "lastUpdated": "2026-07-20T21:31:58.532Z"
+    },
+    {
+      "id": "yearn-finance",
+      "symbol": "YFI",
+      "name": "yearn.finance",
+      "marketCapRank": 311,
+      "marketCap": 75538806,
+      "lastUpdated": "2026-07-20T21:32:13.139Z"
+    },
+    {
+      "id": "melania-meme",
+      "symbol": "MELANIA",
+      "name": "Melania Meme",
+      "marketCapRank": 312,
+      "marketCap": 75498689,
+      "lastUpdated": "2026-07-20T21:32:04.310Z"
+    },
+    {
+      "id": "tradable-na-neobank-sstl",
+      "symbol": "PC0000023",
+      "name": "Tradable NA Neobank SSTL",
+      "marketCapRank": 313,
+      "marketCap": 75000000,
+      "lastUpdated": "2026-07-20T21:30:07.137Z"
+    },
+    {
+      "id": "helio-protocol-hay",
+      "symbol": "LISUSD",
+      "name": "Lista USD",
+      "marketCapRank": 314,
+      "marketCap": 74960336,
+      "lastUpdated": "2026-07-20T21:31:57.642Z"
+    },
+    {
+      "id": "felix-feusd",
+      "symbol": "FEUSD",
+      "name": "Felix feUSD",
+      "marketCapRank": 315,
+      "marketCap": 74843894,
+      "lastUpdated": "2026-07-20T21:32:05.246Z"
+    },
+    {
+      "id": "micron-technology-bstock",
+      "symbol": "MUB",
+      "name": "Micron Technology (bStocks Tokenized Stock)",
+      "marketCapRank": 316,
+      "marketCap": 74406285,
+      "lastUpdated": "2026-07-20T21:32:12.234Z"
+    },
+    {
+      "id": "stau",
+      "symbol": "STAU",
+      "name": "STAU",
+      "marketCapRank": 317,
+      "marketCap": 73995802,
+      "lastUpdated": "2026-07-20T21:32:03.734Z"
+    },
+    {
+      "id": "0x",
+      "symbol": "ZRX",
+      "name": "0x Protocol",
+      "marketCapRank": 318,
+      "marketCap": 73924825,
+      "lastUpdated": "2026-07-20T21:32:10.645Z"
+    },
+    {
+      "id": "safecoin",
+      "symbol": "SAFE",
+      "name": "SAFEbit",
+      "marketCapRank": 319,
+      "marketCap": 73424383,
+      "lastUpdated": "2026-07-20T21:32:07.104Z"
+    },
+    {
+      "id": "pearl-2",
+      "symbol": "PRL",
+      "name": "Pearl",
+      "marketCapRank": 320,
+      "marketCap": 73865521,
+      "lastUpdated": "2026-07-20T21:32:12.018Z"
+    },
+    {
+      "id": "fidelity-digital-interest-token",
+      "symbol": "FDIT",
+      "name": "Fidelity Digital Interest Token",
+      "marketCapRank": 321,
+      "marketCap": 73801963,
+      "lastUpdated": "2026-07-20T21:30:15.985Z"
+    },
+    {
+      "id": "midas-mf-one",
+      "symbol": "MF-ONE",
+      "name": "Midas mF-ONE",
+      "marketCapRank": 322,
+      "marketCap": 73792626,
+      "lastUpdated": "2026-07-20T21:30:18.688Z"
+    },
+    {
+      "id": "comedian",
+      "symbol": "BAN",
+      "name": "Comedian",
+      "marketCapRank": 323,
+      "marketCap": 73614924,
+      "lastUpdated": "2026-07-20T21:32:03.361Z"
+    },
+    {
+      "id": "sierra-2",
+      "symbol": "SIERRA",
+      "name": "Sierra",
+      "marketCapRank": 324,
+      "marketCap": 73673114,
+      "lastUpdated": "2026-07-20T21:32:09.079Z"
+    },
+    {
+      "id": "vicicoin",
+      "symbol": "VCNT",
+      "name": "ViciCoin",
+      "marketCapRank": 325,
+      "marketCap": 73571830,
+      "lastUpdated": "2026-07-20T21:31:58.917Z"
+    },
+    {
+      "id": "usdx",
+      "symbol": "USDX",
+      "name": "USDX",
+      "marketCapRank": 326,
+      "marketCap": 73446673,
+      "lastUpdated": "2026-07-08T17:40:48.587Z"
+    },
+    {
+      "id": "proton",
+      "symbol": "XPR",
+      "name": "XPR Network",
+      "marketCapRank": 327,
+      "marketCap": 72856502,
+      "lastUpdated": "2026-07-20T21:32:12.713Z"
+    },
+    {
+      "id": "crown-brlv",
+      "symbol": "BRLV",
+      "name": "Crown BRLV",
+      "marketCapRank": 328,
+      "marketCap": 73097810,
+      "lastUpdated": "2026-07-20T21:32:11.236Z"
+    },
+    {
+      "id": "four",
+      "symbol": "FORM",
+      "name": "Four",
+      "marketCapRank": 329,
+      "marketCap": 72668049,
+      "lastUpdated": "2026-07-20T21:32:05.124Z"
+    },
+    {
+      "id": "orca",
+      "symbol": "ORCA",
+      "name": "Orca",
+      "marketCapRank": 330,
+      "marketCap": 72501111,
+      "lastUpdated": "2026-07-20T21:32:09.775Z"
+    },
+    {
+      "id": "law-blocks",
+      "symbol": "LBT",
+      "name": "Law Blocks AI",
+      "marketCapRank": 331,
+      "marketCap": 72364254,
+      "lastUpdated": "2026-07-20T21:31:57.529Z"
+    },
+    {
+      "id": "mag7-ssi",
+      "symbol": "MAG7.SSI",
+      "name": "MAG7.ssi",
+      "marketCapRank": 332,
+      "marketCap": 72313152,
+      "lastUpdated": "2026-07-20T21:32:05.649Z"
+    },
+    {
+      "id": "cash-cat",
+      "symbol": "CASHCAT",
+      "name": "Cash Cat",
+      "marketCapRank": 333,
+      "marketCap": 71177766,
+      "lastUpdated": "2026-07-20T21:32:12.469Z"
+    },
+    {
+      "id": "livepeer",
+      "symbol": "LPT",
+      "name": "Livepeer",
+      "marketCapRank": 334,
+      "marketCap": 71790684,
+      "lastUpdated": "2026-07-20T21:32:10.118Z"
+    },
+    {
+      "id": "bas",
+      "symbol": "BAS",
+      "name": "BNB Attestation Service",
+      "marketCapRank": 335,
+      "marketCap": 71375880,
+      "lastUpdated": "2026-07-20T21:32:07.598Z"
+    },
+    {
+      "id": "arkham",
+      "symbol": "ARKM",
+      "name": "Arkham",
+      "marketCapRank": 336,
+      "marketCap": 71327526,
+      "lastUpdated": "2026-07-20T21:31:58.708Z"
+    },
+    {
+      "id": "walrus-2",
+      "symbol": "WAL",
+      "name": "Walrus",
+      "marketCapRank": 337,
+      "marketCap": 71380033,
+      "lastUpdated": "2026-07-20T21:32:07.941Z"
+    },
+    {
+      "id": "ravedao",
+      "symbol": "RAVE",
+      "name": "RaveDAO",
+      "marketCapRank": 338,
+      "marketCap": 70884441,
+      "lastUpdated": "2026-07-20T21:32:11.794Z"
+    },
+    {
+      "id": "ai-rig-complex",
+      "symbol": "ARC",
+      "name": "AI Rig Complex",
+      "marketCapRank": 339,
+      "marketCap": 70663570,
+      "lastUpdated": "2026-07-20T21:32:11.595Z"
+    },
+    {
+      "id": "banana-for-scale-2",
+      "symbol": "BANANAS31",
+      "name": "Banana For Scale",
+      "marketCapRank": 340,
+      "marketCap": 70567357,
+      "lastUpdated": "2026-07-20T21:32:11.720Z"
+    },
+    {
+      "id": "nexpace",
+      "symbol": "NXPC",
+      "name": "Nexpace",
+      "marketCapRank": 341,
+      "marketCap": 70149796,
+      "lastUpdated": "2026-07-20T21:32:05.653Z"
+    },
+    {
+      "id": "ondo-u-s-dollar-token",
+      "symbol": "USDON",
+      "name": "Ondo U.S. Dollar Token",
+      "marketCapRank": 342,
+      "marketCap": 69942493,
+      "lastUpdated": "2026-07-20T21:32:08.458Z"
+    },
+    {
+      "id": "bending-spoons-xstock",
+      "symbol": "BSPX",
+      "name": "Bending Spoons xStock",
+      "marketCapRank": 343,
+      "marketCap": 69701723,
+      "lastUpdated": "2026-07-20T21:32:12.277Z"
+    },
+    {
+      "id": "temple",
+      "symbol": "TEMPLE",
+      "name": "TempleDAO",
+      "marketCapRank": 344,
+      "marketCap": 69650976,
+      "lastUpdated": "2026-07-16T20:32:51.842Z"
+    },
+    {
+      "id": "gmx",
+      "symbol": "GMX",
+      "name": "GMX",
+      "marketCapRank": 345,
+      "marketCap": 68592884,
+      "lastUpdated": "2026-07-20T21:32:08.993Z"
+    },
+    {
+      "id": "gas",
+      "symbol": "GAS",
+      "name": "Gas",
+      "marketCapRank": 346,
+      "marketCap": 68200211,
+      "lastUpdated": "2026-07-20T21:32:10.904Z"
+    },
+    {
+      "id": "ishares-core-s-p-500-etf-ondo-tokenized-etf",
+      "symbol": "IVVON",
+      "name": "iShares Core S&P 500 ETF (Ondo Tokenized ETF)",
+      "marketCapRank": 347,
+      "marketCap": 67634247,
+      "lastUpdated": "2026-07-20T21:32:08.001Z"
+    },
+    {
+      "id": "keeta",
+      "symbol": "KTA",
+      "name": "Keeta",
+      "marketCapRank": 348,
+      "marketCap": 67441519,
+      "lastUpdated": "2026-07-20T21:32:04.867Z"
+    },
+    {
+      "id": "numeraire",
+      "symbol": "NMR",
+      "name": "Numeraire",
+      "marketCapRank": 349,
+      "marketCap": 67034507,
+      "lastUpdated": "2026-07-20T21:32:10.468Z"
+    },
+    {
+      "id": "digibyte",
+      "symbol": "DGB",
+      "name": "DigiByte",
+      "marketCapRank": 350,
+      "marketCap": 66710683,
+      "lastUpdated": "2026-07-20T21:32:06.025Z"
+    },
+    {
+      "id": "basedhype",
+      "symbol": "BASEDHYPE",
+      "name": "BasedHype",
+      "marketCapRank": 351,
+      "marketCap": 66625656,
+      "lastUpdated": "2026-07-20T21:32:08.071Z"
+    },
+    {
+      "id": "mindwavedao",
+      "symbol": "NILA",
+      "name": "MindWaveDAO",
+      "marketCapRank": 352,
+      "marketCap": 66423622,
+      "lastUpdated": "2026-07-20T21:32:12.698Z"
+    },
+    {
+      "id": "precious-metals-usd",
+      "symbol": "PMUSD",
+      "name": "Precious Metals USD",
+      "marketCapRank": 353,
+      "marketCap": 66115588,
+      "lastUpdated": "2026-07-20T21:32:09.872Z"
+    },
+    {
+      "id": "tronbank",
+      "symbol": "TBK",
+      "name": "TronBank",
+      "marketCapRank": 354,
+      "marketCap": 65876596,
+      "lastUpdated": "2026-07-20T21:32:09.947Z"
+    },
+    {
+      "id": "centrifuge-2",
+      "symbol": "CFG",
+      "name": "Centrifuge",
+      "marketCapRank": 355,
+      "marketCap": 65737810,
+      "lastUpdated": "2026-07-20T21:32:06.054Z"
+    },
+    {
+      "id": "matrixdock-gold",
+      "symbol": "XAUM",
+      "name": "Matrixdock Gold",
+      "marketCapRank": 356,
+      "marketCap": 65501306,
+      "lastUpdated": "2026-07-20T21:32:03.585Z"
+    },
+    {
+      "id": "stronghold-token",
+      "symbol": "SHX",
+      "name": "Stronghold",
+      "marketCapRank": 357,
+      "marketCap": 65342389,
+      "lastUpdated": "2026-07-20T21:32:10.349Z"
+    },
+    {
+      "id": "plume",
+      "symbol": "PLUME",
+      "name": "Plume",
+      "marketCapRank": 358,
+      "marketCap": 65049025,
+      "lastUpdated": "2026-07-20T21:32:04.371Z"
+    },
+    {
+      "id": "river",
+      "symbol": "RIVER",
+      "name": "River",
+      "marketCapRank": 359,
+      "marketCap": 65148073,
+      "lastUpdated": "2026-07-20T21:32:08.511Z"
+    },
+    {
+      "id": "unit-pump",
+      "symbol": "UPUMP",
+      "name": "Unit Pump",
+      "marketCapRank": 360,
+      "marketCap": 64500036,
+      "lastUpdated": "2026-07-20T21:32:07.028Z"
+    },
+    {
+      "id": "xdai",
+      "symbol": "XDAI",
+      "name": "XDAI",
+      "marketCapRank": 361,
+      "marketCap": 64650265,
+      "lastUpdated": "2026-07-20T21:32:12.859Z"
+    },
+    {
+      "id": "swop-2",
+      "symbol": "SWOP",
+      "name": "Swop",
+      "marketCapRank": 362,
+      "marketCap": 63685945,
+      "lastUpdated": "2026-07-20T21:32:06.674Z"
+    },
+    {
+      "id": "nusd-2",
+      "symbol": "NUSD",
+      "name": "Neutrl USD",
+      "marketCapRank": 363,
+      "marketCap": 63630992,
+      "lastUpdated": "2026-07-20T21:32:08.911Z"
+    },
+    {
+      "id": "useless-3",
+      "symbol": "USELESS",
+      "name": "Useless Coin",
+      "marketCapRank": 364,
+      "marketCap": 63502840,
+      "lastUpdated": "2026-07-20T21:32:05.785Z"
+    },
+    {
+      "id": "cyberdex",
+      "symbol": "CYDX",
+      "name": "CyberDEX",
+      "marketCapRank": 365,
+      "marketCap": 63292419,
+      "lastUpdated": "2026-07-20T21:32:01.549Z"
+    },
+    {
+      "id": "aioz-network",
+      "symbol": "AIOZ",
+      "name": "AIOZ Network",
+      "marketCapRank": 366,
+      "marketCap": 62973356,
+      "lastUpdated": "2026-07-20T21:31:55.409Z"
+    },
+    {
+      "id": "qubic-network",
+      "symbol": "QUBIC",
+      "name": "Qubic",
+      "marketCapRank": 367,
+      "marketCap": 62761424,
+      "lastUpdated": "2026-07-20T21:32:11.962Z"
+    },
+    {
+      "id": "tradable-north-america-pos-lender-sstn",
+      "symbol": "PC0000019",
+      "name": "Tradable North America PoS Lender SSTN",
+      "marketCapRank": 368,
+      "marketCap": 62500000,
+      "lastUpdated": "2026-07-20T21:25:10.855Z"
+    },
+    {
+      "id": "ravencoin",
+      "symbol": "RVN",
+      "name": "Ravencoin",
+      "marketCapRank": 369,
+      "marketCap": 62320811,
+      "lastUpdated": "2026-07-20T21:32:10.346Z"
+    },
+    {
+      "id": "infinifi-usd",
+      "symbol": "IUSD",
+      "name": "InfiniFi USD",
+      "marketCapRank": 370,
+      "marketCap": 61371204,
+      "lastUpdated": "2026-07-20T21:32:07.079Z"
+    },
+    {
+      "id": "f-x-protocol-fxusd",
+      "symbol": "FXUSD",
+      "name": "f(x) Protocol fxUSD",
+      "marketCapRank": 371,
+      "marketCap": 61286124,
+      "lastUpdated": "2026-07-20T21:32:07.476Z"
+    },
+    {
+      "id": "safe",
+      "symbol": "SAFE",
+      "name": "Safe",
+      "marketCapRank": 372,
+      "marketCap": 60795304,
+      "lastUpdated": "2026-07-20T21:32:09.405Z"
+    },
+    {
+      "id": "up-2",
+      "symbol": "UP",
+      "name": "up",
+      "marketCapRank": 373,
+      "marketCap": 61266981,
+      "lastUpdated": "2026-07-20T21:32:12.483Z"
+    },
+    {
+      "id": "holotoken",
+      "symbol": "HOT",
+      "name": "Holo",
+      "marketCapRank": 374,
+      "marketCap": 60613524,
+      "lastUpdated": "2026-07-20T21:31:59.700Z"
+    },
+    {
+      "id": "chainopera-ai",
+      "symbol": "COAI",
+      "name": "ChainOpera AI",
+      "marketCapRank": 375,
+      "marketCap": 60721712,
+      "lastUpdated": "2026-07-20T21:32:08.543Z"
+    },
+    {
+      "id": "midas-fasanara-global",
+      "symbol": "MGLOBAL",
+      "name": "Midas Fasanara Global",
+      "marketCapRank": 376,
+      "marketCap": 60622112,
+      "lastUpdated": "2026-07-20T21:30:09.681Z"
+    },
+    {
+      "id": "meme-horse",
+      "symbol": "MHORSE",
+      "name": "MEME HORSE",
+      "marketCapRank": 377,
+      "marketCap": 60513155,
+      "lastUpdated": "2026-07-20T21:32:11.153Z"
+    },
+    {
+      "id": "kusama",
+      "symbol": "KSM",
+      "name": "Kusama",
+      "marketCapRank": 378,
+      "marketCap": 60311701,
+      "lastUpdated": "2026-07-20T21:32:10.874Z"
+    },
+    {
+      "id": "dog-go-to-the-moon-rune",
+      "symbol": "DOG",
+      "name": "Dog (Bitcoin)",
+      "marketCapRank": 379,
+      "marketCap": 60255022,
+      "lastUpdated": "2026-07-20T21:32:00.821Z"
+    },
+    {
+      "id": "ethgas-2",
+      "symbol": "GWEI",
+      "name": "ETHGas",
+      "marketCapRank": 380,
+      "marketCap": 60136662,
+      "lastUpdated": "2026-07-20T21:32:10.039Z"
+    },
+    {
+      "id": "linea",
+      "symbol": "LINEA",
+      "name": "Linea",
+      "marketCapRank": 381,
+      "marketCap": 60044349,
+      "lastUpdated": "2026-07-20T21:32:07.857Z"
+    },
+    {
+      "id": "re",
+      "symbol": "RE",
+      "name": "RE",
+      "marketCapRank": 382,
+      "marketCap": 59867421,
+      "lastUpdated": "2026-07-20T21:32:12.195Z"
+    },
+    {
+      "id": "chip-2",
+      "symbol": "CHIP",
+      "name": "USD.AI",
+      "marketCapRank": 383,
+      "marketCap": 59642997,
+      "lastUpdated": "2026-07-20T21:32:11.129Z"
+    },
+    {
+      "id": "billions-network",
+      "symbol": "BILL",
+      "name": "Billions Network",
+      "marketCapRank": 384,
+      "marketCap": 59388780,
+      "lastUpdated": "2026-07-20T21:32:07.581Z"
+    },
+    {
+      "id": "velo",
+      "symbol": "VELO",
+      "name": "Velo",
+      "marketCapRank": 385,
+      "marketCap": 59482025,
+      "lastUpdated": "2026-07-20T21:32:13.436Z"
+    },
+    {
+      "id": "zignaly",
+      "symbol": "ZIG",
+      "name": "ZIGChain",
+      "marketCapRank": 386,
+      "marketCap": 59510369,
+      "lastUpdated": "2026-07-20T21:31:55.463Z"
+    },
+    {
+      "id": "cortex-2",
+      "symbol": "CX",
+      "name": "Cortex",
+      "marketCapRank": 387,
+      "marketCap": 59408613,
+      "lastUpdated": "2026-07-20T21:32:09.289Z"
+    },
+    {
+      "id": "magma-finance",
+      "symbol": "MAGMA",
+      "name": "Magma Finance",
+      "marketCapRank": 388,
+      "marketCap": 59364706,
+      "lastUpdated": "2026-07-20T21:32:09.875Z"
+    },
+    {
+      "id": "theta-fuel",
+      "symbol": "TFUEL",
+      "name": "Theta Fuel",
+      "marketCapRank": 389,
+      "marketCap": 59191459,
+      "lastUpdated": "2026-07-20T21:32:10.578Z"
+    },
+    {
+      "id": "quantixai",
+      "symbol": "QFI",
+      "name": "Quantix Finance",
+      "marketCapRank": 390,
+      "marketCap": 58901687,
+      "lastUpdated": "2026-07-20T21:32:00.526Z"
+    },
+    {
+      "id": "mina-protocol",
+      "symbol": "MINA",
+      "name": "Mina Protocol",
+      "marketCapRank": 391,
+      "marketCap": 58567595,
+      "lastUpdated": "2026-07-20T21:32:08.588Z"
+    },
+    {
+      "id": "metal-blockchain",
+      "symbol": "METAL",
+      "name": "Metal Blockchain",
+      "marketCapRank": 392,
+      "marketCap": 58186065,
+      "lastUpdated": "2026-07-20T21:31:57.566Z"
+    },
+    {
+      "id": "wormhole",
+      "symbol": "W",
+      "name": "Wormhole",
+      "marketCapRank": 393,
+      "marketCap": 57430677,
+      "lastUpdated": "2026-07-20T21:32:11.571Z"
+    },
+    {
+      "id": "turbo",
+      "symbol": "TURBO",
+      "name": "Turbo",
+      "marketCapRank": 394,
+      "marketCap": 56516279,
+      "lastUpdated": "2026-07-20T21:31:58.530Z"
+    },
+    {
+      "id": "enjincoin",
+      "symbol": "ENJ",
+      "name": "Enjin Coin",
+      "marketCapRank": 395,
+      "marketCap": 56214612,
+      "lastUpdated": "2026-07-20T21:32:12.864Z"
+    },
+    {
+      "id": "berachain-bera",
+      "symbol": "BERA",
+      "name": "Berachain",
+      "marketCapRank": 396,
+      "marketCap": 55788418,
+      "lastUpdated": "2026-07-20T21:32:02.799Z"
+    },
+    {
+      "id": "baby-doge-coin",
+      "symbol": "BABYDOGE",
+      "name": "Baby Doge Coin",
+      "marketCapRank": 397,
+      "marketCap": 55438521,
+      "lastUpdated": "2026-07-20T21:32:10.260Z"
+    },
+    {
+      "id": "tesla-xstock",
+      "symbol": "TSLAX",
+      "name": "Tesla xStock",
+      "marketCapRank": 398,
+      "marketCap": 55351662,
+      "lastUpdated": "2026-07-20T21:32:05.742Z"
+    },
+    {
+      "id": "targon",
+      "symbol": "SN4",
+      "name": "Targon",
+      "marketCapRank": 399,
+      "marketCap": 55312962,
+      "lastUpdated": "2026-07-20T21:32:06.222Z"
+    },
+    {
+      "id": "bio-protocol",
+      "symbol": "BIO",
+      "name": "Bio Protocol",
+      "marketCapRank": 400,
+      "marketCap": 55121732,
+      "lastUpdated": "2026-07-20T21:32:04.142Z"
+    },
+    {
+      "id": "seeker",
+      "symbol": "SKR",
+      "name": "Seeker",
+      "marketCapRank": 401,
+      "marketCap": 54617880,
+      "lastUpdated": "2026-07-20T21:31:32.359Z"
+    },
+    {
+      "id": "soon-2",
+      "symbol": "SOON",
+      "name": "SOON",
+      "marketCapRank": 402,
+      "marketCap": 54575022,
+      "lastUpdated": "2026-07-20T21:31:46.699Z"
+    },
+    {
+      "id": "superfarm",
+      "symbol": "SUPER",
+      "name": "SuperVerse",
+      "marketCapRank": 403,
+      "marketCap": 54402359,
+      "lastUpdated": "2026-07-20T21:31:36.849Z"
+    },
+    {
+      "id": "io",
+      "symbol": "IO",
+      "name": "io.net",
+      "marketCapRank": 404,
+      "marketCap": 54402961,
+      "lastUpdated": "2026-07-20T21:31:42.752Z"
+    },
+    {
+      "id": "midas-mtbill",
+      "symbol": "MTBILL",
+      "name": "Midas mTBILL",
+      "marketCapRank": 405,
+      "marketCap": 54168303,
+      "lastUpdated": "2026-07-20T21:30:06.162Z"
+    },
+    {
+      "id": "usdu",
+      "symbol": "USDU",
+      "name": "USDu",
+      "marketCapRank": 406,
+      "marketCap": 54027705,
+      "lastUpdated": "2026-07-20T21:31:29.907Z"
+    },
+    {
+      "id": "jpycoin",
+      "symbol": "JPYC",
+      "name": "JPY Coin",
+      "marketCapRank": 407,
+      "marketCap": 53957136,
+      "lastUpdated": "2026-07-20T21:31:31.787Z"
+    },
+    {
+      "id": "apes-2-2",
+      "symbol": "APES",
+      "name": "APES",
+      "marketCapRank": 408,
+      "marketCap": 53946048,
+      "lastUpdated": "2026-06-30T02:53:01.380Z"
+    },
+    {
+      "id": "jelly-my-jelly",
+      "symbol": "JELLYJELLY",
+      "name": "Jelly-My-Jelly",
+      "marketCapRank": 409,
+      "marketCap": 53630357,
+      "lastUpdated": "2026-07-20T21:31:45.783Z"
+    },
+    {
+      "id": "tradable-na-legal-receivables-ssl",
+      "symbol": "PC0000081",
+      "name": "Tradable NA Legal Receivables SSL",
+      "marketCapRank": 410,
+      "marketCap": 53443370,
+      "lastUpdated": "2026-07-20T21:25:07.857Z"
+    },
+    {
+      "id": "escoin-token",
+      "symbol": "ELG",
+      "name": "Escoin",
+      "marketCapRank": 411,
+      "marketCap": 53377113,
+      "lastUpdated": "2026-07-20T21:31:36.345Z"
+    },
+    {
+      "id": "spark-2",
+      "symbol": "SPK",
+      "name": "Spark",
+      "marketCapRank": 412,
+      "marketCap": 53324277,
+      "lastUpdated": "2026-07-20T21:31:43.091Z"
+    },
+    {
+      "id": "exod",
+      "symbol": "EXOD",
+      "name": "EXOD",
+      "marketCapRank": 413,
+      "marketCap": 53141837,
+      "lastUpdated": "2026-07-20T21:30:17.914Z"
+    },
+    {
+      "id": "jupusd",
+      "symbol": "JUPUSD",
+      "name": "JupUSD",
+      "marketCapRank": 414,
+      "marketCap": 53098209,
+      "lastUpdated": "2026-07-20T21:31:31.975Z"
+    },
+    {
+      "id": "non-playable-coin",
+      "symbol": "NPC",
+      "name": "Non-Playable Coin",
+      "marketCapRank": 415,
+      "marketCap": 53062429,
+      "lastUpdated": "2026-07-20T21:31:40.706Z"
+    },
+    {
+      "id": "fx-usd-saving",
+      "symbol": "FXSAVE",
+      "name": "f(x) USD Saving",
+      "marketCapRank": 416,
+      "marketCap": 53030771,
+      "lastUpdated": "2026-07-20T21:31:29.645Z"
+    },
+    {
+      "id": "apriori",
+      "symbol": "APR",
+      "name": "aPriori",
+      "marketCapRank": 417,
+      "marketCap": 52488303,
+      "lastUpdated": "2026-07-20T21:31:31.705Z"
+    },
+    {
+      "id": "manadia",
+      "symbol": "UMXM",
+      "name": "Manadia",
+      "marketCapRank": 418,
+      "marketCap": 51999721,
+      "lastUpdated": "2026-07-20T21:31:34.241Z"
+    },
+    {
+      "id": "babylon",
+      "symbol": "BABY",
+      "name": "Babylon",
+      "marketCapRank": 419,
+      "marketCap": 52028067,
+      "lastUpdated": "2026-07-20T21:31:46.664Z"
+    },
+    {
+      "id": "circle-internet-group-bstock",
+      "symbol": "CRCLB",
+      "name": "Circle Internet Group (bStocks Tokenized Stock)",
+      "marketCapRank": 420,
+      "marketCap": 51852559,
+      "lastUpdated": "2026-07-20T21:31:34.753Z"
+    },
+    {
+      "id": "brz",
+      "symbol": "BRZ",
+      "name": "Brazilian Digital",
+      "marketCapRank": 421,
+      "marketCap": 51749896,
+      "lastUpdated": "2026-07-20T21:31:33.644Z"
+    },
+    {
+      "id": "zetachain",
+      "symbol": "ZETA",
+      "name": "ZetaChain",
+      "marketCapRank": 422,
+      "marketCap": 51531561,
+      "lastUpdated": "2026-07-20T21:31:39.222Z"
+    },
+    {
+      "id": "based-brett",
+      "symbol": "BRETT",
+      "name": "Brett",
+      "marketCapRank": 423,
+      "marketCap": 51232152,
+      "lastUpdated": "2026-07-20T21:31:42.147Z"
+    },
+    {
+      "id": "flying-tulip",
+      "symbol": "FT",
+      "name": "Flying Tulip",
+      "marketCapRank": 424,
+      "marketCap": 51154884,
+      "lastUpdated": "2026-07-20T21:31:41.227Z"
+    },
+    {
+      "id": "anemoy-tokenized-apollo-diversified-credit-fund",
+      "symbol": "ACRDX",
+      "name": "Anemoy Tokenized Apollo Diversified Credit Fund",
+      "marketCapRank": 425,
+      "marketCap": 51078233,
+      "lastUpdated": "2026-07-20T21:10:17.072Z"
+    },
+    {
+      "id": "bitcastle-token",
+      "symbol": "BCE",
+      "name": "bitcastle Token",
+      "marketCapRank": 426,
+      "marketCap": 51066839,
+      "lastUpdated": "2026-07-20T21:31:31.700Z"
+    },
+    {
+      "id": "celium",
+      "symbol": "SN51",
+      "name": "lium",
+      "marketCapRank": 427,
+      "marketCap": 51051032,
+      "lastUpdated": "2026-07-20T21:31:28.839Z"
+    },
+    {
+      "id": "ai-powered-finance",
+      "symbol": "AIPF",
+      "name": "AI Powered Finance",
+      "marketCapRank": 428,
+      "marketCap": 50500550,
+      "lastUpdated": "2026-07-20T21:31:33.497Z"
+    },
+    {
+      "id": "aelf",
+      "symbol": "ELF",
+      "name": "aelf",
+      "marketCapRank": 429,
+      "marketCap": 50492145,
+      "lastUpdated": "2026-07-20T21:31:38.469Z"
+    },
+    {
+      "id": "rekt-4",
+      "symbol": "REKT",
+      "name": "Rekt",
+      "marketCapRank": 430,
+      "marketCap": 50209357,
+      "lastUpdated": "2026-07-20T21:31:44.948Z"
+    },
+    {
+      "id": "usdkg",
+      "symbol": "USDKG",
+      "name": "USDKG",
+      "marketCapRank": 431,
+      "marketCap": 50044056,
+      "lastUpdated": "2026-07-20T21:31:32.346Z"
+    },
+    {
+      "id": "alloy-tether",
+      "symbol": "AUSDT",
+      "name": "Alloy Tether",
+      "marketCapRank": 432,
+      "marketCap": 50014552,
+      "lastUpdated": "2026-07-20T21:31:43.074Z"
+    },
+    {
+      "id": "playnance",
+      "symbol": "GCOIN",
+      "name": "Playnance",
+      "marketCapRank": 433,
+      "marketCap": 49931079,
+      "lastUpdated": "2026-07-20T21:31:44.120Z"
+    },
+    {
+      "id": "tradable-eu-latam-pos-financing-sstl",
+      "symbol": "PC0000049",
+      "name": "Tradable Eu/LatAm PoS Financing SSTL",
+      "marketCapRank": 434,
+      "marketCap": 49300000,
+      "lastUpdated": "2026-07-20T21:30:22.175Z"
+    },
+    {
+      "id": "axelar",
+      "symbol": "AXL",
+      "name": "Axelar",
+      "marketCapRank": 435,
+      "marketCap": 49266194,
+      "lastUpdated": "2026-07-20T21:31:40.187Z"
+    },
+    {
+      "id": "nano",
+      "symbol": "XNO",
+      "name": "Nano",
+      "marketCapRank": 436,
+      "marketCap": 49667593,
+      "lastUpdated": "2026-07-20T21:31:46.362Z"
+    },
+    {
+      "id": "verus-coin",
+      "symbol": "VRSC",
+      "name": "Verus",
+      "marketCapRank": 437,
+      "marketCap": 49142310,
+      "lastUpdated": "2026-07-20T21:31:38.886Z"
+    },
+    {
+      "id": "agentfun-ai",
+      "symbol": "AGENTFUN",
+      "name": "AgentFun.AI",
+      "marketCapRank": 438,
+      "marketCap": 49141373,
+      "lastUpdated": "2026-07-20T21:31:45.034Z"
+    },
+    {
+      "id": "bitkub-coin",
+      "symbol": "KUB",
+      "name": "KUB Coin",
+      "marketCapRank": 439,
+      "marketCap": 49101577,
+      "lastUpdated": "2026-07-20T21:31:37.262Z"
+    },
+    {
+      "id": "diem",
+      "symbol": "DIEM",
+      "name": "Diem",
+      "marketCapRank": 440,
+      "marketCap": 48988852,
+      "lastUpdated": "2026-07-20T21:31:35.186Z"
+    },
+    {
+      "id": "megaeth",
+      "symbol": "MEGA",
+      "name": "MegaETH",
+      "marketCapRank": 441,
+      "marketCap": 48793630,
+      "lastUpdated": "2026-07-20T21:31:31.623Z"
+    },
+    {
+      "id": "fidelity-digital-dollar",
+      "symbol": "FIDD",
+      "name": "Fidelity Digital Dollar",
+      "marketCapRank": 442,
+      "marketCap": 48726243,
+      "lastUpdated": "2026-07-20T21:31:33.578Z"
+    },
+    {
+      "id": "zilliqa",
+      "symbol": "ZIL",
+      "name": "Zilliqa",
+      "marketCapRank": 443,
+      "marketCap": 48714091,
+      "lastUpdated": "2026-07-20T21:31:39.315Z"
+    },
+    {
+      "id": "polymesh",
+      "symbol": "POLYX",
+      "name": "Polymesh",
+      "marketCapRank": 444,
+      "marketCap": 48678439,
+      "lastUpdated": "2026-07-20T21:31:38.486Z"
+    },
+    {
+      "id": "kava",
+      "symbol": "KAVA",
+      "name": "Kava",
+      "marketCapRank": 445,
+      "marketCap": 48219174,
+      "lastUpdated": "2026-07-20T21:31:33.642Z"
+    },
+    {
+      "id": "concordium",
+      "symbol": "CCD",
+      "name": "Concordium",
+      "marketCapRank": 446,
+      "marketCap": 48175973,
+      "lastUpdated": "2026-07-20T21:31:38.505Z"
+    },
+    {
+      "id": "circle-xstock",
+      "symbol": "CRCLX",
+      "name": "Circle xStock",
+      "marketCapRank": 447,
+      "marketCap": 48140075,
+      "lastUpdated": "2026-07-20T21:31:29.448Z"
+    },
+    {
+      "id": "degen-base",
+      "symbol": "DEGEN",
+      "name": "Degen",
+      "marketCapRank": 448,
+      "marketCap": 48127866,
+      "lastUpdated": "2026-07-20T21:31:41.954Z"
+    },
+    {
+      "id": "toshi",
+      "symbol": "TOSHI",
+      "name": "Toshi",
+      "marketCapRank": 449,
+      "marketCap": 48062780,
+      "lastUpdated": "2026-07-20T21:31:40.782Z"
+    },
+    {
+      "id": "lab",
+      "symbol": "LAB",
+      "name": "LAB",
+      "marketCapRank": 450,
+      "marketCap": 47979913,
+      "lastUpdated": "2026-07-20T21:31:31.788Z"
+    },
+    {
+      "id": "sygnum-fiusd-liquidity-fund",
+      "symbol": "FIUSD",
+      "name": "Sygnum FIUSD Liquidity Fund",
+      "marketCapRank": 451,
+      "marketCap": 47795543,
+      "lastUpdated": "2026-07-20T21:30:22.050Z"
+    },
+    {
+      "id": "xphere",
+      "symbol": "XP",
+      "name": "Xphere",
+      "marketCapRank": 452,
+      "marketCap": 47682702,
+      "lastUpdated": "2026-07-20T21:31:46.362Z"
+    },
+    {
+      "id": "cysic",
+      "symbol": "CYS",
+      "name": "Cysic",
+      "marketCapRank": 453,
+      "marketCap": 47596651,
+      "lastUpdated": "2026-07-20T21:31:32.244Z"
+    },
+    {
+      "id": "synapse-2",
+      "symbol": "SYN",
+      "name": "Synapse",
+      "marketCapRank": 454,
+      "marketCap": 47691012,
+      "lastUpdated": "2026-07-20T21:31:37.777Z"
+    },
+    {
+      "id": "funfair",
+      "symbol": "FUN",
+      "name": "FUNToken",
+      "marketCapRank": 455,
+      "marketCap": 47490572,
+      "lastUpdated": "2026-07-20T21:31:36.451Z"
+    },
+    {
+      "id": "midas-mhyper",
+      "symbol": "MHYPER",
+      "name": "Midas mHYPER",
+      "marketCapRank": 456,
+      "marketCap": 46922474,
+      "lastUpdated": "2026-07-20T21:31:30.072Z"
+    },
+    {
+      "id": "venus",
+      "symbol": "XVS",
+      "name": "Venus",
+      "marketCapRank": 457,
+      "marketCap": 46617168,
+      "lastUpdated": "2026-07-20T21:31:35.974Z"
+    },
+    {
+      "id": "impossible-cloud-network-token",
+      "symbol": "ICNT",
+      "name": "Impossible Cloud Network Token",
+      "marketCapRank": 458,
+      "marketCap": 46269571,
+      "lastUpdated": "2026-07-20T21:31:46.914Z"
+    },
+    {
+      "id": "sp500-xstock",
+      "symbol": "SPYX",
+      "name": "SP500 xStock",
+      "marketCapRank": 459,
+      "marketCap": 46216697,
+      "lastUpdated": "2026-07-20T21:31:29.363Z"
+    },
+    {
+      "id": "loaded-lions",
+      "symbol": "LION",
+      "name": "Loaded Lions",
+      "marketCapRank": 460,
+      "marketCap": 46035051,
+      "lastUpdated": "2026-07-20T21:31:46.171Z"
+    },
+    {
+      "id": "deep",
+      "symbol": "DEEP",
+      "name": "DeepBook",
+      "marketCapRank": 461,
+      "marketCap": 45938479,
+      "lastUpdated": "2026-07-20T21:31:44.381Z"
+    },
+    {
+      "id": "holoworld",
+      "symbol": "HOLO",
+      "name": "Holoworld",
+      "marketCapRank": 462,
+      "marketCap": 45744624,
+      "lastUpdated": "2026-07-20T21:31:30.769Z"
+    },
+    {
+      "id": "dola-usd",
+      "symbol": "DOLA",
+      "name": "DOLA",
+      "marketCapRank": 463,
+      "marketCap": 45684941,
+      "lastUpdated": "2026-07-20T21:31:36.738Z"
+    },
+    {
+      "id": "redstone-oracles",
+      "symbol": "RED",
+      "name": "RedStone",
+      "marketCapRank": 464,
+      "marketCap": 45704650,
+      "lastUpdated": "2026-07-20T21:31:45.706Z"
+    },
+    {
+      "id": "janction",
+      "symbol": "JCT",
+      "name": "Janction",
+      "marketCapRank": 465,
+      "marketCap": 45561100,
+      "lastUpdated": "2026-07-20T21:31:32.003Z"
+    },
+    {
+      "id": "sushi",
+      "symbol": "SUSHI",
+      "name": "Sushi",
+      "marketCapRank": 466,
+      "marketCap": 45321903,
+      "lastUpdated": "2026-07-20T21:31:35.916Z"
+    },
+    {
+      "id": "fidelity-usd-digital-liquidity-fund-acc",
+      "symbol": "FILQ-A",
+      "name": "Fidelity USD Digital Liquidity Fund-Acc",
+      "marketCapRank": 467,
+      "marketCap": 45134520,
+      "lastUpdated": "2026-07-20T21:25:15.500Z"
+    },
+    {
+      "id": "movement",
+      "symbol": "MOVE",
+      "name": "Movement",
+      "marketCapRank": 468,
+      "marketCap": 45038223,
+      "lastUpdated": "2026-07-20T21:31:43.381Z"
+    },
+    {
+      "id": "astar",
+      "symbol": "ASTR",
+      "name": "Astar",
+      "marketCapRank": 469,
+      "marketCap": 45097727,
+      "lastUpdated": "2026-07-20T21:31:38.348Z"
+    },
+    {
+      "id": "espresso",
+      "symbol": "ESP",
+      "name": "Espresso",
+      "marketCapRank": 470,
+      "marketCap": 45017804,
+      "lastUpdated": "2026-07-20T21:31:29.875Z"
+    },
+    {
+      "id": "blur",
+      "symbol": "BLUR",
+      "name": "Blur",
+      "marketCapRank": 471,
+      "marketCap": 44921193,
+      "lastUpdated": "2026-07-20T21:31:40.033Z"
+    },
+    {
+      "id": "pharos-network",
+      "symbol": "PROS",
+      "name": "Pharos",
+      "marketCapRank": 472,
+      "marketCap": 44732261,
+      "lastUpdated": "2026-07-20T21:31:34.326Z"
+    },
+    {
+      "id": "nervos-network",
+      "symbol": "CKB",
+      "name": "Nervos Network",
+      "marketCapRank": 473,
+      "marketCap": 44614821,
+      "lastUpdated": "2026-07-20T21:31:41.569Z"
+    },
+    {
+      "id": "metronome-synth-usd",
+      "symbol": "MSUSD",
+      "name": "Metronome Synth USD",
+      "marketCapRank": 474,
+      "marketCap": 44561972,
+      "lastUpdated": "2026-07-20T21:31:29.806Z"
+    },
+    {
+      "id": "unitywallet-token",
+      "symbol": "UNT",
+      "name": "UnityWallet Token",
+      "marketCapRank": 475,
+      "marketCap": 44524045,
+      "lastUpdated": "2026-07-20T21:31:32.769Z"
+    },
+    {
+      "id": "creditcoin-2",
+      "symbol": "CTC",
+      "name": "Creditcoin",
+      "marketCapRank": 476,
+      "marketCap": 44340826,
+      "lastUpdated": "2026-07-20T21:31:35.205Z"
+    },
+    {
+      "id": "ecomi",
+      "symbol": "OMI",
+      "name": "ECOMI",
+      "marketCapRank": 477,
+      "marketCap": 44148539,
+      "lastUpdated": "2026-07-20T21:31:44.070Z"
+    },
+    {
+      "id": "purr-2",
+      "symbol": "PURR",
+      "name": "Purr",
+      "marketCapRank": 478,
+      "marketCap": 44207225,
+      "lastUpdated": "2026-07-20T21:31:42.420Z"
+    },
+    {
+      "id": "popcat",
+      "symbol": "POPCAT",
+      "name": "Popcat",
+      "marketCapRank": 479,
+      "marketCap": 43997935,
+      "lastUpdated": "2026-07-20T21:31:41.634Z"
+    },
+    {
+      "id": "prize-protocol",
+      "symbol": "PRIZE",
+      "name": "Prize Protocol",
+      "marketCapRank": 480,
+      "marketCap": 43862071,
+      "lastUpdated": "2026-07-20T21:31:34.267Z"
+    },
+    {
+      "id": "bedrock-token",
+      "symbol": "BR",
+      "name": "Bedrock",
+      "marketCapRank": 481,
+      "marketCap": 43881817,
+      "lastUpdated": "2026-07-20T21:31:46.346Z"
+    },
+    {
+      "id": "vvs-finance",
+      "symbol": "VVS",
+      "name": "VVS Finance",
+      "marketCapRank": 482,
+      "marketCap": 43678367,
+      "lastUpdated": "2026-07-20T21:31:37.944Z"
+    },
+    {
+      "id": "ronin",
+      "symbol": "RON",
+      "name": "Ronin",
+      "marketCapRank": 483,
+      "marketCap": 43544906,
+      "lastUpdated": "2026-07-20T21:31:37.966Z"
+    },
+    {
+      "id": "oasis-network",
+      "symbol": "ROSE",
+      "name": "Oasis",
+      "marketCapRank": 484,
+      "marketCap": 43383876,
+      "lastUpdated": "2026-07-20T21:31:42.821Z"
+    },
+    {
+      "id": "troll-2",
+      "symbol": "TROLL",
+      "name": "TROLL",
+      "marketCapRank": 485,
+      "marketCap": 43394000,
+      "lastUpdated": "2026-07-20T21:31:46.878Z"
+    },
+    {
+      "id": "bitdca",
+      "symbol": "BDCA",
+      "name": "BitDCA",
+      "marketCapRank": 486,
+      "marketCap": 43186416,
+      "lastUpdated": "2026-07-20T21:31:46.159Z"
+    },
+    {
+      "id": "osk",
+      "symbol": "OSK",
+      "name": "OSK",
+      "marketCapRank": 487,
+      "marketCap": 43146228,
+      "lastUpdated": "2026-07-20T21:31:38.430Z"
+    },
+    {
+      "id": "official-fo",
+      "symbol": "FO",
+      "name": "Official FO",
+      "marketCapRank": 488,
+      "marketCap": 43142336,
+      "lastUpdated": "2026-07-20T21:31:47.035Z"
+    },
+    {
+      "id": "micron-technology-ondo-tokenized-stock",
+      "symbol": "MUON",
+      "name": "Micron Technology (Ondo Tokenized Stock)",
+      "marketCapRank": 489,
+      "marketCap": 42989046,
+      "lastUpdated": "2026-07-20T21:31:46.157Z"
+    },
+    {
+      "id": "asset",
+      "symbol": "ASSET",
+      "name": "REAL",
+      "marketCapRank": 490,
+      "marketCap": 42805923,
+      "lastUpdated": "2026-07-20T21:31:34.196Z"
+    },
+    {
+      "id": "ishares-bitcoin-trust-ondo-tokenized",
+      "symbol": "IBITON",
+      "name": "iShares Bitcoin Trust (Ondo Tokenized)",
+      "marketCapRank": 491,
+      "marketCap": 42695142,
+      "lastUpdated": "2026-07-20T21:31:33.930Z"
+    },
+    {
+      "id": "peaq-2",
+      "symbol": "PEAQ",
+      "name": "peaq",
+      "marketCapRank": 492,
+      "marketCap": 42749308,
+      "lastUpdated": "2026-07-20T21:31:44.731Z"
+    },
+    {
+      "id": "flow",
+      "symbol": "FLOW",
+      "name": "Flow",
+      "marketCapRank": 493,
+      "marketCap": 42535886,
+      "lastUpdated": "2026-07-20T21:31:36.348Z"
+    },
+    {
+      "id": "ontology",
+      "symbol": "ONT",
+      "name": "Ontology",
+      "marketCapRank": 494,
+      "marketCap": 42494643,
+      "lastUpdated": "2026-07-20T21:31:41.918Z"
+    },
+    {
+      "id": "lombard-protocol",
+      "symbol": "BARD",
+      "name": "Lombard",
+      "marketCapRank": 495,
+      "marketCap": 42460804,
+      "lastUpdated": "2026-07-20T21:31:30.285Z"
+    },
+    {
+      "id": "pirate-chain",
+      "symbol": "ARRR",
+      "name": "Pirate Chain",
+      "marketCapRank": 496,
+      "marketCap": 42446230,
+      "lastUpdated": "2026-07-20T21:31:30.820Z"
+    },
+    {
+      "id": "altlayer",
+      "symbol": "ALT",
+      "name": "AltLayer",
+      "marketCapRank": 497,
+      "marketCap": 42249807,
+      "lastUpdated": "2026-07-20T21:31:41.903Z"
+    },
+    {
+      "id": "xyo-network",
+      "symbol": "XYO",
+      "name": "XYO Network",
+      "marketCapRank": 498,
+      "marketCap": 42271572,
+      "lastUpdated": "2026-07-20T21:31:44.335Z"
+    },
+    {
+      "id": "frankencoin",
+      "symbol": "ZCHF",
+      "name": "Frankencoin",
+      "marketCapRank": 499,
+      "marketCap": 42188378,
+      "lastUpdated": "2026-07-20T21:31:42.483Z"
+    },
+    {
+      "id": "tellor",
+      "symbol": "TRB",
+      "name": "Tellor Tributes",
+      "marketCapRank": 500,
+      "marketCap": 42036211,
+      "lastUpdated": "2026-07-20T21:31:34.111Z"
+    }
+  ]
+}

@@ -4,6 +4,11 @@
 // tools/registry/selftest.mjs (in-memory negative fixtures).
 import { computeContentHash, computeCatalogVersion } from "./canonical.mjs";
 
+// Legacy V1 canonical categories. V1 validation uses exactly these (the
+// registry currently reuses the narrower legacy Daily categories). The V2
+// proposal passes an expanded registry-only set via options.allowedCategories
+// (see tools/registry/lib/v2Categories.mjs) without changing this default, so
+// V1 behavior is untouched.
 const CATEGORIES = new Set([
   "store-of-value", "smart-contract", "payments", "layer-2",
   "interoperability", "stablecoin", "meme", "privacy", "defi",
@@ -150,6 +155,11 @@ function validateTokenIdIdentity(entries, errors) {
 export function validateEntries(schemaVersion, entries, options = {}) {
   const errors = [];
   const { expectedEntryCount, expectedContentHash, expectedCatalogVersion } = options;
+  // V1 keeps the legacy 9-category set by default; V2 passes the expanded
+  // registry-only canonical set. Anything else is still rejected.
+  const allowedCategories = options.allowedCategories instanceof Set
+    ? options.allowedCategories
+    : CATEGORIES;
 
   if (!Array.isArray(entries)) {
     errors.push("entries is not an array");
@@ -200,7 +210,7 @@ export function validateEntries(schemaVersion, entries, options = {}) {
       coingeckoIds.add(cgId);
     }
 
-    if (entry.category && !CATEGORIES.has(entry.category)) errors.push(`${label}: unknown category "${entry.category}"`);
+    if (entry.category && !allowedCategories.has(entry.category)) errors.push(`${label}: unknown category "${entry.category}"`);
     if (entry.status && !STATUSES.has(entry.status)) errors.push(`${label}: unknown status "${entry.status}"`);
     if (entry.eligibilityTier && !TIERS.has(entry.eligibilityTier)) errors.push(`${label}: unknown eligibilityTier "${entry.eligibilityTier}"`);
     if (entry.assetClass && !ASSET_CLASSES.has(entry.assetClass)) errors.push(`${label}: unknown assetClass "${entry.assetClass}"`);

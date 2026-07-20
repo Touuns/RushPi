@@ -1,0 +1,2508 @@
+{
+  "schemaVersion": 2,
+  "catalogStage": "proposal",
+  "providerRetrievedAt": "2026-07-20T21:32:06.813Z",
+  "count": 250,
+  "exclusions": [
+    {
+      "providerId": "figure-heloc",
+      "name": "Figure Heloc",
+      "symbol": "FIGR_HELOC",
+      "marketCapRank": 9,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "rain",
+      "name": "Rain",
+      "symbol": "RAIN",
+      "marketCapRank": 13,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "canton-network",
+      "name": "Canton",
+      "symbol": "CC",
+      "marketCapRank": 21,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usd1-wlfi",
+      "name": "USD1",
+      "symbol": "USD1",
+      "marketCapRank": 24,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "global-dollar",
+      "name": "Global Dollar",
+      "symbol": "USDG",
+      "marketCapRank": 28,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "hashnote-usyc",
+      "name": "Circle USYC",
+      "symbol": "USYC",
+      "marketCapRank": 30,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "blackrock-usd-institutional-digital-liquidity-fund",
+      "name": "BlackRock USD Institutional Digital Liquidity Fund",
+      "symbol": "BUIDL",
+      "marketCapRank": 36,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tether-gold",
+      "name": "Tether Gold",
+      "symbol": "XAUT",
+      "marketCapRank": 38,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ondo-us-dollar-yield",
+      "name": "Ondo US Dollar Yield",
+      "symbol": "USDY",
+      "marketCapRank": 40,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "world-liberty-financial",
+      "name": "World Liberty Financial",
+      "symbol": "WLFI",
+      "marketCapRank": 42,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pax-gold",
+      "name": "PAX Gold",
+      "symbol": "PAXG",
+      "marketCapRank": 43,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "aster-2",
+      "name": "Aster",
+      "symbol": "ASTER",
+      "marketCapRank": 47,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "memecore",
+      "name": "MemeCore",
+      "symbol": "M",
+      "marketCapRank": 50,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "falcon-finance",
+      "name": "Falcon USD",
+      "symbol": "USDF",
+      "marketCapRank": 53,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bfusd",
+      "name": "BFUSD",
+      "symbol": "BFUSD",
+      "marketCapRank": 58,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pi-network",
+      "name": "Pi Network",
+      "symbol": "PI",
+      "marketCapRank": 64,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Open transferability/mainnet status not verifiable from primary sources.",
+      "underlyingAssetId": null,
+      "evidenceReference": "official-project-status-review"
+    },
+    {
+      "providerId": "united-stables",
+      "name": "United Stables",
+      "symbol": "U",
+      "marketCapRank": 65,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "eutbl",
+      "name": "Spiko EU T-Bills Money Market Fund",
+      "symbol": "EUTBL",
+      "marketCapRank": 66,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdgo",
+      "name": "USDGO",
+      "symbol": "USDGO",
+      "marketCapRank": 67,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "blockchain-capital",
+      "name": "Blockchain Capital",
+      "symbol": "BCAP",
+      "marketCapRank": 68,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "stable-2",
+      "name": "​​Stable",
+      "symbol": "STABLE",
+      "marketCapRank": 71,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "janus-henderson-anemoy-treasury-fund",
+      "name": "Janus Henderson Anemoy Treasury Fund",
+      "symbol": "JTRSY",
+      "marketCapRank": 72,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "adi-token",
+      "name": "ADI",
+      "symbol": "ADI",
+      "marketCapRank": 74,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Ambiguous ticker/identity, not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "spiko-amundi-overnight-swap-fund-eur",
+      "name": "Spiko Amundi Overnight Swap Fund (EUR)",
+      "symbol": "EURSAFO",
+      "marketCapRank": 75,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "superstate-short-duration-us-government-securities-fund-ustb",
+      "name": "Invesco Short Duration US Government Securities Fund",
+      "symbol": "USTB",
+      "marketCapRank": 82,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "audiera",
+      "name": "Audiera",
+      "symbol": "BEAT",
+      "marketCapRank": 83,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "janus-henderson-anemoy-aaa-clo-fund",
+      "name": "Janus Henderson Anemoy AAA CLO Fund",
+      "symbol": "JAAA",
+      "marketCapRank": 87,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bianrensheng",
+      "name": "币安人生 (BinanceLife)",
+      "symbol": "币安人生",
+      "marketCapRank": 91,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Non-canonical name/symbol; identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ylds",
+      "name": "YLDS",
+      "symbol": "YLDS",
+      "marketCapRank": 96,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "lighter",
+      "name": "Lighter",
+      "symbol": "LIT",
+      "marketCapRank": 98,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "venice-token",
+      "name": "Venice Token",
+      "symbol": "VVV",
+      "marketCapRank": 99,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usx",
+      "name": "USX",
+      "symbol": "USX",
+      "marketCapRank": 101,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "a7a5",
+      "name": "A7A5",
+      "symbol": "A7A5",
+      "marketCapRank": 104,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Opaque identity; project cannot be confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "hash-2",
+      "name": "Provenance Blockchain",
+      "symbol": "HASH",
+      "marketCapRank": 107,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "hastra-prime",
+      "name": "Hastra PRIME",
+      "symbol": "PRIME",
+      "marketCapRank": 112,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ousg",
+      "name": "Ondo Short-Term U.S. Government Bond Fund",
+      "symbol": "OUSG",
+      "marketCapRank": 114,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdtb",
+      "name": "USDtb",
+      "symbol": "USDTB",
+      "marketCapRank": 119,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "kinesis-gold",
+      "name": "Kinesis Gold",
+      "symbol": "KAU",
+      "marketCapRank": 126,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "terra-luna",
+      "name": "Terra Luna Classic",
+      "symbol": "LUNC",
+      "marketCapRank": 127,
+      "reasonCode": "inactive-or-abandoned",
+      "explanation": "Terra Luna Classic — collapsed/legacy network, not an active selection.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "midnight-3",
+      "name": "Midnight",
+      "symbol": "NIGHT",
+      "marketCapRank": 131,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apxusd",
+      "name": "apxUSD",
+      "symbol": "APXUSD",
+      "marketCapRank": 133,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "antfun",
+      "name": "AntFun",
+      "symbol": "ANTFUN",
+      "marketCapRank": 134,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "olympus",
+      "name": "Olympus",
+      "symbol": "OHM",
+      "marketCapRank": 137,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "kite-2",
+      "name": "Kite",
+      "symbol": "KITE",
+      "marketCapRank": 139,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apenft",
+      "name": "AINFT",
+      "symbol": "NFT",
+      "marketCapRank": 143,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "unibase",
+      "name": "Unibase",
+      "symbol": "UB",
+      "marketCapRank": 144,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "reallink",
+      "name": "RealLink",
+      "symbol": "REAL",
+      "marketCapRank": 146,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "onyc",
+      "name": "OnRe Tokenized Reinsurance",
+      "symbol": "ONYC",
+      "marketCapRank": 147,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "build-on",
+      "name": "BUILDon",
+      "symbol": "B",
+      "marketCapRank": 148,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "frax",
+      "name": "Legacy Frax Dollar",
+      "symbol": "FRAX",
+      "marketCapRank": 149,
+      "reasonCode": "inactive-or-abandoned",
+      "explanation": "Legacy Frax Dollar, superseded by Frax USD (frxUSD).",
+      "underlyingAssetId": "frax-usd",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "velvet",
+      "name": "Velvet",
+      "symbol": "VELVET",
+      "marketCapRank": 153,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "doublezero",
+      "name": "DoubleZero",
+      "symbol": "2Z",
+      "marketCapRank": 156,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bnb48-club-token",
+      "name": "KOGE",
+      "symbol": "KOGE",
+      "marketCapRank": 160,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "kinesis-silver",
+      "name": "Kinesis Silver",
+      "symbol": "KAG",
+      "marketCapRank": 161,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "fgrs-figure-tokenized-stock",
+      "name": "FGRS (Figure Tokenized Stock)",
+      "symbol": "FGRS",
+      "marketCapRank": 165,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdai",
+      "name": "USDai",
+      "symbol": "USDAI",
+      "marketCapRank": 166,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-na-rent-financing-platform-sstn",
+      "name": "Tradable NA Rent Financing Platform SSTN",
+      "symbol": "PC0000031",
+      "marketCapRank": 168,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ultima",
+      "name": "Ultima",
+      "symbol": "ULTIMA",
+      "marketCapRank": 169,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ape-and-pepe",
+      "name": "Ape and Pepe",
+      "symbol": "APEPE",
+      "marketCapRank": 170,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "coco-2",
+      "name": "coco",
+      "symbol": "COCO",
+      "marketCapRank": 171,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "agora-dollar",
+      "name": "AUSD",
+      "symbol": "AUSD",
+      "marketCapRank": 172,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "vaneck-treasury-fund",
+      "name": "VanEck Treasury Fund",
+      "symbol": "VBILL",
+      "marketCapRank": 174,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usa",
+      "name": "USAT",
+      "symbol": "USAT",
+      "marketCapRank": 177,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pieverse",
+      "name": "Pieverse",
+      "symbol": "PIEVERSE",
+      "marketCapRank": 179,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "wefi",
+      "name": "WeFi",
+      "symbol": "WFI",
+      "marketCapRank": 180,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "falcon-finance-ff",
+      "name": "Falcon Finance",
+      "symbol": "FF",
+      "marketCapRank": 183,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bc-token",
+      "name": "BCGame Coin",
+      "symbol": "BC",
+      "marketCapRank": 184,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "spark-usdc",
+      "name": "Spark USDC",
+      "symbol": "SUSDC",
+      "marketCapRank": 186,
+      "reasonCode": "wrapped-or-bridged",
+      "explanation": "Yield-bearing receipt wrapper over USDC.",
+      "underlyingAssetId": "usd-coin",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "iota",
+      "name": "IOTA",
+      "symbol": "IOTA",
+      "marketCapRank": 187,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-apac-diversified-finance-provider-sstn",
+      "name": "Tradable APAC Diversified Finance Provider SSTN",
+      "symbol": "PC0000033",
+      "marketCapRank": 189,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "re-protocol-reusd",
+      "name": "Re Protocol reUSD",
+      "symbol": "REUSD",
+      "marketCapRank": 191,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "spiko-us-t-bills-money-market-fund",
+      "name": "Spiko US T-Bills Money Market Fund",
+      "symbol": "USTBL",
+      "marketCapRank": 192,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apyusd",
+      "name": "apyUSD",
+      "symbol": "APYUSD",
+      "marketCapRank": 197,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "gusd",
+      "name": "GUSD",
+      "symbol": "GUSD",
+      "marketCapRank": 201,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "societe-generale-forge-eurcv",
+      "name": "EUR CoinVertible",
+      "symbol": "EURCV",
+      "marketCapRank": 203,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "edgex",
+      "name": "edgeX",
+      "symbol": "EDGE",
+      "marketCapRank": 204,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "lido-earn-eth",
+      "name": "Lido Earn ETH",
+      "symbol": "EARNETH",
+      "marketCapRank": 205,
+      "reasonCode": "wrapped-or-bridged",
+      "explanation": "Staking-receipt wrapper over ETH, not an independent asset.",
+      "underlyingAssetId": "ethereum",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bitway",
+      "name": "Bitway",
+      "symbol": "BTW",
+      "marketCapRank": 206,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "safo",
+      "name": "Spiko Amundi Overnight Swap Fund",
+      "symbol": "SAFO",
+      "marketCapRank": 208,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "strategy-pp-variable-xstock",
+      "name": "Strategy PP Variable xStock",
+      "symbol": "STRCX",
+      "marketCapRank": 214,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-latam-fintech-sstn",
+      "name": "Tradable LatAm Fintech SSTN",
+      "symbol": "PC0000097",
+      "marketCapRank": 218,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "vision-3",
+      "name": "Vision",
+      "symbol": "VSN",
+      "marketCapRank": 220,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cash-4",
+      "name": "CASH",
+      "symbol": "CASH",
+      "marketCapRank": 221,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ozone-chain",
+      "name": "Ozone Chain",
+      "symbol": "OZO",
+      "marketCapRank": 223,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "grx-chain",
+      "name": "GRX Chain",
+      "symbol": "GRX",
+      "marketCapRank": 225,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "derive",
+      "name": "Derive",
+      "symbol": "DRV",
+      "marketCapRank": 226,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tagger",
+      "name": "TAGGER",
+      "symbol": "TAG",
+      "marketCapRank": 227,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "lorenzo-protocol",
+      "name": "Lorenzo Protocol",
+      "symbol": "BANK",
+      "marketCapRank": 229,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "theo-short-duration-us-treasury-fund",
+      "name": "Theo Short Duration US Treasury Fund",
+      "symbol": "THBILL",
+      "marketCapRank": 231,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "humanity",
+      "name": "Humanity",
+      "symbol": "H",
+      "marketCapRank": 232,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apollo-diversified-credit-securitize-fund",
+      "name": "Apollo Diversified Credit Securitize Fund",
+      "symbol": "ACRED",
+      "marketCapRank": 235,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "avant-usd",
+      "name": "Avant USD",
+      "symbol": "AVUSD",
+      "marketCapRank": 236,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-singapore-fintech-ssl-2",
+      "name": "Tradable Singapore Fintech SSL",
+      "symbol": "PC0000023",
+      "marketCapRank": 237,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "alpha-bulgaria-warrants",
+      "name": "Alpha Bulgaria Warrants",
+      "symbol": "ALFW",
+      "marketCapRank": 238,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "talus",
+      "name": "Talus",
+      "symbol": "US",
+      "marketCapRank": 239,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "stp-network",
+      "name": "AWE Network",
+      "symbol": "AWE",
+      "marketCapRank": 240,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "astherus-usdf",
+      "name": "Aster USDF",
+      "symbol": "USDF",
+      "marketCapRank": 243,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "backpack",
+      "name": "Backpack",
+      "symbol": "BP",
+      "marketCapRank": 244,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "shuffle-2",
+      "name": "Shuffle",
+      "symbol": "SHFL",
+      "marketCapRank": 245,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-na-third-party-online-merchant-sstn",
+      "name": "Tradable NA Third Party Online Merchant SSTN",
+      "symbol": "PC0000015",
+      "marketCapRank": 246,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ribbita-by-virtuals",
+      "name": "Ribbita by Virtuals",
+      "symbol": "TIBBIR",
+      "marketCapRank": 249,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "genius-3",
+      "name": "Genius",
+      "symbol": "GENIUS",
+      "marketCapRank": 250,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "saturn-dollar",
+      "name": "Saturn Dollar",
+      "symbol": "USDAT",
+      "marketCapRank": 251,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-latam-middle-market-lender-sstl",
+      "name": "Tradable LatAm Middle-Market Lender SSTL",
+      "symbol": "PC0000085",
+      "marketCapRank": 255,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bitmart-token",
+      "name": "BitMart",
+      "symbol": "BMX",
+      "marketCapRank": 256,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "standx-dusd",
+      "name": "StandX DUSD",
+      "symbol": "DUSD",
+      "marketCapRank": 257,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "securitize-tokenized-aaa-clo-fund",
+      "name": "Securitize Tokenized AAA CLO Fund",
+      "symbol": "STAC",
+      "marketCapRank": 263,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "nexus-4",
+      "name": "Nexus",
+      "symbol": "NEX",
+      "marketCapRank": 264,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-singapore-fintech-ssl",
+      "name": "Tradable Singapore Fintech SSL",
+      "symbol": "PC0000077",
+      "marketCapRank": 265,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "unity-usd",
+      "name": "Unity USD",
+      "symbol": "UUSD",
+      "marketCapRank": 266,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "meta-2-2",
+      "name": "MetaDAO",
+      "symbol": "META",
+      "marketCapRank": 267,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sentient",
+      "name": "Sentient",
+      "symbol": "SENT",
+      "marketCapRank": 269,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "circle-internet-group-ondo-tokenized-stock",
+      "name": "Circle Internet Group (Ondo Tokenized Stock)",
+      "symbol": "CRCLON",
+      "marketCapRank": 270,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sosovalue",
+      "name": "SoSoValue",
+      "symbol": "SOSO",
+      "marketCapRank": 272,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cheems-token",
+      "name": "Cheems Token",
+      "symbol": "CHEEMS",
+      "marketCapRank": 273,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "newton-project",
+      "name": "AB",
+      "symbol": "AB",
+      "marketCapRank": 274,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "o1-exchange",
+      "name": "o1.exchange",
+      "symbol": "O",
+      "marketCapRank": 275,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usda-2",
+      "name": "USDa",
+      "symbol": "USDA",
+      "marketCapRank": 276,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "railgun",
+      "name": "Railgun",
+      "symbol": "RAIL",
+      "marketCapRank": 278,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "story-2",
+      "name": "Data Network",
+      "symbol": "DATA",
+      "marketCapRank": 280,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "the-black-bull",
+      "name": "The Black Bull",
+      "symbol": "ANSEM",
+      "marketCapRank": 285,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sandisk-bstocks-tokenized-stock",
+      "name": "SanDisk (bStocks Tokenized Stock)",
+      "symbol": "SNDKB",
+      "marketCapRank": 286,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "smilek",
+      "name": "Smilek to the Bank",
+      "symbol": "SMILEK",
+      "marketCapRank": 287,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "wrappedm-by-m0",
+      "name": "WrappedM by M0",
+      "symbol": "WM",
+      "marketCapRank": 290,
+      "reasonCode": "wrapped-or-bridged",
+      "explanation": "Wrapped representation of the M0 token.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "chutes",
+      "name": "Chutes",
+      "symbol": "SN64",
+      "marketCapRank": 291,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usda-3",
+      "name": "USDA",
+      "symbol": "USDA",
+      "marketCapRank": 292,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "zama",
+      "name": "Zama",
+      "symbol": "ZAMA",
+      "marketCapRank": 293,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "would",
+      "name": "would",
+      "symbol": "WOULD",
+      "marketCapRank": 294,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "spacex-bstocks-tokenized-stock",
+      "name": "SpaceX (bStocks Tokenized Stock)",
+      "symbol": "SPCXB",
+      "marketCapRank": 297,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "quack-ai",
+      "name": "Quack AI",
+      "symbol": "Q",
+      "marketCapRank": 298,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pleasing-gold",
+      "name": "Pleasing Gold",
+      "symbol": "PGOLD",
+      "marketCapRank": 299,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "dai-on-pulsechain",
+      "name": "DAI on PulseChain",
+      "symbol": "DAI",
+      "marketCapRank": 300,
+      "reasonCode": "duplicate-underlying",
+      "explanation": "PulseChain representation of DAI — duplicate of the underlying asset.",
+      "underlyingAssetId": "dai",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "unifai-network",
+      "name": "UnifAI Network",
+      "symbol": "UAI",
+      "marketCapRank": 304,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "na-post-settlement-legal-financing-receivables",
+      "name": "Tradable NA Post-Settlement Legal Financing Receivables",
+      "symbol": "PC0000101",
+      "marketCapRank": 305,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cap-usd",
+      "name": "Cap USD",
+      "symbol": "CUSD",
+      "marketCapRank": 306,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cygnus-finance-global-usd",
+      "name": "Cygnus Finance Global USD",
+      "symbol": "CGUSD",
+      "marketCapRank": 308,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "melania-meme",
+      "name": "Melania Meme",
+      "symbol": "MELANIA",
+      "marketCapRank": 312,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-na-neobank-sstl",
+      "name": "Tradable NA Neobank SSTL",
+      "symbol": "PC0000023",
+      "marketCapRank": 313,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "helio-protocol-hay",
+      "name": "Lista USD",
+      "symbol": "LISUSD",
+      "marketCapRank": 314,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "felix-feusd",
+      "name": "Felix feUSD",
+      "symbol": "FEUSD",
+      "marketCapRank": 315,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "micron-technology-bstock",
+      "name": "Micron Technology (bStocks Tokenized Stock)",
+      "symbol": "MUB",
+      "marketCapRank": 316,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "stau",
+      "name": "STAU",
+      "symbol": "STAU",
+      "marketCapRank": 317,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "safecoin",
+      "name": "SAFEbit",
+      "symbol": "SAFE",
+      "marketCapRank": 319,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pearl-2",
+      "name": "Pearl",
+      "symbol": "PRL",
+      "marketCapRank": 320,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "fidelity-digital-interest-token",
+      "name": "Fidelity Digital Interest Token",
+      "symbol": "FDIT",
+      "marketCapRank": 321,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "midas-mf-one",
+      "name": "Midas mF-ONE",
+      "symbol": "MF-ONE",
+      "marketCapRank": 322,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "comedian",
+      "name": "Comedian",
+      "symbol": "BAN",
+      "marketCapRank": 323,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sierra-2",
+      "name": "Sierra",
+      "symbol": "SIERRA",
+      "marketCapRank": 324,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "vicicoin",
+      "name": "ViciCoin",
+      "symbol": "VCNT",
+      "marketCapRank": 325,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdx",
+      "name": "USDX",
+      "symbol": "USDX",
+      "marketCapRank": 326,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "proton",
+      "name": "XPR Network",
+      "symbol": "XPR",
+      "marketCapRank": 327,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "crown-brlv",
+      "name": "Crown BRLV",
+      "symbol": "BRLV",
+      "marketCapRank": 328,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "four",
+      "name": "Four",
+      "symbol": "FORM",
+      "marketCapRank": 329,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "law-blocks",
+      "name": "Law Blocks AI",
+      "symbol": "LBT",
+      "marketCapRank": 331,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "mag7-ssi",
+      "name": "MAG7.ssi",
+      "symbol": "MAG7.SSI",
+      "marketCapRank": 332,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cash-cat",
+      "name": "Cash Cat",
+      "symbol": "CASHCAT",
+      "marketCapRank": 333,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bas",
+      "name": "BNB Attestation Service",
+      "symbol": "BAS",
+      "marketCapRank": 335,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ravedao",
+      "name": "RaveDAO",
+      "symbol": "RAVE",
+      "marketCapRank": 338,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ai-rig-complex",
+      "name": "AI Rig Complex",
+      "symbol": "ARC",
+      "marketCapRank": 339,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "banana-for-scale-2",
+      "name": "Banana For Scale",
+      "symbol": "BANANAS31",
+      "marketCapRank": 340,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ondo-u-s-dollar-token",
+      "name": "Ondo U.S. Dollar Token",
+      "symbol": "USDON",
+      "marketCapRank": 342,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bending-spoons-xstock",
+      "name": "Bending Spoons xStock",
+      "symbol": "BSPX",
+      "marketCapRank": 343,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "temple",
+      "name": "TempleDAO",
+      "symbol": "TEMPLE",
+      "marketCapRank": 344,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ishares-core-s-p-500-etf-ondo-tokenized-etf",
+      "name": "iShares Core S&P 500 ETF (Ondo Tokenized ETF)",
+      "symbol": "IVVON",
+      "marketCapRank": 347,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "basedhype",
+      "name": "BasedHype",
+      "symbol": "BASEDHYPE",
+      "marketCapRank": 351,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "mindwavedao",
+      "name": "MindWaveDAO",
+      "symbol": "NILA",
+      "marketCapRank": 352,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "precious-metals-usd",
+      "name": "Precious Metals USD",
+      "symbol": "PMUSD",
+      "marketCapRank": 353,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tronbank",
+      "name": "TronBank",
+      "symbol": "TBK",
+      "marketCapRank": 354,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "matrixdock-gold",
+      "name": "Matrixdock Gold",
+      "symbol": "XAUM",
+      "marketCapRank": 356,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "stronghold-token",
+      "name": "Stronghold",
+      "symbol": "SHX",
+      "marketCapRank": 357,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "river",
+      "name": "River",
+      "symbol": "RIVER",
+      "marketCapRank": 359,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "unit-pump",
+      "name": "Unit Pump",
+      "symbol": "UPUMP",
+      "marketCapRank": 360,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "xdai",
+      "name": "XDAI",
+      "symbol": "XDAI",
+      "marketCapRank": 361,
+      "reasonCode": "duplicate-underlying",
+      "explanation": "Gnosis Chain bridged representation of DAI.",
+      "underlyingAssetId": "dai",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "swop-2",
+      "name": "Swop",
+      "symbol": "SWOP",
+      "marketCapRank": 362,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "nusd-2",
+      "name": "Neutrl USD",
+      "symbol": "NUSD",
+      "marketCapRank": 363,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "useless-3",
+      "name": "Useless Coin",
+      "symbol": "USELESS",
+      "marketCapRank": 364,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cyberdex",
+      "name": "CyberDEX",
+      "symbol": "CYDX",
+      "marketCapRank": 365,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-north-america-pos-lender-sstn",
+      "name": "Tradable North America PoS Lender SSTN",
+      "symbol": "PC0000019",
+      "marketCapRank": 368,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "infinifi-usd",
+      "name": "InfiniFi USD",
+      "symbol": "IUSD",
+      "marketCapRank": 370,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "f-x-protocol-fxusd",
+      "name": "f(x) Protocol fxUSD",
+      "symbol": "FXUSD",
+      "marketCapRank": 371,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "up-2",
+      "name": "up",
+      "symbol": "UP",
+      "marketCapRank": 373,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "chainopera-ai",
+      "name": "ChainOpera AI",
+      "symbol": "COAI",
+      "marketCapRank": 375,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "midas-fasanara-global",
+      "name": "Midas Fasanara Global",
+      "symbol": "MGLOBAL",
+      "marketCapRank": 376,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "meme-horse",
+      "name": "MEME HORSE",
+      "symbol": "MHORSE",
+      "marketCapRank": 377,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ethgas-2",
+      "name": "ETHGas",
+      "symbol": "GWEI",
+      "marketCapRank": 380,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "re",
+      "name": "RE",
+      "symbol": "RE",
+      "marketCapRank": 382,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "chip-2",
+      "name": "USD.AI",
+      "symbol": "CHIP",
+      "marketCapRank": 383,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "billions-network",
+      "name": "Billions Network",
+      "symbol": "BILL",
+      "marketCapRank": 384,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "zignaly",
+      "name": "ZIGChain",
+      "symbol": "ZIG",
+      "marketCapRank": 386,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "magma-finance",
+      "name": "Magma Finance",
+      "symbol": "MAGMA",
+      "marketCapRank": 388,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "quantixai",
+      "name": "Quantix Finance",
+      "symbol": "QFI",
+      "marketCapRank": 390,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tesla-xstock",
+      "name": "Tesla xStock",
+      "symbol": "TSLAX",
+      "marketCapRank": 398,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "targon",
+      "name": "Targon",
+      "symbol": "SN4",
+      "marketCapRank": 399,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "seeker",
+      "name": "Seeker",
+      "symbol": "SKR",
+      "marketCapRank": 401,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "soon-2",
+      "name": "SOON",
+      "symbol": "SOON",
+      "marketCapRank": 402,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "midas-mtbill",
+      "name": "Midas mTBILL",
+      "symbol": "MTBILL",
+      "marketCapRank": 405,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdu",
+      "name": "USDu",
+      "symbol": "USDU",
+      "marketCapRank": 406,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "jpycoin",
+      "name": "JPY Coin",
+      "symbol": "JPYC",
+      "marketCapRank": 407,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apes-2-2",
+      "name": "APES",
+      "symbol": "APES",
+      "marketCapRank": 408,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "jelly-my-jelly",
+      "name": "Jelly-My-Jelly",
+      "symbol": "JELLYJELLY",
+      "marketCapRank": 409,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-na-legal-receivables-ssl",
+      "name": "Tradable NA Legal Receivables SSL",
+      "symbol": "PC0000081",
+      "marketCapRank": 410,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "escoin-token",
+      "name": "Escoin",
+      "symbol": "ELG",
+      "marketCapRank": 411,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "spark-2",
+      "name": "Spark",
+      "symbol": "SPK",
+      "marketCapRank": 412,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "exod",
+      "name": "EXOD",
+      "symbol": "EXOD",
+      "marketCapRank": 413,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "jupusd",
+      "name": "JupUSD",
+      "symbol": "JUPUSD",
+      "marketCapRank": 414,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "fx-usd-saving",
+      "name": "f(x) USD Saving",
+      "symbol": "FXSAVE",
+      "marketCapRank": 416,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "apriori",
+      "name": "aPriori",
+      "symbol": "APR",
+      "marketCapRank": 417,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "manadia",
+      "name": "Manadia",
+      "symbol": "UMXM",
+      "marketCapRank": 418,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "circle-internet-group-bstock",
+      "name": "Circle Internet Group (bStocks Tokenized Stock)",
+      "symbol": "CRCLB",
+      "marketCapRank": 420,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "brz",
+      "name": "Brazilian Digital",
+      "symbol": "BRZ",
+      "marketCapRank": 421,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "flying-tulip",
+      "name": "Flying Tulip",
+      "symbol": "FT",
+      "marketCapRank": 424,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "anemoy-tokenized-apollo-diversified-credit-fund",
+      "name": "Anemoy Tokenized Apollo Diversified Credit Fund",
+      "symbol": "ACRDX",
+      "marketCapRank": 425,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bitcastle-token",
+      "name": "bitcastle Token",
+      "symbol": "BCE",
+      "marketCapRank": 426,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "celium",
+      "name": "lium",
+      "symbol": "SN51",
+      "marketCapRank": 427,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ai-powered-finance",
+      "name": "AI Powered Finance",
+      "symbol": "AIPF",
+      "marketCapRank": 428,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "rekt-4",
+      "name": "Rekt",
+      "symbol": "REKT",
+      "marketCapRank": 430,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "usdkg",
+      "name": "USDKG",
+      "symbol": "USDKG",
+      "marketCapRank": 431,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "alloy-tether",
+      "name": "Alloy Tether",
+      "symbol": "AUSDT",
+      "marketCapRank": 432,
+      "reasonCode": "wrapped-or-bridged",
+      "explanation": "Alloy (aUSDT) is a wrapped representation of Tether.",
+      "underlyingAssetId": "tether",
+      "evidenceReference": null
+    },
+    {
+      "providerId": "playnance",
+      "name": "Playnance",
+      "symbol": "GCOIN",
+      "marketCapRank": 433,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "tradable-eu-latam-pos-financing-sstl",
+      "name": "Tradable Eu/LatAm PoS Financing SSTL",
+      "symbol": "PC0000049",
+      "marketCapRank": 434,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized private-credit receivable (security); not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "agentfun-ai",
+      "name": "AgentFun.AI",
+      "symbol": "AGENTFUN",
+      "marketCapRank": 438,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "diem",
+      "name": "Diem",
+      "symbol": "DIEM",
+      "marketCapRank": 440,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Name collides with the discontinued Diem project; current identity unresolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": "provider-metadata-review"
+    },
+    {
+      "providerId": "megaeth",
+      "name": "MegaETH",
+      "symbol": "MEGA",
+      "marketCapRank": 441,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "fidelity-digital-dollar",
+      "name": "Fidelity Digital Dollar",
+      "symbol": "FIDD",
+      "marketCapRank": 442,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "circle-xstock",
+      "name": "Circle xStock",
+      "symbol": "CRCLX",
+      "marketCapRank": 447,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "lab",
+      "name": "LAB",
+      "symbol": "LAB",
+      "marketCapRank": 450,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sygnum-fiusd-liquidity-fund",
+      "name": "Sygnum FIUSD Liquidity Fund",
+      "symbol": "FIUSD",
+      "marketCapRank": 451,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "xphere",
+      "name": "Xphere",
+      "symbol": "XP",
+      "marketCapRank": 452,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "cysic",
+      "name": "Cysic",
+      "symbol": "CYS",
+      "marketCapRank": 453,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "midas-mhyper",
+      "name": "Midas mHYPER",
+      "symbol": "MHYPER",
+      "marketCapRank": 456,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "impossible-cloud-network-token",
+      "name": "Impossible Cloud Network Token",
+      "symbol": "ICNT",
+      "marketCapRank": 458,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "sp500-xstock",
+      "name": "SP500 xStock",
+      "symbol": "SPYX",
+      "marketCapRank": 459,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "loaded-lions",
+      "name": "Loaded Lions",
+      "symbol": "LION",
+      "marketCapRank": 460,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "dola-usd",
+      "name": "DOLA",
+      "symbol": "DOLA",
+      "marketCapRank": 463,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "janction",
+      "name": "Janction",
+      "symbol": "JCT",
+      "marketCapRank": 465,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "fidelity-usd-digital-liquidity-fund-acc",
+      "name": "Fidelity USD Digital Liquidity Fund-Acc",
+      "symbol": "FILQ-A",
+      "marketCapRank": 467,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "metronome-synth-usd",
+      "name": "Metronome Synth USD",
+      "symbol": "MSUSD",
+      "marketCapRank": 474,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "unitywallet-token",
+      "name": "UnityWallet Token",
+      "symbol": "UNT",
+      "marketCapRank": 475,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ecomi",
+      "name": "ECOMI",
+      "symbol": "OMI",
+      "marketCapRank": 477,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "purr-2",
+      "name": "Purr",
+      "symbol": "PURR",
+      "marketCapRank": 478,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "prize-protocol",
+      "name": "Prize Protocol",
+      "symbol": "PRIZE",
+      "marketCapRank": 480,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bedrock-token",
+      "name": "Bedrock",
+      "symbol": "BR",
+      "marketCapRank": 481,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "troll-2",
+      "name": "TROLL",
+      "symbol": "TROLL",
+      "marketCapRank": 485,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "bitdca",
+      "name": "BitDCA",
+      "symbol": "BDCA",
+      "marketCapRank": 486,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "osk",
+      "name": "OSK",
+      "symbol": "OSK",
+      "marketCapRank": 487,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "official-fo",
+      "name": "Official FO",
+      "symbol": "FO",
+      "marketCapRank": 488,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Not selected under the fixed 250-entry capacity / lower selection priority.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "micron-technology-ondo-tokenized-stock",
+      "name": "Micron Technology (Ondo Tokenized Stock)",
+      "symbol": "MUON",
+      "marketCapRank": 489,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "asset",
+      "name": "REAL",
+      "symbol": "ASSET",
+      "marketCapRank": 490,
+      "reasonCode": "identity-not-sufficiently-verified",
+      "explanation": "Symbol/name mismatch (ASSET/REAL); identity not confidently resolved.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ishares-bitcoin-trust-ondo-tokenized",
+      "name": "iShares Bitcoin Trust (Ondo Tokenized)",
+      "symbol": "IBITON",
+      "marketCapRank": 491,
+      "reasonCode": "unsupported-asset-form",
+      "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "frankencoin",
+      "name": "Frankencoin",
+      "symbol": "ZCHF",
+      "marketCapRank": 499,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Additional fiat-pegged stablecoin beyond the curated stablecoin allocation.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    }
+  ]
+}

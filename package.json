@@ -12,7 +12,10 @@
     "registry:build": "node tools/registry/build-v1.mjs",
     "registry:validate": "node tools/registry/validate.mjs",
     "registry:parity": "node tools/registry/parity.mjs",
-    "registry:selftest": "node tools/registry/selftest.mjs"
+    "registry:selftest": "node tools/registry/selftest.mjs",
+    "registry:v2:build": "node tools/registry/build-v2.mjs",
+    "registry:v2:validate": "node tools/registry/validate-v2.mjs",
+    "registry:v2:selftest": "node tools/registry/selftest-v2.mjs"
   },
   "dependencies": {
     "phaser": "^3.80.1",
