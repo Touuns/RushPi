@@ -27,12 +27,22 @@ function sortKeysDeep(value: unknown): unknown {
   return value;
 }
 
-/** Deterministic JSON string: sorted object keys, stable array order. */
+function orderByTokenId(entries: CanonicalTokenEntry[]): CanonicalTokenEntry[] {
+  return entries
+    .slice()
+    .sort((a, b) => (a.tokenId < b.tokenId ? -1 : a.tokenId > b.tokenId ? 1 : 0));
+}
+
+/**
+ * Deterministic JSON string: entries normalized to tokenId order, then
+ * sorted object keys. The same logical entries in a different input order
+ * always produce the same string (and therefore the same hash).
+ */
 export function canonicalSerialize(
   schemaVersion: number,
   entries: CanonicalTokenEntry[],
 ): string {
-  return JSON.stringify(sortKeysDeep({ schemaVersion, entries }));
+  return JSON.stringify(sortKeysDeep({ schemaVersion, entries: orderByTokenId(entries) }));
 }
 
 export function sha256Hex(input: string): string {

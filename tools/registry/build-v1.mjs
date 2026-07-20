@@ -78,11 +78,19 @@ function buildLogoManifest(entries) {
     entries: entries.map((e) => ({
       tokenId: e.tokenId,
       status: "pending",
-      sourceType: "authorized-provider-asset",
-      requiresRasterization: true,
+      // Planned category only — nothing has actually been sourced yet.
+      sourceType: "authorized-provider",
+      sourceReference: null,
+      sourceMimeType: null,
+      // Unknown until the source format is actually known — never true here.
+      requiresRasterization: null,
       normalizedSizes: [64, 128],
+      version: 0,
       contentHash: null,
+      url64: null,
+      url128: null,
       ingestedAt: null,
+      rejectionReason: null,
     })),
   };
 }

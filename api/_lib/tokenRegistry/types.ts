@@ -41,6 +41,14 @@ export type AssetClass =
 
 export type LogoStatus = "pending" | "ready" | "rejected";
 
+/**
+ * Required internal tokenId format for the frozen V1 artifact. tokenId is
+ * assigned once by hand (see tools/registry/data/v1-metadata.mjs) and never
+ * computed from array position or renumbered — this pattern only documents
+ * the expected shape, it does not derive values.
+ */
+export const V1_TOKEN_ID_PATTERN = /^rpt-[0-9]{4}$/;
+
 /** Extensible provider ID bag. Adding a new provider never changes tokenId. */
 export interface TokenProviderIds {
   coingecko?: string;
@@ -82,6 +90,16 @@ export interface TokenLogoAsset {
  * identifier: assigned once, immutable after publication, never derived at
  * runtime, and never a symbol or a provider primary key (providerIds.coingecko
  * is the provider-side key and can change independently of tokenId).
+ *
+ * tools/registry/lib/validateEntries.mjs enforces that tokenId can never
+ * collide (case-insensitively) with any symbol, slug, provider ID or alias
+ * anywhere in the registry — the identity namespaces must never mix.
+ *
+ * name and slug are curated canonical metadata authored for this registry —
+ * unlike category/symbol/providerIds.coingecko, they have no equivalent field
+ * in the legacy production catalog (api/_lib/tokenCatalog.ts) to be checked
+ * against, so they cannot be claimed as literal production parity. See
+ * tools/registry/README.md.
  */
 export interface CanonicalTokenEntry {
   tokenId: string;

@@ -15,8 +15,16 @@ function sortKeysDeep(value) {
   return value;
 }
 
+function orderByTokenId(entries) {
+  return entries
+    .slice()
+    .sort((a, b) => (a.tokenId < b.tokenId ? -1 : a.tokenId > b.tokenId ? 1 : 0));
+}
+
+// Entries are normalized to tokenId order before hashing so the same logical
+// entries in a different input order always produce the same contentHash.
 export function canonicalSerialize(schemaVersion, entries) {
-  return JSON.stringify(sortKeysDeep({ schemaVersion, entries }));
+  return JSON.stringify(sortKeysDeep({ schemaVersion, entries: orderByTokenId(entries) }));
 }
 
 export function sha256Hex(input) {

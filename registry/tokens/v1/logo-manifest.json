@@ -4,434 +4,650 @@
     {
       "tokenId": "rpt-0001",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0002",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0003",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0004",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0005",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0006",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0007",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0008",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0009",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0010",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0011",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0012",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0013",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0014",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0015",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0016",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0017",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0018",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0019",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0020",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0021",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0022",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0023",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0024",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0025",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0026",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0027",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0028",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0029",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0030",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0031",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0032",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0033",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0034",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0035",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     },
     {
       "tokenId": "rpt-0036",
       "status": "pending",
-      "sourceType": "authorized-provider-asset",
-      "requiresRasterization": true,
+      "sourceType": "authorized-provider",
+      "sourceReference": null,
+      "sourceMimeType": null,
+      "requiresRasterization": null,
       "normalizedSizes": [
         64,
         128
       ],
+      "version": 0,
       "contentHash": null,
-      "ingestedAt": null
+      "url64": null,
+      "url128": null,
+      "ingestedAt": null,
+      "rejectionReason": null
     }
   ]
 }

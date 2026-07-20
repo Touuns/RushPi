@@ -2,6 +2,20 @@
 // V1 PARITY CHECK — compares the frozen V1 registry artifact against the
 // current production 36-token catalog (api/_lib/tokenCatalog.ts) to protect
 // it from drifting before the legacy challenge handler lands in 12C-2.
+//
+// Scope of this check (Phase 12C-1A.1 correction): api/_lib/tokenCatalog.ts
+// carries no display-name field, so "name" and the derived "slug" are
+// curated canonical metadata authored fresh for this registry — NOT
+// something that can be checked against production. What IS proven
+// byte-for-byte equal to production, for all 36 entries, is:
+//   - CoinGecko ID (providerIds.coingecko);
+//   - symbol;
+//   - category;
+//   - Daily eligibility;
+//   - entry presence/count (no missing or additional entries).
+// Curated-name sanity (non-empty, trimmed, not equal to the CoinGecko ID or
+// tokenId) is validated separately in tools/registry/lib/validateEntries.mjs
+// — it is a contract check on the curated data itself, not a parity claim.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -55,12 +69,6 @@ function main() {
     if (legacy.enabledForDaily !== registryEligible) {
       fail(`Daily eligibility mismatch for "${id}": catalog.enabledForDaily=${legacy.enabledForDaily} registry eligibilityTier=${entry.eligibilityTier}`);
     }
-    // The static catalog carries no display name field, so "same names" is
-    // validated as a non-empty, non-id sanity check rather than a literal
-    // catalog comparison (nothing in production to compare against).
-    if (typeof entry.name !== "string" || entry.name.length === 0 || entry.name === id) {
-      fail(`suspicious/missing display name for "${id}": "${entry.name}"`);
-    }
   }
 
   if (legacyIds.size !== registryIds.size || errors.length > 0) {
@@ -68,7 +76,8 @@ function main() {
     for (const e of errors) console.error(` - ${e}`);
     process.exit(1);
   }
-  console.log(`V1 parity check OK: ${legacyIds.size} CoinGecko IDs match between ${filePath} and ${registryPath}`);
+  console.log(`V1 parity check OK (CoinGecko ID, symbol, category, Daily eligibility, entry count): ${legacyIds.size} entries match between ${filePath} and ${registryPath}.`);
+  console.log("Note: display name and slug are curated canonical metadata, not production-parity fields (tokenCatalog.ts has no name field) — see tools/registry/README.md.");
 }
 
 main();
