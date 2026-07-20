@@ -8,7 +8,10 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "registry:build": "node tools/registry/build-v1.mjs",
+    "registry:validate": "node tools/registry/validate.mjs",
+    "registry:parity": "node tools/registry/parity.mjs"
   },
   "dependencies": {
     "phaser": "^3.80.1",

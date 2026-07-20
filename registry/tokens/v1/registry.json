@@ -1,0 +1,908 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "token-registry-v1-a972f36ea610d8ff",
+  "entryCount": 36,
+  "contentHash": "a972f36ea610d8ff424cbad0ae60c98b3216b95c68d11364deec88db1be92bef",
+  "entries": [
+    {
+      "tokenId": "rpt-0001",
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "slug": "bitcoin",
+      "category": "store-of-value",
+      "status": "active",
+      "eligibilityTier": "anchor",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "bitcoin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0002",
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "slug": "ethereum",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "anchor",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "ethereum"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0003",
+      "name": "XRP",
+      "symbol": "XRP",
+      "slug": "xrp",
+      "category": "payments",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "ripple"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0004",
+      "name": "Tether",
+      "symbol": "USDT",
+      "slug": "tether",
+      "category": "stablecoin",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "stablecoin",
+      "providerIds": {
+        "coingecko": "tether"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0005",
+      "name": "BNB",
+      "symbol": "BNB",
+      "slug": "bnb",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "binancecoin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0006",
+      "name": "Solana",
+      "symbol": "SOL",
+      "slug": "solana",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "solana"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0007",
+      "name": "USDC",
+      "symbol": "USDC",
+      "slug": "usd-coin",
+      "category": "stablecoin",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "stablecoin",
+      "providerIds": {
+        "coingecko": "usd-coin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0008",
+      "name": "Dogecoin",
+      "symbol": "DOGE",
+      "slug": "dogecoin",
+      "category": "meme",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "meme",
+      "providerIds": {
+        "coingecko": "dogecoin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0009",
+      "name": "Cardano",
+      "symbol": "ADA",
+      "slug": "cardano",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "cardano"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0010",
+      "name": "TRON",
+      "symbol": "TRX",
+      "slug": "tron",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "tron"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0011",
+      "name": "Stellar",
+      "symbol": "XLM",
+      "slug": "stellar",
+      "category": "payments",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "stellar"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0012",
+      "name": "Chainlink",
+      "symbol": "LINK",
+      "slug": "chainlink",
+      "category": "interoperability",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "chainlink"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0013",
+      "name": "Avalanche",
+      "symbol": "AVAX",
+      "slug": "avalanche",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "avalanche-2"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0014",
+      "name": "Litecoin",
+      "symbol": "LTC",
+      "slug": "litecoin",
+      "category": "store-of-value",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "litecoin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0015",
+      "name": "Polkadot",
+      "symbol": "DOT",
+      "slug": "polkadot",
+      "category": "interoperability",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "polkadot"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0016",
+      "name": "Monero",
+      "symbol": "XMR",
+      "slug": "monero",
+      "category": "privacy",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "monero"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0017",
+      "name": "Dai",
+      "symbol": "DAI",
+      "slug": "dai",
+      "category": "stablecoin",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "stablecoin",
+      "providerIds": {
+        "coingecko": "dai"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0018",
+      "name": "Uniswap",
+      "symbol": "UNI",
+      "slug": "uniswap",
+      "category": "defi",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "uniswap"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0019",
+      "name": "NEAR Protocol",
+      "symbol": "NEAR",
+      "slug": "near-protocol",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "near"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0020",
+      "name": "Aptos",
+      "symbol": "APT",
+      "slug": "aptos",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "aptos"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0021",
+      "name": "Sui",
+      "symbol": "SUI",
+      "slug": "sui",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "sui"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0022",
+      "name": "Internet Computer",
+      "symbol": "ICP",
+      "slug": "internet-computer",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "internet-computer"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0023",
+      "name": "Aave",
+      "symbol": "AAVE",
+      "slug": "aave",
+      "category": "defi",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "aave"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0024",
+      "name": "Shiba Inu",
+      "symbol": "SHIB",
+      "slug": "shiba-inu",
+      "category": "meme",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "meme",
+      "providerIds": {
+        "coingecko": "shiba-inu"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0025",
+      "name": "Pepe",
+      "symbol": "PEPE",
+      "slug": "pepe",
+      "category": "meme",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "meme",
+      "providerIds": {
+        "coingecko": "pepe"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0026",
+      "name": "Cosmos Hub",
+      "symbol": "ATOM",
+      "slug": "cosmos-hub",
+      "category": "interoperability",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "cosmos"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0027",
+      "name": "Arbitrum",
+      "symbol": "ARB",
+      "slug": "arbitrum",
+      "category": "layer-2",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "arbitrum"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0028",
+      "name": "Optimism",
+      "symbol": "OP",
+      "slug": "optimism",
+      "category": "layer-2",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "optimism"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0029",
+      "name": "POL (ex-MATIC)",
+      "symbol": "POL",
+      "slug": "polygon",
+      "category": "layer-2",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "polygon-ecosystem-token"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0030",
+      "name": "Filecoin",
+      "symbol": "FIL",
+      "slug": "filecoin",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "filecoin"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0031",
+      "name": "Hedera",
+      "symbol": "HBAR",
+      "slug": "hedera",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "hedera-hashgraph"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0032",
+      "name": "VeChain",
+      "symbol": "VET",
+      "slug": "vechain",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "vechain"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0033",
+      "name": "Algorand",
+      "symbol": "ALGO",
+      "slug": "algorand",
+      "category": "smart-contract",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "algorand"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0034",
+      "name": "The Graph",
+      "symbol": "GRT",
+      "slug": "the-graph",
+      "category": "defi",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "the-graph"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0035",
+      "name": "Injective",
+      "symbol": "INJ",
+      "slug": "injective",
+      "category": "defi",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "native",
+      "providerIds": {
+        "coingecko": "injective-protocol"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    },
+    {
+      "tokenId": "rpt-0036",
+      "name": "Render",
+      "symbol": "RENDER",
+      "slug": "render",
+      "category": "defi",
+      "status": "active",
+      "eligibilityTier": "core",
+      "assetClass": "token",
+      "providerIds": {
+        "coingecko": "render-token"
+      },
+      "aliases": [],
+      "networks": [],
+      "logo": {
+        "status": "pending",
+        "version": 0,
+        "contentHash": null,
+        "url64": null,
+        "url128": null,
+        "source": null,
+        "sourceReference": null,
+        "ingestedAt": null
+      }
+    }
+  ]
+}
