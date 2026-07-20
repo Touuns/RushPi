@@ -28,8 +28,12 @@ export class ZoneDecor {
   private boltLife = 0;
   private boltPoints: { x: number; y: number }[] = [];
 
-  constructor(scene: Phaser.Scene) {
+  /** Resolved once at scene start (Phase 12B-3B); never re-read mid-run. */
+  private readonly reducedMotion: boolean;
+
+  constructor(scene: Phaser.Scene, reducedMotion = false) {
     this.scene = scene;
+    this.reducedMotion = reducedMotion;
     this.ensureTextures();
   }
 
@@ -103,15 +107,33 @@ export class ZoneDecor {
       g.lineStyle(1.5, this.visual.railColor, 0.08);
       g.lineBetween(28, this.horizonY, 8, GAME_HEIGHT);
       g.lineBetween(GAME_WIDTH - 28, this.horizonY, GAME_WIDTH - 8, GAME_HEIGHT);
-    } else if (this.pattern === "storm" && this.gfx && this.visual) {
+    } else if (this.pattern === "storm" && this.gfx && this.visual && !this.reducedMotion) {
+      // Reduced motion (Phase 12B-3B): no flickering lightning redraw — the
+      // zone keeps its tint + static rings identity from apply()/buildRings().
       this.updateStorm(deltaMs);
     }
   }
 
   // ---- Builders ------------------------------------------------------------
 
-  /** Expanding rings from the horizon (Genesis calm / Privacy dark / Storm mix). */
+  /**
+   * Expanding rings from the horizon (Genesis calm / Privacy dark / Storm mix).
+   * Reduced motion (Phase 12B-3B): a few static low-alpha rings at fixed radii
+   * instead of the infinite expanding tween — same identity cue, no movement.
+   */
   private buildRings(color: number, alpha: number, durationMs: number, additive = true): void {
+    if (this.reducedMotion) {
+      const radii = [16, 46, 76];
+      for (const r of radii) {
+        const arc = this.scene.add
+          .circle(GAME_WIDTH / 2, this.horizonY, r, color, 0)
+          .setStrokeStyle(2.5, color, alpha * 0.6)
+          .setDepth(1);
+        if (additive) arc.setBlendMode(Phaser.BlendModes.ADD);
+        this.objects.push(arc);
+      }
+      return;
+    }
     for (let i = 0; i < 3; i++) {
       const arc = this.scene.add
         .circle(GAME_WIDTH / 2, this.horizonY, 16, color, 0)
@@ -169,6 +191,10 @@ export class ZoneDecor {
       g.fillCircle(p.x, p.y, 2.5);
     }
     this.objects.push(g);
+    if (this.reducedMotion) {
+      // Static (Phase 12B-3B): no infinite yoyo pulse, mesh stays fixed.
+      return;
+    }
     this.scene.tweens.add({
       targets: g,
       alpha: { from: 1, to: 0.45 },

@@ -35,6 +35,7 @@ import {
   registerDailyProductionTextures,
 } from "../productionAssets";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
+import { resolveReducedMotion } from "../motion";
 import {
   GameEvents,
   type GameEventKind,
@@ -229,6 +230,11 @@ export default class MainScene extends Phaser.Scene {
   private campaignLevel: CampaignLevel | null = null;
   private campaignTargetMs = 0;
 
+  // Reduced motion (Phase 12B-3B): resolved once per run in init(), never
+  // re-read mid-run (no live listener). Gates camera shake/flash and the
+  // purely-cosmetic infinite/expanding tweens listed in motion.ts's contract.
+  private reducedMotion = false;
+
   constructor() {
     super({ key: "MainScene" });
   }
@@ -244,6 +250,9 @@ export default class MainScene extends Phaser.Scene {
     dailyChallenge?: DailyTokenChallenge | null;
   }): void {
     this.mode = data.mode ?? "daily";
+    // Resolved once per run start (Phase 12B-3B) — a replay recreates the
+    // scene, so this stays fresh without needing a live matchMedia listener.
+    this.reducedMotion = resolveReducedMotion();
     this.dailyChallenge = this.mode === "daily" ? (data.dailyChallenge ?? null) : null;
     this.campaignLevelId = data.campaignLevelId ?? 0;
     this.campaignLevel =
@@ -392,9 +401,9 @@ export default class MainScene extends Phaser.Scene {
     }
     this.bg = new BackgroundFX(this);
     this.bg.create();
-    this.track = new TrackVisuals(this, this.laneX);
+    this.track = new TrackVisuals(this, this.laneX, this.reducedMotion);
     this.track.drawStatic();
-    if (this.mode === "survival") this.zoneDecor = new ZoneDecor(this);
+    if (this.mode === "survival") this.zoneDecor = new ZoneDecor(this, this.reducedMotion);
     this.createPlayer();
     this.createPlayerTrail();
     this.setupInput();
@@ -952,7 +961,8 @@ export default class MainScene extends Phaser.Scene {
           textureKey: PROD_TEXTURE_KEYS.finishPortal,
           textureOriginY: 0.88,
           onCross: () => {
-            this.cameras.main.flash(160, 255, 209, 102);
+            // Reduced motion (Phase 12B-3B): no camera flash; text/timing unchanged.
+            if (!this.reducedMotion) this.cameras.main.flash(160, 255, 209, 102);
             this.showBanner("FINISH!");
             this.time.delayedCall(500, () => this.endRun());
           },
@@ -967,9 +977,13 @@ export default class MainScene extends Phaser.Scene {
           label: "FINISH",
           durationMs: 1300,
           onCross: () => {
-            this.cameras.main.flash(150, rgb.red, rgb.green, rgb.blue);
+            // Reduced motion (Phase 12B-3B): no camera flash / celebratory ring
+            // burst; text and GameOver timing unchanged.
+            if (!this.reducedMotion) {
+              this.cameras.main.flash(150, rgb.red, rgb.green, rgb.blue);
+              this.burstAtPlayer(tint);
+            }
             this.showBanner("LEVEL COMPLETE!");
-            this.burstAtPlayer(tint);
             this.time.delayedCall(500, () => this.endRun());
           },
         });
@@ -1171,14 +1185,19 @@ export default class MainScene extends Phaser.Scene {
     this.slowUntilMs = this.time.now + HIT.slowDurationMs;
 
     // Visual feedback: camera shake + red flash + player blink during i-frames.
-    this.cameras.main.shake(140, 0.008);
-    this.cameras.main.flash(120, 255, 77, 109);
+    // Reduced motion (Phase 12B-3B): no shake, no flash, and the repeated
+    // blink becomes at most one short opacity cue — penalty/invulnerability/
+    // slowdown above are untouched either way.
+    if (!this.reducedMotion) {
+      this.cameras.main.shake(140, 0.008);
+      this.cameras.main.flash(120, 255, 77, 109);
+    }
     this.tweens.add({
       targets: this.player,
       alpha: 0.35,
       duration: 120,
       yoyo: true,
-      repeat: Math.floor(HIT.invulnerabilityMs / 240),
+      repeat: this.reducedMotion ? 0 : Math.floor(HIT.invulnerabilityMs / 240),
       onComplete: () => this.player.setAlpha(1),
     });
   }
@@ -1576,7 +1595,8 @@ export default class MainScene extends Phaser.Scene {
     this.invulnerableUntilMs = this.time.now + HIT.invulnerabilityMs;
 
     // Break feedback: cyan flash + expanding ring burst (no red, no shake).
-    this.cameras.main.flash(110, 56, 189, 248);
+    // Reduced motion (Phase 12B-3B): no camera flash.
+    if (!this.reducedMotion) this.cameras.main.flash(110, 56, 189, 248);
     const burst = this.add
       .circle(this.player.x, this.player.y, PLAYER.radius + 9, PALETTE.shieldRing, 0)
       .setStrokeStyle(3, PALETTE.shield, 0.9)
@@ -1649,7 +1669,8 @@ export default class MainScene extends Phaser.Scene {
     this.invulnerableUntilMs = this.time.now + HIT.invulnerabilityMs;
 
     // Discharge feedback: gold burst + message (no red, no life lost).
-    this.cameras.main.flash(110, 255, 209, 102);
+    // Reduced motion (Phase 12B-3B): no camera flash.
+    if (!this.reducedMotion) this.cameras.main.flash(110, 255, 209, 102);
     const burst = this.add
       .circle(this.player.x, this.player.y, PLAYER.radius + 8, PALETTE.gold, 0)
       .setStrokeStyle(3, PALETTE.gold, 0.9)
@@ -1766,31 +1787,57 @@ export default class MainScene extends Phaser.Scene {
           : { textCss: PALETTE.goldCss, ring: PALETTE.violet };
     if (text) {
       this.tweens.killTweensOf(text);
-      text
-        .setText(`COMBO ×${combo}`)
-        .setColor(style.textCss)
-        .setScale(0.5)
-        .setAlpha(1)
-        .setVisible(true);
-      this.tweens.add({
-        targets: text,
-        scale: 1,
-        duration: 170,
-        ease: "Back.easeOut",
-        onComplete: () => {
-          this.tweens.add({
-            targets: text,
-            alpha: 0,
-            scale: 1.1,
-            delay: Math.max(0, DAILY_FEEL.comboMilestoneDurationMs - 170 - 200),
-            duration: 200,
-            ease: "Quad.easeIn",
-            onComplete: () => text.setVisible(false),
-          });
-        },
-      });
+      if (this.reducedMotion) {
+        // Reduced motion (Phase 12B-3B): text stays, opacity fade only — no
+        // scale pop, no π pulse, no expanding ring.
+        text
+          .setText(`COMBO ×${combo}`)
+          .setColor(style.textCss)
+          .setScale(1)
+          .setAlpha(0)
+          .setVisible(true);
+        this.tweens.add({
+          targets: text,
+          alpha: 1,
+          duration: 150,
+          onComplete: () => {
+            this.tweens.add({
+              targets: text,
+              alpha: 0,
+              delay: Math.max(0, DAILY_FEEL.comboMilestoneDurationMs - 150 - 200),
+              duration: 200,
+              onComplete: () => text.setVisible(false),
+            });
+          },
+        });
+      } else {
+        text
+          .setText(`COMBO ×${combo}`)
+          .setColor(style.textCss)
+          .setScale(0.5)
+          .setAlpha(1)
+          .setVisible(true);
+        this.tweens.add({
+          targets: text,
+          scale: 1,
+          duration: 170,
+          ease: "Back.easeOut",
+          onComplete: () => {
+            this.tweens.add({
+              targets: text,
+              alpha: 0,
+              scale: 1.1,
+              delay: Math.max(0, DAILY_FEEL.comboMilestoneDurationMs - 170 - 200),
+              duration: 200,
+              ease: "Quad.easeIn",
+              onComplete: () => text.setVisible(false),
+            });
+          },
+        });
+      }
     }
-    this.pulsePlayerCombo(style.ring);
+    // Reduced motion: skip the π scale pulse and expanding combo ring entirely.
+    if (!this.reducedMotion) this.pulsePlayerCombo(style.ring);
   }
 
   /**
@@ -1837,6 +1884,9 @@ export default class MainScene extends Phaser.Scene {
    * no flash, no shake. Never alters the timer/charge set in collectPowerup().
    */
   private playPowerupActivation(kind: PowerupKind): void {
+    // Reduced motion (Phase 12B-3B): skip the expanding pickup ring. Static
+    // Shield/Magnet rings + React status timers already convey activation.
+    if (this.reducedMotion) return;
     const ring = this.powerupActivationRing;
     if (!ring) return;
     const color = kind === "shield" ? PALETTE.shield : PALETTE.magnetRing;
@@ -1865,6 +1915,9 @@ export default class MainScene extends Phaser.Scene {
    * clean; the timer itself is never touched.
    */
   private pulseExpiry(ring: Phaser.GameObjects.Arc): void {
+    // Reduced motion (Phase 12B-3B): skip the repeated expiry pulse. The
+    // static ring/aura and React countdown already show time remaining.
+    if (this.reducedMotion) return;
     this.tweens.killTweensOf(ring);
     ring.setAlpha(1).setScale(1);
     this.tweens.add({
@@ -1978,7 +2031,26 @@ export default class MainScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(13)
       .setAlpha(0)
-      .setScale(0.6);
+      .setScale(this.reducedMotion ? 1 : 0.6);
+    if (this.reducedMotion) {
+      // Reduced motion (Phase 12B-3B): simple short fade, no scale pop / movement.
+      const inMs = 150;
+      this.tweens.add({
+        targets: intro,
+        alpha: 1,
+        duration: inMs,
+        onComplete: () => {
+          this.tweens.add({
+            targets: intro,
+            alpha: 0,
+            delay: Math.max(0, DAILY_FEEL.introDurationMs - inMs - 200),
+            duration: 200,
+            onComplete: () => intro.destroy(),
+          });
+        },
+      });
+      return;
+    }
     const inMs = 180;
     this.tweens.add({
       targets: intro,

@@ -44,10 +44,14 @@ export class TrackVisuals {
   private laneColor: number = PALETTE.violet;
   private railWidth = 4;
 
-  constructor(scene: Phaser.Scene, laneX: number[]) {
+  constructor(scene: Phaser.Scene, laneX: number[], reducedMotion = false) {
     this.scene = scene;
     this.laneX = laneX;
+    this.reducedMotion = reducedMotion;
   }
+
+  /** Resolved once at scene start (Phase 12B-3B); never re-read mid-run. */
+  private readonly reducedMotion: boolean;
 
   /** X of boundary line i (0..LANE_COUNT) at the far end, including drift. */
   private boundaryTopX(i: number): number {
@@ -179,9 +183,26 @@ export class TrackVisuals {
     this.stageMultiplier = m;
   }
 
-  /** Tunnel Pulse: expanding light rings from the vanishing point. */
+  /**
+   * Tunnel Pulse: expanding light rings from the vanishing point. Reduced
+   * motion (Phase 12B-3B) replaces the infinite expanding tween with a few
+   * static low-alpha rings at the horizon — same cue ("tunnel event active"),
+   * no `repeat:-1` movement.
+   */
   startTunnel(scene: Phaser.Scene): void {
     if (this.tunnelArcs.length > 0) return;
+    if (this.reducedMotion) {
+      const radii = [18, 34, 50];
+      for (const r of radii) {
+        const arc = scene.add
+          .circle(this.centerX + this.driftX, this.horizonY, r, PALETTE.magnetRing, 0)
+          .setStrokeStyle(3, PALETTE.magnetRing, 0.3)
+          .setDepth(1)
+          .setBlendMode(Phaser.BlendModes.ADD);
+        this.tunnelArcs.push(arc);
+      }
+      return;
+    }
     for (let i = 0; i < 3; i++) {
       const arc = scene.add
         .circle(this.centerX + this.driftX, this.horizonY, 18, PALETTE.magnetRing, 0)
