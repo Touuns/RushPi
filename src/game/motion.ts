@@ -19,11 +19,12 @@ function isMotionPreference(value: unknown): value is MotionPreference {
 
 /** Absent, invalid, or unreadable storage all fall back to "auto". */
 export function getMotionPreference(): MotionPreference {
-  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+  if (typeof window === "undefined") {
     return "auto";
   }
   try {
-    const stored = window.localStorage.getItem(MOTION_PREFERENCE_KEY);
+    const storage = window.localStorage;
+    const stored = storage.getItem(MOTION_PREFERENCE_KEY);
     return isMotionPreference(stored) ? stored : "auto";
   } catch {
     return "auto";
@@ -32,11 +33,12 @@ export function getMotionPreference(): MotionPreference {
 
 /** Best-effort persistence; a throwing/unavailable storage is a silent no-op. */
 export function setMotionPreference(preference: MotionPreference): void {
-  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+  if (typeof window === "undefined") {
     return;
   }
   try {
-    window.localStorage.setItem(MOTION_PREFERENCE_KEY, preference);
+    const storage = window.localStorage;
+    storage.setItem(MOTION_PREFERENCE_KEY, preference);
   } catch {
     // Ignore — the game stays playable without persisted preferences.
   }
