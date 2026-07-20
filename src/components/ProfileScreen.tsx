@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type {
   BadgeId,
   CampaignProgress,
@@ -9,6 +10,8 @@ import type { PiUser } from "../pi/piClient";
 import { ALL_BADGES } from "../utils/badges";
 import { getStreakTitle, getTotalCampaignStars, levelProgress } from "../utils/storage";
 import { CAMPAIGN_LEVELS } from "../game/campaign";
+import type { MotionPreference } from "../game/motion";
+import { getMotionPreference, setMotionPreference } from "../game/motion";
 import PiPanel from "./PiPanel";
 import ScreenBackButton from "./ScreenBackButton";
 import MarketDataPreview from "./MarketDataPreview";
@@ -58,6 +61,16 @@ export default function ProfileScreen({
   const owned = new Set(unlockedBadgeIds);
   const displayName = piUser?.username ?? "Pioneer";
   const title = getStreakTitle(profile.bestStreak);
+
+  const [motionPreference, setMotionPreferenceState] = useState<MotionPreference>(() =>
+    getMotionPreference(),
+  );
+
+  const handleMotionPreferenceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const next = e.target.value as MotionPreference;
+    setMotionPreference(next);
+    setMotionPreferenceState(next);
+  };
 
   const handleReset = () => {
     if (
@@ -195,6 +208,27 @@ export default function ProfileScreen({
             </>
           );
         })()}
+      </div>
+
+      <div className="motion-pref">
+        <span className="profile__section-title">Gameplay effects</span>
+        <p className="motion-pref__desc">
+          Reduce screen shake, flashes and large pulsing animations.
+        </p>
+        <label className="motion-pref__field" htmlFor="motion-preference">
+          <span className="motion-pref__label">Motion</span>
+          <select
+            id="motion-preference"
+            className="motion-pref__select"
+            value={motionPreference}
+            onChange={handleMotionPreferenceChange}
+          >
+            <option value="auto">Automatic</option>
+            <option value="full">Full effects</option>
+            <option value="reduced">Reduced effects</option>
+          </select>
+        </label>
+        <p className="motion-pref__note">Applies to the next run.</p>
       </div>
 
       <MarketDataPreview />

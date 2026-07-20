@@ -1375,6 +1375,51 @@ body {
   max-width: 280px;
 }
 
+/* Gameplay motion preference (Phase 12B-3C) — compact card in the Profile. */
+.motion-pref {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(22, 13, 42, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  text-align: left;
+}
+
+.motion-pref__desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin: 6px 0 10px;
+}
+
+.motion-pref__field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.motion-pref__label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.motion-pref__select {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(167, 139, 250, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.motion-pref__note {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin: 8px 0 0;
+}
+
 /* Market Data preview (Phase 11A) — collapsed details in the Profile. */
 .market-preview {
   width: 100%;
