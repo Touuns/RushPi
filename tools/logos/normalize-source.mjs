@@ -25,14 +25,17 @@ import { SourceRejectedError } from "./lib/inspect-source.mjs";
 import { NormalizationError } from "./lib/normalize.mjs";
 import { OutputConflictError } from "./lib/output-paths.mjs";
 import { ReceiptError } from "./lib/receipt.mjs";
+import { ApprovalError } from "./lib/approval.mjs";
+import { PublishRollbackError } from "./lib/publish-outputs.mjs";
 import { normalizeApprovedToken, PipelineError } from "./lib/normalize-pipeline.mjs";
-import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT } from "./lib/constants.mjs";
+import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT, APPROVALS_ROOT } from "./lib/constants.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
 const intakeRoot = path.join(here, "intake");
 const outputRoot = path.join(repoRoot, TOKEN_LOGOS_OUTPUT_ROOT);
 const receiptsRoot = path.join(repoRoot, RECEIPTS_ROOT);
+const approvalsRoot = path.join(repoRoot, APPROVALS_ROOT);
 
 function parseArgs(argv) {
   const args = { plan: path.join(here, "data", "pilot-source-plan.json") };
@@ -61,7 +64,7 @@ async function main() {
 
   try {
     const entry = findPlanEntry(plan, token);
-    const { receipt, receiptPath } = await normalizeApprovedToken({ entry, intakeRoot, outputRoot, receiptsRoot, repoRoot });
+    const { receipt, receiptPath } = await normalizeApprovedToken({ entry, intakeRoot, outputRoot, receiptsRoot, approvalsRoot, repoRoot, registry });
     console.log(JSON.stringify({ ok: true, receiptPath: path.relative(repoRoot, receiptPath), receipt }, null, 2));
   } catch (e) {
     if (
@@ -70,6 +73,8 @@ async function main() {
       e instanceof NormalizationError ||
       e instanceof OutputConflictError ||
       e instanceof ReceiptError ||
+      e instanceof ApprovalError ||
+      e instanceof PublishRollbackError ||
       e instanceof PipelineError
     ) {
       console.error(`STOP: ${e.name}: ${e.message}`);

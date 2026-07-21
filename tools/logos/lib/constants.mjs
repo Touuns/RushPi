@@ -15,6 +15,7 @@ export const SHA256_HEX_PATTERN = /^[0-9a-f]{64}$/;
 export const SCHEMA_VERSION = 1;
 export const NORMALIZATION_POLICY_VERSION = 1;
 export const RECEIPT_SCHEMA_VERSION = 1;
+export const APPROVAL_SCHEMA_VERSION = 1;
 
 // Extension a source-plan entry's intakePath must carry for a given
 // expectedMimeClass ("where applicable" - MIME sniffing remains authoritative
@@ -111,3 +112,8 @@ export const RECEIPTS_ROOT = "tools/logos/receipts";
 // a token with more than one receipted logoVersion. Never auto-inferred from
 // the highest version number.
 export const RELEASE_SELECTION_PATH = "tools/logos/data/release-selection.json";
+// Committed, machine-readable, non-runtime, IMMUTABLE approval records - one
+// per (tokenId, logoVersion). The frozen source of truth a receipt is bound
+// to; a source-plan entry can be freely edited afterward without ever
+// altering a previously frozen approval.
+export const APPROVALS_ROOT = "tools/logos/approvals";

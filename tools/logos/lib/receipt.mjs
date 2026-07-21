@@ -11,6 +11,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { sha256Hex } from "./hashes.mjs";
 import { outputPathFor } from "./output-paths.mjs";
+import { loadApprovalRecord, verifyApprovalMatchesRegistry } from "./approval.mjs";
 import {
   TOKEN_ID_PATTERN,
   SHA256_HEX_PATTERN,
@@ -44,6 +45,7 @@ export function buildReceipt({
   approvedSourceContentHash, actualSourceContentHash,
   sourceMimeType, sourceWidth, sourceHeight, sourceFileSize,
   output64Path, output128Path, output64Hash, output128Hash,
+  approvalRecordContentHash,
   toolchain,
 }) {
   return {
@@ -64,6 +66,7 @@ export function buildReceipt({
     output128Hash,
     output64MimeType: "image/png",
     output128MimeType: "image/png",
+    approvalRecordContentHash,
     toolchain,
   };
 }
@@ -90,6 +93,9 @@ export function validateReceiptShape(receipt) {
   if (typeof receipt.actualSourceContentHash !== "string" || !SHA256_HEX_PATTERN.test(receipt.actualSourceContentHash)) errors.push("receipt actualSourceContentHash is invalid");
   if (receipt.approvedSourceContentHash !== receipt.actualSourceContentHash) {
     errors.push("receipt approvedSourceContentHash and actualSourceContentHash must be equal (a receipt only exists after they matched)");
+  }
+  if (typeof receipt.approvalRecordContentHash !== "string" || !SHA256_HEX_PATTERN.test(receipt.approvalRecordContentHash)) {
+    errors.push("receipt approvalRecordContentHash is invalid");
   }
   if (typeof receipt.sourceMimeType !== "string") errors.push("receipt sourceMimeType is invalid");
   if (!Number.isInteger(receipt.sourceWidth) || receipt.sourceWidth < 1) errors.push("receipt sourceWidth is invalid");
@@ -168,6 +174,63 @@ function toRepoRelative(repoRoot, absolutePath) {
 }
 
 /**
+ * Verify a receipt is properly bound to an existing, valid, matching
+ * approval record. A receipt without an approval record, or whose
+ * approvalRecordContentHash does not match the record's own recomputed
+ * hash, is a "manually created but approval-unbound receipt" and must be
+ * rejected.
+ * @param {any} receipt
+ * @param {string} approvalsRoot
+ * @param {{ byTokenId: Map, catalogVersion: string }} registry
+ * @returns {string[]} errors (empty = fully bound and verified)
+ */
+export function verifyReceiptApprovalBinding(receipt, approvalsRoot, registry) {
+  const errors = [];
+  if (typeof receipt.tokenId !== "string" || !Number.isInteger(receipt.logoVersion)) {
+    return ["receipt tokenId/logoVersion invalid - cannot resolve its approval record"];
+  }
+
+  const { record, errors: loadErrors } = loadApprovalRecord(approvalsRoot, receipt.tokenId, receipt.logoVersion);
+  if (!record) {
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: no valid approval record found (${loadErrors.join("; ")})`);
+    return errors;
+  }
+
+  errors.push(...verifyApprovalMatchesRegistry(record, registry));
+
+  if (typeof receipt.approvalRecordContentHash !== "string" || !SHA256_HEX_PATTERN.test(receipt.approvalRecordContentHash)) {
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: missing/invalid approvalRecordContentHash`);
+  } else if (receipt.approvalRecordContentHash !== record.approvalRecordContentHash) {
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: approvalRecordContentHash does not match the approval record's own hash (receipt is not bound to this approval)`);
+  }
+  if (receipt.catalogVersion !== record.catalogVersion) {
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: catalogVersion does not match its approval record`);
+  }
+  if (receipt.approvedSourceContentHash !== record.approvedSourceContentHash) {
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: approvedSourceContentHash does not match its approval record`);
+  }
+
+  return errors;
+}
+
+/**
+ * Would writing `candidateReceipt` conflict with an existing, different
+ * receipt at the same path? Pure peek - never writes. Shared by
+ * writeReceiptAtomically (actual write) and the preflight stage in
+ * lib/publish-outputs.mjs (checked BEFORE any output file is written).
+ * @returns {{ conflict: boolean, filePath: string, existedBefore: boolean }}
+ */
+export function peekReceiptConflict(receiptsRoot, candidateReceipt) {
+  const filePath = receiptPathFor(receiptsRoot, candidateReceipt.tokenId, candidateReceipt.logoVersion);
+  if (!existsSync(filePath)) return { conflict: false, filePath, existedBefore: false };
+  const existing = JSON.parse(readFileSync(filePath, "utf8"));
+  const { toolchain: _existingToolchain, ...existingRest } = existing;
+  const { toolchain: _newToolchain, ...newRest } = candidateReceipt;
+  const identical = JSON.stringify(existingRest) === JSON.stringify(newRest);
+  return { conflict: !identical, filePath, existedBefore: true };
+}
+
+/**
  * Load every receipt file from `receiptsRoot`, cross-checking that each
  * file's NAME matches its own declared tokenId/logoVersion (a receipt must
  * never be handwritten under a mismatched filename) and that no two receipt
@@ -221,23 +284,12 @@ export function writeReceiptAtomically(receiptsRoot, receipt) {
   if (shapeErrors.length > 0) {
     throw new ReceiptError(`refusing to write an invalid receipt: ${shapeErrors.join("; ")}`, { shapeErrors });
   }
-  const filePath = receiptPathFor(receiptsRoot, receipt.tokenId, receipt.logoVersion);
-  const json = `${JSON.stringify(receipt, null, 2)}\n`;
-  if (existsSync(filePath)) {
-    const existing = readFileSync(filePath, "utf8");
-    // toolchain is expected to vary run-to-run/machine-to-machine; compare
-    // everything else for an idempotency check.
-    const { toolchain: _existingToolchain, ...existingRest } = JSON.parse(existing);
-    const { toolchain: _newToolchain, ...newRest } = receipt;
-    if (JSON.stringify(existingRest) !== JSON.stringify(newRest)) {
-      throw new ReceiptError(
-        `refusing to overwrite existing receipt ${path.basename(filePath)} with different content`,
-        { filePath },
-      );
-    }
-    return filePath; // identical (modulo toolchain) - idempotent no-op
+  const { conflict, filePath, existedBefore } = peekReceiptConflict(receiptsRoot, receipt);
+  if (conflict) {
+    throw new ReceiptError(`refusing to overwrite existing receipt ${path.basename(filePath)} with different content`, { filePath });
   }
+  if (existedBefore) return filePath; // identical (modulo toolchain) - idempotent no-op
   mkdirSync(path.dirname(filePath), { recursive: true });
-  writeFileSync(filePath, json);
+  writeFileSync(filePath, `${JSON.stringify(receipt, null, 2)}\n`);
   return filePath;
 }

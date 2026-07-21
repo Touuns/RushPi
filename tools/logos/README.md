@@ -1,4 +1,4 @@
-# Token logo ingestion tooling (Phase 12C-1B2B, hardened in 12C-1B2B.1)
+# Token logo ingestion tooling (Phase 12C-1B2B, hardened in 12C-1B2B.1/.2)
 
 Secure, deterministic tooling for sourcing, validating, normalizing and
 publishing the 250 canonical V2 token logos. **This phase implements tooling
@@ -80,6 +80,54 @@ already-published version with different bytes is rejected
 (`lib/output-paths.mjs` `assertNoVersionConflict`) unless the bytes are
 byte-identical (idempotent no-op).
 
+### 4b. The immutable approval record (12C-1B2B.2)
+
+`npm run logos:freeze-approval -- --token <tokenId>` is the moment a mutable,
+editable source-plan entry becomes a permanent decision. It: validates the
+complete plan, requires `source-approved` + a processable permission state,
+**re-reads the local intake file and verifies its bytes still match
+`approvedSourceContentHash`** (never trusts the plan's claim alone), then
+writes `tools/logos/approvals/<tokenId>-v<logoVersion>.json` - a snapshot of
+every approved field plus `approvalRecordContentHash` (SHA-256 over the
+canonical serialization of every other field; `approvedAt` is the human's own
+explicit timestamp and participates in the hash - no time is auto-generated).
+Re-freezing identical content is an idempotent no-op; re-freezing *different*
+content for the same `(tokenId, logoVersion)` is refused (`lib/approval.mjs`
+`ApprovalError`) - the record is immutable.
+
+`normalizeApprovedToken` now requires this frozen record to exist for
+`(entry.tokenId, entry.expectedLogoVersion)` and re-verifies, before touching
+any byte: the record's own structure/hash, that it still matches the
+**current** registry, and that it still matches the **current** live
+source-plan entry field-for-field. Editing the plan after freezing (even
+leaving `expectedLogoVersion` unchanged) is detected as
+`approval-record-plan-drift` and blocks processing of that exact version -
+the fix is either to revert the edit or to bump to a new, separately-approved
+`expectedLogoVersion` and freeze a fresh record for it. Preparing/approving a
+future `logoVersion` 2 never touches or invalidates `logoVersion` 1's frozen
+record, receipt or outputs.
+
+Every processing receipt carries `approvalRecordContentHash`, binding it to
+this exact frozen record (`lib/receipt.mjs` `verifyReceiptApprovalBinding`).
+A receipt with no approval record, or whose hash doesn't match the record's
+own recomputed hash, is an "approval-unbound receipt" and is rejected by
+`logos:verify` and `logos:manifest` alike - a receipt can never be
+handwritten into legitimacy.
+
+### 4c. Preflight, atomic publication, failure cleanup (12C-1B2B.2)
+
+`lib/publish-outputs.mjs` `publishTokenVersion` runs every preflight check
+(both output-version-conflict checks, and whether an existing receipt would
+conflict) **before any file is written**. It tracks exactly which files this
+invocation creates; if a later step fails (the 128 write, either output's
+re-verification, or the receipt write), **only those newly-created files** are
+removed - a previously existing valid output, approval record or receipt is
+never touched. Every write is idempotent for identical bytes, so a rerun
+after an interrupted-but-byte-identical publication always recovers safely.
+A `testOnly.throwAfter` injection point (`"after64Write" | "after128Write" |
+"afterReceiptWrite"`) - internal only, never a CLI flag - lets
+`logos:selftest` deterministically exercise every rollback path.
+
 ### 5. Provider fallback
 
 `sourceType = "authorized-provider"` is schema-supported but processing fails
@@ -93,31 +141,41 @@ CoinGecko imagery is not pre-approved.
 | Layer | Location | Client-safe? |
 | --- | --- | --- |
 | A. Canonical token registry | `registry/tokens/v2-proposal/registry.json` | n/a (existing, untouched) |
-| B. Source-plan / audit manifest | `tools/logos/data/*-source-plan.json` | **No** - admin/non-client. Never imported by runtime or copied into the frontend bundle. Contains provenance (source URL, page, approval identity, `approvedSourceContentHash`) but no API credentials or personal email addresses (approvals use a role/identifier, e.g. `"product-owner"`). |
-| B2. Processing receipts | `tools/logos/receipts/<tokenId>-v<logoVersion>.json` | **No** - committed, non-runtime, but not client-safe (carries `approvedSourceContentHash`/`actualSourceContentHash`/source dimensions). The **sole trust boundary** for the release-manifest builder - see below. |
-| C. Public logo-release manifest | built by `logos:manifest` (not committed in this phase - zero receipts exist yet) | **Yes** - machine-generated, contains only `schemaVersion`, `logoReleaseVersion`, `normalizationPolicyVersion`, `catalogVersion`, and per-entry `tokenId`/`logoVersion`/output paths+hashes+MIME types. Never a source URL, approval identity, permission notes, intake path, or source-hash field (enforced by `lib/release-manifest.mjs` `FORBIDDEN_PUBLIC_FIELDS` + `validateReleaseManifest`). |
+| B. Source-plan / audit manifest | `tools/logos/data/*-source-plan.json` | **No** - admin/non-client. Never imported by runtime or copied into the frontend bundle. Contains provenance (source URL, page, approval identity, `approvedSourceContentHash`) but no API credentials or personal email addresses (approvals use a role/identifier, e.g. `"product-owner"`). Mutable - can be freely edited to prepare a future `logoVersion`. |
+| B2. Immutable approval records | `tools/logos/approvals/<tokenId>-v<logoVersion>.json` | **No** - committed, non-runtime, admin-only, and **immutable** once written. The frozen snapshot every receipt is bound to - never the live plan entry. |
+| B3. Processing receipts | `tools/logos/receipts/<tokenId>-v<logoVersion>.json` | **No** - committed, non-runtime, but not client-safe (carries `approvedSourceContentHash`/`actualSourceContentHash`/source dimensions/`approvalRecordContentHash`). The **sole trust boundary** for the release-manifest builder - see below. |
+| C. Public logo-release manifest | built by `logos:manifest` (not committed in this phase - zero receipts exist yet) | **Yes** - machine-generated, contains only `schemaVersion`, `logoReleaseVersion`, `normalizationPolicyVersion`, `catalogVersion`, and per-entry `tokenId`/`logoVersion`/output paths+hashes+MIME types. Never a source URL, approval identity, permission notes, intake path, or any hash field beyond the output hashes themselves (enforced by `lib/release-manifest.mjs` `FORBIDDEN_PUBLIC_FIELDS` + `validateReleaseManifest`, which also checks `schemaVersion`, `logoReleaseVersion`/`contentHash` recomputation, `entryCount`, and deterministic tokenId ordering). |
 
-### Processing receipts (12C-1B2B.1)
+### Processing receipts (12C-1B2B.1, bound to approval records in 12C-1B2B.2)
 
 A receipt (`lib/receipt.mjs`) is generated **only** after: complete
-source-plan validation, the approval gate, an exact source-hash match,
-security inspection, successful normalization, and output re-verification
+source-plan validation, the approval gate, loading and verifying the
+immutable approval record, an exact source-hash match, security inspection,
+successful normalization, and output re-verification
 (`lib/normalize-pipeline.mjs` `normalizeApprovedToken`). It is deterministic
 except for the embedded toolchain fingerprint, and contains no current time.
 A receipt must never be handwritten - `verifyReceiptAgainstOutputs`
 recomputes and verifies every receipt/output relationship from scratch
 (registry membership, `catalogVersion`, `normalizationPolicyVersion`, the
 exact immutable path convention, real file existence, recomputed SHA-256,
-real dimensions/alpha/PNG format).
+real dimensions/alpha/PNG format), and `verifyReceiptApprovalBinding`
+independently re-verifies the receipt is still bound to a valid, matching
+approval record.
 
-`logos:manifest` (`build-release-manifest.mjs`) trusts **only** verified
-receipts - it never scans the output directory for entries. A token with
-more than one verified receipted `logoVersion` requires an explicit entry in
-`tools/logos/data/release-selection.json` naming the chosen version; the
-highest version number is **never** auto-inferred, and an unresolved
-ambiguity fails the build loudly rather than silently picking one.
-`logos:verify` cross-checks the reverse direction too: any published output
-file with no matching receipt is rejected as an **orphan**.
+`logos:manifest` (`build-release-manifest.mjs`) trusts **only** verified,
+approval-bound receipts - it never scans the output directory for entries.
+The release-selection file itself is validated (`lib/validate-release-selection.mjs`):
+rejects a non-object `selections`, an invalid/absent-from-registry tokenId, a
+non-positive/non-integer `logoVersion`, a selected version with no verified
+receipt, a **stale** entry for a token that only has one receipt, an entry
+for a token with no receipt at all, and any unknown top-level field. A token
+with more than one verified receipted `logoVersion` requires an explicit,
+itself-valid entry naming the chosen version; the highest version number is
+**never** auto-inferred, and an unresolved ambiguity fails the build loudly
+rather than silently picking one. `logos:verify` cross-checks the reverse
+direction too: any published output file with no matching receipt is rejected
+as an **orphan**, and every receipt is independently re-checked for its
+approval binding.
 
 ## Source-plan fields (layer B)
 
@@ -243,20 +301,23 @@ platform/toolchain.
 ## Commands
 
 ```
-npm run logos:validate-plan   # validate a source plan (default: data/pilot-source-plan.json)
+npm run logos:validate-plan     # validate a source plan (default: data/pilot-source-plan.json)
+npm run logos:freeze-approval -- --token <tokenId>   # freeze the current plan entry into an immutable approval record
 npm run logos:inspect  -- --token <tokenId>
 npm run logos:normalize -- --token <tokenId>
-npm run logos:verify           # verify committed outputs + receipts (safe on an empty/absent tree)
-npm run logos:manifest         # build the public release manifest EXCLUSIVELY from verified receipts
-npm run logos:selftest         # full self-test suite (temp dirs only, no repo file writes)
+npm run logos:verify             # verify committed outputs + receipts + approval bindings (safe on an empty/absent tree)
+npm run logos:manifest           # build the public release manifest EXCLUSIVELY from verified, approval-bound receipts
+npm run logos:selftest           # full self-test suite (temp dirs only, no repo file writes)
 ```
 
 No command performs an HTTP download. `logos:inspect`/`logos:normalize` take
 **only** `--token` (plus optional `--plan`) - the file processed is always
 exactly that token's `entry.intakePath`, and the version is always exactly
-`entry.expectedLogoVersion`. Both refuse to run at all unless the named
+`entry.expectedLogoVersion`. Both refuse to run at all unless: the named
 token's source-plan entry is fully approved (`source-approved` +
-permission-confirmed/exception) **and** its intake bytes match
+permission-confirmed/exception); an immutable approval record exists for
+`(tokenId, expectedLogoVersion)` and still matches both the current registry
+and the current live plan entry field-for-field; and the intake bytes match
 `approvedSourceContentHash`.
 
 ## Local intake convention
@@ -281,9 +342,11 @@ containing:
 - **the two-stage split**: a candidate-research record (place file, report
   its SHA-256 - no normalization/publication permission) versus a processing
   record (issued only after a human has written that exact hash into
-  `approvedSourceContentHash`);
-- the exact commands to run (`logos:inspect` then `logos:normalize`, with
-  only `--token` - neither takes a file or version argument);
+  `approvedSourceContentHash` **and** `logos:freeze-approval` has produced the
+  immutable approval record for that exact `(tokenId, logoVersion)`);
+- the exact commands to run (`logos:freeze-approval` once per approval, then
+  `logos:inspect`/`logos:normalize` per processing attempt - all three take
+  only `--token`, never a file or version argument);
 - the expected output directories (`public/assets/rushpi/token-logos/<tokenId>/v<logoVersion>/{64,128}/`)
   and the expected receipt path (`tools/logos/receipts/<tokenId>-v<logoVersion>.json`);
 - the evidence/hashes Codex must report back (source SHA-256, dimensions,

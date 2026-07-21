@@ -1,17 +1,21 @@
-// Full approved-token normalization pipeline (Phase 12C-1B2B.1): gate ->
-// bound-intake read -> source-hash match -> security inspection ->
-// deterministic normalization -> version-conflict-checked write -> output
-// re-verification -> receipt. A receipt is generated ONLY after every one of
-// these steps has succeeded.
+// Full approved-token normalization pipeline (Phase 12C-1B2B.1, bound to the
+// immutable approval record in 12C-1B2B.2):
+//
+//   gate -> load+verify frozen approval record -> verify it still matches the
+//   CURRENT source-plan entry -> bound-intake read -> source-hash match ->
+//   security inspection -> deterministic normalization -> preflight-checked,
+//   rollback-safe publication of both outputs + receipt.
+//
+// A receipt is generated ONLY after every one of these steps has succeeded.
 import path from "node:path";
-import { readFileSync } from "node:fs";
-import sharp from "sharp";
 import { assertProcessable } from "./process-gate.mjs";
 import { inspectApprovedIntake } from "./inspect-source.mjs";
 import { normalizeToOutputs } from "./normalize.mjs";
 import { sha256Hex } from "./hashes.mjs";
-import { writeOutputAtomically, outputPathFor } from "./output-paths.mjs";
-import { buildReceipt, writeReceiptAtomically } from "./receipt.mjs";
+import { outputPathFor } from "./output-paths.mjs";
+import { buildReceipt } from "./receipt.mjs";
+import { publishTokenVersion } from "./publish-outputs.mjs";
+import { loadApprovalRecord, verifyApprovalMatchesRegistry, verifyApprovalMatchesPlanEntry } from "./approval.mjs";
 import { getToolchainFingerprint } from "./report.mjs";
 import { NORMALIZATION_POLICY_VERSION } from "./constants.mjs";
 
@@ -26,21 +30,38 @@ export class PipelineError extends Error {
 
 /**
  * @param {object} args
- * @param {any} args.entry  the source-plan entry (must be source-approved)
+ * @param {any} args.entry  the CURRENT source-plan entry (must be source-approved)
  * @param {string} args.intakeRoot
  * @param {string} args.outputRoot
  * @param {string} args.receiptsRoot
+ * @param {string} args.approvalsRoot
  * @param {string} args.repoRoot
- * @param {{ fileBufferOverride?: Buffer }} [args.testOnly]  INTERNAL/TEST-ONLY,
- *   never wired to a CLI flag.
- * @returns {Promise<any>} the written (or idempotently confirmed) receipt
+ * @param {{ byTokenId: Map, catalogVersion: string }} args.registry
+ * @param {{ fileBufferOverride?: Buffer, throwAfter?: string }} [args.testOnly]
+ *   INTERNAL/TEST-ONLY, never wired to a CLI flag.
+ * @returns {Promise<{ receipt: any, receiptPath: string }>}
  */
-export async function normalizeApprovedToken({ entry, intakeRoot, outputRoot, receiptsRoot, repoRoot, testOnly = {} }) {
+export async function normalizeApprovedToken({ entry, intakeRoot, outputRoot, receiptsRoot, approvalsRoot, repoRoot, registry, testOnly = {} }) {
   assertProcessable(entry);
 
   const logoVersion = entry.expectedLogoVersion;
   if (!Number.isInteger(logoVersion) || logoVersion < 1) {
     throw new PipelineError("invalid-expected-logo-version", { expectedLogoVersion: entry.expectedLogoVersion });
+  }
+
+  // The immutable approval record is the sole authority processing is bound
+  // to - never the live, mutable plan entry directly.
+  const { record: approvalRecord, errors: loadErrors } = loadApprovalRecord(approvalsRoot, entry.tokenId, logoVersion);
+  if (!approvalRecord) {
+    throw new PipelineError("approval-record-missing-or-invalid", { tokenId: entry.tokenId, logoVersion, loadErrors });
+  }
+  const registryErrors = verifyApprovalMatchesRegistry(approvalRecord, registry);
+  if (registryErrors.length > 0) {
+    throw new PipelineError("approval-record-registry-mismatch", { registryErrors });
+  }
+  const driftErrors = verifyApprovalMatchesPlanEntry(approvalRecord, entry);
+  if (driftErrors.length > 0) {
+    throw new PipelineError("approval-record-plan-drift", { driftErrors });
   }
 
   // Gate + bound-intake read + source-hash match + security inspection.
@@ -51,18 +72,7 @@ export async function normalizeApprovedToken({ entry, intakeRoot, outputRoot, re
   const hash64 = sha256Hex(buf64);
   const hash128 = sha256Hex(buf128);
 
-  // Version-conflict-checked write (idempotent for identical bytes; refuses
-  // to silently overwrite different bytes at an already-published slot).
-  const path64Abs = writeOutputAtomically(outputRoot, entry.tokenId, logoVersion, 64, hash64, buf64);
-  const path128Abs = writeOutputAtomically(outputRoot, entry.tokenId, logoVersion, 128, hash128, buf128);
-
-  // Output re-verification: recompute hash + real dimensions/alpha/PNG from
-  // the bytes just written, never trust the in-memory buffers blindly.
-  await verifyJustWrittenOutput(path64Abs, 64, hash64);
-  await verifyJustWrittenOutput(path128Abs, 128, hash128);
-
-  const toolchain = getToolchainFingerprint();
-  const receipt = buildReceipt({
+  const candidateReceipt = buildReceipt({
     tokenId: entry.tokenId,
     catalogVersion: entry.catalogVersion,
     logoVersion,
@@ -77,23 +87,16 @@ export async function normalizeApprovedToken({ entry, intakeRoot, outputRoot, re
     output128Path: toRepoRelative(repoRoot, outputPathFor(outputRoot, entry.tokenId, logoVersion, 128, hash128)),
     output64Hash: hash64,
     output128Hash: hash128,
-    toolchain,
+    approvalRecordContentHash: approvalRecord.approvalRecordContentHash,
+    toolchain: getToolchainFingerprint(),
   });
 
-  const writtenPath = writeReceiptAtomically(receiptsRoot, receipt);
-  return { receipt, receiptPath: writtenPath };
-}
+  const { receipt, receiptPath } = await publishTokenVersion({
+    outputRoot, receiptsRoot, tokenId: entry.tokenId, logoVersion, buf64, buf128, hash64, hash128,
+    candidateReceipt, testOnly,
+  });
 
-async function verifyJustWrittenOutput(absolutePath, size, expectedHash) {
-  const buffer = readFileSync(absolutePath);
-  const actualHash = sha256Hex(buffer);
-  if (actualHash !== expectedHash) {
-    throw new PipelineError("output-verification-hash-mismatch", { absolutePath, expectedHash, actualHash });
-  }
-  const meta = await sharp(buffer).metadata();
-  if (meta.format !== "png" || meta.width !== size || meta.height !== size || !meta.hasAlpha) {
-    throw new PipelineError("output-verification-shape-mismatch", { absolutePath, meta: { format: meta.format, width: meta.width, height: meta.height, hasAlpha: meta.hasAlpha } });
-  }
+  return { receipt, receiptPath };
 }
 
 function toRepoRelative(repoRoot, absolutePath) {

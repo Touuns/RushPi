@@ -25,6 +25,7 @@ export const FORBIDDEN_PUBLIC_FIELDS = [
   "cropMode", "providerFallbackApproved",
   "approvedSourceContentHash", "actualSourceContentHash",
   "sourceMimeType", "sourceWidth", "sourceHeight", "sourceFileSize",
+  "approvalRecordContentHash",
 ];
 
 function expectedOutputRelPath(tokenId, logoVersion, size, hash) {
@@ -100,11 +101,24 @@ export function validateReleaseManifest(manifest, registry) {
     return ["release manifest entries is not an array"];
   }
 
+  if (manifest.schemaVersion !== SCHEMA_VERSION) {
+    errors.push(`release manifest schemaVersion must be ${SCHEMA_VERSION}, got ${JSON.stringify(manifest.schemaVersion)}`);
+  }
   if (manifest.normalizationPolicyVersion !== NORMALIZATION_POLICY_VERSION) {
     errors.push(`release manifest normalizationPolicyVersion must be ${NORMALIZATION_POLICY_VERSION}, got ${manifest.normalizationPolicyVersion}`);
   }
   if (registry && manifest.catalogVersion !== registry.catalogVersion) {
     errors.push(`release manifest catalogVersion "${manifest.catalogVersion}" does not match the approved registry catalogVersion "${registry.catalogVersion}"`);
+  } else if (typeof manifest.catalogVersion !== "string" || manifest.catalogVersion.length === 0) {
+    errors.push("release manifest catalogVersion is missing/invalid");
+  }
+  if (typeof manifest.entryCount !== "number" || manifest.entryCount !== manifest.entries.length) {
+    errors.push(`release manifest entryCount must equal entries.length (${manifest.entries.length}), got ${JSON.stringify(manifest.entryCount)}`);
+  }
+  const orderedTokenIds = manifest.entries.map((e) => e.tokenId);
+  const sortedTokenIds = orderedTokenIds.slice().sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  if (JSON.stringify(orderedTokenIds) !== JSON.stringify(sortedTokenIds)) {
+    errors.push("release manifest entries must be in deterministic ascending tokenId order");
   }
 
   const seenTokenIds = new Set();
@@ -147,9 +161,19 @@ export function validateReleaseManifest(manifest, registry) {
     }
   }
 
-  const recomputed = computeReleaseContentHash(manifest.normalizationPolicyVersion, manifest.catalogVersion, manifest.entries);
-  if (manifest.contentHash !== undefined && manifest.contentHash !== recomputed) {
-    errors.push(`release manifest contentHash mismatch: stored=${manifest.contentHash} recomputed=${recomputed}`);
+  const recomputedHash = computeReleaseContentHash(manifest.normalizationPolicyVersion, manifest.catalogVersion, manifest.entries);
+  if (typeof manifest.contentHash !== "string" || manifest.contentHash.length === 0) {
+    errors.push("release manifest contentHash is missing");
+  } else if (manifest.contentHash !== recomputedHash) {
+    errors.push(`release manifest contentHash mismatch: stored=${manifest.contentHash} recomputed=${recomputedHash}`);
   }
+
+  const recomputedVersion = computeLogoReleaseVersion(manifest.normalizationPolicyVersion, manifest.catalogVersion, manifest.entries);
+  if (typeof manifest.logoReleaseVersion !== "string" || manifest.logoReleaseVersion.length === 0) {
+    errors.push("release manifest logoReleaseVersion is missing");
+  } else if (manifest.logoReleaseVersion !== recomputedVersion) {
+    errors.push(`release manifest logoReleaseVersion mismatch: stored=${manifest.logoReleaseVersion} recomputed=${recomputedVersion}`);
+  }
+
   return errors;
 }

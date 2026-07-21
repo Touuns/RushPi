@@ -17,6 +17,7 @@
     "registry:v2:validate": "node tools/registry/validate-v2.mjs",
     "registry:v2:selftest": "node tools/registry/selftest-v2.mjs",
     "logos:validate-plan": "node tools/logos/validate-source-plan.mjs",
+    "logos:freeze-approval": "node tools/logos/freeze-approval.mjs",
     "logos:inspect": "node tools/logos/inspect-source.mjs",
     "logos:normalize": "node tools/logos/normalize-source.mjs",
     "logos:verify": "node tools/logos/verify-outputs.mjs",

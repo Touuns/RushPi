@@ -7,9 +7,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadV2Registry } from "./lib/registry.mjs";
-import { loadAllReceipts, verifyReceiptAgainstOutputs } from "./lib/receipt.mjs";
+import { loadAllReceipts, verifyReceiptAgainstOutputs, verifyReceiptApprovalBinding } from "./lib/receipt.mjs";
 import { verifyOutputTreeShape } from "./lib/output-tree.mjs";
-import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT } from "./lib/constants.mjs";
+import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT, APPROVALS_ROOT } from "./lib/constants.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
@@ -19,17 +19,19 @@ function parseArgs(argv) {
     repoRoot,
     root: path.join(repoRoot, TOKEN_LOGOS_OUTPUT_ROOT),
     receiptsRoot: path.join(repoRoot, RECEIPTS_ROOT),
+    approvalsRoot: path.join(repoRoot, APPROVALS_ROOT),
   };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--repo-root" && argv[i + 1]) { args.repoRoot = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
     else if (argv[i] === "--root" && argv[i + 1]) { args.root = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
     else if (argv[i] === "--receipts-root" && argv[i + 1]) { args.receiptsRoot = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
+    else if (argv[i] === "--approvals-root" && argv[i + 1]) { args.approvalsRoot = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
   }
   return args;
 }
 
 async function main() {
-  const { repoRoot: effectiveRepoRoot, root, receiptsRoot } = parseArgs(process.argv.slice(2));
+  const { repoRoot: effectiveRepoRoot, root, receiptsRoot, approvalsRoot } = parseArgs(process.argv.slice(2));
   const registry = loadV2Registry(effectiveRepoRoot);
 
   const { errors: shapeErrors, found, verifiedFileCount } = await verifyOutputTreeShape(root, registry);
@@ -52,6 +54,7 @@ async function main() {
     }
     const verifyErrs = await verifyReceiptAgainstOutputs(receipt, effectiveRepoRoot, registry);
     errors.push(...verifyErrs);
+    errors.push(...verifyReceiptApprovalBinding(receipt, approvalsRoot, registry));
   }
 
   if (errors.length > 0) {

@@ -29,15 +29,28 @@ import {
   buildReceipt,
   validateReceiptShape,
   verifyReceiptAgainstOutputs,
+  verifyReceiptApprovalBinding,
   loadAllReceipts,
   writeReceiptAtomically,
+  peekReceiptConflict,
   ReceiptError,
   FORBIDDEN_RECEIPT_FIELDS,
 } from "./lib/receipt.mjs";
 import { verifyOutputTreeShape } from "./lib/output-tree.mjs";
 import { selectReceiptsForRelease, receiptToPublicEntry } from "./lib/release-builder.mjs";
+import { validateReleaseSelection } from "./lib/validate-release-selection.mjs";
+import {
+  buildApprovalRecord,
+  validateApprovalRecordShape,
+  writeApprovalRecordAtomically,
+  loadApprovalRecord,
+  verifyApprovalMatchesPlanEntry,
+  verifyApprovalMatchesRegistry,
+  ApprovalError,
+} from "./lib/approval.mjs";
+import { publishTokenVersion, PublishRollbackError } from "./lib/publish-outputs.mjs";
 import { getToolchainFingerprint } from "./lib/report.mjs";
-import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT, NORMALIZATION_POLICY_VERSION } from "./lib/constants.mjs";
+import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT, APPROVALS_ROOT, NORMALIZATION_POLICY_VERSION } from "./lib/constants.mjs";
 import * as fx from "./fixtures/generate.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -402,6 +415,37 @@ async function main() {
 
       const badPathManifest = { ...cleanManifest, entries: [{ ...validEntry, output64Path: "public/assets/rushpi/token-logos/rpt-0001/v1/64/wrong-hash.png" }] };
       check("release manifest path inconsistent with hash/version/tokenId rejected", validateReleaseManifest(badPathManifest, registry).some((e) => /inconsistent with tokenId\/logoVersion\/size\/hash/.test(e)));
+
+      // Section 7: complete public-manifest validation.
+      const badSchemaManifest = { ...cleanManifest, schemaVersion: 99 };
+      check("release manifest wrong schemaVersion rejected", validateReleaseManifest(badSchemaManifest, registry).some((e) => /schemaVersion must be/.test(e)));
+
+      const missingContentHash = { ...cleanManifest, contentHash: undefined };
+      check("release manifest missing contentHash rejected", validateReleaseManifest(missingContentHash, registry).some((e) => /contentHash is missing/.test(e)));
+
+      const wrongContentHash = { ...cleanManifest, contentHash: "0".repeat(64) };
+      check("release manifest wrong contentHash rejected", validateReleaseManifest(wrongContentHash, registry).some((e) => /contentHash mismatch/.test(e)));
+
+      const missingLogoReleaseVersion = { ...cleanManifest, logoReleaseVersion: undefined };
+      check("release manifest missing logoReleaseVersion rejected", validateReleaseManifest(missingLogoReleaseVersion, registry).some((e) => /logoReleaseVersion is missing/.test(e)));
+
+      const wrongLogoReleaseVersion = { ...cleanManifest, logoReleaseVersion: "logo-release-v1-0000000000000000" };
+      check("release manifest wrong logoReleaseVersion rejected", validateReleaseManifest(wrongLogoReleaseVersion, registry).some((e) => /logoReleaseVersion mismatch/.test(e)));
+
+      const missingEntryCount = { ...cleanManifest, entryCount: undefined };
+      check("release manifest missing entryCount rejected", validateReleaseManifest(missingEntryCount, registry).some((e) => /entryCount must equal/.test(e)));
+
+      const wrongEntryCount = { ...cleanManifest, entryCount: 5 };
+      check("release manifest wrong entryCount rejected", validateReleaseManifest(wrongEntryCount, registry).some((e) => /entryCount must equal/.test(e)));
+
+      const secondEntry = { ...validEntry, tokenId: "rpt-0002" };
+      const outOfOrderManifest = { ...cleanManifest, entries: [secondEntry, validEntry] };
+      check("release manifest out-of-order entries rejected", validateReleaseManifest(outOfOrderManifest, registry).some((e) => /deterministic ascending tokenId order/.test(e)));
+
+      const invalidTokenIdManifest = { ...cleanManifest, entries: [{ ...validEntry, tokenId: "not-a-token" }] };
+      check("release manifest invalid tokenId format rejected", validateReleaseManifest(invalidTokenIdManifest, registry).some((e) => /invalid tokenId/.test(e)));
+
+      check("empty-state logoReleaseVersion is the expected deterministic value", buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries: [] }).logoReleaseVersion === "logo-release-v1-67cef4c7147b2f4c");
     }
 
     // ---------------------------------------------------------------
@@ -432,6 +476,7 @@ async function main() {
     const pipelineIntakeRoot = path.join(fakeRepoRoot, "tools/logos/intake");
     const pipelineOutputRoot = path.join(fakeRepoRoot, TOKEN_LOGOS_OUTPUT_ROOT);
     const pipelineReceiptsRoot = path.join(fakeRepoRoot, RECEIPTS_ROOT);
+    const pipelineApprovalsRoot = path.join(fakeRepoRoot, APPROVALS_ROOT);
     mkdirSync(pipelineIntakeRoot, { recursive: true });
 
     function writeIntake(name, content) {
@@ -439,7 +484,15 @@ async function main() {
       return sha256Hex(Buffer.from(content));
     }
 
+    /** Freeze the approval record for `entry` (must already be source-approved). */
+    function freeze(entry) {
+      const record = buildApprovalRecord(entry);
+      writeApprovalRecordAtomically(pipelineApprovalsRoot, record);
+      return record;
+    }
+
     let ethReceipt;
+    let ethApproval;
     await checkAsync("end-to-end pipeline succeeds for a fully approved synthetic fixture and writes a valid receipt", async () => {
       const hash = writeIntake("eth-mark.svg", fx.validPaddedSvg);
       const entry = approvedEntry({
@@ -452,24 +505,43 @@ async function main() {
         intakePath: "eth-mark.svg",
         approvedSourceContentHash: hash,
       });
+      ethApproval = freeze(entry);
       const { receipt, receiptPath } = await normalizeApprovedToken({
-        entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot,
+        entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot,
+        approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry,
       });
       ethReceipt = receipt;
       const verifyErrs = await verifyReceiptAgainstOutputs(receipt, fakeRepoRoot, registry);
-      return receiptPath.endsWith("rpt-0002-v1.json") && verifyErrs.length === 0;
+      const bindingErrs = verifyReceiptApprovalBinding(receipt, pipelineApprovalsRoot, registry);
+      return receiptPath.endsWith("rpt-0002-v1.json") && verifyErrs.length === 0 && bindingErrs.length === 0 && receipt.approvalRecordContentHash === ethApproval.approvalRecordContentHash;
     });
 
+    // Normalization requires the immutable approval record - it is never
+    // enough for the plan entry alone to say source-approved.
+    await checkRejects("normalization is rejected when no approval record has been frozen yet", async () => {
+      writeIntake("unfrozen.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({
+        tokenId: "rpt-0012", providerId: "chainlink", canonicalName: "Chainlink", symbol: "LINK",
+        expectedMimeClass: "image/svg+xml", intakePath: "unfrozen.svg",
+        approvedSourceContentHash: sha256Hex(Buffer.from(fx.validSimpleSvg)),
+      });
+      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
+    }, "approval-record-missing-or-invalid");
+
     // 3. source bytes differing from approvedSourceContentHash are rejected,
-    // BEFORE rasterization/normalization.
+    // BEFORE rasterization/normalization: freeze against the real bytes, then
+    // tamper with the intake FILE ON DISK after freezing (the plan entry
+    // itself still matches the frozen approval - only the bytes changed).
     await checkRejects("source bytes differing from approvedSourceContentHash are rejected", async () => {
-      writeIntake("mismatch.svg", fx.validSimpleSvg);
+      const realHash = writeIntake("mismatch.svg", fx.validSimpleSvg);
       const entry = approvedEntry({
         tokenId: "rpt-0004", providerId: "tether", canonicalName: "Tether", symbol: "USDT",
         expectedMimeClass: "image/svg+xml", intakePath: "mismatch.svg",
-        approvedSourceContentHash: "f".repeat(64), // deliberately wrong
+        approvedSourceContentHash: realHash,
       });
-      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot });
+      freeze(entry);
+      writeIntake("mismatch.svg", fx.validPaddedSvg); // swap the file after approval was frozen
+      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
     }, "source-hash-mismatch");
 
     // 4. matching bytes proceed (already proven by the successful pipeline
@@ -529,7 +601,7 @@ async function main() {
     await checkRejects("invalid expectedLogoVersion is rejected at the pipeline level", async () => {
       const hash = writeIntake("badver.svg", fx.validSimpleSvg);
       const entry = approvedEntry({ expectedMimeClass: "image/svg+xml", intakePath: "badver.svg", approvedSourceContentHash: hash, expectedLogoVersion: 0 });
-      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot });
+      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
     }, "invalid-expected-logo-version");
     check(
       "missing expectedLogoVersion rejected by validate-source-plan for a source-approved entry",
@@ -625,6 +697,297 @@ async function main() {
       const deterministic = manifestA.contentHash === manifestB.contentHash && manifestA.logoReleaseVersion === manifestB.logoReleaseVersion;
       return noOrphan && includesReceipted && deterministic && validateReleaseManifest(manifestA, registry).length === 0;
     });
+
+    // =================================================================
+    // 12C-1B2B.2: immutable approval chain, atomic publication.
+    // =================================================================
+
+    // --- freeze-approval: gate, hash verification, immutability ----------
+    {
+      let stdout = "";
+      let failed = false;
+      try {
+        stdout = execFileSync("node", ["tools/logos/freeze-approval.mjs", "--token", "rpt-0001"], { cwd: repoRoot, encoding: "utf8" });
+      } catch (e) {
+        failed = true;
+        stdout = (e.stdout || "") + (e.stderr || "");
+      }
+      check("freeze-approval CLI is gated on the real (unresearched) plan", failed && /sourceReviewStatus=source-approved/.test(stdout));
+    }
+
+    await checkAsync("freeze-approval logic refuses when intake bytes don't match approvedSourceContentHash", async () => {
+      writeIntake("freeze-mismatch.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({
+        tokenId: "rpt-0037", providerId: "hyperliquid", canonicalName: "Hyperliquid", symbol: "HYPE",
+        expectedMimeClass: "image/svg+xml", intakePath: "freeze-mismatch.svg",
+        approvedSourceContentHash: "9".repeat(64), // deliberately wrong
+      });
+      try {
+        const fileBuffer = readApprovedIntakeFile(entry, pipelineIntakeRoot);
+        const actual = sha256Hex(fileBuffer);
+        return actual !== entry.approvedSourceContentHash; // freeze-approval.mjs would stop here
+      } catch {
+        return false;
+      }
+    });
+
+    let hypeApproval;
+    await checkAsync("freeze-approval writes a valid, self-consistent approval record for matching bytes", async () => {
+      const hash = writeIntake("hype-mark.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({
+        tokenId: "rpt-0037", providerId: "hyperliquid", canonicalName: "Hyperliquid", symbol: "HYPE",
+        expectedMimeClass: "image/svg+xml", intakePath: "hype-mark.svg", approvedSourceContentHash: hash,
+      });
+      const fileBuffer = readApprovedIntakeFile(entry, pipelineIntakeRoot);
+      if (sha256Hex(fileBuffer) !== hash) return false;
+      hypeApproval = freeze(entry);
+      return validateApprovalRecordShape(hypeApproval).length === 0 && verifyApprovalMatchesRegistry(hypeApproval, registry).length === 0;
+    });
+    check(
+      "re-freezing identical content is an idempotent no-op",
+      (() => {
+        const entry = approvedEntry({
+          tokenId: "rpt-0037", providerId: "hyperliquid", canonicalName: "Hyperliquid", symbol: "HYPE",
+          expectedMimeClass: "image/svg+xml", intakePath: "hype-mark.svg", approvedSourceContentHash: hypeApproval.approvedSourceContentHash,
+        });
+        const second = freeze(entry);
+        return JSON.stringify(second) === JSON.stringify(hypeApproval);
+      })(),
+    );
+    check(
+      "re-freezing with different content is rejected (immutability)",
+      (() => {
+        const mutated = approvedEntry({
+          tokenId: "rpt-0037", providerId: "hyperliquid", canonicalName: "Hyperliquid", symbol: "HYPE",
+          expectedMimeClass: "image/svg+xml", intakePath: "hype-mark.svg", approvedSourceContentHash: hypeApproval.approvedSourceContentHash,
+          notes: "a completely different note",
+        });
+        try {
+          freeze(mutated);
+          return false;
+        } catch (e) {
+          return e instanceof ApprovalError;
+        }
+      })(),
+    );
+
+    // --- approval binding: publication chain tests (section 8) -----------
+
+    // Source-plan mutation after freeze blocks processing for that exact
+    // version - proven end-to-end through normalizeApprovedToken (not just
+    // the pure verifyApprovalMatchesPlanEntry unit check above).
+    await checkRejects("source-plan mutation after freeze blocks processing for that logoVersion", async () => {
+      const hash = writeIntake("tia-mark.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({
+        tokenId: "rpt-0058", providerId: "celestia", canonicalName: "Celestia", symbol: "TIA",
+        expectedMimeClass: "image/svg+xml", intakePath: "tia-mark.svg", approvedSourceContentHash: hash,
+      });
+      freeze(entry);
+      const mutated = { ...entry, permittedVariant: "a different variant description" };
+      await normalizeApprovedToken({ entry: mutated, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
+    }, "approval-record-plan-drift");
+
+    // An output + a HANDWRITTEN receipt with no approval record at all is an
+    // "approval-unbound receipt" and must be rejected. Uses its OWN isolated
+    // temp roots so this deliberately-bad receipt never pollutes the
+    // pipelineReceiptsRoot used by later tests (e.g. the full-chain
+    // determinism check, which loads every receipt in pipelineReceiptsRoot).
+    await checkAsync("a handwritten receipt with no approval record is rejected as unbound", async () => {
+      const unboundRoot = path.join(tmpRoot, "unbound-receipt-test");
+      const unboundOutputRoot = path.join(unboundRoot, "output");
+      const unboundReceiptsRoot = path.join(unboundRoot, "receipts");
+      const unboundApprovalsRoot = path.join(unboundRoot, "approvals");
+      const buf = await fx.validPngMark();
+      const buf64 = await sharp(buf).resize(64, 64).png().toBuffer();
+      const buf128 = await sharp(buf).resize(128, 128).png().toBuffer();
+      const hash64 = sha256Hex(buf64);
+      const hash128 = sha256Hex(buf128);
+      writeOutputAtomically(unboundOutputRoot, "rpt-0041", 1, 64, hash64, buf64);
+      writeOutputAtomically(unboundOutputRoot, "rpt-0041", 1, 128, hash128, buf128);
+      const handwritten = buildReceipt({
+        tokenId: "rpt-0041", catalogVersion: registry.catalogVersion, logoVersion: 1, normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+        approvedSourceContentHash: "1".repeat(64), actualSourceContentHash: "1".repeat(64),
+        sourceMimeType: "image/png", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+        output64Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0041/v1/64/${hash64}.png`,
+        output128Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0041/v1/128/${hash128}.png`,
+        output64Hash: hash64, output128Hash: hash128,
+        approvalRecordContentHash: "2".repeat(64), // no approval record exists for this hash at all
+        toolchain: getToolchainFingerprint(),
+      });
+      writeReceiptAtomically(unboundReceiptsRoot, handwritten);
+      const bindingErrs = verifyReceiptApprovalBinding(handwritten, unboundApprovalsRoot, registry);
+      return bindingErrs.some((e) => /no valid approval record found/.test(e));
+    });
+
+    // invalid approvalRecordContentHash (bad format) is rejected at the shape
+    // level; a well-formed but WRONG hash is rejected at the binding level.
+    check(
+      "invalid approvalRecordContentHash format is rejected",
+      validateReceiptShape(buildReceipt({
+        tokenId: "rpt-0001", catalogVersion: registry.catalogVersion, logoVersion: 1, normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+        approvedSourceContentHash: "a".repeat(64), actualSourceContentHash: "a".repeat(64),
+        sourceMimeType: "image/png", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+        output64Path: "x", output128Path: "y", output64Hash: "c".repeat(64), output128Hash: "d".repeat(64),
+        approvalRecordContentHash: "not-a-valid-hash",
+        toolchain: getToolchainFingerprint(),
+      })).some((e) => /approvalRecordContentHash is invalid/.test(e)),
+    );
+    await checkAsync("receipt approvalRecordContentHash not matching its approval record's own hash is rejected", async () => {
+      const mismatched = { ...ethReceipt, approvalRecordContentHash: "f".repeat(64) };
+      const errs = verifyReceiptApprovalBinding(mismatched, pipelineApprovalsRoot, registry);
+      return errs.some((e) => /does not match the approval record's own hash/.test(e));
+    });
+
+    // Future v2 approval does not invalidate validated v1 artifacts: freeze
+    // + process v1 for a token, then freeze a DIFFERENT candidate as v2 for
+    // the SAME token, and confirm v1's receipt/approval/outputs are still
+    // fully valid and unaffected.
+    await checkAsync("a future v2 approval does not invalidate previously validated v1 artifacts", async () => {
+      const hashV1 = writeIntake("fet-v1.svg", fx.validSimpleSvg);
+      const entryV1 = approvedEntry({
+        tokenId: "rpt-0070", providerId: "fetch-ai", canonicalName: "Artificial Superintelligence Alliance", symbol: "FET",
+        expectedMimeClass: "image/svg+xml", intakePath: "fet-v1.svg", approvedSourceContentHash: hashV1, expectedLogoVersion: 1,
+      });
+      freeze(entryV1);
+      const { receipt: receiptV1 } = await normalizeApprovedToken({ entry: entryV1, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
+
+      const v1ValidBefore = (await verifyReceiptAgainstOutputs(receiptV1, fakeRepoRoot, registry)).length === 0
+        && verifyReceiptApprovalBinding(receiptV1, pipelineApprovalsRoot, registry).length === 0;
+
+      // Now freeze a DIFFERENT approved candidate as v2 for the same token.
+      const hashV2 = writeIntake("fet-v2.svg", fx.validPaddedSvg);
+      const entryV2 = approvedEntry({
+        tokenId: "rpt-0070", providerId: "fetch-ai", canonicalName: "Artificial Superintelligence Alliance", symbol: "FET",
+        expectedMimeClass: "image/svg+xml", intakePath: "fet-v2.svg", approvedSourceContentHash: hashV2, expectedLogoVersion: 2,
+        cropMode: "preserve-canvas",
+      });
+      freeze(entryV2);
+      // Also process v2, so a genuine second receipted version exists for
+      // the section-6 release-selection disambiguation tests below - and to
+      // prove v2's own processing has no bearing on v1's validity either.
+      await normalizeApprovedToken({ entry: entryV2, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, approvalsRoot: pipelineApprovalsRoot, repoRoot: fakeRepoRoot, registry });
+
+      const v1ValidAfter = (await verifyReceiptAgainstOutputs(receiptV1, fakeRepoRoot, registry)).length === 0
+        && verifyReceiptApprovalBinding(receiptV1, pipelineApprovalsRoot, registry).length === 0;
+
+      return v1ValidBefore && v1ValidAfter;
+    });
+
+    // Approval fields never leak into the public manifest.
+    check(
+      "approvalRecordContentHash never appears in a receiptToPublicEntry projection",
+      !Object.prototype.hasOwnProperty.call(receiptToPublicEntry(ethReceipt), "approvalRecordContentHash"),
+    );
+    check("FORBIDDEN_PUBLIC_FIELDS includes approvalRecordContentHash", FORBIDDEN_PUBLIC_FIELDS.includes("approvalRecordContentHash"));
+
+    // Full synthetic approval -> receipt -> manifest chain is deterministic.
+    await checkAsync("the full synthetic approval-to-manifest chain is deterministic across two independent builds", async () => {
+      const { receipts } = loadAllReceipts(pipelineReceiptsRoot);
+      for (const r of receipts) {
+        const outputErrs = await verifyReceiptAgainstOutputs(r, fakeRepoRoot, registry);
+        const bindingErrs = verifyReceiptApprovalBinding(r, pipelineApprovalsRoot, registry);
+        if (outputErrs.length > 0 || bindingErrs.length > 0) return false;
+      }
+      const selection = { schemaVersion: 1, selections: { "rpt-0070": 2 } }; // disambiguate FET v1/v2
+      const selectionErrs = validateReleaseSelection(selection, receipts, registry);
+      if (selectionErrs.length > 0) return false;
+      const { chosen, errors: pickErrs } = selectReceiptsForRelease(receipts, selection);
+      if (pickErrs.length > 0) return false;
+      const entries = chosen.map(receiptToPublicEntry);
+      const manifestA = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries });
+      const manifestB = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries });
+      return manifestA.contentHash === manifestB.contentHash && manifestA.logoReleaseVersion === manifestB.logoReleaseVersion && validateReleaseManifest(manifestA, registry).length === 0;
+    });
+
+    // --- release-selection.json validation (section 6) --------------------
+    {
+      const { receipts } = loadAllReceipts(pipelineReceiptsRoot);
+      const validSel = { schemaVersion: 1, selections: { "rpt-0070": 2 } };
+      check("valid release-selection passes", validateReleaseSelection(validSel, receipts, registry).length === 0);
+      check("non-object selections rejected", validateReleaseSelection({ schemaVersion: 1, selections: [1, 2] }, receipts, registry).some((e) => /must be a non-array object/.test(e)));
+      check("invalid tokenId key rejected", validateReleaseSelection({ schemaVersion: 1, selections: { bogus: 1 } }, receipts, registry).some((e) => /invalid tokenId format/.test(e)));
+      check("tokenId absent from registry rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-9999": 1 } }, receipts, registry).some((e) => /absent from the approved V2 registry/.test(e)));
+      check("non-positive logoVersion rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0070": 0 } }, receipts, registry).some((e) => /positive integer/.test(e)));
+      check("non-integer logoVersion rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0070": "two" } }, receipts, registry).some((e) => /positive integer/.test(e)));
+      check("selected version without a verified receipt rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0070": 99 } }, receipts, registry).some((e) => /no verified receipt/.test(e)));
+      check("stale selection for a token with only one receipt rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0002": 1 } }, receipts, registry).some((e) => /stale selection entry/.test(e)));
+      check("selection entry for a token with no receipt at all rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0142": 1 } }, receipts, registry).some((e) => /no verified receipt exists at all/.test(e)));
+      check("unknown top-level field in release-selection rejected", validateReleaseSelection({ schemaVersion: 1, selections: {}, extra: true }, receipts, registry).some((e) => /unknown top-level field/.test(e)));
+    }
+
+    // --- failure-injection / rollback tests (section 5) -------------------
+    {
+      const rollbackRoot = path.join(tmpRoot, "rollback");
+      const rollbackOutputRoot = path.join(rollbackRoot, "output");
+      const rollbackReceiptsRoot = path.join(rollbackRoot, "receipts");
+      async function makeBuffers() {
+        const b64 = await sharp({ create: { width: 64, height: 64, channels: 4, background: { r: 11, g: 22, b: 33, alpha: 1 } } }).png().toBuffer();
+        const b128 = await sharp({ create: { width: 128, height: 128, channels: 4, background: { r: 44, g: 55, b: 66, alpha: 1 } } }).png().toBuffer();
+        return { b64, b128, h64: sha256Hex(b64), h128: sha256Hex(b128) };
+      }
+      function candidate(tokenId, h64, h128, over = {}) {
+        return buildReceipt({
+          tokenId, catalogVersion: registry.catalogVersion, logoVersion: 1, normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+          approvedSourceContentHash: "1".repeat(64), actualSourceContentHash: "1".repeat(64),
+          sourceMimeType: "image/png", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+          output64Path: outputPathFor(rollbackOutputRoot, tokenId, 1, 64, h64), output128Path: outputPathFor(rollbackOutputRoot, tokenId, 1, 128, h128),
+          output64Hash: h64, output128Hash: h128, approvalRecordContentHash: "2".repeat(64), toolchain: getToolchainFingerprint(), ...over,
+        });
+      }
+
+      await checkAsync("128 write failure after the 64 stage rolls back the newly created 64 file", async () => {
+        const { b64, b128, h64, h128 } = await makeBuffers();
+        const p64 = outputPathFor(rollbackOutputRoot, "rpt-0001", 1, 64, h64);
+        try {
+          await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0001", logoVersion: 1, buf64: b64, buf128: b128, hash64: h64, hash128: h128, candidateReceipt: candidate("rpt-0001", h64, h128), testOnly: { throwAfter: "after64Write" } });
+          return false;
+        } catch (e) {
+          return e instanceof PublishRollbackError && !existsSyncSafe(p64);
+        }
+      });
+
+      await checkAsync("receipt write failure after both outputs rolls back both newly created outputs", async () => {
+        const { b64, b128, h64, h128 } = await makeBuffers();
+        const p64 = outputPathFor(rollbackOutputRoot, "rpt-0002", 1, 64, h64);
+        const p128 = outputPathFor(rollbackOutputRoot, "rpt-0002", 1, 128, h128);
+        try {
+          await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0002", logoVersion: 1, buf64: b64, buf128: b128, hash64: h64, hash128: h128, candidateReceipt: candidate("rpt-0002", h64, h128), testOnly: { throwAfter: "afterReceiptWrite" } });
+          return false;
+        } catch (e) {
+          return e instanceof PublishRollbackError && !existsSyncSafe(p64) && !existsSyncSafe(p128);
+        }
+      });
+
+      await checkAsync("a pre-existing identical output is idempotent (no error, no spurious rollback)", async () => {
+        const { b64, b128, h64, h128 } = await makeBuffers();
+        await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0004", logoVersion: 1, buf64: b64, buf128: b128, hash64: h64, hash128: h128, candidateReceipt: candidate("rpt-0004", h64, h128) });
+        const result = await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0004", logoVersion: 1, buf64: b64, buf128: b128, hash64: h64, hash128: h128, candidateReceipt: candidate("rpt-0004", h64, h128) });
+        return existsSyncSafe(result.path64) && existsSyncSafe(result.path128) && existsSyncSafe(result.receiptPath);
+      });
+
+      await checkAsync("a pre-existing conflicting output is rejected and the original is preserved (cleanup never deletes pre-existing files)", async () => {
+        const { b64, b128, h64, h128 } = await makeBuffers();
+        await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0012", logoVersion: 1, buf64: b64, buf128: b128, hash64: h64, hash128: h128, candidateReceipt: candidate("rpt-0012", h64, h128) });
+        const p64Original = outputPathFor(rollbackOutputRoot, "rpt-0012", 1, 64, h64);
+        const otherB64 = await sharp({ create: { width: 64, height: 64, channels: 4, background: { r: 200, g: 1, b: 1, alpha: 1 } } }).png().toBuffer();
+        const otherH64 = sha256Hex(otherB64);
+        try {
+          await publishTokenVersion({ outputRoot: rollbackOutputRoot, receiptsRoot: rollbackReceiptsRoot, tokenId: "rpt-0012", logoVersion: 1, buf64: otherB64, buf128: b128, hash64: otherH64, hash128: h128, candidateReceipt: candidate("rpt-0012", otherH64, h128) });
+          return false;
+        } catch (e) {
+          return e.constructor.name === "OutputConflictError" && existsSyncSafe(p64Original);
+        }
+      });
+    }
+
+    function existsSyncSafe(p) {
+      try {
+        readFileSync(p);
+        return true;
+      } catch {
+        return false;
+      }
+    }
 
     // Sanity: the pilot template itself must remain fully unresearched and
     // internally valid (guards against accidental drift while iterating).
