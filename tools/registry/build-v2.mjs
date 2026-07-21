@@ -15,7 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { computeContentHash, computeCatalogVersion } from "./lib/canonical.mjs";
 import { classifyExclusion } from "./lib/v2Exclusions.mjs";
-import { computeBaseline, pairSubstitutions } from "./lib/v2Baseline.mjs";
+import { computeBaseline } from "./lib/v2Baseline.mjs";
 import { V2_NEW_ENTRIES } from "./data/v2-metadata.mjs";
 import { V2_RECOGNIZED_ELIGIBLE } from "./data/v2-recognized-eligible.mjs";
 import { V2_DIVERSITY_SUBSTITUTIONS } from "./data/v2-substitutions.mjs";
@@ -110,33 +110,54 @@ function main() {
   const recognizedEligible = new Set(V2_RECOGNIZED_ELIGIBLE.map((r) => r.id));
   const base = computeBaseline({ rows: capture.rows, v1Ids, selectedNonV1, recognizedEligible, targetCount: TARGET_COUNT });
 
-  // Authored substitution rationales must match the computed displaced set 1:1.
+  // EXPLICIT, human-curated pairs (12C-1B1.2) — NOT rank-zipped. Validate that
+  // they exactly cover the computed baseline sets, are a bijection, and each is
+  // a genuine reach-down (selectedRank > displacedRank). Semantic rationale
+  // rules are enforced separately by lib/validateV2.mjs / validate-v2.mjs.
   const displacedSet = new Set(base.displaced);
-  const authoredDisplaced = new Set(V2_DIVERSITY_SUBSTITUTIONS.map((s) => s.displacedId));
-  const missingRationale = [...displacedSet].filter((id) => !authoredDisplaced.has(id));
-  const staleRationale = [...authoredDisplaced].filter((id) => !displacedSet.has(id));
-  if (missingRationale.length || staleRationale.length) {
-    throw new Error(`substitution rationales out of sync with computed displaced set. missing=${missingRationale.join(",")} stale=${staleRationale.join(",")}`);
-  }
-  const rationaleById = new Map(V2_DIVERSITY_SUBSTITUTIONS.map((s) => [s.displacedId, s]));
+  const extraSet = new Set(base.extra);
   const cateById = new Map(V2_RECOGNIZED_ELIGIBLE.map((r) => [r.id, r.category]));
   const tokenIdByCg = new Map(entries.map((e) => [e.providerIds.coingecko, e.tokenId]));
   const entryByCg = new Map(entries.map((e) => [e.providerIds.coingecko, e]));
 
-  const pairs = pairSubstitutions(base.displaced, base.extra, base.rankLookup);
-  const displacedToSelected = new Map(pairs.map((p) => [p.displacedId, p]));
+  const subSel = new Set();
+  const subDisp = new Set();
+  for (const s of V2_DIVERSITY_SUBSTITUTIONS) {
+    if (!s.selectedId || !s.displacedId) throw new Error("substitution entry missing selectedId/displacedId");
+    if (subSel.has(s.selectedId)) throw new Error(`selected ${s.selectedId} used in more than one pair`);
+    if (subDisp.has(s.displacedId)) throw new Error(`displaced ${s.displacedId} used in more than one pair`);
+    subSel.add(s.selectedId);
+    subDisp.add(s.displacedId);
+    if (!extraSet.has(s.selectedId)) throw new Error(`selected ${s.selectedId} is not a proposal entry outside the baseline`);
+    if (!displacedSet.has(s.displacedId)) throw new Error(`displaced ${s.displacedId} is not a baseline member outside the proposal`);
+    const sr = base.rankLookup(s.selectedId);
+    const dr = base.rankLookup(s.displacedId);
+    if (!(typeof sr === "number" && typeof dr === "number" && sr > dr)) {
+      throw new Error(`pair ${s.selectedId}<-${s.displacedId}: selectedRank (${sr}) must be numerically greater than displacedRank (${dr})`);
+    }
+  }
+  const uncoveredExtra = [...extraSet].filter((id) => !subSel.has(id));
+  const uncoveredDisplaced = [...displacedSet].filter((id) => !subDisp.has(id));
+  if (uncoveredExtra.length || uncoveredDisplaced.length) {
+    throw new Error(`explicit pairs must exactly cover the baseline sets. uncovered extra=${uncoveredExtra.join(",")} uncovered displaced=${uncoveredDisplaced.join(",")}`);
+  }
 
-  const substitutionPairs = pairs
-    .map((p) => {
-      const sel = entryByCg.get(p.selectedId);
-      const dispRow = captureById.get(p.displacedId);
-      const r = rationaleById.get(p.displacedId);
+  const rationaleById = new Map(V2_DIVERSITY_SUBSTITUTIONS.map((s) => [s.displacedId, s]));
+  const displacedToSelectedTokenId = new Map(V2_DIVERSITY_SUBSTITUTIONS.map((s) => [s.displacedId, tokenIdByCg.get(s.selectedId)]));
+
+  const substitutionPairs = V2_DIVERSITY_SUBSTITUTIONS
+    .map((s) => {
+      const sel = entryByCg.get(s.selectedId);
+      const selRow = captureById.get(s.selectedId);
+      const dispRow = captureById.get(s.displacedId);
+      const sr = selRow.marketCapRank ?? null;
+      const dr = dispRow.marketCapRank ?? null;
       return {
-        selected: { tokenId: sel.tokenId, providerId: p.selectedId, name: sel.name, symbol: sel.symbol, marketCapRank: p.selectedRank, category: sel.category },
-        displaced: { providerId: p.displacedId, name: dispRow.name, symbol: dispRow.symbol, marketCapRank: p.displacedRank, category: cateById.get(p.displacedId) ?? null },
-        rationaleCode: r.rationaleCode,
-        explanation: r.explanation,
-        rankDelta: p.rankDelta,
+        selected: { tokenId: sel.tokenId, providerId: s.selectedId, name: sel.name, symbol: sel.symbol, marketCapRank: sr, category: sel.category },
+        displaced: { providerId: s.displacedId, name: dispRow.name, symbol: dispRow.symbol, marketCapRank: dr, category: cateById.get(s.displacedId) ?? null },
+        rationaleCode: s.rationaleCode,
+        explanation: s.explanation,
+        rankDelta: sr !== null && dr !== null ? sr - dr : null,
       };
     })
     .sort((a, b) => (a.displaced.marketCapRank ?? 1e9) - (b.displaced.marketCapRank ?? 1e9));
@@ -170,11 +191,10 @@ function main() {
     let displacedForTokenId; let rationaleCode;
     if (displacedSet.has(r.id)) {
       const rat = rationaleById.get(r.id);
-      const pair = displacedToSelected.get(r.id);
       reasonCode = "diversity-substitution";
       rationaleCode = rat.rationaleCode;
       explanation = rat.explanation;
-      displacedForTokenId = tokenIdByCg.get(pair.selectedId); // the retained selection kept over it
+      displacedForTokenId = displacedToSelectedTokenId.get(r.id); // the retained selection kept over it
     } else if (recognizedEligible.has(r.id)) {
       reasonCode = "lower-priority-capacity-cutoff";
       explanation = "Recognizable eligible asset ranked below the top-214 baseline fill cutoff.";

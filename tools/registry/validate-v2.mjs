@@ -114,9 +114,21 @@ function main() {
   const diversityExclusionIds = new Set(
     exclusions.exclusions.filter((x) => x.reasonCode === "diversity-substitution").map((x) => x.providerId),
   );
-  errors.push(...validateSubstitutionSets(report.diversitySubstitutions.pairs, selectedCg, diversityExclusionIds));
+  const categoryCounts = {};
+  for (const e of registry.entries) categoryCounts[e.category] = (categoryCounts[e.category] ?? 0) + 1;
+  errors.push(...validateSubstitutionSets(report.diversitySubstitutions.pairs, selectedCg, diversityExclusionIds, categoryCounts));
   if (report.baseline.trueDiversitySubstitutionCount !== report.diversitySubstitutions.pairs.length) {
     errors.push("curation report trueDiversitySubstitutionCount disagrees with the pair list length");
+  }
+  // Every diversity-substitution exclusion must point back at a real kept entry.
+  const selectedTokenIds = new Set(registry.entries.map((e) => e.tokenId));
+  for (const x of exclusions.exclusions) {
+    if (x.reasonCode === "diversity-substitution") {
+      if (!x.rationaleCode) errors.push(`diversity exclusion ${x.providerId}: missing rationaleCode`);
+      if (!x.displacedForTokenId || !selectedTokenIds.has(x.displacedForTokenId)) {
+        errors.push(`diversity exclusion ${x.providerId}: displacedForTokenId must reference a kept entry`);
+      }
+    }
   }
 
   // Uncertain-entry review: all ten present, verified ones in the catalog.

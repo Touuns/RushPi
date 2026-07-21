@@ -59,10 +59,28 @@ The differences from that baseline are reported separately in
 - **hardExclusionTailFills** — baseline members past rank 250 pulled in only
   because higher-ranked candidates were hard-excluded (not discretionary).
 - **trueDiversitySubstitutions** — the ≤ 30 deliberate choices of a lower-ranked
-  distinct-category asset over a higher-ranked eligible one. Each is a 1:1 pair
-  (selected ↔ displaced) with a controlled `rationaleCode`, a specific
-  explanation and a rank delta; the displaced asset appears in `exclusions.json`
-  with `reasonCode: "diversity-substitution"`.
+  distinct-category asset over a higher-ranked eligible one. Each is an
+  **explicit, human-curated 1:1 pair** authored in
+  `tools/registry/data/v2-substitutions.mjs` — `selectedId` ↔ `displacedId`,
+  a controlled `rationaleCode`, and a pair-specific explanation naming both
+  sides. The displaced asset appears in `exclusions.json` with
+  `reasonCode: "diversity-substitution"` and `displacedForTokenId` pointing at
+  the retained selection.
+
+  **Pairs are NOT rank-zipped (12C-1B1.2).** The build only *validates* the
+  authored pairs against the computed baseline sets (selected must be a proposal
+  entry outside the baseline; displaced a baseline member outside the proposal;
+  `selectedRank > displacedRank`; strict bijection covering both sets). Semantic
+  rules per `rationaleCode` are enforced by `lib/validateV2.mjs`:
+  `stablecoin-overweight-avoidance` (displaced is a stablecoin, selected is not),
+  `category-coverage` (selected category thinner than the displaced category),
+  `redundant-subsector` (same broad category; the shared subsector is named),
+  `identity-ambiguity-preference` (displaced identity ambiguous, selected
+  verified). Four picks that could not be honestly paired under the fixed
+  extra/displaced sets were swapped toward the baseline (out: `concordium`,
+  `pharos-network`, `ontology`, `xyo-network`; in: `zama`, `lorenzo-protocol`,
+  `proton`, `stronghold-token`), leaving the eligible universe unchanged and
+  **26** honest substitutions.
 
 ## Uncertain-entry identity review
 

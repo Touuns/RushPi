@@ -200,23 +200,84 @@ check("secret detected", findSecrets('{"api_key":"zzz"}').length > 0);
   check("reorder preserves registry contentHash", computeContentHash(SCHEMA, forward) === computeContentHash(SCHEMA, reversed));
 }
 
-// 14. Diversity-substitution invariants.
+// 14. Explicit diversity-substitution invariants (12C-1B1.2).
 {
-  const selected = new Set(["kept1", "kept2"]);
+  const selected = new Set(["k_sc", "k_oracle", "k_defi"]);
+  const cats = { stablecoin: 15, defi: 41, oracle: 3, "smart-contract": 42, ai: 11 };
+  const pair = (sel, disp, code, exp) => ({ selected: { providerId: sel.id, name: sel.name, symbol: sel.sym, marketCapRank: sel.r, category: sel.c }, displaced: { providerId: disp.id, name: disp.name, symbol: disp.sym, marketCapRank: disp.r, category: disp.c }, rationaleCode: code, explanation: exp });
+  const scSel = { id: "k_sc", name: "Kava", sym: "KAVA", r: 445, c: "smart-contract" };
+  const stableDisp = { id: "d_usd", name: "Global Dollar", sym: "USDG", r: 28, c: "stablecoin" };
+  const oracleSel = { id: "k_oracle", name: "Tellor", sym: "TRB", r: 500, c: "oracle" };
+  const defiDisp = { id: "d_defi", name: "Olympus", sym: "OHM", r: 137, c: "defi" };
+  const defiSel = { id: "k_defi", name: "Venus", sym: "XVS", r: 457, c: "defi" };
+  const perpDisp = { id: "d_perp", name: "Aster", sym: "ASTER", r: 47, c: "defi" };
   const good = [
-    { selected: { providerId: "kept1" }, displaced: { providerId: "disp1" }, rationaleCode: "redundant-subsector" },
-    { selected: { providerId: "kept2" }, displaced: { providerId: "disp2" }, rationaleCode: "category-coverage" },
+    pair(scSel, stableDisp, "stablecoin-overweight-avoidance", "Global Dollar (USDG) is a ~$1 peg; Kava is a distinctly-priced smart-contract L1 that adds real price movement."),
+    pair(oracleSel, defiDisp, "category-coverage", "Olympus is a DeFi token (DeFi at 41); Tellor strengthens the far thinner oracle category (3)."),
+    pair(defiSel, perpDisp, "redundant-subsector", "Aster is a perpetuals-DEX subsector already covered; Venus supplies the distinct money-market lending subsector."),
   ];
-  const diversityIds = new Set(["disp1", "disp2"]);
-  check("valid substitution set passes", validateSubstitutionSets(good, selected, diversityIds).length === 0);
-  const overlap = [{ selected: { providerId: "kept1" }, displaced: { providerId: "kept2" }, rationaleCode: "redundant-subsector" }];
-  check("substitution overlap rejected", validateSubstitutionSets(overlap, selected, new Set(["kept2"])).some((e) => /also selected/.test(e)));
-  const noExcl = [{ selected: { providerId: "kept1" }, displaced: { providerId: "disp1" }, rationaleCode: "redundant-subsector" }];
-  check("displaced missing exclusion rejected", validateSubstitutionSets(noExcl, selected, new Set()).some((e) => /missing a diversity-substitution exclusion/.test(e)));
-  const tooMany = Array.from({ length: 31 }, (_, i) => ({ selected: { providerId: `k${i}` }, displaced: { providerId: `d${i}` }, rationaleCode: "category-coverage" }));
+  const divIds = new Set(["d_usd", "d_defi", "d_perp"]);
+  check("valid explicit substitution set passes", validateSubstitutionSets(good, selected, divIds, cats).length === 0);
+
+  // stablecoin rule: displaced must be a stablecoin.
+  const badStable = [pair(scSel, defiDisp, "stablecoin-overweight-avoidance", "Olympus is a DeFi token; Kava is a smart-contract L1 kept instead of it.")];
+  check("stablecoin rationale w/ non-stable displaced rejected", validateSubstitutionSets(badStable, selected, new Set(["d_defi"]), cats).some((e) => /requires the displaced asset to be a stablecoin/.test(e)));
+
+  // category-coverage rule: selected category must be thinner.
+  const badCov = [pair({ id: "k_sc", name: "Kava", sym: "KAVA", r: 445, c: "smart-contract" }, defiDisp, "category-coverage", "Olympus is DeFi (41); Kava is a smart-contract L1 (42) kept over it.")];
+  check("category-coverage w/ deeper selected rejected", validateSubstitutionSets(badCov, selected, new Set(["d_defi"]), cats).some((e) => /less represented/.test(e)));
+
+  // redundant-subsector rule: categories must match.
+  const badSub = [pair(oracleSel, defiDisp, "redundant-subsector", "Olympus is a DeFi subsector token; Tellor is an oracle kept over it.")];
+  check("redundant-subsector across categories rejected", validateSubstitutionSets(badSub, selected, new Set(["d_defi"]), cats).some((e) => /share the broad category/.test(e)));
+
+  // rank inversion rejected (selectedRank must be > displacedRank).
+  const inv = [pair({ id: "k_defi", name: "Venus", sym: "XVS", r: 40, c: "defi" }, perpDisp, "redundant-subsector", "Aster perpetuals-DEX subsector covered; Venus adds a lending subsector.")];
+  check("rank inversion rejected", validateSubstitutionSets(inv, selected, new Set(["d_perp"]), cats).some((e) => /numerically greater/.test(e)));
+
+  // generic explanation (does not name both sides) rejected.
+  const generic = [pair(defiSel, perpDisp, "redundant-subsector", "Kept a lower-ranked distinct-category asset for diversity in this subsector context.")];
+  check("generic explanation rejected", validateSubstitutionSets(generic, selected, new Set(["d_perp"]), cats).some((e) => /name both/.test(e)));
+
+  // overlap + count guards still hold.
+  const overlap = [pair(defiSel, { id: "k_sc", name: "Kava", sym: "KAVA", r: 10, c: "smart-contract" }, "redundant-subsector", "Kava subsector context; Venus adds lending.")];
+  check("substitution overlap rejected", validateSubstitutionSets(overlap, selected, new Set(["k_sc"]), cats).some((e) => /also selected/.test(e)));
+  const tooMany = Array.from({ length: 31 }, (_, i) => pair({ id: `k${i}`, name: `Sel${i}`, sym: `S${i}`, r: 400 + i, c: "defi" }, { id: `d${i}`, name: `Usd${i}`, sym: `U${i}`, r: 10, c: "stablecoin" }, "stablecoin-overweight-avoidance", `Usd${i} is a peg; Sel${i} adds price movement.`));
   const selMany = new Set(tooMany.map((p) => p.selected.providerId));
   const divMany = new Set(tooMany.map((p) => p.displaced.providerId));
-  check("more than 30 substitutions rejected", validateSubstitutionSets(tooMany, selMany, divMany).some((e) => /exceed the max/.test(e)));
+  check("more than 30 substitutions rejected", validateSubstitutionSets(tooMany, selMany, divMany, {}).some((e) => /exceed the max/.test(e)));
+}
+
+// 14b. No rank-zipped implicit pairing helper remains.
+{
+  const mod = await import("./lib/v2Baseline.mjs");
+  check("pairSubstitutions helper removed", typeof mod.pairSubstitutions === "undefined");
+}
+
+// 14c. Authored substitutions file: every entry has selectedId+displacedId and
+// the explicit pairs exactly cover the computed baseline sets.
+{
+  const { V2_DIVERSITY_SUBSTITUTIONS } = await import("./data/v2-substitutions.mjs");
+  check("every substitution entry has selectedId and displacedId", V2_DIVERSITY_SUBSTITUTIONS.every((s) => typeof s.selectedId === "string" && typeof s.displacedId === "string"));
+  const { computeBaseline } = await import("./lib/v2Baseline.mjs");
+  const { V2_NEW_ENTRIES } = await import("./data/v2-metadata.mjs");
+  const { V2_RECOGNIZED_ELIGIBLE } = await import("./data/v2-recognized-eligible.mjs");
+  const { readFileSync } = await import("node:fs");
+  const cap = JSON.parse(readFileSync("tools/registry/data/v2-provider-capture.json", "utf8"));
+  const v1 = JSON.parse(readFileSync("registry/tokens/v1/registry.json", "utf8"));
+  const base = computeBaseline({
+    rows: cap.rows,
+    v1Ids: new Set(v1.entries.map((e) => e.providerIds.coingecko)),
+    selectedNonV1: new Set(V2_NEW_ENTRIES.map((e) => e.id)),
+    recognizedEligible: new Set(V2_RECOGNIZED_ELIGIBLE.map((r) => r.id)),
+    targetCount: 250,
+  });
+  const selPairs = new Set(V2_DIVERSITY_SUBSTITUTIONS.map((s) => s.selectedId));
+  const dispPairs = new Set(V2_DIVERSITY_SUBSTITUTIONS.map((s) => s.displacedId));
+  const coversExtra = base.extra.length === selPairs.size && base.extra.every((id) => selPairs.has(id));
+  const coversDisplaced = base.displaced.length === dispPairs.size && base.displaced.every((id) => dispPairs.has(id));
+  check("explicit pairs exactly cover the proposal extra set", coversExtra);
+  check("explicit pairs exactly cover the baseline displaced set", coversDisplaced);
 }
 
 // 15. Uncertain review invariants.

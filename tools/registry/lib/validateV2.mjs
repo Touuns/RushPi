@@ -150,16 +150,31 @@ const SUBSTITUTION_RATIONALES = new Set([
   "stablecoin-overweight-avoidance", "redundant-subsector", "category-coverage", "identity-ambiguity-preference",
 ]);
 
+function firstWord(s) {
+  return String(s || "").trim().toLowerCase().split(/[\s.\-]+/)[0] || "";
+}
+// Does the explanation actually name a side (by symbol, full name, or the
+// leading word of the name)? Guards against generic, non-pair-specific text.
+function mentions(explanationLc, side) {
+  const name = String(side.name || "").toLowerCase();
+  const sym = String(side.symbol || "").toLowerCase();
+  return (name.length > 1 && explanationLc.includes(name)) ||
+    (sym.length > 2 && explanationLc.includes(sym)) ||
+    explanationLc.includes(firstWord(side.name));
+}
+
 /**
- * Validate the true diversity-substitution pairs against the proposal:
- * <=30, a strict bijection, selected⊂catalog, displaced∩catalog=∅, each
- * displaced carries a valid rationale and appears in exclusions with
- * reasonCode "diversity-substitution".
- * @param {Array<{selected:{providerId:string},displaced:{providerId:string},rationaleCode:string}>} pairs
+ * Validate the EXPLICIT, human-curated diversity-substitution pairs
+ * (Phase 12C-1B1.2): <=30, strict bijection, selected⊂catalog, displaced∩
+ * catalog=∅, selectedRank>displacedRank, each displaced carries a
+ * diversity-substitution exclusion, the rationaleCode obeys its semantic rule
+ * for that exact pair, and the explanation is pair-specific (names both sides).
+ * @param {Array} pairs  substitution pairs {selected:{providerId,name,symbol,marketCapRank,category}, displaced:{...}, rationaleCode, explanation}
  * @param {Set<string>} selectedCgIds  catalog CoinGecko ids
  * @param {Set<string>} diversityExclusionIds  provider ids flagged diversity-substitution in exclusions.json
+ * @param {Record<string,number>} categoryCounts  catalog category -> count
  */
-export function validateSubstitutionSets(pairs, selectedCgIds, diversityExclusionIds) {
+export function validateSubstitutionSets(pairs, selectedCgIds, diversityExclusionIds, categoryCounts = {}) {
   const errors = [];
   if (!Array.isArray(pairs)) return ["diversity substitution pairs is not an array"];
   if (pairs.length > MAX_TRUE_DIVERSITY_SUBSTITUTIONS) {
@@ -171,12 +186,46 @@ export function validateSubstitutionSets(pairs, selectedCgIds, diversityExclusio
     const s = p.selected && p.selected.providerId;
     const d = p.displaced && p.displaced.providerId;
     if (!s || !d) { errors.push("substitution pair missing selected/displaced providerId"); continue; }
+    const tag = `pair ${s}<-${d}`;
     if (sel.has(s)) errors.push(`selected ${s} appears in more than one substitution pair`);
     if (disp.has(d)) errors.push(`displaced ${d} appears in more than one substitution pair`);
     sel.add(s); disp.add(d);
-    if (!selectedCgIds.has(s)) errors.push(`substitution selected ${s} is not in the catalog`);
-    if (selectedCgIds.has(d)) errors.push(`substitution displaced ${d} is also selected (overlap)`);
-    if (!SUBSTITUTION_RATIONALES.has(p.rationaleCode)) errors.push(`substitution ${d}: unknown rationaleCode "${p.rationaleCode}"`);
+    if (!selectedCgIds.has(s)) errors.push(`${tag}: selected is not in the catalog`);
+    if (selectedCgIds.has(d)) errors.push(`${tag}: displaced is also selected (overlap)`);
+    if (!SUBSTITUTION_RATIONALES.has(p.rationaleCode)) errors.push(`${tag}: unknown rationaleCode "${p.rationaleCode}"`);
+
+    // A substitution is a deliberate reach-DOWN: the kept asset must be ranked
+    // numerically higher (worse) than the displaced one.
+    const sr = p.selected.marketCapRank;
+    const dr = p.displaced.marketCapRank;
+    if (!(typeof sr === "number" && typeof dr === "number" && sr > dr)) {
+      errors.push(`${tag}: selectedRank (${sr}) must be numerically greater than displacedRank (${dr})`);
+    }
+
+    // Explanation must be specific and name both sides.
+    const ex = String(p.explanation || "");
+    const exLc = ex.toLowerCase();
+    if (ex.length < 40) errors.push(`${tag}: explanation is too short to be pair-specific`);
+    if (!mentions(exLc, p.selected) || !mentions(exLc, p.displaced)) {
+      errors.push(`${tag}: explanation must name both the selected and the displaced asset`);
+    }
+
+    // Per-rationale semantic rules.
+    const sc = p.selected.category;
+    const dc = p.displaced.category;
+    if (p.rationaleCode === "stablecoin-overweight-avoidance") {
+      if (dc !== "stablecoin") errors.push(`${tag}: stablecoin-overweight-avoidance requires the displaced asset to be a stablecoin (got "${dc}")`);
+      if (sc === "stablecoin") errors.push(`${tag}: stablecoin-overweight-avoidance requires the selected asset NOT to be a stablecoin`);
+    } else if (p.rationaleCode === "category-coverage") {
+      const scn = categoryCounts[sc] ?? 0;
+      const dcn = categoryCounts[dc] ?? 0;
+      if (!(scn < dcn)) errors.push(`${tag}: category-coverage requires the selected category (${sc}=${scn}) to be less represented than the displaced category (${dc}=${dcn})`);
+    } else if (p.rationaleCode === "redundant-subsector") {
+      if (sc !== dc) errors.push(`${tag}: redundant-subsector requires both assets to share the broad category (got ${sc} vs ${dc})`);
+      if (!exLc.includes("subsector")) errors.push(`${tag}: redundant-subsector explanation must identify the shared subsector context`);
+    } else if (p.rationaleCode === "identity-ambiguity-preference") {
+      if (!exLc.includes("ambig")) errors.push(`${tag}: identity-ambiguity-preference explanation must document the displaced identity ambiguity`);
+    }
   }
   for (const d of disp) {
     if (!diversityExclusionIds.has(d)) errors.push(`displaced ${d} is missing a diversity-substitution exclusion`);

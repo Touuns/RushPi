@@ -30,7 +30,7 @@
       "symbol": "USD1",
       "marketCapRank": 24,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin; the curated stablecoin allocation is already met, so a distinct-category asset was kept over another near-identical dollar token.",
+      "explanation": "USD1 is a fiat-pegged dollar token (stablecoins already number 15, all ~$1); Zilliqa is a distinctly-priced smart-contract L1 that adds real price movement for the game.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
@@ -42,11 +42,11 @@
       "symbol": "USDG",
       "marketCapRank": 28,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "Global Dollar (USDG) is another ~$1 peg; Kava, a Cosmos-based smart-contract L1, contributes independent price action instead of a redundant stablecoin.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0215"
+      "displacedForTokenId": "rpt-0101"
     },
     {
       "providerId": "hashnote-usyc",
@@ -94,11 +94,11 @@
       "symbol": "WLFI",
       "marketCapRank": 42,
       "reasonCode": "diversity-substitution",
-      "explanation": "DeFi platform/governance token; DeFi is the deepest category, so a distinct-category asset was kept.",
+      "explanation": "World Liberty Financial is a DeFi platform token (DeFi at 41); Polymesh strengthens the far thinner RWA category (6) as a regulated security-token L1.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0101"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0215"
     },
     {
       "providerId": "pax-gold",
@@ -116,11 +116,11 @@
       "symbol": "ASTER",
       "marketCapRank": 47,
       "reasonCode": "diversity-substitution",
-      "explanation": "Perpetuals DEX; the derivatives-DEX subsector is already represented (Hyperliquid, dYdX, GMX), so a distinct-category asset was kept.",
+      "explanation": "Aster is a perpetuals DEX, a subsector already covered by Hyperliquid, dYdX and GMX; Venus supplies the distinct cross-chain money-market lending subsector.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0119"
+      "displacedForTokenId": "rpt-0167"
     },
     {
       "providerId": "memecore",
@@ -128,11 +128,11 @@
       "symbol": "M",
       "marketCapRank": 50,
       "reasonCode": "diversity-substitution",
-      "explanation": "Meme L1; the meme category is already curated, so a distinct-category asset was kept.",
+      "explanation": "MemeCore is a meme-focused L1 (meme at 20); Ronin instead reinforces the thinner dedicated-gaming category (12) as a games-first L1.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0226"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0135"
     },
     {
       "providerId": "falcon-finance",
@@ -140,11 +140,11 @@
       "symbol": "USDF",
       "marketCapRank": 53,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin (Falcon USD); kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "Falcon USD (USDF) is a pegged dollar token; Astar, a Polkadot/EVM smart-contract L1, adds distinct price behaviour the stablecoin cannot.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0227"
+      "displacedForTokenId": "rpt-0107"
     },
     {
       "providerId": "bfusd",
@@ -152,11 +152,11 @@
       "symbol": "BFUSD",
       "marketCapRank": 58,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "BFUSD is a pegged dollar token; Flow is a consumer/NFT smart-contract L1 with its own price dynamics, avoiding another flat ~$1 entry.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0128"
+      "displacedForTokenId": "rpt-0099"
     },
     {
       "providerId": "pi-network",
@@ -304,11 +304,11 @@
       "symbol": "LIT",
       "marketCapRank": 98,
       "reasonCode": "diversity-substitution",
-      "explanation": "Perpetuals DEX; derivatives-DEX subsector already represented, so a distinct-category asset was kept.",
+      "explanation": "Lighter is another perpetuals DEX (subsector already covered); DeepBook supplies a Sui central-limit-orderbook DEX primitive, a distinct DeFi subsector.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0167"
+      "displacedForTokenId": "rpt-0177"
     },
     {
       "providerId": "venice-token",
@@ -316,11 +316,11 @@
       "symbol": "VVV",
       "marketCapRank": 99,
       "reasonCode": "diversity-substitution",
-      "explanation": "AI-sector token; AI already represented, so a lower-ranked distinct-category asset was kept.",
+      "explanation": "Venice covers the AI inference-marketplace subsector; Holoworld supplies the distinct AI-agent / virtual-being creation subsector within the same AI category.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0177"
+      "displacedForTokenId": "rpt-0149"
     },
     {
       "providerId": "usx",
@@ -348,11 +348,11 @@
       "symbol": "HASH",
       "marketCapRank": 107,
       "reasonCode": "diversity-substitution",
-      "explanation": "RWA L1 (Provenance); RWA already represented (Ondo, Centrifuge, Plume, Polymesh, Creditcoin), so a distinct-category asset was kept.",
+      "explanation": "Provenance (HASH) is an RWA L1 (RWA at 6); Tellor strengthens the thinnest utility category, oracles (3), with a decentralized dispute-based oracle.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "category-coverage",
-      "displacedForTokenId": "rpt-0149"
+      "displacedForTokenId": "rpt-0179"
     },
     {
       "providerId": "hastra-prime",
@@ -380,11 +380,11 @@
       "symbol": "USDTB",
       "marketCapRank": 119,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "USDtb is a pegged dollar token; Nervos (CKB) is a PoW smart-contract L1 whose independent price is more useful than a 16th stablecoin.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0178"
+      "displacedForTokenId": "rpt-0114"
     },
     {
       "providerId": "kinesis-gold",
@@ -412,11 +412,11 @@
       "symbol": "NIGHT",
       "marketCapRank": 131,
       "reasonCode": "diversity-substitution",
-      "explanation": "Privacy chain; privacy already represented by retained assets, so a distinct-category asset was kept over over-weighting one sector.",
+      "explanation": "Midnight is a ZK privacy sidechain; shielded/ZK privacy is already represented (Zcash, Monero). Oasis adds the distinct confidential-compute (TEE ParaTimes) privacy subsector.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "category-coverage",
-      "displacedForTokenId": "rpt-0157"
+      "rationaleCode": "redundant-subsector",
+      "displacedForTokenId": "rpt-0088"
     },
     {
       "providerId": "apxusd",
@@ -444,11 +444,11 @@
       "symbol": "OHM",
       "marketCapRank": 137,
       "reasonCode": "diversity-substitution",
-      "explanation": "DeFi governance/treasury token; DeFi already deeply represented, so a distinct-category asset was kept.",
+      "explanation": "Olympus is a DeFi reserve/treasury token (DeFi at 41); Creditcoin strengthens the thin RWA category (6) with on-chain credit rails.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0129"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0217"
     },
     {
       "providerId": "kite-2",
@@ -456,11 +456,11 @@
       "symbol": "KITE",
       "marketCapRank": 139,
       "reasonCode": "diversity-substitution",
-      "explanation": "AI/payments agent token; AI already represented, so a distinct-category asset was kept.",
+      "explanation": "Kite is an AI token (AI at 11); RedStone strengthens the much thinner oracle category (3) with a modular price-feed oracle.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0107"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0178"
     },
     {
       "providerId": "apenft",
@@ -538,11 +538,11 @@
       "symbol": "2Z",
       "marketCapRank": 156,
       "reasonCode": "diversity-substitution",
-      "explanation": "DePIN token; DePIN already deeply represented, so a distinct-category asset was kept.",
+      "explanation": "DoubleZero is a DePIN fiber/transport network; peaq supplies the distinct machine-economy DePIN L1 subsector rather than another connectivity network.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0134"
+      "displacedForTokenId": "rpt-0202"
     },
     {
       "providerId": "bnb48-club-token",
@@ -630,11 +630,11 @@
       "symbol": "AUSD",
       "marketCapRank": 172,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin (AUSD); kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "AUSD is a pegged dollar token; Degen is a volatile Base-ecosystem culture token whose large price swings add game diversity a stablecoin cannot.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0148"
+      "displacedForTokenId": "rpt-0226"
     },
     {
       "providerId": "vaneck-treasury-fund",
@@ -752,11 +752,11 @@
       "symbol": "GUSD",
       "marketCapRank": 201,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged stablecoin (Gemini dollar); kept a distinct-category asset rather than over-weighting dollar tokens.",
+      "explanation": "GUSD (Gemini dollar) is a ~$1 peg; Toshi is a volatile Base meme with distinct price action, preferred over an additional stablecoin.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0122"
+      "displacedForTokenId": "rpt-0227"
     },
     {
       "providerId": "societe-generale-forge-eurcv",
@@ -764,11 +764,11 @@
       "symbol": "EURCV",
       "marketCapRank": 203,
       "reasonCode": "diversity-substitution",
-      "explanation": "Fiat-pegged EUR stablecoin; kept a distinct-category asset rather than over-weighting pegged tokens.",
+      "explanation": "EURCV is a fiat-pegged EUR token; Popcat is a highly volatile Solana meme, adding price variance a pegged token cannot.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "stablecoin-overweight-avoidance",
-      "displacedForTokenId": "rpt-0114"
+      "displacedForTokenId": "rpt-0221"
     },
     {
       "providerId": "edgex",
@@ -776,11 +776,11 @@
       "symbol": "EDGE",
       "marketCapRank": 204,
       "reasonCode": "diversity-substitution",
-      "explanation": "Perpetuals DEX; derivatives-DEX subsector already represented, so a distinct-category asset was kept.",
+      "explanation": "edgeX is a perpetuals DEX (subsector already covered); Sushi is an established multichain AMM/spot DEX, a different DeFi subsector.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0217"
+      "displacedForTokenId": "rpt-0157"
     },
     {
       "providerId": "lido-earn-eth",
@@ -878,11 +878,11 @@
       "symbol": "DRV",
       "marketCapRank": 226,
       "reasonCode": "diversity-substitution",
-      "explanation": "On-chain options DEX; derivatives subsector already represented, so a distinct-category asset was kept.",
+      "explanation": "Derive is a DeFi options venue and DeFi is already the second-deepest category (41); Synapse instead reinforces the thinner interoperability category (11).",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0221"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0128"
     },
     {
       "providerId": "tagger",
@@ -893,18 +893,6 @@
       "explanation": "Identity/issuer not verified to catalog-inclusion confidence within this proposal's scope.",
       "underlyingAssetId": null,
       "evidenceReference": null
-    },
-    {
-      "providerId": "lorenzo-protocol",
-      "name": "Lorenzo Protocol",
-      "symbol": "BANK",
-      "marketCapRank": 229,
-      "reasonCode": "diversity-substitution",
-      "explanation": "Liquid-staking (BTC); liquid-staking already represented (Lido, Jito, Ether.fi, Babylon, Lombard), so a distinct-category asset was kept.",
-      "underlyingAssetId": null,
-      "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0135"
     },
     {
       "providerId": "theo-short-duration-us-treasury-fund",
@@ -1002,11 +990,11 @@
       "symbol": "BP",
       "marketCapRank": 244,
       "reasonCode": "diversity-substitution",
-      "explanation": "Exchange/venue token; the exchange category is already well represented, so a distinct-category asset was kept.",
+      "explanation": "Backpack is an exchange token (exchange at 11, already 11 venues); Movement reinforces the thinner layer-2 category (9) as a Move-VM rollup.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0088"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0129"
     },
     {
       "providerId": "shuffle-2",
@@ -1074,11 +1062,11 @@
       "symbol": "BMX",
       "marketCapRank": 256,
       "reasonCode": "diversity-substitution",
-      "explanation": "Exchange token; the exchange category is already well represented, so a distinct-category asset was kept.",
+      "explanation": "BitMart is an exchange token (exchange at 11); AltLayer reinforces the thinner layer-2 category (9) with restaked-rollup infrastructure.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0202"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0133"
     },
     {
       "providerId": "standx-dusd",
@@ -1136,11 +1124,11 @@
       "symbol": "META",
       "marketCapRank": 267,
       "reasonCode": "diversity-substitution",
-      "explanation": "DeFi/governance (MetaDAO); DeFi already deeply represented, so a distinct-category asset was kept.",
+      "explanation": "MetaDAO is a DeFi governance token (DeFi at 41); Lombard strengthens the thin liquid-staking category (6) with BTC LST.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0099"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0183"
     },
     {
       "providerId": "sentient",
@@ -1218,11 +1206,11 @@
       "symbol": "RAIL",
       "marketCapRank": 278,
       "reasonCode": "diversity-substitution",
-      "explanation": "Privacy protocol; privacy already represented by retained assets, so a distinct-category asset was kept.",
+      "explanation": "Railgun is an on-chain privacy system on existing chains (subsector represented); Pirate Chain adds a fully-shielded standalone PoW privacy L1.",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "category-coverage",
-      "displacedForTokenId": "rpt-0105"
+      "rationaleCode": "redundant-subsector",
+      "displacedForTokenId": "rpt-0087"
     },
     {
       "providerId": "story-2",
@@ -1230,11 +1218,11 @@
       "symbol": "DATA",
       "marketCapRank": 280,
       "reasonCode": "diversity-substitution",
-      "explanation": "Provider identity is an ambiguous rebrand (symbol DATA, name 'Data Network'); preferred clearer-identity assets.",
+      "explanation": "story-2 has an ambiguous provider identity (symbol DATA, name 'Data Network' — an unclear rebrand); Espresso is a verified shared-sequencing infrastructure token, so the clearer identity is kept.",
       "underlyingAssetId": null,
       "evidenceReference": null,
       "rationaleCode": "identity-ambiguity-preference",
-      "displacedForTokenId": "rpt-0183"
+      "displacedForTokenId": "rpt-0134"
     },
     {
       "providerId": "the-black-bull",
@@ -1295,18 +1283,6 @@
       "explanation": "Identity/issuer not verified to catalog-inclusion confidence within this proposal's scope.",
       "underlyingAssetId": null,
       "evidenceReference": null
-    },
-    {
-      "providerId": "zama",
-      "name": "Zama",
-      "symbol": "ZAMA",
-      "marketCapRank": 293,
-      "reasonCode": "diversity-substitution",
-      "explanation": "Privacy/FHE protocol; privacy already represented by retained assets, so a distinct-category asset was kept.",
-      "underlyingAssetId": null,
-      "evidenceReference": null,
-      "rationaleCode": "category-coverage",
-      "displacedForTokenId": "rpt-0087"
     },
     {
       "providerId": "would",
@@ -1539,18 +1515,6 @@
       "evidenceReference": null
     },
     {
-      "providerId": "proton",
-      "name": "XPR Network",
-      "symbol": "XPR",
-      "marketCapRank": 327,
-      "reasonCode": "diversity-substitution",
-      "explanation": "Payments network token (XPR); payments already represented, so a distinct-category asset was kept.",
-      "underlyingAssetId": null,
-      "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0133"
-    },
-    {
       "providerId": "crown-brlv",
       "name": "Crown BRLV",
       "symbol": "BRLV",
@@ -1666,11 +1630,11 @@
       "symbol": "TEMPLE",
       "marketCapRank": 344,
       "reasonCode": "diversity-substitution",
-      "explanation": "DeFi (TempleDAO); DeFi already deeply represented, so a distinct-category asset was kept.",
+      "explanation": "TempleDAO is a DeFi token (DeFi at 41); Blur strengthens the very thin social/NFT-marketplace category (4).",
       "underlyingAssetId": null,
       "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0204"
+      "rationaleCode": "category-coverage",
+      "displacedForTokenId": "rpt-0148"
     },
     {
       "providerId": "ishares-core-s-p-500-etf-ondo-tokenized-etf",
@@ -1731,18 +1695,6 @@
       "explanation": "Tokenized commodity; identity tracks an external real-world asset price.",
       "underlyingAssetId": null,
       "evidenceReference": null
-    },
-    {
-      "providerId": "stronghold-token",
-      "name": "Stronghold",
-      "symbol": "SHX",
-      "marketCapRank": 357,
-      "reasonCode": "diversity-substitution",
-      "explanation": "Payments token (Stellar SHX); payments already represented, so a distinct-category asset was kept.",
-      "underlyingAssetId": null,
-      "evidenceReference": null,
-      "rationaleCode": "redundant-subsector",
-      "displacedForTokenId": "rpt-0179"
     },
     {
       "providerId": "river",
@@ -2285,6 +2237,16 @@
       "evidenceReference": null
     },
     {
+      "providerId": "concordium",
+      "name": "Concordium",
+      "symbol": "CCD",
+      "marketCapRank": 446,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Recognizable eligible asset ranked below the top-214 baseline fill cutoff.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
       "providerId": "circle-xstock",
       "name": "Circle xStock",
       "symbol": "CRCLX",
@@ -2411,6 +2373,16 @@
       "marketCapRank": 467,
       "reasonCode": "unsupported-asset-form",
       "explanation": "Tokenized fund / money-market / credit security share; not a crypto-native asset.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "pharos-network",
+      "name": "Pharos",
+      "symbol": "PROS",
+      "marketCapRank": 472,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Recognizable eligible asset ranked below the top-214 baseline fill cutoff.",
       "underlyingAssetId": null,
       "evidenceReference": null
     },
@@ -2551,6 +2523,26 @@
       "marketCapRank": 491,
       "reasonCode": "unsupported-asset-form",
       "explanation": "Tokenized equity/ETF (security); out of scope for a crypto-native catalog.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "ontology",
+      "name": "Ontology",
+      "symbol": "ONT",
+      "marketCapRank": 494,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Recognizable eligible asset ranked below the top-214 baseline fill cutoff.",
+      "underlyingAssetId": null,
+      "evidenceReference": null
+    },
+    {
+      "providerId": "xyo-network",
+      "name": "XYO Network",
+      "symbol": "XYO",
+      "marketCapRank": 498,
+      "reasonCode": "lower-priority-capacity-cutoff",
+      "explanation": "Recognizable eligible asset ranked below the top-214 baseline fill cutoff.",
       "underlyingAssetId": null,
       "evidenceReference": null
     },

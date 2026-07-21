@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
   "catalogStage": "proposal",
-  "catalogVersion": "token-registry-v2-fd9665bfc2842523",
+  "catalogVersion": "token-registry-v2-7b98c60e767128c1",
   "entryCount": 250,
-  "contentHash": "fd9665bfc2842523e6de35c0a28b8d3c1a1d2ec80a0f50a9a1c115af59f6a5b2",
+  "contentHash": "7b98c60e767128c1f081ab7e34d787c94ed8a15d84e9e67cc6cbc3c97886b8a1",
   "entries": [
     {
       "tokenId": "rpt-0001",
@@ -2615,15 +2615,15 @@
     },
     {
       "tokenId": "rpt-0105",
-      "name": "Ontology",
-      "symbol": "ONT",
-      "slug": "ontology",
-      "category": "smart-contract",
+      "name": "Zama",
+      "symbol": "ZAMA",
+      "slug": "zama",
+      "category": "privacy",
       "status": "active",
       "eligibilityTier": "discovery",
-      "assetClass": "native",
+      "assetClass": "token",
       "providerIds": {
-        "coingecko": "ontology"
+        "coingecko": "zama"
       },
       "aliases": [],
       "networks": [],
@@ -2973,15 +2973,15 @@
     },
     {
       "tokenId": "rpt-0119",
-      "name": "Concordium",
-      "symbol": "CCD",
-      "slug": "concordium",
-      "category": "smart-contract",
+      "name": "Lorenzo Protocol",
+      "symbol": "BANK",
+      "slug": "lorenzo",
+      "category": "liquid-staking",
       "status": "active",
       "eligibilityTier": "discovery",
-      "assetClass": "native",
+      "assetClass": "token",
       "providerIds": {
-        "coingecko": "concordium"
+        "coingecko": "lorenzo-protocol"
       },
       "aliases": [],
       "networks": [],
@@ -3048,17 +3048,19 @@
     },
     {
       "tokenId": "rpt-0122",
-      "name": "Pharos",
-      "symbol": "PROS",
-      "slug": "pharos",
-      "category": "smart-contract",
+      "name": "XPR Network",
+      "symbol": "XPR",
+      "slug": "xpr-network",
+      "category": "payments",
       "status": "active",
       "eligibilityTier": "discovery",
       "assetClass": "native",
       "providerIds": {
-        "coingecko": "pharos-network"
+        "coingecko": "proton"
       },
-      "aliases": [],
+      "aliases": [
+        "Proton Chain"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",
@@ -5103,15 +5105,15 @@
     },
     {
       "tokenId": "rpt-0204",
-      "name": "XYO Network",
-      "symbol": "XYO",
-      "slug": "xyo",
-      "category": "depin",
+      "name": "Stronghold",
+      "symbol": "SHX",
+      "slug": "stronghold",
+      "category": "payments",
       "status": "active",
       "eligibilityTier": "discovery",
       "assetClass": "token",
       "providerIds": {
-        "coingecko": "xyo-network"
+        "coingecko": "stronghold-token"
       },
       "aliases": [],
       "networks": [],

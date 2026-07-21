@@ -1,17 +1,21 @@
 // Hand-authored curation input for the V2 250-token catalog PROPOSAL
-// (Phase 12C-1B1, hardened in 12C-1B1.1). Lists the 214 NEW entries (beyond the
-// 36 frozen V1 tokens) selected from the CoinGecko top-500 capture.
+// (Phase 12C-1B1, hardened in 12C-1B1.1, substitution audit in 12C-1B1.2).
+// Lists the 214 NEW entries (beyond the 36 frozen V1 tokens) from the frozen
+// CoinGecko top-500 capture.
 //
-// Every entry carries an EXPLICIT, AUTHOR-ASSIGNED tokenId. tokenIds are the
-// stable identity: gen-v2-metadata.mjs COPIES e.tokenId and never allocates
-// one, so reordering or inserting entries can never renumber another asset.
-// Adding a new asset requires manually choosing an unused rpt-#### id (an
-// unused id includes one vacated by removing a proposal-only entry).
+// Every entry carries an EXPLICIT, AUTHOR-ASSIGNED tokenId. gen-v2-metadata.mjs
+// COPIES e.tokenId and never allocates one, so reordering/inserting entries can
+// never renumber another asset. Adding an asset requires manually choosing an
+// unused rpt-#### id (including one vacated by removing a proposal-only entry).
 //
-// providerId -> tokenId mapping is preserved from commit f692172 for every
-// retained entry. 12C-1B1.1 minimum-change swaps (documented in the curation
-// report): funfair (rpt-0142) -> canton-network; vvs-finance (rpt-0176) ->
-// iota, both added toward the rank-based baseline.
+// providerId -> tokenId mapping preserved from f692172 for every retained entry.
+// 12C-1B1.1 swaps: funfair (rpt-0142) -> canton-network; vvs-finance (rpt-0176)
+// -> iota. 12C-1B1.2 swaps (dropping selections that could not be paired with an
+// honest diversity substitution, adding the displaced assets they blocked):
+//   ontology (rpt-0105)        -> zama
+//   concordium (rpt-0119)      -> lorenzo-protocol
+//   pharos-network (rpt-0122)  -> proton
+//   xyo-network (rpt-0204)     -> stronghold-token
 //
 // category uses the V2 canonical registry enum; assetClass the existing
 // contract. `id` is the CoinGecko provider id from the frozen capture.
@@ -84,7 +88,7 @@ export const V2_NEW_SELECTIONS = [
   { tokenId: "rpt-0102", id: "zilliqa", name: "Zilliqa", symbol: "ZIL", slug: "zilliqa", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0103", id: "qtum", name: "Qtum", symbol: "QTUM", slug: "qtum", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0104", id: "neo", name: "NEO", symbol: "NEO", slug: "neo", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
-  { tokenId: "rpt-0105", id: "ontology", name: "Ontology", symbol: "ONT", slug: "ontology", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
+  { tokenId: "rpt-0105", id: "zama", name: "Zama", symbol: "ZAMA", slug: "zama", category: "privacy", assetClass: "token", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0106", id: "conflux-token", name: "Conflux", symbol: "CFX", slug: "conflux", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0107", id: "astar", name: "Astar", symbol: "ASTR", slug: "astar", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0108", id: "sonic-3", name: "Sonic", symbol: "S", slug: "sonic", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: ["FTM","Fantom"] },
@@ -98,10 +102,10 @@ export const V2_NEW_SELECTIONS = [
   { tokenId: "rpt-0116", id: "gnosis", name: "Gnosis", symbol: "GNO", slug: "gnosis", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0117", id: "aelf", name: "Aelf", symbol: "ELF", slug: "aelf", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0118", id: "metal-blockchain", name: "Metal Blockchain", symbol: "METAL", slug: "metal-blockchain", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
-  { tokenId: "rpt-0119", id: "concordium", name: "Concordium", symbol: "CCD", slug: "concordium", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
+  { tokenId: "rpt-0119", id: "lorenzo-protocol", name: "Lorenzo Protocol", symbol: "BANK", slug: "lorenzo", category: "liquid-staking", assetClass: "token", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0120", id: "qubic-network", name: "Qubic", symbol: "QUBIC", slug: "qubic", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0121", id: "quantum-resistant-ledger", name: "Quantum Resistant Ledger", symbol: "QRL", slug: "qrl", category: "infrastructure", assetClass: "native", tier: "discovery", aliases: [] },
-  { tokenId: "rpt-0122", id: "pharos-network", name: "Pharos", symbol: "PROS", slug: "pharos", category: "smart-contract", assetClass: "native", tier: "discovery", aliases: [] },
+  { tokenId: "rpt-0122", id: "proton", name: "XPR Network", symbol: "XPR", slug: "xpr-network", category: "payments", assetClass: "native", tier: "discovery", aliases: ["Proton Chain"] },
   { tokenId: "rpt-0123", id: "kusama", name: "Kusama", symbol: "KSM", slug: "kusama", category: "interoperability", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0124", id: "zetachain", name: "ZetaChain", symbol: "ZETA", slug: "zetachain", category: "interoperability", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0125", id: "axelar", name: "Axelar", symbol: "AXL", slug: "axelar", category: "interoperability", assetClass: "token", tier: "discovery", aliases: [] },
@@ -183,7 +187,7 @@ export const V2_NEW_SELECTIONS = [
   { tokenId: "rpt-0201", id: "theta-fuel", name: "Theta Fuel", symbol: "TFUEL", slug: "theta-fuel", category: "depin", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0202", id: "peaq-2", name: "peaq", symbol: "PEAQ", slug: "peaq", category: "depin", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0203", id: "gmt-token", name: "GoMining Token", symbol: "GOMINING", slug: "gomining", category: "depin", assetClass: "token", tier: "discovery", aliases: [] },
-  { tokenId: "rpt-0204", id: "xyo-network", name: "XYO Network", symbol: "XYO", slug: "xyo", category: "depin", assetClass: "token", tier: "discovery", aliases: [] },
+  { tokenId: "rpt-0204", id: "stronghold-token", name: "Stronghold", symbol: "SHX", slug: "stronghold", category: "payments", assetClass: "token", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0205", id: "arweave", name: "Arweave", symbol: "AR", slug: "arweave", category: "data-storage", assetClass: "native", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0206", id: "walrus-2", name: "Walrus", symbol: "WAL", slug: "walrus", category: "data-storage", assetClass: "token", tier: "discovery", aliases: [] },
   { tokenId: "rpt-0207", id: "origintrail", name: "OriginTrail", symbol: "TRAC", slug: "origintrail", category: "infrastructure", assetClass: "token", tier: "discovery", aliases: [] },

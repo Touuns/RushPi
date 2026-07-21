@@ -1,46 +1,59 @@
-// True discretionary diversity substitutions for the V2 proposal
-// (Phase 12C-1B1.1): higher-ranked ELIGIBLE assets deliberately displaced so a
-// lower-ranked, distinct-category asset could be kept for category coverage.
+// Explicit, human-curated diversity-substitution pairs for the V2 proposal
+// (Phase 12C-1B1.2). Each pair names BOTH a specific retained selection and
+// the specific higher-ranked eligible asset it was chosen over — NOT produced
+// by sorting the two sets by rank and zipping them together.
 //
-// This is NOT the tail-fill of the rank baseline and NOT a hard exclusion — it
-// is the small set of deliberate deviations from the rank-based baseline. The
-// build pairs each displaced asset 1:1, by rank order, with one retained
-// lower-ranked selection (the "selected" side), records the rank delta, and
-// writes each displaced asset into exclusions.json with
-// reasonCode = "diversity-substitution". Must be <= 30 (see MAX in validateV2).
+// The build validates these explicit pairs against the computed baseline sets
+// (selectedId must be a proposal entry outside the baseline; displacedId must
+// be a baseline member outside the proposal; selectedRank > displacedRank; the
+// pairs must exactly cover both sets; no id may repeat) and writes each
+// displacedId into exclusions.json with reasonCode "diversity-substitution".
 //
-// rationaleCode is a controlled vocabulary:
-//   stablecoin-overweight-avoidance | redundant-subsector |
-//   category-coverage | identity-ambiguity-preference
+// rationaleCode vocabulary + rules (enforced in lib/validateV2.mjs):
+//   stablecoin-overweight-avoidance : displaced is a stablecoin, selected is not.
+//   category-coverage               : selected category is less represented than
+//                                     the displaced category (or a concrete
+//                                     missing subcategory is named).
+//   redundant-subsector             : same broad category; the explanation names
+//                                     the displaced subsector already covered AND
+//                                     the distinct value of the selected token.
+//   identity-ambiguity-preference   : displaced identity is ambiguous; selected
+//                                     identity is verified.
 export const V2_DIVERSITY_SUBSTITUTIONS = [
-  { displacedId: "usd1-wlfi", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin; the curated stablecoin allocation is already met, so a distinct-category asset was kept over another near-identical dollar token." },
-  { displacedId: "global-dollar", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "falcon-finance", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin (Falcon USD); kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "bfusd", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "usdtb", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin; kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "agora-dollar", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin (AUSD); kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "gusd", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged stablecoin (Gemini dollar); kept a distinct-category asset rather than over-weighting dollar tokens." },
-  { displacedId: "societe-generale-forge-eurcv", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Fiat-pegged EUR stablecoin; kept a distinct-category asset rather than over-weighting pegged tokens." },
-  { displacedId: "aster-2", rationaleCode: "redundant-subsector", explanation: "Perpetuals DEX; the derivatives-DEX subsector is already represented (Hyperliquid, dYdX, GMX), so a distinct-category asset was kept." },
-  { displacedId: "lighter", rationaleCode: "redundant-subsector", explanation: "Perpetuals DEX; derivatives-DEX subsector already represented, so a distinct-category asset was kept." },
-  { displacedId: "edgex", rationaleCode: "redundant-subsector", explanation: "Perpetuals DEX; derivatives-DEX subsector already represented, so a distinct-category asset was kept." },
-  { displacedId: "derive", rationaleCode: "redundant-subsector", explanation: "On-chain options DEX; derivatives subsector already represented, so a distinct-category asset was kept." },
-  { displacedId: "backpack", rationaleCode: "redundant-subsector", explanation: "Exchange/venue token; the exchange category is already well represented, so a distinct-category asset was kept." },
-  { displacedId: "bitmart-token", rationaleCode: "redundant-subsector", explanation: "Exchange token; the exchange category is already well represented, so a distinct-category asset was kept." },
-  { displacedId: "world-liberty-financial", rationaleCode: "redundant-subsector", explanation: "DeFi platform/governance token; DeFi is the deepest category, so a distinct-category asset was kept." },
-  { displacedId: "olympus", rationaleCode: "redundant-subsector", explanation: "DeFi governance/treasury token; DeFi already deeply represented, so a distinct-category asset was kept." },
-  { displacedId: "meta-2-2", rationaleCode: "redundant-subsector", explanation: "DeFi/governance (MetaDAO); DeFi already deeply represented, so a distinct-category asset was kept." },
-  { displacedId: "temple", rationaleCode: "redundant-subsector", explanation: "DeFi (TempleDAO); DeFi already deeply represented, so a distinct-category asset was kept." },
-  { displacedId: "venice-token", rationaleCode: "redundant-subsector", explanation: "AI-sector token; AI already represented, so a lower-ranked distinct-category asset was kept." },
-  { displacedId: "kite-2", rationaleCode: "redundant-subsector", explanation: "AI/payments agent token; AI already represented, so a distinct-category asset was kept." },
-  { displacedId: "doublezero", rationaleCode: "redundant-subsector", explanation: "DePIN token; DePIN already deeply represented, so a distinct-category asset was kept." },
-  { displacedId: "lorenzo-protocol", rationaleCode: "redundant-subsector", explanation: "Liquid-staking (BTC); liquid-staking already represented (Lido, Jito, Ether.fi, Babylon, Lombard), so a distinct-category asset was kept." },
-  { displacedId: "proton", rationaleCode: "redundant-subsector", explanation: "Payments network token (XPR); payments already represented, so a distinct-category asset was kept." },
-  { displacedId: "stronghold-token", rationaleCode: "redundant-subsector", explanation: "Payments token (Stellar SHX); payments already represented, so a distinct-category asset was kept." },
-  { displacedId: "memecore", rationaleCode: "redundant-subsector", explanation: "Meme L1; the meme category is already curated, so a distinct-category asset was kept." },
-  { displacedId: "hash-2", rationaleCode: "category-coverage", explanation: "RWA L1 (Provenance); RWA already represented (Ondo, Centrifuge, Plume, Polymesh, Creditcoin), so a distinct-category asset was kept." },
-  { displacedId: "midnight-3", rationaleCode: "category-coverage", explanation: "Privacy chain; privacy already represented by retained assets, so a distinct-category asset was kept over over-weighting one sector." },
-  { displacedId: "railgun", rationaleCode: "category-coverage", explanation: "Privacy protocol; privacy already represented by retained assets, so a distinct-category asset was kept." },
-  { displacedId: "zama", rationaleCode: "category-coverage", explanation: "Privacy/FHE protocol; privacy already represented by retained assets, so a distinct-category asset was kept." },
-  { displacedId: "story-2", rationaleCode: "identity-ambiguity-preference", explanation: "Provider identity is an ambiguous rebrand (symbol DATA, name 'Data Network'); preferred clearer-identity assets." },
+  // --- stablecoin-overweight-avoidance (8): keep a distinctly-priced asset
+  // over a 16th+ near-identical fiat-pegged token (stablecoins already 15). ---
+  { selectedId: "zilliqa", displacedId: "usd1-wlfi", rationaleCode: "stablecoin-overweight-avoidance", explanation: "USD1 is a fiat-pegged dollar token (stablecoins already number 15, all ~$1); Zilliqa is a distinctly-priced smart-contract L1 that adds real price movement for the game." },
+  { selectedId: "kava", displacedId: "global-dollar", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Global Dollar (USDG) is another ~$1 peg; Kava, a Cosmos-based smart-contract L1, contributes independent price action instead of a redundant stablecoin." },
+  { selectedId: "astar", displacedId: "falcon-finance", rationaleCode: "stablecoin-overweight-avoidance", explanation: "Falcon USD (USDF) is a pegged dollar token; Astar, a Polkadot/EVM smart-contract L1, adds distinct price behaviour the stablecoin cannot." },
+  { selectedId: "flow", displacedId: "bfusd", rationaleCode: "stablecoin-overweight-avoidance", explanation: "BFUSD is a pegged dollar token; Flow is a consumer/NFT smart-contract L1 with its own price dynamics, avoiding another flat ~$1 entry." },
+  { selectedId: "nervos-network", displacedId: "usdtb", rationaleCode: "stablecoin-overweight-avoidance", explanation: "USDtb is a pegged dollar token; Nervos (CKB) is a PoW smart-contract L1 whose independent price is more useful than a 16th stablecoin." },
+  { selectedId: "degen-base", displacedId: "agora-dollar", rationaleCode: "stablecoin-overweight-avoidance", explanation: "AUSD is a pegged dollar token; Degen is a volatile Base-ecosystem culture token whose large price swings add game diversity a stablecoin cannot." },
+  { selectedId: "toshi", displacedId: "gusd", rationaleCode: "stablecoin-overweight-avoidance", explanation: "GUSD (Gemini dollar) is a ~$1 peg; Toshi is a volatile Base meme with distinct price action, preferred over an additional stablecoin." },
+  { selectedId: "popcat", displacedId: "societe-generale-forge-eurcv", rationaleCode: "stablecoin-overweight-avoidance", explanation: "EURCV is a fiat-pegged EUR token; Popcat is a highly volatile Solana meme, adding price variance a pegged token cannot." },
+
+  // --- redundant-subsector (7): same broad category, displaced subsector
+  // already covered, selected supplies a distinct subsector/value. ---
+  { selectedId: "venus", displacedId: "aster-2", rationaleCode: "redundant-subsector", explanation: "Aster is a perpetuals DEX, a subsector already covered by Hyperliquid, dYdX and GMX; Venus supplies the distinct cross-chain money-market lending subsector." },
+  { selectedId: "deep", displacedId: "lighter", rationaleCode: "redundant-subsector", explanation: "Lighter is another perpetuals DEX (subsector already covered); DeepBook supplies a Sui central-limit-orderbook DEX primitive, a distinct DeFi subsector." },
+  { selectedId: "sushi", displacedId: "edgex", rationaleCode: "redundant-subsector", explanation: "edgeX is a perpetuals DEX (subsector already covered); Sushi is an established multichain AMM/spot DEX, a different DeFi subsector." },
+  { selectedId: "holoworld", displacedId: "venice-token", rationaleCode: "redundant-subsector", explanation: "Venice covers the AI inference-marketplace subsector; Holoworld supplies the distinct AI-agent / virtual-being creation subsector within the same AI category." },
+  { selectedId: "oasis-network", displacedId: "midnight-3", rationaleCode: "redundant-subsector", explanation: "Midnight is a ZK privacy sidechain; shielded/ZK privacy is already represented (Zcash, Monero). Oasis adds the distinct confidential-compute (TEE ParaTimes) privacy subsector." },
+  { selectedId: "pirate-chain", displacedId: "railgun", rationaleCode: "redundant-subsector", explanation: "Railgun is an on-chain privacy system on existing chains (subsector represented); Pirate Chain adds a fully-shielded standalone PoW privacy L1." },
+  { selectedId: "peaq-2", displacedId: "doublezero", rationaleCode: "redundant-subsector", explanation: "DoubleZero is a DePIN fiber/transport network; peaq supplies the distinct machine-economy DePIN L1 subsector rather than another connectivity network." },
+
+  // --- category-coverage (10): selected category is thinner than the displaced
+  // category, so the swap widens coverage. ---
+  { selectedId: "synapse-2", displacedId: "derive", rationaleCode: "category-coverage", explanation: "Derive is a DeFi options venue and DeFi is already the second-deepest category (41); Synapse instead reinforces the thinner interoperability category (11)." },
+  { selectedId: "polymesh", displacedId: "world-liberty-financial", rationaleCode: "category-coverage", explanation: "World Liberty Financial is a DeFi platform token (DeFi at 41); Polymesh strengthens the far thinner RWA category (6) as a regulated security-token L1." },
+  { selectedId: "creditcoin-2", displacedId: "olympus", rationaleCode: "category-coverage", explanation: "Olympus is a DeFi reserve/treasury token (DeFi at 41); Creditcoin strengthens the thin RWA category (6) with on-chain credit rails." },
+  { selectedId: "lombard-protocol", displacedId: "meta-2-2", rationaleCode: "category-coverage", explanation: "MetaDAO is a DeFi governance token (DeFi at 41); Lombard strengthens the thin liquid-staking category (6) with BTC LST." },
+  { selectedId: "blur", displacedId: "temple", rationaleCode: "category-coverage", explanation: "TempleDAO is a DeFi token (DeFi at 41); Blur strengthens the very thin social/NFT-marketplace category (4)." },
+  { selectedId: "redstone-oracles", displacedId: "kite-2", rationaleCode: "category-coverage", explanation: "Kite is an AI token (AI at 11); RedStone strengthens the much thinner oracle category (3) with a modular price-feed oracle." },
+  { selectedId: "tellor", displacedId: "hash-2", rationaleCode: "category-coverage", explanation: "Provenance (HASH) is an RWA L1 (RWA at 6); Tellor strengthens the thinnest utility category, oracles (3), with a decentralized dispute-based oracle." },
+  { selectedId: "ronin", displacedId: "memecore", rationaleCode: "category-coverage", explanation: "MemeCore is a meme-focused L1 (meme at 20); Ronin instead reinforces the thinner dedicated-gaming category (12) as a games-first L1." },
+  { selectedId: "movement", displacedId: "backpack", rationaleCode: "category-coverage", explanation: "Backpack is an exchange token (exchange at 11, already 11 venues); Movement reinforces the thinner layer-2 category (9) as a Move-VM rollup." },
+  { selectedId: "altlayer", displacedId: "bitmart-token", rationaleCode: "category-coverage", explanation: "BitMart is an exchange token (exchange at 11); AltLayer reinforces the thinner layer-2 category (9) with restaked-rollup infrastructure." },
+
+  // --- identity-ambiguity-preference (1) ---
+  { selectedId: "espresso", displacedId: "story-2", rationaleCode: "identity-ambiguity-preference", explanation: "story-2 has an ambiguous provider identity (symbol DATA, name 'Data Network' — an unclear rebrand); Espresso is a verified shared-sequencing infrastructure token, so the clearer identity is kept." },
 ];

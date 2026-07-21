@@ -77,20 +77,7 @@ export function computeBaseline({ rows, v1Ids, selectedNonV1, recognizedEligible
   };
 }
 
-/**
- * Deterministic 1:1 pairing of displaced (higher-ranked) with extra
- * (lower-ranked retained) selections, sorted by rank. Requires equal sizes.
- */
-export function pairSubstitutions(displaced, extra, rankLookup) {
-  if (displaced.length !== extra.length) {
-    throw new Error(`substitution pairing requires equal sizes: displaced=${displaced.length} extra=${extra.length}`);
-  }
-  const d = displaced.slice().sort((a, b) => (rankLookup(a) ?? 1e9) - (rankLookup(b) ?? 1e9) || (a < b ? -1 : 1));
-  const e = extra.slice().sort((a, b) => (rankLookup(a) ?? 1e9) - (rankLookup(b) ?? 1e9) || (a < b ? -1 : 1));
-  return d.map((displacedId, i) => {
-    const selectedId = e[i];
-    const dr = rankLookup(displacedId);
-    const sr = rankLookup(selectedId);
-    return { displacedId, selectedId, displacedRank: dr, selectedRank: sr, rankDelta: sr !== null && dr !== null ? sr - dr : null };
-  });
-}
+// NOTE (12C-1B1.2): the previous pairSubstitutions() helper that paired the
+// displaced and extra sets by sorted-rank position was REMOVED. Substitution
+// pairs are now authored explicitly in data/v2-substitutions.mjs and only
+// validated against these computed sets — never constructed by rank order.
