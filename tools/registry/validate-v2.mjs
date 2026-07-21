@@ -10,9 +10,18 @@ import {
   validateProposalEntries,
   validateProposalManifest,
   validateProviderSnapshot,
+  validateSelectionInput,
+  validateSubstitutionSets,
+  validateUncertainReview,
   findImageUrls,
   findSecrets,
 } from "./lib/validateV2.mjs";
+import { V2_NEW_SELECTIONS } from "./data/v2-selection-input.mjs";
+
+const UNCERTAIN_PROVIDER_IDS = [
+  "the-open-network", "eigenlayer", "fetch-ai", "sonic-3", "kaia",
+  "vaulta", "sky", "chain-2", "safe", "gas",
+];
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
@@ -32,7 +41,13 @@ function main() {
   const manifest = readJson("registry/tokens/v2-proposal/logo-manifest.json");
   const snapshot = readJson("registry/tokens/v2-proposal/provider-snapshot.json");
   const exclusions = readJson("registry/tokens/v2-proposal/exclusions.json");
+  const report = readJson("registry/tokens/v2-proposal/curation-report.json");
   const v1 = readJson("registry/tokens/v1/registry.json");
+
+  // Author-assigned tokenId workflow: the selection input must carry explicit,
+  // valid, unique, non-V1-colliding tokenIds (the generator never allocates).
+  const v1TokenIdSet = new Set(v1.entries.map((e) => e.tokenId));
+  errors.push(...validateSelectionInput(V2_NEW_SELECTIONS, v1TokenIdSet));
 
   // Proposal must NOT be labelled production/latest.
   if (registry.catalogStage !== "proposal") {
@@ -56,13 +71,26 @@ function main() {
   const secrets = findSecrets(readText("registry/tokens/v2-proposal/provider-snapshot.json"));
   if (secrets.length) errors.push(`provider-snapshot.json: credential-like token(s) present: ${[...new Set(secrets)].join(", ")}`);
 
-  // Every new tokenId is an explicit literal in the authored source data.
+  // Every new tokenId is an explicit literal in the authored source data, and
+  // the input↔metadata providerId→tokenId mapping is consistent.
   const metaText = readText("tools/registry/data/v2-metadata.mjs");
+  const inputText = readText("tools/registry/data/v2-selection-input.mjs");
   const v1TokenIds = new Set(v1.entries.map((e) => e.tokenId));
   for (const e of registry.entries) {
     if (v1TokenIds.has(e.tokenId)) continue; // V1 literals live in data/v1-metadata.mjs
     if (!metaText.includes(`tokenId: "${e.tokenId}"`)) {
       errors.push(`tokenId ${e.tokenId} is not an explicit literal in tools/registry/data/v2-metadata.mjs`);
+    }
+    if (!inputText.includes(`tokenId: "${e.tokenId}"`)) {
+      errors.push(`tokenId ${e.tokenId} is not an explicit literal in tools/registry/data/v2-selection-input.mjs`);
+    }
+  }
+  const inputByCg = new Map(V2_NEW_SELECTIONS.map((s) => [s.id, s.tokenId]));
+  for (const e of registry.entries) {
+    if (v1TokenIds.has(e.tokenId)) continue;
+    const cg = e.providerIds.coingecko;
+    if (inputByCg.get(cg) !== e.tokenId) {
+      errors.push(`providerId ${cg}: registry tokenId ${e.tokenId} disagrees with selection input ${inputByCg.get(cg)}`);
     }
   }
 
@@ -80,6 +108,19 @@ function main() {
       errors.push(`exclusion ${x.providerId}: marketCapRank must be a positive integer or null`);
     }
   }
+
+  // True diversity substitutions: <=30, bijection, disjoint, each displaced
+  // carries a diversity-substitution exclusion.
+  const diversityExclusionIds = new Set(
+    exclusions.exclusions.filter((x) => x.reasonCode === "diversity-substitution").map((x) => x.providerId),
+  );
+  errors.push(...validateSubstitutionSets(report.diversitySubstitutions.pairs, selectedCg, diversityExclusionIds));
+  if (report.baseline.trueDiversitySubstitutionCount !== report.diversitySubstitutions.pairs.length) {
+    errors.push("curation report trueDiversitySubstitutionCount disagrees with the pair list length");
+  }
+
+  // Uncertain-entry review: all ten present, verified ones in the catalog.
+  errors.push(...validateUncertainReview(report.uncertainEntries.reviews, UNCERTAIN_PROVIDER_IDS, selectedCg));
 
   if (errors.length > 0) {
     console.error(`V2 proposal validation FAILED (${errors.length} error(s)):`);

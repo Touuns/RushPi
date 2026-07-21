@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
   "catalogStage": "proposal",
-  "catalogVersion": "token-registry-v2-9eebaaf6df58dc59",
+  "catalogVersion": "token-registry-v2-fd9665bfc2842523",
   "entryCount": 250,
-  "contentHash": "9eebaaf6df58dc597f19df9e98f8140e2deb2d0610c11e82f921d71c8f69707e",
+  "contentHash": "fd9665bfc2842523e6de35c0a28b8d3c1a1d2ec80a0f50a9a1c115af59f6a5b2",
   "entries": [
     {
       "tokenId": "rpt-0001",
@@ -1746,7 +1746,11 @@
       "providerIds": {
         "coingecko": "fetch-ai"
       },
-      "aliases": [],
+      "aliases": [
+        "Fetch.ai",
+        "SingularityNET",
+        "Ocean Protocol"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",
@@ -3544,15 +3548,15 @@
     },
     {
       "tokenId": "rpt-0142",
-      "name": "FUNToken",
-      "symbol": "FUN",
-      "slug": "funtoken",
-      "category": "gaming",
+      "name": "Canton",
+      "symbol": "CC",
+      "slug": "canton",
+      "category": "rwa",
       "status": "active",
-      "eligibilityTier": "discovery",
-      "assetClass": "token",
+      "eligibilityTier": "core",
+      "assetClass": "native",
       "providerIds": {
-        "coingecko": "funfair"
+        "coingecko": "canton-network"
       },
       "aliases": [],
       "networks": [],
@@ -4397,17 +4401,19 @@
     },
     {
       "tokenId": "rpt-0176",
-      "name": "VVS Finance",
-      "symbol": "VVS",
-      "slug": "vvs-finance",
-      "category": "defi",
+      "name": "IOTA",
+      "symbol": "IOTA",
+      "slug": "iota",
+      "category": "infrastructure",
       "status": "active",
-      "eligibilityTier": "discovery",
-      "assetClass": "token",
+      "eligibilityTier": "established",
+      "assetClass": "native",
       "providerIds": {
-        "coingecko": "vvs-finance"
+        "coingecko": "iota"
       },
-      "aliases": [],
+      "aliases": [
+        "MIOTA"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",
@@ -5307,7 +5313,9 @@
       "providerIds": {
         "coingecko": "chain-2"
       },
-      "aliases": [],
+      "aliases": [
+        "Chain"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",
@@ -5332,7 +5340,10 @@
       "providerIds": {
         "coingecko": "safe"
       },
-      "aliases": [],
+      "aliases": [
+        "Gnosis Safe",
+        "Safe{Wallet}"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",
@@ -6257,7 +6268,9 @@
       "providerIds": {
         "coingecko": "gas"
       },
-      "aliases": [],
+      "aliases": [
+        "NeoGas"
+      ],
       "networks": [],
       "logo": {
         "status": "pending",

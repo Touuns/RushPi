@@ -2,11 +2,11 @@
 // data/v2-selection-input.mjs. Do not hand-edit: change the input then
 // re-run `node tools/registry/gen-v2-metadata.mjs`.
 //
-// This is the committed source of truth for the 214 NEW V2 proposal entries.
-// Every tokenId below is an EXPLICIT LITERAL string (rpt-0037..rpt-0250) — the
-// build reads these literals and never derives a tokenId from array position.
-// The 36 frozen V1 entries (rpt-0001..rpt-0036) are NOT listed here; the build
-// preserves them verbatim from registry/tokens/v1/registry.json.
+// Committed source of truth for the 214 NEW V2 proposal entries. Every tokenId
+// below is an AUTHOR-ASSIGNED literal COPIED from the input — the generator
+// never allocates a tokenId from array position. The 36 frozen V1 entries
+// (rpt-0001..rpt-0036) are preserved verbatim by the build from
+// registry/tokens/v1/registry.json and are not listed here.
 export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0037", id: "hyperliquid", name: "Hyperliquid", symbol: "HYPE", slug: "hyperliquid", category: "defi", assetClass: "native", eligibilityTier: "core", aliases: [] },
   { tokenId: "rpt-0038", id: "the-open-network", name: "Toncoin", symbol: "TON", slug: "toncoin", category: "smart-contract", assetClass: "native", eligibilityTier: "core", aliases: ["GRAM"] },
@@ -41,7 +41,7 @@ export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0067", id: "jupiter-exchange-solana", name: "Jupiter", symbol: "JUP", slug: "jupiter", category: "defi", assetClass: "token", eligibilityTier: "established", aliases: [] },
   { tokenId: "rpt-0068", id: "lido-dao", name: "Lido DAO", symbol: "LDO", slug: "lido-dao", category: "liquid-staking", assetClass: "token", eligibilityTier: "established", aliases: [] },
   { tokenId: "rpt-0069", id: "pyth-network", name: "Pyth Network", symbol: "PYTH", slug: "pyth-network", category: "oracle", assetClass: "token", eligibilityTier: "established", aliases: [] },
-  { tokenId: "rpt-0070", id: "fetch-ai", name: "Artificial Superintelligence Alliance", symbol: "FET", slug: "asi-alliance", category: "ai", assetClass: "token", eligibilityTier: "established", aliases: [] },
+  { tokenId: "rpt-0070", id: "fetch-ai", name: "Artificial Superintelligence Alliance", symbol: "FET", slug: "asi-alliance", category: "ai", assetClass: "token", eligibilityTier: "established", aliases: ["Fetch.ai","SingularityNET","Ocean Protocol"] },
   { tokenId: "rpt-0071", id: "virtual-protocol", name: "Virtuals Protocol", symbol: "VIRTUAL", slug: "virtuals-protocol", category: "ai", assetClass: "token", eligibilityTier: "established", aliases: [] },
   { tokenId: "rpt-0072", id: "worldcoin-wld", name: "Worldcoin", symbol: "WLD", slug: "worldcoin", category: "ai", assetClass: "token", eligibilityTier: "established", aliases: [] },
   { tokenId: "rpt-0073", id: "immutable-x", name: "Immutable", symbol: "IMX", slug: "immutable", category: "gaming", assetClass: "token", eligibilityTier: "established", aliases: [] },
@@ -113,7 +113,7 @@ export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0139", id: "wemix-token", name: "WEMIX", symbol: "WEMIX", slug: "wemix", category: "gaming", assetClass: "native", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0140", id: "superfarm", name: "SuperVerse", symbol: "SUPER", slug: "superverse", category: "gaming", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0141", id: "nexpace", name: "Nexpace", symbol: "NXPC", slug: "nexpace", category: "gaming", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
-  { tokenId: "rpt-0142", id: "funfair", name: "FUNToken", symbol: "FUN", slug: "funtoken", category: "gaming", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
+  { tokenId: "rpt-0142", id: "canton-network", name: "Canton", symbol: "CC", slug: "canton", category: "rwa", assetClass: "native", eligibilityTier: "core", aliases: [] },
   { tokenId: "rpt-0143", id: "rollbit-coin", name: "Rollbit Coin", symbol: "RLB", slug: "rollbit", category: "gaming", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0144", id: "chiliz", name: "Chiliz", symbol: "CHZ", slug: "chiliz", category: "social", assetClass: "native", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0145", id: "apecoin", name: "ApeCoin", symbol: "APE", slug: "apecoin", category: "social", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
@@ -147,7 +147,7 @@ export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0173", id: "nexo", name: "NEXO", symbol: "NEXO", slug: "nexo", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0174", id: "nxm", name: "Nexus Mutual", symbol: "NXM", slug: "nexus-mutual", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0175", id: "meteora", name: "Meteora", symbol: "MET", slug: "meteora", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
-  { tokenId: "rpt-0176", id: "vvs-finance", name: "VVS Finance", symbol: "VVS", slug: "vvs-finance", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
+  { tokenId: "rpt-0176", id: "iota", name: "IOTA", symbol: "IOTA", slug: "iota", category: "infrastructure", assetClass: "native", eligibilityTier: "established", aliases: ["MIOTA"] },
   { tokenId: "rpt-0177", id: "deep", name: "DeepBook", symbol: "DEEP", slug: "deepbook", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0178", id: "redstone-oracles", name: "RedStone", symbol: "RED", slug: "redstone", category: "oracle", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0179", id: "tellor", name: "Tellor Tributes", symbol: "TRB", slug: "tellor", category: "oracle", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
@@ -183,8 +183,8 @@ export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0209", id: "ravencoin", name: "Ravencoin", symbol: "RVN", slug: "ravencoin", category: "infrastructure", assetClass: "native", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0210", id: "trust-wallet-token", name: "Trust Wallet", symbol: "TWT", slug: "trust-wallet", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0211", id: "bittorrent", name: "BitTorrent", symbol: "BTT", slug: "bittorrent", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
-  { tokenId: "rpt-0212", id: "chain-2", name: "Onyxcoin", symbol: "XCN", slug: "onyxcoin", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
-  { tokenId: "rpt-0213", id: "safe", name: "Safe", symbol: "SAFE", slug: "safe-wallet", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
+  { tokenId: "rpt-0212", id: "chain-2", name: "Onyxcoin", symbol: "XCN", slug: "onyxcoin", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: ["Chain"] },
+  { tokenId: "rpt-0213", id: "safe", name: "Safe", symbol: "SAFE", slug: "safe-wallet", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: ["Gnosis Safe","Safe{Wallet}"] },
   { tokenId: "rpt-0214", id: "centrifuge-2", name: "Centrifuge", symbol: "CFG", slug: "centrifuge", category: "rwa", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0215", id: "polymesh", name: "Polymesh", symbol: "POLYX", slug: "polymesh", category: "rwa", assetClass: "native", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0216", id: "plume", name: "Plume", symbol: "PLUME", slug: "plume", category: "rwa", assetClass: "native", eligibilityTier: "discovery", aliases: [] },
@@ -221,5 +221,5 @@ export const V2_NEW_ENTRIES = [
   { tokenId: "rpt-0247", id: "safepal", name: "SafePal", symbol: "SFP", slug: "safepal", category: "infrastructure", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0248", id: "sun-token", name: "Sun Token", symbol: "SUN", slug: "sun-token", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
   { tokenId: "rpt-0249", id: "just", name: "JUST", symbol: "JST", slug: "just", category: "defi", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
-  { tokenId: "rpt-0250", id: "gas", name: "Gas", symbol: "GAS", slug: "neo-gas", category: "smart-contract", assetClass: "token", eligibilityTier: "discovery", aliases: [] },
+  { tokenId: "rpt-0250", id: "gas", name: "Gas", symbol: "GAS", slug: "neo-gas", category: "smart-contract", assetClass: "token", eligibilityTier: "discovery", aliases: ["NeoGas"] },
 ];

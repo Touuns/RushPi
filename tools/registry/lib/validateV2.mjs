@@ -9,6 +9,36 @@ import { V2_CANONICAL_CATEGORIES } from "./v2Categories.mjs";
 const EXPECTED_ENTRY_COUNT = 250;
 const TOKEN_ID_PATTERN = /^rpt-[0-9]{4}$/;
 const ANCHOR_COINGECKO_IDS = ["bitcoin", "ethereum"];
+const MAX_TRUE_DIVERSITY_SUBSTITUTIONS = 30;
+
+/**
+ * Validate the hand-authored selection input BEFORE any metadata is generated.
+ * tokenIds must be explicit author literals — the generator must never allocate
+ * one — so this rejects a missing/badly-formed/duplicate tokenId or any
+ * collision with the frozen V1 tokenId range. Pure: shared by
+ * gen-v2-metadata.mjs and selftest-v2.mjs.
+ * @param {any[]} selections
+ * @param {Set<string>} v1TokenIds  frozen V1 tokenIds (rpt-0001..rpt-0036)
+ */
+export function validateSelectionInput(selections, v1TokenIds) {
+  const errors = [];
+  if (!Array.isArray(selections)) return ["selection input is not an array"];
+  const seen = new Set();
+  for (const e of selections) {
+    const label = e && e.id ? `selection "${e.id}"` : "selection <unknown>";
+    if (!e || typeof e.tokenId !== "string" || e.tokenId.length === 0) {
+      errors.push(`${label}: missing explicit tokenId (the generator must never allocate one)`);
+      continue;
+    }
+    if (!TOKEN_ID_PATTERN.test(e.tokenId)) errors.push(`${label}: tokenId "${e.tokenId}" must match ^rpt-[0-9]{4}$`);
+    if (v1TokenIds.has(e.tokenId)) errors.push(`${label}: tokenId "${e.tokenId}" collides with a frozen V1 tokenId`);
+    if (seen.has(e.tokenId)) errors.push(`${label}: duplicate tokenId "${e.tokenId}"`);
+    seen.add(e.tokenId);
+  }
+  return errors;
+}
+
+export { MAX_TRUE_DIVERSITY_SUBSTITUTIONS };
 
 /**
  * Validate the proposal's entries against the shared entry contract (with the
@@ -110,6 +140,78 @@ export function validateProposalManifest(registryTokenIds, manifestEntries) {
   }
   for (const tokenId of registryTokenIds) {
     if (!seen.has(tokenId)) errors.push(`registry tokenId absent from logo manifest: ${tokenId}`);
+  }
+  return errors;
+}
+
+const UNCERTAINTY_TYPES = new Set(["rebrand", "migration", "ambiguous-name", "ambiguous-symbol", "category"]);
+const REVIEW_OUTCOMES = new Set(["verified", "excluded-unresolved"]);
+const SUBSTITUTION_RATIONALES = new Set([
+  "stablecoin-overweight-avoidance", "redundant-subsector", "category-coverage", "identity-ambiguity-preference",
+]);
+
+/**
+ * Validate the true diversity-substitution pairs against the proposal:
+ * <=30, a strict bijection, selected⊂catalog, displaced∩catalog=∅, each
+ * displaced carries a valid rationale and appears in exclusions with
+ * reasonCode "diversity-substitution".
+ * @param {Array<{selected:{providerId:string},displaced:{providerId:string},rationaleCode:string}>} pairs
+ * @param {Set<string>} selectedCgIds  catalog CoinGecko ids
+ * @param {Set<string>} diversityExclusionIds  provider ids flagged diversity-substitution in exclusions.json
+ */
+export function validateSubstitutionSets(pairs, selectedCgIds, diversityExclusionIds) {
+  const errors = [];
+  if (!Array.isArray(pairs)) return ["diversity substitution pairs is not an array"];
+  if (pairs.length > MAX_TRUE_DIVERSITY_SUBSTITUTIONS) {
+    errors.push(`true diversity substitutions ${pairs.length} exceed the max of ${MAX_TRUE_DIVERSITY_SUBSTITUTIONS}`);
+  }
+  const sel = new Set();
+  const disp = new Set();
+  for (const p of pairs) {
+    const s = p.selected && p.selected.providerId;
+    const d = p.displaced && p.displaced.providerId;
+    if (!s || !d) { errors.push("substitution pair missing selected/displaced providerId"); continue; }
+    if (sel.has(s)) errors.push(`selected ${s} appears in more than one substitution pair`);
+    if (disp.has(d)) errors.push(`displaced ${d} appears in more than one substitution pair`);
+    sel.add(s); disp.add(d);
+    if (!selectedCgIds.has(s)) errors.push(`substitution selected ${s} is not in the catalog`);
+    if (selectedCgIds.has(d)) errors.push(`substitution displaced ${d} is also selected (overlap)`);
+    if (!SUBSTITUTION_RATIONALES.has(p.rationaleCode)) errors.push(`substitution ${d}: unknown rationaleCode "${p.rationaleCode}"`);
+  }
+  for (const d of disp) {
+    if (!diversityExclusionIds.has(d)) errors.push(`displaced ${d} is missing a diversity-substitution exclusion`);
+  }
+  for (const d of diversityExclusionIds) {
+    if (!disp.has(d)) errors.push(`exclusion ${d} is marked diversity-substitution but has no substitution pair`);
+  }
+  return errors;
+}
+
+/**
+ * Validate the structured review of uncertain included entries: every expected
+ * providerId is reviewed with the required fields; a "verified" entry must be
+ * in the catalog; an "excluded-unresolved" entry must NOT be (it was replaced).
+ */
+export function validateUncertainReview(reviews, expectedProviderIds, selectedCgIds) {
+  const errors = [];
+  if (!Array.isArray(reviews)) return ["uncertain review is not an array"];
+  const seen = new Set();
+  for (const u of reviews) {
+    const label = `uncertain review ${u.providerId ?? "<unknown>"}`;
+    if (u.providerId) seen.add(u.providerId);
+    if (!UNCERTAINTY_TYPES.has(u.uncertaintyType)) errors.push(`${label}: unknown uncertaintyType "${u.uncertaintyType}"`);
+    if (!REVIEW_OUTCOMES.has(u.reviewOutcome)) errors.push(`${label}: unknown reviewOutcome "${u.reviewOutcome}"`);
+    for (const f of ["canonicalNameDecision", "symbolDecision", "categoryDecision", "providerEvidenceReference", "reviewedAt", "note"]) {
+      if (typeof u[f] !== "string" || u[f].length === 0) errors.push(`${label}: missing required field "${f}"`);
+    }
+    if (!Array.isArray(u.officialEvidenceReferences) || u.officialEvidenceReferences.length === 0) {
+      errors.push(`${label}: officialEvidenceReferences must be a non-empty array`);
+    }
+    if (u.reviewOutcome === "verified" && !selectedCgIds.has(u.providerId)) errors.push(`${label}: verified but not present in the catalog`);
+    if (u.reviewOutcome === "excluded-unresolved" && selectedCgIds.has(u.providerId)) errors.push(`${label}: excluded-unresolved but still present in the catalog`);
+  }
+  for (const id of expectedProviderIds) {
+    if (!seen.has(id)) errors.push(`uncertain review missing expected entry: ${id}`);
   }
   return errors;
 }

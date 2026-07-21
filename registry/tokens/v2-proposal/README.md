@@ -30,8 +30,47 @@ Exactly **250** entries:
 | `registry.json` | The 250-entry proposal: `schemaVersion`, immutable content-derived `catalogVersion`, `entryCount`, `contentHash`, canonical tokenId ordering. No current time enters the hashed content. |
 | `logo-manifest.json` | Exactly one `pending`, `version: 0` entry per token — no source, URL, hash or ingestion fields. Nothing has been sourced. |
 | `provider-snapshot.json` | Audit-only market identity/ranking for the top-500 capture (id, symbol, name, rank, market cap, `last_updated`). No image URLs, no price history, no credentials. |
-| `exclusions.json` | Every considered-but-excluded candidate with a controlled reason code, neutral explanation, and (where relevant) the underlying asset id / evidence reference. |
-| `curation-report.json` | Provenance + counts: tiers, categories, assetClasses, exclusions by reason, diversity substitutions, ambiguous reviews, and the highest-uncertainty included entries. |
+| `exclusions.json` | Every considered-but-excluded candidate with a controlled reason code, neutral explanation, and (where relevant) the underlying asset id / evidence reference. Displaced diversity substitutions carry `reasonCode: "diversity-substitution"` and point back at the retained `displacedForTokenId`. |
+| `curation-report.json` | Provenance + counts: tiers, categories, assetClasses, exclusions by reason, the rank-based baseline accounting, the true diversity-substitution pairs, and the structured identity review of the uncertain entries. |
+
+## Author-assigned token identities (12C-1B1.1)
+
+Every entry in `tools/registry/data/v2-selection-input.mjs` carries an
+**explicit, author-assigned `tokenId`**. `gen-v2-metadata.mjs` **copies**
+`tokenId` and never allocates one from array position, so reordering or
+inserting a selection can never renumber another asset (proven by
+`registry:v2:selftest`). Adding an asset requires manually choosing an unused
+`rpt-####` id — including one vacated by removing a proposal-only entry. The
+retained `providerId → tokenId` mapping is preserved from the previous commit.
+
+## Rank-based baseline and true diversity substitutions
+
+The proposal is measured against a deterministic **rank-based baseline**
+(`tools/registry/lib/v2Baseline.mjs`): preserve the 36 V1 assets, apply the
+hard exclusions (wrapped/bridged, duplicate-underlying, leveraged/derivative,
+unsupported asset forms, inactive/abandoned, missing-data, and
+identity-not-sufficiently-verified), then fill the remaining slots with the
+highest-ranked eligible assets to exactly 250.
+
+The differences from that baseline are reported separately in
+`curation-report.json → baseline`:
+
+- **mandatoryV1OutsideNaturalCutoff** — V1 kept past the natural rank cutoff.
+- **hardExclusionTailFills** — baseline members past rank 250 pulled in only
+  because higher-ranked candidates were hard-excluded (not discretionary).
+- **trueDiversitySubstitutions** — the ≤ 30 deliberate choices of a lower-ranked
+  distinct-category asset over a higher-ranked eligible one. Each is a 1:1 pair
+  (selected ↔ displaced) with a controlled `rationaleCode`, a specific
+  explanation and a rank delta; the displaced asset appears in `exclusions.json`
+  with `reasonCode: "diversity-substitution"`.
+
+## Uncertain-entry identity review
+
+The ten highest-uncertainty included entries were verified against official
+project sites/docs and official CoinGecko identity metadata (no blogs/socials,
+no image URLs) — see `curation-report.json → uncertainEntries` and
+`tools/registry/data/v2-uncertain-review.mjs`. All ten resolved to a confident
+canonical identity; none required exclusion.
 
 ## Selection policy (transparent, not raw top-250-by-rank)
 

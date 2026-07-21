@@ -1,0 +1,196 @@
+{
+  "retrievedAt": "2026-07-21T02:47:30.300Z",
+  "provider": "coingecko",
+  "entries": [
+    {
+      "id": "the-open-network",
+      "name": "Gram (prev. Toncoin)",
+      "symbol": "GRAM",
+      "categories": [
+        "Smart Contract Platform",
+        "BNB Chain Ecosystem",
+        "Layer 1 (L1)",
+        "Ethereum Ecosystem",
+        "Animoca Brands Portfolio",
+        "Alleged SEC Securities",
+        "DWF Labs Portfolio",
+        "TON Ecosystem"
+      ],
+      "homepage": [
+        "https://ton.org/",
+        "https://blog.ton.org/"
+      ],
+      "repos": [
+        "https://github.com/ton-blockchain/ton"
+      ],
+      "asset_platform": "the-open-network"
+    },
+    {
+      "id": "eigenlayer",
+      "name": "EigenCloud (prev. EigenLayer)",
+      "symbol": "EIGEN",
+      "categories": [
+        "Artificial Intelligence (AI)",
+        "Infrastructure",
+        "Ethereum Ecosystem",
+        "Base Ecosystem",
+        "Data Availability",
+        "Restaking",
+        "Polychain Capital Portfolio",
+        "AI Framework"
+      ],
+      "homepage": [
+        "https://www.eigencloud.xyz/",
+        "https://www.eigenlayer.xyz/"
+      ],
+      "repos": [],
+      "asset_platform": "ethereum"
+    },
+    {
+      "id": "fetch-ai",
+      "name": "Artificial Superintelligence Alliance",
+      "symbol": "FET",
+      "categories": [
+        "Artificial Intelligence (AI)",
+        "NFT",
+        "BNB Chain Ecosystem",
+        "Cardano Ecosystem",
+        "Ethereum Ecosystem",
+        "Binance Launchpad",
+        "DWF Labs Portfolio",
+        "Osmosis Ecosystem"
+      ],
+      "homepage": [
+        "https://www.superintelligence.io/",
+        "https://docs.superintelligence.io/artificial-superintelligence-alliance"
+      ],
+      "repos": [
+        "https://github.com/fetchai/fetchd"
+      ],
+      "asset_platform": "ethereum"
+    },
+    {
+      "id": "sonic-3",
+      "name": "Sonic",
+      "symbol": "S",
+      "categories": [
+        "Smart Contract Platform",
+        "Layer 1 (L1)",
+        "Galaxy Digital Portfolio",
+        "Sonic Ecosystem"
+      ],
+      "homepage": [
+        "https://soniclabs.com",
+        "https://docs.soniclabs.com/"
+      ],
+      "repos": [],
+      "asset_platform": null
+    },
+    {
+      "id": "kaia",
+      "name": "Kaia",
+      "symbol": "KAIA",
+      "categories": [
+        "Smart Contract Platform",
+        "Layer 1 (L1)"
+      ],
+      "homepage": [
+        "https://kaia.io/"
+      ],
+      "repos": [
+        "https://github.com/kaiachain"
+      ],
+      "asset_platform": null
+    },
+    {
+      "id": "vaulta",
+      "name": "Vaulta",
+      "symbol": "A",
+      "categories": [
+        "Layer 1 (L1)",
+        "World Liberty Financial Portfolio"
+      ],
+      "homepage": [
+        "https://www.vaulta.com"
+      ],
+      "repos": [
+        "https://github.com/VaultaFoundation/"
+      ],
+      "asset_platform": null
+    },
+    {
+      "id": "sky",
+      "name": "Sky",
+      "symbol": "SKY",
+      "categories": [
+        "Decentralized Finance (DeFi)",
+        "Ethereum Ecosystem",
+        "Stablecoin Issuer",
+        "Hydration Ecosystem",
+        "Governance"
+      ],
+      "homepage": [
+        "https://sky.money/"
+      ],
+      "repos": [],
+      "asset_platform": "ethereum"
+    },
+    {
+      "id": "chain-2",
+      "name": "Onyxcoin",
+      "symbol": "XCN",
+      "categories": [
+        "Smart Contract Platform",
+        "BNB Chain Ecosystem",
+        "Layer 1 (L1)",
+        "Ethereum Ecosystem",
+        "Base Ecosystem",
+        "Proof of Stake (PoS)",
+        "Pantera Capital Portfolio",
+        "Made in USA"
+      ],
+      "homepage": [
+        "http://www.onyx.org"
+      ],
+      "repos": [
+        "https://github.com/Onyx-Protocol"
+      ],
+      "asset_platform": "ethereum"
+    },
+    {
+      "id": "safe",
+      "name": "Safe",
+      "symbol": "SAFE",
+      "categories": [
+        "Infrastructure",
+        "Wallets",
+        "Gnosis Chain Ecosystem",
+        "Ethereum Ecosystem"
+      ],
+      "homepage": [
+        "https://safe.global/"
+      ],
+      "repos": [
+        "https://github.com/safe-global"
+      ],
+      "asset_platform": "ethereum"
+    },
+    {
+      "id": "gas",
+      "name": "Gas",
+      "symbol": "GAS",
+      "categories": [
+        "Infrastructure",
+        "Smart Contract Platform",
+        "NEO Ecosystem"
+      ],
+      "homepage": [
+        "https://neo.org/"
+      ],
+      "repos": [
+        "https://github.com/neo-project/neo"
+      ],
+      "asset_platform": "neo"
+    }
+  ]
+}

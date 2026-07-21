@@ -32,6 +32,11 @@ const OVERRIDES = {
   "wrappedm-by-m0": { reasonCode: "wrapped-or-bridged", underlyingAssetId: null, note: "Wrapped representation of the M0 token." },
   "lido-earn-eth": { reasonCode: "wrapped-or-bridged", underlyingAssetId: "ethereum", note: "Staking-receipt wrapper over ETH, not an independent asset." },
   "spark-usdc": { reasonCode: "wrapped-or-bridged", underlyingAssetId: "usd-coin", note: "Yield-bearing receipt wrapper over USDC." },
+  // Tokenized RWA products / equity derivatives (identity tracks a real-world
+  // instrument), missed by the generic buckets because their names are opaque.
+  "figure-heloc": { reasonCode: "unsupported-asset-form", underlyingAssetId: null, note: "Tokenized home-equity line of credit (RWA security), not a crypto-native asset." },
+  "hastra-prime": { reasonCode: "unsupported-asset-form", underlyingAssetId: null, note: "Tokenized RWA yield product, not a crypto-native asset." },
+  "alpha-bulgaria-warrants": { reasonCode: "leveraged-or-derivative", underlyingAssetId: null, note: "Tokenized warrants — an equity derivative, not a crypto-native asset." },
   // Inactive / superseded.
   "terra-luna": { reasonCode: "inactive-or-abandoned", underlyingAssetId: null, note: "Terra Luna Classic — collapsed/legacy network, not an active selection." },
   "frax": { reasonCode: "inactive-or-abandoned", underlyingAssetId: "frax-usd", note: "Legacy Frax Dollar, superseded by Frax USD (frxUSD)." },

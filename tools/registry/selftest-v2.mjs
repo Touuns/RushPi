@@ -8,6 +8,9 @@ import {
   validateProposalEntries,
   validateProposalManifest,
   validateProviderSnapshot,
+  validateSelectionInput,
+  validateSubstitutionSets,
+  validateUncertainReview,
   findImageUrls,
   findSecrets,
 } from "./lib/validateV2.mjs";
@@ -169,6 +172,62 @@ check("secret detected", findSecrets('{"api_key":"zzz"}').length > 0);
   const errs = validateProviderSnapshot({ rows: [{ id: "x", marketCapRank: 0 }, { id: "y", marketCapRank: 5, image: "u" }] });
   check("non-positive rank rejected", errs.some((e) => /positive integer or null/.test(e)));
   check("snapshot image field rejected", errs.some((e) => /must not carry an image field/.test(e)));
+}
+
+// 12. Author-assigned tokenId workflow (12C-1B1.1).
+{
+  const v1 = new Set(["rpt-0001", "rpt-0002"]);
+  check("selection input cannot omit tokenId", validateSelectionInput([{ id: "x" }], v1).some((e) => /missing explicit tokenId/.test(e)));
+  check("selection input rejects duplicate tokenId", validateSelectionInput([{ id: "x", tokenId: "rpt-0037" }, { id: "y", tokenId: "rpt-0037" }], v1).some((e) => /duplicate tokenId/.test(e)));
+  check("selection input rejects V1 collision", validateSelectionInput([{ id: "x", tokenId: "rpt-0001" }], v1).some((e) => /collides with a frozen V1 tokenId/.test(e)));
+  check("selection input rejects bad format", validateSelectionInput([{ id: "x", tokenId: "rpt-37" }], v1).some((e) => /must match/.test(e)));
+  check("valid selection input passes", validateSelectionInput([{ id: "x", tokenId: "rpt-0037" }, { id: "y", tokenId: "rpt-0038" }], v1).length === 0);
+}
+
+// 13. Reordering the input preserves the providerId->tokenId map AND the hash
+// (tokenIds are copied, never index-derived).
+{
+  const input = [
+    { id: "aaa", tokenId: "rpt-0037" },
+    { id: "bbb", tokenId: "rpt-0038" },
+    { id: "ccc", tokenId: "rpt-0039" },
+  ];
+  const toEntries = (sel) => sel.map((s) => entry({ tokenId: s.tokenId, providerIds: { coingecko: s.id }, name: `N-${s.id}`, symbol: `S-${s.id}`, slug: `sl-${s.id}` }));
+  const forward = toEntries(input);
+  const reversed = toEntries(input.slice().reverse());
+  const pairMap = (es) => es.map((e) => `${e.providerIds.coingecko}=${e.tokenId}`).sort().join(",");
+  check("reorder preserves providerId->tokenId map", pairMap(forward) === pairMap(reversed));
+  check("reorder preserves registry contentHash", computeContentHash(SCHEMA, forward) === computeContentHash(SCHEMA, reversed));
+}
+
+// 14. Diversity-substitution invariants.
+{
+  const selected = new Set(["kept1", "kept2"]);
+  const good = [
+    { selected: { providerId: "kept1" }, displaced: { providerId: "disp1" }, rationaleCode: "redundant-subsector" },
+    { selected: { providerId: "kept2" }, displaced: { providerId: "disp2" }, rationaleCode: "category-coverage" },
+  ];
+  const diversityIds = new Set(["disp1", "disp2"]);
+  check("valid substitution set passes", validateSubstitutionSets(good, selected, diversityIds).length === 0);
+  const overlap = [{ selected: { providerId: "kept1" }, displaced: { providerId: "kept2" }, rationaleCode: "redundant-subsector" }];
+  check("substitution overlap rejected", validateSubstitutionSets(overlap, selected, new Set(["kept2"])).some((e) => /also selected/.test(e)));
+  const noExcl = [{ selected: { providerId: "kept1" }, displaced: { providerId: "disp1" }, rationaleCode: "redundant-subsector" }];
+  check("displaced missing exclusion rejected", validateSubstitutionSets(noExcl, selected, new Set()).some((e) => /missing a diversity-substitution exclusion/.test(e)));
+  const tooMany = Array.from({ length: 31 }, (_, i) => ({ selected: { providerId: `k${i}` }, displaced: { providerId: `d${i}` }, rationaleCode: "category-coverage" }));
+  const selMany = new Set(tooMany.map((p) => p.selected.providerId));
+  const divMany = new Set(tooMany.map((p) => p.displaced.providerId));
+  check("more than 30 substitutions rejected", validateSubstitutionSets(tooMany, selMany, divMany).some((e) => /exceed the max/.test(e)));
+}
+
+// 15. Uncertain review invariants.
+{
+  const expected = ["a", "b"];
+  const inCatalog = new Set(["a", "b"]);
+  const goodRev = expected.map((id) => ({ providerId: id, uncertaintyType: "rebrand", reviewOutcome: "verified", canonicalNameDecision: "x", symbolDecision: "x", categoryDecision: "x", providerEvidenceReference: "cg", reviewedAt: "t", note: "n", officialEvidenceReferences: ["u"] }));
+  check("valid uncertain review passes", validateUncertainReview(goodRev, expected, inCatalog).length === 0);
+  check("missing uncertain entry rejected", validateUncertainReview([goodRev[0]], expected, inCatalog).some((e) => /missing expected entry: b/.test(e)));
+  const stillIn = [{ ...goodRev[0], reviewOutcome: "excluded-unresolved" }];
+  check("excluded-unresolved still in catalog rejected", validateUncertainReview(stillIn, ["a"], inCatalog).some((e) => /still present in the catalog/.test(e)));
 }
 
 if (failures > 0) {
