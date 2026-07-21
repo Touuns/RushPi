@@ -1,0 +1,7 @@
+# Local intake/work conventions for the logo tooling (Phase 12C-1B2B).
+# Never commit an intake source file or a working/report artifact here -
+# only the reviewed, normalized, content-hashed outputs under
+# public/assets/rushpi/token-logos/ are ever committed, and only once a
+# source has been explicitly approved.
+intake/
+work/

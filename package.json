@@ -15,7 +15,13 @@
     "registry:selftest": "node tools/registry/selftest.mjs",
     "registry:v2:build": "node tools/registry/build-v2.mjs",
     "registry:v2:validate": "node tools/registry/validate-v2.mjs",
-    "registry:v2:selftest": "node tools/registry/selftest-v2.mjs"
+    "registry:v2:selftest": "node tools/registry/selftest-v2.mjs",
+    "logos:validate-plan": "node tools/logos/validate-source-plan.mjs",
+    "logos:inspect": "node tools/logos/inspect-source.mjs",
+    "logos:normalize": "node tools/logos/normalize-source.mjs",
+    "logos:verify": "node tools/logos/verify-outputs.mjs",
+    "logos:manifest": "node tools/logos/build-release-manifest.mjs",
+    "logos:selftest": "node tools/logos/selftest.mjs"
   },
   "dependencies": {
     "phaser": "^3.80.1",
@@ -23,11 +29,13 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vercel/node": "^3.2.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "sharp": "0.35.3",
     "typescript": "^5.5.3",
     "vite": "^5.4.0"
   }
