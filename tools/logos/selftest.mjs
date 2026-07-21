@@ -46,6 +46,9 @@ import {
   loadApprovalRecord,
   verifyApprovalMatchesPlanEntry,
   verifyApprovalMatchesRegistry,
+  computeApprovalRecordContentHash,
+  canonicalSerializeApproval,
+  APPROVAL_FIELD_NAMES,
   ApprovalError,
 } from "./lib/approval.mjs";
 import { publishTokenVersion, PublishRollbackError } from "./lib/publish-outputs.mjs";
@@ -133,6 +136,7 @@ function approvedEntry(overrides = {}) {
     approvedAt: "2026-01-01T00:00:00Z",
     intakePath: "fixture.png",
     approvedSourceContentHash: "a".repeat(64),
+    permissionEvidenceReference: "evidence-reference-fixture",
     notes: "pilot fixture",
     ...overrides,
   });
@@ -816,7 +820,7 @@ async function main() {
       });
       writeReceiptAtomically(unboundReceiptsRoot, handwritten);
       const bindingErrs = verifyReceiptApprovalBinding(handwritten, unboundApprovalsRoot, registry);
-      return bindingErrs.some((e) => /no valid approval record found/.test(e));
+      return bindingErrs.some((e) => /no valid, processable approval record found/.test(e));
     });
 
     // invalid approvalRecordContentHash (bad format) is rejected at the shape
@@ -913,6 +917,160 @@ async function main() {
       check("stale selection for a token with only one receipt rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0002": 1 } }, receipts, registry).some((e) => /stale selection entry/.test(e)));
       check("selection entry for a token with no receipt at all rejected", validateReleaseSelection({ schemaVersion: 1, selections: { "rpt-0142": 1 } }, receipts, registry).some((e) => /no verified receipt exists at all/.test(e)));
       check("unknown top-level field in release-selection rejected", validateReleaseSelection({ schemaVersion: 1, selections: {}, extra: true }, receipts, registry).some((e) => /unknown top-level field/.test(e)));
+      check("missing release-selection schemaVersion rejected", validateReleaseSelection({ selections: {} }, receipts, registry).some((e) => /schemaVersion must be/.test(e)));
+      check("wrong release-selection schemaVersion rejected", validateReleaseSelection({ schemaVersion: 2, selections: {} }, receipts, registry).some((e) => /schemaVersion must be/.test(e)));
+    }
+
+    // =================================================================
+    // 12C-1B2B.3: strict approval/receipt/manifest/selection schemas.
+    // A manually reconstructed chain must never pass merely because its
+    // internal hashes are self-consistent.
+    // =================================================================
+    function validApprovalFields(overrides = {}) {
+      return {
+        schemaVersion: 1, tokenId: "rpt-0037", catalogVersion: registry.catalogVersion,
+        providerId: "hyperliquid", canonicalName: "Hyperliquid", symbol: "HYPE", logoVersion: 1,
+        sourceReviewStatus: "source-approved", permissionReviewStatus: "permission-confirmed",
+        sourceType: "official-brand-kit", sourceReference: "https://x", sourcePageReference: "https://x/p",
+        permittedVariant: "icon", variantType: "icon", cropMode: "alpha-bounds", expectedMimeClass: "image/svg+xml",
+        approvedSourceContentHash: "a".repeat(64), approvedBy: "product-owner", approvedAt: "2026-01-01T00:00:00Z",
+        permissionEvidenceReference: "evidence-ref", providerFallbackApproved: false, allowExtremeAspectRatio: false,
+        notes: "", intakePath: "x.svg",
+        ...overrides,
+      };
+    }
+    function validApproval(overrides = {}) {
+      const fields = validApprovalFields(overrides);
+      return { ...fields, approvalRecordContentHash: computeApprovalRecordContentHash(fields) };
+    }
+
+    // --- Section 1/2/3: strict approval-record schema -----------------------
+    check("a fully valid, processable approval record passes", validateApprovalRecordShape(validApproval()).length === 0);
+    check("approval permission status unreviewed is rejected", validateApprovalRecordShape(validApproval({ permissionReviewStatus: "unreviewed" })).some((e) => /permission-confirmed.*explicit-product-exception/.test(e)));
+    check("approval permission status needs-legal-review is rejected", validateApprovalRecordShape(validApproval({ permissionReviewStatus: "needs-legal-review" })).some((e) => /permission-confirmed.*explicit-product-exception/.test(e)));
+    check("approval permission status rejected is rejected", validateApprovalRecordShape(validApproval({ permissionReviewStatus: "rejected" })).some((e) => /permission-confirmed.*explicit-product-exception/.test(e)));
+    check("permission-confirmed without evidence is rejected", validateApprovalRecordShape(validApproval({ permissionEvidenceReference: "" })).some((e) => /permissionEvidenceReference/.test(e)));
+    check("explicit-product-exception without notes is rejected", validateApprovalRecordShape(validApproval({ permissionReviewStatus: "explicit-product-exception", notes: "" })).some((e) => /notes must be non-empty and explain the exception/.test(e)));
+    check("explicit-product-exception with notes passes", validateApprovalRecordShape(validApproval({ permissionReviewStatus: "explicit-product-exception", notes: "documented exception rationale" })).length === 0);
+    check("authorized-provider without providerFallbackApproved is rejected", validateApprovalRecordShape(validApproval({ sourceType: "authorized-provider", notes: "fallback rationale" })).some((e) => /authorized-provider requires providerFallbackApproved=true/.test(e)));
+    check("authorized-provider without notes is rejected", validateApprovalRecordShape(validApproval({ sourceType: "authorized-provider", providerFallbackApproved: true, notes: "" })).some((e) => /authorized-provider requires non-empty notes/.test(e)));
+    check("authorized-provider fully complete passes", validateApprovalRecordShape(validApproval({ sourceType: "authorized-provider", providerFallbackApproved: true, notes: "fallback rationale" })).length === 0);
+    check("providerFallbackApproved=true on an official-project source is rejected", validateApprovalRecordShape(validApproval({ providerFallbackApproved: true })).some((e) => /providerFallbackApproved must be false for sourceType/.test(e)));
+    check("unknown approval-record field is rejected", validateApprovalRecordShape({ ...validApproval(), extraField: "leak" }).some((e) => /unknown field "extraField"/.test(e)));
+    check("missing approval-record field (sourcePageReference) is rejected", (() => { const a = validApproval(); delete a.sourcePageReference; return validateApprovalRecordShape(a).some((e) => /sourcePageReference/.test(e)); })());
+    check("missing approval-record field (permittedVariant) is rejected", (() => { const a = validApproval(); delete a.permittedVariant; return validateApprovalRecordShape(a).some((e) => /permittedVariant/.test(e)); })());
+    check("invalid approvedAt (no timezone) is rejected", validateApprovalRecordShape(validApproval({ approvedAt: "2026-01-01T00:00:00" })).some((e) => /ISO-8601/.test(e)));
+    check("invalid approvedAt (garbage string) is rejected", validateApprovalRecordShape(validApproval({ approvedAt: "not-a-date" })).some((e) => /ISO-8601/.test(e)));
+    check("valid approvedAt with numeric offset passes", validateApprovalRecordShape(validApproval({ approvedAt: "2026-01-01T00:00:00+02:00" })).length === 0);
+
+    // --- Section 4: approval hash coverage -----------------------------------
+    {
+      const base = validApprovalFields();
+      const baseHash = computeApprovalRecordContentHash(base);
+      let changedCount = 0;
+      for (const field of APPROVAL_FIELD_NAMES) {
+        if (field === "schemaVersion") continue; // only one valid value, can't vary
+        const changed = { ...base, [field]: typeof base[field] === "boolean" ? !base[field] : `${base[field]}-changed` };
+        if (computeApprovalRecordContentHash(changed) !== baseHash) changedCount += 1;
+      }
+      check("changing any approval field changes approvalRecordContentHash", changedCount === APPROVAL_FIELD_NAMES.length - 1);
+
+      const withUnknown = { ...validApproval(), sneaky: "value" };
+      check("adding an unknown field makes the record invalid", validateApprovalRecordShape(withUnknown).length > 0);
+      check("an unknown field never enters the hashed canonical projection", !canonicalSerializeApproval(withUnknown).includes("sneaky"));
+
+      for (const field of APPROVAL_FIELD_NAMES) {
+        const missing = validApproval();
+        delete missing[field];
+        check(`removing required approval field "${field}" makes the record invalid`, validateApprovalRecordShape(missing).length > 0);
+      }
+    }
+
+    // --- Section 5: receipt-to-approval semantic binding ---------------------
+    {
+      const goodApproval = freeze(approvedEntry({
+        tokenId: "rpt-0142", providerId: "canton-network", canonicalName: "Canton", symbol: "CC",
+        expectedMimeClass: "image/svg+xml", intakePath: "canton.svg", approvedSourceContentHash: writeIntake("canton.svg", fx.validSimpleSvg),
+      }));
+      const baseReceiptFields = {
+        tokenId: "rpt-0142", catalogVersion: registry.catalogVersion, logoVersion: 1, normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+        approvedSourceContentHash: goodApproval.approvedSourceContentHash, actualSourceContentHash: goodApproval.approvedSourceContentHash,
+        sourceMimeType: "image/svg+xml", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+        output64Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0142/v1/64/${"1".repeat(64)}.png`,
+        output128Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0142/v1/128/${"2".repeat(64)}.png`,
+        output64Hash: "1".repeat(64), output128Hash: "2".repeat(64),
+        approvalRecordContentHash: goodApproval.approvalRecordContentHash, toolchain: getToolchainFingerprint(),
+      };
+      check(
+        "a fully consistent receipt bound to a processable approval passes binding",
+        verifyReceiptApprovalBinding(buildReceipt(baseReceiptFields), pipelineApprovalsRoot, registry).length === 0,
+      );
+      check(
+        "receipt MIME inconsistent with approval MIME is rejected",
+        verifyReceiptApprovalBinding(buildReceipt({ ...baseReceiptFields, sourceMimeType: "image/png" }), pipelineApprovalsRoot, registry).some((e) => /sourceMimeType/.test(e)),
+      );
+
+      // A self-consistent-but-non-processable approval record (hand-crafted:
+      // permissionReviewStatus=unreviewed, with its OWN hash recomputed to
+      // match) must still be rejected - this is the exact "manually
+      // reconstructed chain passes on self-consistent hashes alone" attack
+      // this phase closes.
+      const unreviewedRoot = path.join(tmpRoot, "unreviewed-approval-test");
+      const unreviewedFields = validApprovalFields({ tokenId: "rpt-0041", permissionReviewStatus: "unreviewed" });
+      // Bypass writeApprovalRecordAtomically's validation entirely - simulate
+      // a hand-authored file, not tooling output.
+      mkdirSync(unreviewedRoot, { recursive: true });
+      const unreviewedHash = computeApprovalRecordContentHash({ ...unreviewedFields, permissionReviewStatus: "permission-confirmed" }); // irrelevant hash source
+      const selfConsistentBadRecord = { ...unreviewedFields, approvalRecordContentHash: computeApprovalRecordContentHash(unreviewedFields) };
+      writeFileSync(path.join(unreviewedRoot, "rpt-0041-v1.json"), JSON.stringify(selfConsistentBadRecord, null, 2));
+      void unreviewedHash;
+      const receiptBoundToUnreviewed = buildReceipt({
+        ...baseReceiptFields, tokenId: "rpt-0041",
+        output64Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0041/v1/64/${"3".repeat(64)}.png`,
+        output128Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0041/v1/128/${"4".repeat(64)}.png`,
+        output64Hash: "3".repeat(64), output128Hash: "4".repeat(64),
+        approvalRecordContentHash: selfConsistentBadRecord.approvalRecordContentHash,
+      });
+      check(
+        "a receipt bound to a self-consistent but non-processable (unreviewed) approval is rejected",
+        verifyReceiptApprovalBinding(receiptBoundToUnreviewed, unreviewedRoot, registry).some((e) => /no valid, processable approval record found/.test(e)),
+      );
+    }
+
+    // --- Section 6: strict receipt schema ------------------------------------
+    {
+      const validReceiptFields = {
+        schemaVersion: 1, tokenId: "rpt-0001", catalogVersion: registry.catalogVersion, logoVersion: 1,
+        normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+        approvedSourceContentHash: "a".repeat(64), actualSourceContentHash: "a".repeat(64),
+        sourceMimeType: "image/png", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+        output64Path: "x", output128Path: "y", output64Hash: "c".repeat(64), output128Hash: "d".repeat(64),
+        output64MimeType: "image/png", output128MimeType: "image/png",
+        approvalRecordContentHash: "e".repeat(64), toolchain: getToolchainFingerprint(),
+      };
+      check("a fully valid receipt with exact allowed fields passes shape validation", validateReceiptShape(validReceiptFields).length === 0);
+      check("unknown receipt field is rejected", validateReceiptShape({ ...validReceiptFields, leaked: "x" }).some((e) => /unknown field "leaked"/.test(e)));
+      check("receipt with a non-object toolchain is rejected", validateReceiptShape({ ...validReceiptFields, toolchain: "not-an-object" }).some((e) => /toolchain must be an object/.test(e)));
+      check("receipt with an incomplete toolchain fingerprint is rejected", validateReceiptShape({ ...validReceiptFields, toolchain: { nodeVersion: "v1" } }).some((e) => /toolchain is missing required fingerprint field/.test(e)));
+    }
+
+    // --- Section 7: strict public-manifest schema ----------------------------
+    {
+      const h64 = "1".repeat(64);
+      const h128 = "2".repeat(64);
+      const strictEntry = {
+        tokenId: "rpt-0001", logoVersion: 1,
+        output64Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0001/v1/64/${h64}.png`,
+        output128Path: `${TOKEN_LOGOS_OUTPUT_ROOT}/rpt-0001/v1/128/${h128}.png`,
+        output64Hash: h64, output128Hash: h128, output64MimeType: "image/png", output128MimeType: "image/png",
+      };
+      const strictManifest = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries: [strictEntry] });
+      check("a fully valid manifest with exact allowed fields passes", validateReleaseManifest(strictManifest, registry).length === 0);
+      check("unknown public-manifest top-level field is rejected", validateReleaseManifest({ ...strictManifest, unexpectedTopLevel: true }, registry).some((e) => /unknown top-level field "unexpectedTopLevel"/.test(e)));
+      check(
+        "unknown public entry field is rejected even when not on the private blocklist",
+        validateReleaseManifest({ ...strictManifest, entries: [{ ...strictEntry, notOnBlocklistEither: "x" }] }, registry).some((e) => /unknown field "notOnBlocklistEither"/.test(e)),
+      );
     }
 
     // --- failure-injection / rollback tests (section 5) -------------------

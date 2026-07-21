@@ -28,6 +28,19 @@ export const FORBIDDEN_PUBLIC_FIELDS = [
   "approvalRecordContentHash",
 ];
 
+// Exact allowlists: the only fields the public manifest (and each of its
+// entries) may ever carry. Anything else is rejected outright, even a field
+// that isn't on FORBIDDEN_PUBLIC_FIELDS above (a manifest schema is a closed
+// contract, not merely a blocklist).
+const MANIFEST_TOP_LEVEL_ALLOWED_FIELDS = new Set([
+  "schemaVersion", "logoReleaseVersion", "normalizationPolicyVersion",
+  "catalogVersion", "contentHash", "entryCount", "entries",
+]);
+const MANIFEST_ENTRY_ALLOWED_FIELDS = new Set([
+  "tokenId", "logoVersion", "output64Path", "output128Path",
+  "output64Hash", "output128Hash", "output64MimeType", "output128MimeType",
+]);
+
 function expectedOutputRelPath(tokenId, logoVersion, size, hash) {
   return `${TOKEN_LOGOS_OUTPUT_ROOT}/${tokenId}/v${logoVersion}/${size}/${hash}.png`;
 }
@@ -97,8 +110,12 @@ export function buildReleaseManifest({ catalogVersion, entries, normalizationPol
  */
 export function validateReleaseManifest(manifest, registry) {
   const errors = [];
-  if (!manifest || !Array.isArray(manifest.entries)) {
+  if (!manifest || typeof manifest !== "object" || Array.isArray(manifest) || !Array.isArray(manifest.entries)) {
     return ["release manifest entries is not an array"];
+  }
+
+  for (const key of Object.keys(manifest)) {
+    if (!MANIFEST_TOP_LEVEL_ALLOWED_FIELDS.has(key)) errors.push(`release manifest: unknown top-level field "${key}"`);
   }
 
   if (manifest.schemaVersion !== SCHEMA_VERSION) {
@@ -129,6 +146,9 @@ export function validateReleaseManifest(manifest, registry) {
       if (Object.prototype.hasOwnProperty.call(entry, field)) {
         errors.push(`${label}: forbidden private/admin field "${field}" present`);
       }
+    }
+    for (const key of Object.keys(entry)) {
+      if (!MANIFEST_ENTRY_ALLOWED_FIELDS.has(key)) errors.push(`${label}: unknown field "${key}"`);
     }
 
     if (typeof entry.tokenId !== "string" || !TOKEN_ID_PATTERN.test(entry.tokenId)) {

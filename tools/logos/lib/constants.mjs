@@ -16,6 +16,13 @@ export const SCHEMA_VERSION = 1;
 export const NORMALIZATION_POLICY_VERSION = 1;
 export const RECEIPT_SCHEMA_VERSION = 1;
 export const APPROVAL_SCHEMA_VERSION = 1;
+export const RELEASE_SELECTION_SCHEMA_VERSION = 1;
+
+// Required toolchain-fingerprint fields (lib/report.mjs getToolchainFingerprint).
+export const TOOLCHAIN_FIELD_NAMES = [
+  "nodeVersion", "platform", "arch", "sharpVersion", "libvipsVersion",
+  "resvgVersion", "normalizationPolicyVersion",
+];
 
 // Extension a source-plan entry's intakePath must carry for a given
 // expectedMimeClass ("where applicable" - MIME sniffing remains authoritative

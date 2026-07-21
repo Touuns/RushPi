@@ -12,11 +12,23 @@ import { TOKEN_ID_PATTERN, SHA256_HEX_PATTERN, APPROVAL_SCHEMA_VERSION } from ".
 import {
   SOURCE_REVIEW_STATUSES,
   PERMISSION_REVIEW_STATUSES,
+  PROCESSABLE_PERMISSION_STATUSES,
   SOURCE_TYPES,
+  PROVIDER_FALLBACK_SOURCE_TYPE,
   VARIANT_TYPES,
   CROP_MODES,
   EXPECTED_MIME_CLASSES,
 } from "./constants.mjs";
+
+// ISO-8601 timestamp with an EXPLICIT timezone designator (either "Z" or a
+// numeric +HH:MM/-HH:MM offset) - a bare local timestamp with no zone is
+// rejected as ambiguous.
+const ISO_8601_WITH_TZ_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+function isValidIso8601WithTimezone(value) {
+  if (typeof value !== "string" || !ISO_8601_WITH_TZ_PATTERN.test(value)) return false;
+  const ms = Date.parse(value);
+  return Number.isFinite(ms);
+}
 
 export class ApprovalError extends Error {
   constructor(message, details = {}) {
@@ -107,14 +119,28 @@ export function buildApprovalRecord(entry) {
   return { ...fields, approvalRecordContentHash: computeApprovalRecordContentHash(fields) };
 }
 
+// Exact allowlist: the only fields an approval record may ever carry. Any
+// other key - a typo, an alias, a leftover admin field - is rejected
+// outright, so a manually reconstructed record can never smuggle in an
+// out-of-band field that bypasses the canonical hash projection.
+const APPROVAL_RECORD_ALLOWED_FIELDS = new Set([...APPROVAL_FIELD_NAMES, "approvalRecordContentHash"]);
+
 /**
- * Structural validation + self-consistent hash check. No filesystem/registry
+ * Structural validation + self-consistent hash check, PLUS the "processable
+ * approval" semantic requirements - an approval record is never merely
+ * well-shaped, it must represent a complete decision ready to be processed:
+ * source-approved, a processable permission status, and every provenance
+ * field a human reviewer would need to audit it. No filesystem/registry
  * access.
- * @returns {string[]} errors (empty = structurally valid)
+ * @returns {string[]} errors (empty = structurally valid AND processable)
  */
 export function validateApprovalRecordShape(record) {
   const errors = [];
-  if (!record || typeof record !== "object") return ["approval record is not an object"];
+  if (!record || typeof record !== "object" || Array.isArray(record)) return ["approval record is not an object"];
+
+  for (const key of Object.keys(record)) {
+    if (!APPROVAL_RECORD_ALLOWED_FIELDS.has(key)) errors.push(`approval record: unknown field "${key}"`);
+  }
 
   if (record.schemaVersion !== APPROVAL_SCHEMA_VERSION) errors.push(`approval record schemaVersion must be ${APPROVAL_SCHEMA_VERSION}`);
   if (typeof record.tokenId !== "string" || !TOKEN_ID_PATTERN.test(record.tokenId)) errors.push("approval record tokenId is invalid");
@@ -123,9 +149,19 @@ export function validateApprovalRecordShape(record) {
   if (typeof record.canonicalName !== "string" || record.canonicalName.length === 0) errors.push("approval record canonicalName is invalid");
   if (typeof record.symbol !== "string" || record.symbol.length === 0) errors.push("approval record symbol is invalid");
   if (!Number.isInteger(record.logoVersion) || record.logoVersion < 1) errors.push("approval record logoVersion must be a positive integer");
+
   if (!SOURCE_REVIEW_STATUSES.has(record.sourceReviewStatus)) errors.push("approval record sourceReviewStatus is invalid");
   if (record.sourceReviewStatus !== "source-approved") errors.push('approval record sourceReviewStatus must be "source-approved"');
-  if (!PERMISSION_REVIEW_STATUSES.has(record.permissionReviewStatus)) errors.push("approval record permissionReviewStatus is invalid");
+
+  // A processable approval requires EXACTLY permission-confirmed or
+  // explicit-product-exception - unreviewed/rejected/needs-legal-review are
+  // valid PLAN states but can never back a valid approval record.
+  if (!PERMISSION_REVIEW_STATUSES.has(record.permissionReviewStatus)) {
+    errors.push("approval record permissionReviewStatus is invalid");
+  } else if (!PROCESSABLE_PERMISSION_STATUSES.has(record.permissionReviewStatus)) {
+    errors.push(`approval record permissionReviewStatus must be "permission-confirmed" or "explicit-product-exception", got "${record.permissionReviewStatus}"`);
+  }
+
   if (!SOURCE_TYPES.has(record.sourceType)) errors.push("approval record sourceType is invalid");
   if (typeof record.sourceReference !== "string" || record.sourceReference.length === 0) errors.push("approval record sourceReference is invalid");
   if (typeof record.sourcePageReference !== "string" || record.sourcePageReference.length === 0) errors.push("approval record sourcePageReference is invalid");
@@ -135,11 +171,25 @@ export function validateApprovalRecordShape(record) {
   if (!EXPECTED_MIME_CLASSES.has(record.expectedMimeClass)) errors.push("approval record expectedMimeClass is invalid");
   if (typeof record.approvedSourceContentHash !== "string" || !SHA256_HEX_PATTERN.test(record.approvedSourceContentHash)) errors.push("approval record approvedSourceContentHash is invalid");
   if (typeof record.approvedBy !== "string" || record.approvedBy.length === 0) errors.push("approval record approvedBy is invalid");
-  if (typeof record.approvedAt !== "string" || record.approvedAt.length === 0) errors.push("approval record approvedAt is invalid");
+  if (!isValidIso8601WithTimezone(record.approvedAt)) errors.push("approval record approvedAt must be a valid ISO-8601 timestamp with an explicit timezone (Z or +HH:MM/-HH:MM)");
+  if (typeof record.permissionEvidenceReference !== "string" || record.permissionEvidenceReference.length === 0) errors.push("approval record permissionEvidenceReference is invalid (required, non-empty)");
   if (typeof record.notes !== "string") errors.push("approval record notes must be a string");
+  if (record.permissionReviewStatus === "explicit-product-exception" && typeof record.notes === "string" && record.notes.length === 0) {
+    errors.push("approval record notes must be non-empty and explain the exception when permissionReviewStatus is explicit-product-exception");
+  }
   if (typeof record.intakePath !== "string" || record.intakePath.length === 0) errors.push("approval record intakePath is invalid");
-  if (typeof record.providerFallbackApproved !== "boolean") errors.push("approval record providerFallbackApproved must be a boolean");
+
+  if (typeof record.providerFallbackApproved !== "boolean") {
+    errors.push("approval record providerFallbackApproved must be a boolean");
+  } else if (record.sourceType === PROVIDER_FALLBACK_SOURCE_TYPE) {
+    if (record.providerFallbackApproved !== true) errors.push("approval record sourceType=authorized-provider requires providerFallbackApproved=true");
+    if (typeof record.notes !== "string" || record.notes.length === 0) errors.push("approval record sourceType=authorized-provider requires non-empty notes explaining the fallback");
+  } else if (record.providerFallbackApproved === true) {
+    errors.push(`approval record providerFallbackApproved must be false for sourceType "${record.sourceType}" (only meaningful for authorized-provider)`);
+  }
+
   if (typeof record.allowExtremeAspectRatio !== "boolean") errors.push("approval record allowExtremeAspectRatio must be a boolean");
+
   if (typeof record.approvalRecordContentHash !== "string" || !SHA256_HEX_PATTERN.test(record.approvalRecordContentHash)) {
     errors.push("approval record approvalRecordContentHash is invalid");
   } else {

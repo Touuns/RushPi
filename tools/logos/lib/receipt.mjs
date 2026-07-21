@@ -19,6 +19,7 @@ import {
   NORMALIZATION_POLICY_VERSION,
   OUTPUT_SIZES,
   TOKEN_LOGOS_OUTPUT_ROOT,
+  TOOLCHAIN_FIELD_NAMES,
 } from "./constants.mjs";
 
 // Fields a receipt must NEVER contain - the same admin/private surface kept
@@ -26,6 +27,14 @@ import {
 export const FORBIDDEN_RECEIPT_FIELDS = [
   "sourceReference", "sourcePageReference", "approvedBy", "approvedAt", "notes", "intakePath",
 ];
+
+// Exact allowlist: the only top-level fields a receipt may ever carry.
+const RECEIPT_ALLOWED_FIELDS = new Set([
+  "schemaVersion", "tokenId", "catalogVersion", "logoVersion", "normalizationPolicyVersion",
+  "approvedSourceContentHash", "actualSourceContentHash", "sourceMimeType", "sourceWidth",
+  "sourceHeight", "sourceFileSize", "output64Path", "output128Path", "output64Hash",
+  "output128Hash", "output64MimeType", "output128MimeType", "approvalRecordContentHash", "toolchain",
+]);
 
 export class ReceiptError extends Error {
   constructor(message, details = {}) {
@@ -82,7 +91,21 @@ export function receiptPathFor(receiptsRoot, tokenId, logoVersion) {
 /** Structural shape validation only - no filesystem access. */
 export function validateReceiptShape(receipt) {
   const errors = [];
-  if (!receipt || typeof receipt !== "object") return ["receipt is not an object"];
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) return ["receipt is not an object"];
+
+  for (const key of Object.keys(receipt)) {
+    if (!RECEIPT_ALLOWED_FIELDS.has(key)) errors.push(`receipt: unknown field "${key}"`);
+  }
+
+  if (!receipt.toolchain || typeof receipt.toolchain !== "object" || Array.isArray(receipt.toolchain)) {
+    errors.push("receipt toolchain must be an object");
+  } else {
+    for (const field of TOOLCHAIN_FIELD_NAMES) {
+      if (typeof receipt.toolchain[field] !== "string" && typeof receipt.toolchain[field] !== "number") {
+        errors.push(`receipt toolchain is missing required fingerprint field "${field}"`);
+      }
+    }
+  }
 
   if (receipt.schemaVersion !== RECEIPT_SCHEMA_VERSION) errors.push(`receipt schemaVersion must be ${RECEIPT_SCHEMA_VERSION}`);
   if (typeof receipt.tokenId !== "string" || !TOKEN_ID_PATTERN.test(receipt.tokenId)) errors.push("receipt tokenId is invalid");
@@ -174,11 +197,13 @@ function toRepoRelative(repoRoot, absolutePath) {
 }
 
 /**
- * Verify a receipt is properly bound to an existing, valid, matching
- * approval record. A receipt without an approval record, or whose
+ * Verify a receipt is properly bound to an existing, valid, PROCESSABLE,
+ * matching approval record. A receipt without an approval record, whose
  * approvalRecordContentHash does not match the record's own recomputed
- * hash, is a "manually created but approval-unbound receipt" and must be
- * rejected.
+ * hash, or that is bound to an approval record that does not itself pass
+ * the complete strict processable-approval validation (e.g. an unreviewed
+ * or rejected permission status), is a "manually created but
+ * approval-unbound receipt" and must be rejected.
  * @param {any} receipt
  * @param {string} approvalsRoot
  * @param {{ byTokenId: Map, catalogVersion: string }} registry
@@ -190,9 +215,13 @@ export function verifyReceiptApprovalBinding(receipt, approvalsRoot, registry) {
     return ["receipt tokenId/logoVersion invalid - cannot resolve its approval record"];
   }
 
+  // loadApprovalRecord already runs validateApprovalRecordShape (the full
+  // strict, processable-approval schema) and returns record:null on any
+  // failure - so a receipt bound to an unreviewed/rejected/malformed
+  // approval is already caught here, before any field-by-field comparison.
   const { record, errors: loadErrors } = loadApprovalRecord(approvalsRoot, receipt.tokenId, receipt.logoVersion);
   if (!record) {
-    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: no valid approval record found (${loadErrors.join("; ")})`);
+    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: no valid, processable approval record found (${loadErrors.join("; ")})`);
     return errors;
   }
 
@@ -203,12 +232,18 @@ export function verifyReceiptApprovalBinding(receipt, approvalsRoot, registry) {
   } else if (receipt.approvalRecordContentHash !== record.approvalRecordContentHash) {
     errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: approvalRecordContentHash does not match the approval record's own hash (receipt is not bound to this approval)`);
   }
-  if (receipt.catalogVersion !== record.catalogVersion) {
-    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: catalogVersion does not match its approval record`);
-  }
-  if (receipt.approvedSourceContentHash !== record.approvedSourceContentHash) {
-    errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: approvedSourceContentHash does not match its approval record`);
-  }
+
+  const compare = (field, receiptValue, recordValue) => {
+    if (receiptValue !== recordValue) {
+      errors.push(`receipt ${receipt.tokenId} v${receipt.logoVersion}: ${field} (${JSON.stringify(receiptValue)}) does not match its approval record (${JSON.stringify(recordValue)})`);
+    }
+  };
+  compare("tokenId", receipt.tokenId, record.tokenId);
+  compare("logoVersion", receipt.logoVersion, record.logoVersion);
+  compare("catalogVersion", receipt.catalogVersion, record.catalogVersion);
+  compare("sourceMimeType", receipt.sourceMimeType, record.expectedMimeClass);
+  compare("approvedSourceContentHash", receipt.approvedSourceContentHash, record.approvedSourceContentHash);
+  compare("actualSourceContentHash", receipt.actualSourceContentHash, record.approvedSourceContentHash);
 
   return errors;
 }

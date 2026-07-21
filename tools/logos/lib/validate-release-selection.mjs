@@ -3,7 +3,7 @@
 // than one verified receipted logoVersion - it must never carry a stale or
 // speculative entry, and every entry it does carry must resolve to a real,
 // verified receipt.
-import { TOKEN_ID_PATTERN } from "./constants.mjs";
+import { TOKEN_ID_PATTERN, RELEASE_SELECTION_SCHEMA_VERSION } from "./constants.mjs";
 
 const ALLOWED_TOP_LEVEL_FIELDS = new Set(["schemaVersion", "description", "selections"]);
 
@@ -22,6 +22,10 @@ export function validateReleaseSelection(selectionFile, receipts, registry) {
 
   for (const key of Object.keys(selectionFile)) {
     if (!ALLOWED_TOP_LEVEL_FIELDS.has(key)) errors.push(`release-selection: unknown top-level field "${key}"`);
+  }
+
+  if (selectionFile.schemaVersion !== RELEASE_SELECTION_SCHEMA_VERSION) {
+    errors.push(`release-selection: schemaVersion must be ${RELEASE_SELECTION_SCHEMA_VERSION}, got ${JSON.stringify(selectionFile.schemaVersion)}`);
   }
 
   const selections = selectionFile.selections;
