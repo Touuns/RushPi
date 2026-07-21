@@ -28,7 +28,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0002",
@@ -55,7 +56,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0004",
@@ -82,7 +84,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0012",
@@ -109,7 +112,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0024",
@@ -136,7 +140,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0037",
@@ -163,7 +168,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0038",
@@ -190,7 +196,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0041",
@@ -217,7 +224,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0058",
@@ -244,7 +252,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0070",
@@ -271,7 +280,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0142",
@@ -298,7 +308,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     },
     {
       "tokenId": "rpt-0250",
@@ -325,7 +336,8 @@
       "providerFallbackApproved": false,
       "notes": "",
       "intakePath": null,
-      "expectedLogoVersion": 1
+      "expectedLogoVersion": 1,
+      "approvedSourceContentHash": null
     }
   ]
 }

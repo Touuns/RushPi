@@ -1,4 +1,4 @@
-# Token logo ingestion tooling (Phase 12C-1B2B)
+# Token logo ingestion tooling (Phase 12C-1B2B, hardened in 12C-1B2B.1)
 
 Secure, deterministic tooling for sourcing, validating, normalizing and
 publishing the 250 canonical V2 token logos. **This phase implements tooling
@@ -42,6 +42,44 @@ permitted only when, on the source-plan entry:
 URL alone is never sufficient (`lib/validate-source-plan.mjs` requires the
 full set of approval + permission + variant/crop/MIME-class fields together).
 
+### 4a. Approval is bound to an exact file and an exact byte hash (12C-1B2B.1)
+
+Neither CLI accepts a `--file` argument. The file processed is **always and
+only** `entry.intakePath` - resolved, existence-checked, and required to be a
+real regular file that is **not itself a symlink** (regardless of what it
+points at), inside `tools/logos/intake/` (`lib/path-safety.mjs`
+`assertRegularNonSymlinkFile` + `lib/inspect-source.mjs`
+`readApprovedIntakeFile`). A `source-approved` entry must carry a non-null,
+safe `intakePath`; an unapproved template entry keeps it `null`.
+
+Every approved entry must also carry `approvedSourceContentHash` - the exact
+lowercase SHA-256 of the bytes a human reviewed and approved. Before any
+rasterization or normalization, the tooling recomputes the intake file's
+SHA-256 and stops with `source-hash-mismatch` if it differs
+(`lib/inspect-source.mjs` `inspectApprovedIntake`). The two-stage workflow
+this enables:
+
+- **A.** A Codex *candidate-research* task may retrieve a candidate into
+  local intake and report its hash - it cannot normalize or publish it.
+- **B.** A human approves the exact candidate; its hash is written into
+  `approvedSourceContentHash` in the source plan.
+- **C.** A Codex *processing* task (`logos:normalize`) operates only when the
+  local bytes still match that approved hash.
+
+A diagnostic in-memory override (`fileBufferOverride`) exists **only** as an
+internal parameter on `lib/inspect-source.mjs`'s `inspectApprovedIntake` and
+`lib/normalize-pipeline.mjs`'s `normalizeApprovedToken` - used exclusively by
+`selftest.mjs`. It is never reachable from any CLI flag.
+
+`expectedLogoVersion` works the same way: neither CLI accepts a
+`--logo-version` argument. A `source-approved` entry must carry a positive
+integer `expectedLogoVersion`, and the normalizer uses exactly that value -
+never overridable. Changing source, variant or normalization policy requires
+an explicitly approved *new* `expectedLogoVersion`; writing to an
+already-published version with different bytes is rejected
+(`lib/output-paths.mjs` `assertNoVersionConflict`) unless the bytes are
+byte-identical (idempotent no-op).
+
 ### 5. Provider fallback
 
 `sourceType = "authorized-provider"` is schema-supported but processing fails
@@ -55,8 +93,31 @@ CoinGecko imagery is not pre-approved.
 | Layer | Location | Client-safe? |
 | --- | --- | --- |
 | A. Canonical token registry | `registry/tokens/v2-proposal/registry.json` | n/a (existing, untouched) |
-| B. Source-plan / audit manifest | `tools/logos/data/*-source-plan.json` | **No** - admin/non-client. Never imported by runtime or copied into the frontend bundle. Contains provenance (source URL, page, approval identity) but no API credentials or personal email addresses (approvals use a role/identifier, e.g. `"product-owner"`). |
-| C. Public logo-release manifest | built by `logos:manifest` (not committed in this phase - nothing has been approved yet) | **Yes** - machine-generated, contains only `schemaVersion`, `logoReleaseVersion`, `normalizationPolicyVersion`, `catalogVersion`, and per-entry `tokenId`/`logoVersion`/output paths+hashes+MIME types. Never a source URL, approval identity, permission notes or intake path (enforced by `lib/release-manifest.mjs` `FORBIDDEN_PUBLIC_FIELDS` + `validateReleaseManifest`). |
+| B. Source-plan / audit manifest | `tools/logos/data/*-source-plan.json` | **No** - admin/non-client. Never imported by runtime or copied into the frontend bundle. Contains provenance (source URL, page, approval identity, `approvedSourceContentHash`) but no API credentials or personal email addresses (approvals use a role/identifier, e.g. `"product-owner"`). |
+| B2. Processing receipts | `tools/logos/receipts/<tokenId>-v<logoVersion>.json` | **No** - committed, non-runtime, but not client-safe (carries `approvedSourceContentHash`/`actualSourceContentHash`/source dimensions). The **sole trust boundary** for the release-manifest builder - see below. |
+| C. Public logo-release manifest | built by `logos:manifest` (not committed in this phase - zero receipts exist yet) | **Yes** - machine-generated, contains only `schemaVersion`, `logoReleaseVersion`, `normalizationPolicyVersion`, `catalogVersion`, and per-entry `tokenId`/`logoVersion`/output paths+hashes+MIME types. Never a source URL, approval identity, permission notes, intake path, or source-hash field (enforced by `lib/release-manifest.mjs` `FORBIDDEN_PUBLIC_FIELDS` + `validateReleaseManifest`). |
+
+### Processing receipts (12C-1B2B.1)
+
+A receipt (`lib/receipt.mjs`) is generated **only** after: complete
+source-plan validation, the approval gate, an exact source-hash match,
+security inspection, successful normalization, and output re-verification
+(`lib/normalize-pipeline.mjs` `normalizeApprovedToken`). It is deterministic
+except for the embedded toolchain fingerprint, and contains no current time.
+A receipt must never be handwritten - `verifyReceiptAgainstOutputs`
+recomputes and verifies every receipt/output relationship from scratch
+(registry membership, `catalogVersion`, `normalizationPolicyVersion`, the
+exact immutable path convention, real file existence, recomputed SHA-256,
+real dimensions/alpha/PNG format).
+
+`logos:manifest` (`build-release-manifest.mjs`) trusts **only** verified
+receipts - it never scans the output directory for entries. A token with
+more than one verified receipted `logoVersion` requires an explicit entry in
+`tools/logos/data/release-selection.json` naming the chosen version; the
+highest version number is **never** auto-inferred, and an unresolved
+ambiguity fails the build loudly rather than silently picking one.
+`logos:verify` cross-checks the reverse direction too: any published output
+file with no matching receipt is rejected as an **orphan**.
 
 ## Source-plan fields (layer B)
 
@@ -64,7 +125,8 @@ CoinGecko imagery is not pre-approved.
 sourceReviewStatus, permissionReviewStatus, sourceType, sourceReference,
 sourcePageReference, permittedVariant, variantType, cropMode,
 expectedMimeClass, approvedBy, approvedAt, permissionEvidenceReference,
-providerFallbackApproved, notes, intakePath, expectedLogoVersion`.
+providerFallbackApproved, notes, intakePath, expectedLogoVersion,
+approvedSourceContentHash`.
 
 Plus documented pilot-only metadata (`pilotInclusionReason`,
 `expectedSourceClass`, `anticipatedRisk`, `humanApprovalRequired`) and one
@@ -73,6 +135,12 @@ extra optional field beyond the phase brief's literal list:
 "reject extreme aspect ratios unless source plan explicitly permits them" but
 does not name a field for that permission, so this one was added and is
 validated/tested like any other field.
+
+`approvedSourceContentHash` must be `null` until `sourceReviewStatus =
+"source-approved"`, at which point it must be an exact lowercase sha256 hex
+string (see "Approval is bound to an exact file and hash" above).
+`expectedLogoVersion` must always be a positive integer when present, and is
+required once approved.
 
 `output64Path`, `output128Path`, `output64Hash`, `output128Hash`,
 `sourceContentHash`, `sourceWidth`, `sourceHeight`, `sourceFileSize` and
@@ -176,18 +244,20 @@ platform/toolchain.
 
 ```
 npm run logos:validate-plan   # validate a source plan (default: data/pilot-source-plan.json)
-npm run logos:inspect  -- --token <tokenId> --file <relative-intake-path>
-npm run logos:normalize -- --token <tokenId> --file <relative-intake-path> [--logo-version N]
-npm run logos:verify          # verify committed outputs (safe on an empty/absent tree)
-npm run logos:manifest        # build the public release manifest from committed outputs
-npm run logos:selftest        # full self-test suite (temp dirs only, no repo file writes)
+npm run logos:inspect  -- --token <tokenId>
+npm run logos:normalize -- --token <tokenId>
+npm run logos:verify           # verify committed outputs + receipts (safe on an empty/absent tree)
+npm run logos:manifest         # build the public release manifest EXCLUSIVELY from verified receipts
+npm run logos:selftest         # full self-test suite (temp dirs only, no repo file writes)
 ```
 
-No command performs an HTTP download. `logos:inspect`/`logos:normalize` only
-read a file already placed locally under `tools/logos/intake/` (gitignored,
-excluded from git tracking) by a separate, later, approved task - and both
-refuse to run at all unless the named token's source-plan entry is fully
-approved.
+No command performs an HTTP download. `logos:inspect`/`logos:normalize` take
+**only** `--token` (plus optional `--plan`) - the file processed is always
+exactly that token's `entry.intakePath`, and the version is always exactly
+`entry.expectedLogoVersion`. Both refuse to run at all unless the named
+token's source-plan entry is fully approved (`source-approved` +
+permission-confirmed/exception) **and** its intake bytes match
+`approvedSourceContentHash`.
 
 ## Local intake convention
 
@@ -206,12 +276,19 @@ containing:
 - the approved variant description (`permittedVariant`, `variantType`,
   `cropMode`);
 - `sourceType`, `expectedMimeClass`;
-- the intake destination (a path under `tools/logos/intake/`);
+- the intake destination (the exact `entry.intakePath` under
+  `tools/logos/intake/` the approval is bound to) and `expectedLogoVersion`;
+- **the two-stage split**: a candidate-research record (place file, report
+  its SHA-256 - no normalization/publication permission) versus a processing
+  record (issued only after a human has written that exact hash into
+  `approvedSourceContentHash`);
 - the exact commands to run (`logos:inspect` then `logos:normalize`, with
-  `--token`/`--file`);
-- the expected output directories (`public/assets/rushpi/token-logos/<tokenId>/v<logoVersion>/{64,128}/`);
+  only `--token` - neither takes a file or version argument);
+- the expected output directories (`public/assets/rushpi/token-logos/<tokenId>/v<logoVersion>/{64,128}/`)
+  and the expected receipt path (`tools/logos/receipts/<tokenId>-v<logoVersion>.json`);
 - the evidence/hashes Codex must report back (source SHA-256, dimensions,
-  output hashes, toolchain fingerprint from the printed report);
+  output hashes, toolchain fingerprint - all present in the generated receipt
+  and the CLI's printed report);
 - explicit stop conditions.
 
 Codex must **stop and report instead of deciding autonomously** when: the

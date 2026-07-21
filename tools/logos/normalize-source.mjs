@@ -1,52 +1,52 @@
 #!/usr/bin/env node
-// CLI: security-validate (never trusting a prior result) then deterministically
-// normalize an approved local intake file into 64x64/128x128 transparent PNG
-// outputs, writing them to their immutable content-hash path. Refuses to
-// overwrite a conflicting already-published (tokenId, logoVersion, size).
+// CLI: run the full approved-token pipeline (gate -> bound intake read ->
+// source-hash match -> security inspection -> deterministic normalization ->
+// version-conflict-checked write -> output re-verification -> receipt) for
+// exactly one already-approved token.
+//
+// There is deliberately no --file and no --logo-version flag: the file is
+// always exactly entry.intakePath, and the version is always exactly
+// entry.expectedLogoVersion. Neither can be overridden from the command
+// line. Output/receipt roots are always the real committed locations -
+// selftest.mjs never invokes this CLI, it calls
+// lib/normalize-pipeline.mjs's normalizeApprovedToken() directly against
+// temporary directories, which is the only supported test-only path.
 //
 // With the shipped pilot-source-plan.json (every entry unresearched), this
-// CLI cannot produce any real output: the processing gate blocks it
-// structurally. --output-root exists only so selftest.mjs can point outputs
-// at a temporary directory and never touch public/assets/rushpi/token-logos.
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+// CLI cannot produce any real output or receipt: the processing gate blocks
+// it structurally.
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadV2Registry } from "./lib/registry.mjs";
 import { validateSourcePlan } from "./lib/validate-source-plan.mjs";
-import { assertProcessable, findPlanEntry, ProcessingNotPermittedError } from "./lib/process-gate.mjs";
-import { resolveSafePath, UnsafePathError } from "./lib/path-safety.mjs";
-import { inspectSource, SourceRejectedError } from "./lib/inspect-source.mjs";
-import { normalizeToOutputs, NormalizationError } from "./lib/normalize.mjs";
-import { sha256Hex } from "./lib/hashes.mjs";
-import { writeOutputAtomically, OutputConflictError } from "./lib/output-paths.mjs";
-import { getToolchainFingerprint } from "./lib/report.mjs";
-import { TOKEN_LOGOS_OUTPUT_ROOT, NORMALIZATION_POLICY_VERSION } from "./lib/constants.mjs";
+import { findPlanEntry, ProcessingNotPermittedError } from "./lib/process-gate.mjs";
+import { SourceRejectedError } from "./lib/inspect-source.mjs";
+import { NormalizationError } from "./lib/normalize.mjs";
+import { OutputConflictError } from "./lib/output-paths.mjs";
+import { ReceiptError } from "./lib/receipt.mjs";
+import { normalizeApprovedToken, PipelineError } from "./lib/normalize-pipeline.mjs";
+import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT } from "./lib/constants.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
 const intakeRoot = path.join(here, "intake");
-const workReportsDir = path.join(here, "work", "reports");
+const outputRoot = path.join(repoRoot, TOKEN_LOGOS_OUTPUT_ROOT);
+const receiptsRoot = path.join(repoRoot, RECEIPTS_ROOT);
 
 function parseArgs(argv) {
-  const args = {
-    plan: path.join(here, "data", "pilot-source-plan.json"),
-    outputRoot: path.join(repoRoot, TOKEN_LOGOS_OUTPUT_ROOT),
-    logoVersion: null,
-  };
+  const args = { plan: path.join(here, "data", "pilot-source-plan.json") };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--plan" && argv[i + 1]) { args.plan = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
     else if (argv[i] === "--token" && argv[i + 1]) { args.token = argv[i + 1]; i += 1; }
-    else if (argv[i] === "--file" && argv[i + 1]) { args.file = argv[i + 1]; i += 1; }
-    else if (argv[i] === "--output-root" && argv[i + 1]) { args.outputRoot = path.resolve(process.cwd(), argv[i + 1]); i += 1; }
-    else if (argv[i] === "--logo-version" && argv[i + 1]) { args.logoVersion = Number(argv[i + 1]); i += 1; }
   }
   return args;
 }
 
 async function main() {
-  const { plan: planPath, token, file, outputRoot, logoVersion: logoVersionArg } = parseArgs(process.argv.slice(2));
-  if (!token || !file) {
-    console.error("Usage: node tools/logos/normalize-source.mjs --token <tokenId> --file <relative-intake-path> [--logo-version N]");
+  const { plan: planPath, token } = parseArgs(process.argv.slice(2));
+  if (!token) {
+    console.error("Usage: node tools/logos/normalize-source.mjs --token <tokenId> [--plan <path>]");
     process.exit(1);
   }
 
@@ -61,44 +61,16 @@ async function main() {
 
   try {
     const entry = findPlanEntry(plan, token);
-    assertProcessable(entry);
-
-    const safePath = resolveSafePath(intakeRoot, file);
-    const fileBuffer = readFileSync(safePath);
-
-    // Full security validation, always re-run here - never trust an earlier
-    // inspect-source.mjs invocation.
-    const inspected = await inspectSource(fileBuffer, entry);
-
-    const { buf64, buf128 } = await normalizeToOutputs(inspected.rasterForNormalization, entry.cropMode);
-    const hash64 = sha256Hex(buf64);
-    const hash128 = sha256Hex(buf128);
-    const logoVersion = logoVersionArg ?? entry.expectedLogoVersion ?? 1;
-
-    const path64 = writeOutputAtomically(outputRoot, token, logoVersion, 64, hash64, buf64);
-    const path128 = writeOutputAtomically(outputRoot, token, logoVersion, 128, hash128, buf128);
-
-    const report = {
-      ok: true,
-      tokenId: token,
-      logoVersion,
-      normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
-      source: { mime: inspected.mime, width: inspected.width, height: inspected.height, fileSize: inspected.fileSize, sha256: inspected.sha256 },
-      output64: { path: path.relative(repoRoot, path64), hash: hash64 },
-      output128: { path: path.relative(repoRoot, path128), hash: hash128 },
-      toolchain: getToolchainFingerprint(),
-    };
-    console.log(JSON.stringify(report, null, 2));
-
-    mkdirSync(workReportsDir, { recursive: true });
-    writeFileSync(path.join(workReportsDir, `${token}.json`), `${JSON.stringify(report, null, 2)}\n`);
+    const { receipt, receiptPath } = await normalizeApprovedToken({ entry, intakeRoot, outputRoot, receiptsRoot, repoRoot });
+    console.log(JSON.stringify({ ok: true, receiptPath: path.relative(repoRoot, receiptPath), receipt }, null, 2));
   } catch (e) {
     if (
       e instanceof ProcessingNotPermittedError ||
-      e instanceof UnsafePathError ||
       e instanceof SourceRejectedError ||
       e instanceof NormalizationError ||
-      e instanceof OutputConflictError
+      e instanceof OutputConflictError ||
+      e instanceof ReceiptError ||
+      e instanceof PipelineError
     ) {
       console.error(`STOP: ${e.name}: ${e.message}`);
       if (e.details) console.error(JSON.stringify(e.details));

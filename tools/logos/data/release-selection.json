@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "description": "Explicit, committed disambiguation for any token that ends up with more than one verified processing receipt (more than one logoVersion). build-release-manifest.mjs NEVER auto-selects the highest version number - a token with multiple receipts and no entry here fails the build loudly. Currently empty: the pilot ships zero receipts, and even once populated, only tokens that actually accumulate a second receipted logoVersion need an entry.",
+  "selections": {}
+}

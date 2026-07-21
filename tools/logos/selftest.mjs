@@ -7,6 +7,7 @@
 // synthetic shape (see fixtures/generate.mjs).
 import { readFileSync, mkdtempSync, rmSync, mkdirSync, writeFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -18,11 +19,25 @@ import { resolveSafePath, UnsafePathError } from "./lib/path-safety.mjs";
 import { sniffMime } from "./lib/mime.mjs";
 import { scanSvgText } from "./lib/scan-svg.mjs";
 import { inspectRasterBuffer, RasterRejectedError } from "./lib/inspect-raster.mjs";
-import { inspectSource, SourceRejectedError } from "./lib/inspect-source.mjs";
+import { inspectSource, inspectApprovedIntake, readApprovedIntakeFile, SourceRejectedError } from "./lib/inspect-source.mjs";
 import { normalizeToOutputs, rasterizeSvg, NormalizationError } from "./lib/normalize.mjs";
 import { sha256Hex } from "./lib/hashes.mjs";
 import { writeOutputAtomically, assertNoVersionConflict, outputPathFor, OutputConflictError } from "./lib/output-paths.mjs";
 import { buildReleaseManifest, validateReleaseManifest, FORBIDDEN_PUBLIC_FIELDS } from "./lib/release-manifest.mjs";
+import { normalizeApprovedToken, PipelineError } from "./lib/normalize-pipeline.mjs";
+import {
+  buildReceipt,
+  validateReceiptShape,
+  verifyReceiptAgainstOutputs,
+  loadAllReceipts,
+  writeReceiptAtomically,
+  ReceiptError,
+  FORBIDDEN_RECEIPT_FIELDS,
+} from "./lib/receipt.mjs";
+import { verifyOutputTreeShape } from "./lib/output-tree.mjs";
+import { selectReceiptsForRelease, receiptToPublicEntry } from "./lib/release-builder.mjs";
+import { getToolchainFingerprint } from "./lib/report.mjs";
+import { TOKEN_LOGOS_OUTPUT_ROOT, RECEIPTS_ROOT, NORMALIZATION_POLICY_VERSION } from "./lib/constants.mjs";
 import * as fx from "./fixtures/generate.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -85,6 +100,7 @@ function baseEntry(overrides = {}) {
     notes: "",
     intakePath: null,
     expectedLogoVersion: 1,
+    approvedSourceContentHash: null,
     ...overrides,
   };
 }
@@ -102,6 +118,8 @@ function approvedEntry(overrides = {}) {
     expectedMimeClass: "image/png",
     approvedBy: "product-owner",
     approvedAt: "2026-01-01T00:00:00Z",
+    intakePath: "fixture.png",
+    approvedSourceContentHash: "a".repeat(64),
     notes: "pilot fixture",
     ...overrides,
   });
@@ -336,25 +354,54 @@ async function main() {
     }
 
     // ---------------------------------------------------------------
-    // 32. public release manifest contains no private/admin fields
+    // 32. public release manifest contains no private/admin fields, and is
+    // validated against the registry (path/hash/catalogVersion consistency).
     // ---------------------------------------------------------------
     {
-      const cleanManifest = buildReleaseManifest({
-        catalogVersion: registry.catalogVersion,
-        entries: [{ tokenId: "rpt-0001", logoVersion: 1, output64Path: "a", output128Path: "b", output64Hash: "h1", output128Hash: "h2", output64MimeType: "image/png", output128MimeType: "image/png" }],
-      });
-      check("clean release manifest passes validation", validateReleaseManifest(cleanManifest).length === 0);
-
-      const dirtyManifest = {
-        ...cleanManifest,
-        entries: [{ ...cleanManifest.entries[0], sourceReference: "https://leak.invalid", approvedBy: "someone" }],
+      const h64 = "1".repeat(64);
+      const h128 = "2".repeat(64);
+      const validEntry = {
+        tokenId: "rpt-0001",
+        logoVersion: 1,
+        output64Path: `public/assets/rushpi/token-logos/rpt-0001/v1/64/${h64}.png`,
+        output128Path: `public/assets/rushpi/token-logos/rpt-0001/v1/128/${h128}.png`,
+        output64Hash: h64,
+        output128Hash: h128,
+        output64MimeType: "image/png",
+        output128MimeType: "image/png",
       };
-      const dirtyErrors = validateReleaseManifest(dirtyManifest);
+      const cleanManifest = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries: [validEntry] });
+      check("clean release manifest passes validation", validateReleaseManifest(cleanManifest, registry).length === 0);
+
+      const dirtyManifest = { ...cleanManifest, entries: [{ ...validEntry, sourceReference: "https://leak.invalid", approvedBy: "someone" }] };
+      const dirtyErrors = validateReleaseManifest(dirtyManifest, registry);
       check(
         "release manifest with forbidden private fields is rejected",
         dirtyErrors.some((e) => e.includes("sourceReference")) && dirtyErrors.some((e) => e.includes("approvedBy")),
       );
       check("FORBIDDEN_PUBLIC_FIELDS covers approval identity and source references", FORBIDDEN_PUBLIC_FIELDS.includes("sourceReference") && FORBIDDEN_PUBLIC_FIELDS.includes("approvedBy") && FORBIDDEN_PUBLIC_FIELDS.includes("intakePath"));
+      check("FORBIDDEN_PUBLIC_FIELDS covers the receipt-only source-hash fields", FORBIDDEN_PUBLIC_FIELDS.includes("approvedSourceContentHash") && FORBIDDEN_PUBLIC_FIELDS.includes("actualSourceContentHash"));
+
+      const dupTokenManifest = { ...cleanManifest, entries: [validEntry, validEntry] };
+      check("duplicate tokenId in release manifest rejected", validateReleaseManifest(dupTokenManifest, registry).some((e) => /duplicate tokenId/.test(e)));
+
+      const orphanManifest = { ...cleanManifest, entries: [{ ...validEntry, tokenId: "rpt-9999" }] };
+      check("release manifest entry absent from registry rejected", validateReleaseManifest(orphanManifest, registry).some((e) => /absent from the approved V2 registry/.test(e)));
+
+      const badVersionManifest = { ...cleanManifest, entries: [{ ...validEntry, logoVersion: 0 }] };
+      check("release manifest non-positive logoVersion rejected", validateReleaseManifest(badVersionManifest, registry).some((e) => /logoVersion must be a positive integer/.test(e)));
+
+      const wrongCatalogManifest = { ...cleanManifest, catalogVersion: "token-registry-v2-deadbeefdeadbeef" };
+      check("release manifest wrong catalogVersion rejected", validateReleaseManifest(wrongCatalogManifest, registry).some((e) => /catalogVersion/.test(e)));
+
+      const wrongPolicyManifest = { ...cleanManifest, normalizationPolicyVersion: 99 };
+      check("release manifest wrong normalizationPolicyVersion rejected", validateReleaseManifest(wrongPolicyManifest, registry).some((e) => /normalizationPolicyVersion/.test(e)));
+
+      const wrongMimeManifest = { ...cleanManifest, entries: [{ ...validEntry, output64MimeType: "image/jpeg" }] };
+      check("release manifest non-PNG MIME rejected", validateReleaseManifest(wrongMimeManifest, registry).some((e) => /must be "image\/png"/.test(e)));
+
+      const badPathManifest = { ...cleanManifest, entries: [{ ...validEntry, output64Path: "public/assets/rushpi/token-logos/rpt-0001/v1/64/wrong-hash.png" }] };
+      check("release manifest path inconsistent with hash/version/tokenId rejected", validateReleaseManifest(badPathManifest, registry).some((e) => /inconsistent with tokenId\/logoVersion\/size\/hash/.test(e)));
     }
 
     // ---------------------------------------------------------------
@@ -375,12 +422,26 @@ async function main() {
     }
 
     // ---------------------------------------------------------------
-    // End-to-end: full approved pipeline against a synthetic fixture, using
-    // ONLY the temp intake/output roots created above.
+    // 12C-1B2B.1: full approved pipeline, source-hash binding, intakePath
+    // binding, receipts and receipt-only release-manifest building.
+    // A dedicated "fake repo root" mirrors the real layout so receipt
+    // output-path convention checks are meaningful, isolated from the
+    // shared tmpRoot used by the section above.
     // ---------------------------------------------------------------
-    await checkAsync("end-to-end pipeline succeeds for a fully approved synthetic fixture", async () => {
-      const svgPath = path.join(intakeRoot, "synthetic-mark.svg");
-      writeFileSync(svgPath, fx.validPaddedSvg);
+    const fakeRepoRoot = path.join(tmpRoot, "fake-repo");
+    const pipelineIntakeRoot = path.join(fakeRepoRoot, "tools/logos/intake");
+    const pipelineOutputRoot = path.join(fakeRepoRoot, TOKEN_LOGOS_OUTPUT_ROOT);
+    const pipelineReceiptsRoot = path.join(fakeRepoRoot, RECEIPTS_ROOT);
+    mkdirSync(pipelineIntakeRoot, { recursive: true });
+
+    function writeIntake(name, content) {
+      writeFileSync(path.join(pipelineIntakeRoot, name), content);
+      return sha256Hex(Buffer.from(content));
+    }
+
+    let ethReceipt;
+    await checkAsync("end-to-end pipeline succeeds for a fully approved synthetic fixture and writes a valid receipt", async () => {
+      const hash = writeIntake("eth-mark.svg", fx.validPaddedSvg);
       const entry = approvedEntry({
         tokenId: "rpt-0002",
         providerId: "ethereum",
@@ -388,16 +449,181 @@ async function main() {
         symbol: "ETH",
         expectedMimeClass: "image/svg+xml",
         cropMode: "preserve-canvas",
+        intakePath: "eth-mark.svg",
+        approvedSourceContentHash: hash,
       });
-      const buf = readFileSync(resolveSafePath(intakeRoot, "synthetic-mark.svg"));
-      const inspected = await inspectSource(buf, entry);
-      const { buf64, buf128 } = await normalizeToOutputs(inspected.rasterForNormalization, entry.cropMode);
-      const h64 = sha256Hex(buf64);
-      const h128 = sha256Hex(buf128);
-      writeOutputAtomically(outputRoot, "rpt-0002", 1, 64, h64, buf64);
-      writeOutputAtomically(outputRoot, "rpt-0002", 1, 128, h128, buf128);
-      const meta = await sharp(buf128).metadata();
-      return meta.width === 128 && meta.height === 128 && meta.hasAlpha;
+      const { receipt, receiptPath } = await normalizeApprovedToken({
+        entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot,
+      });
+      ethReceipt = receipt;
+      const verifyErrs = await verifyReceiptAgainstOutputs(receipt, fakeRepoRoot, registry);
+      return receiptPath.endsWith("rpt-0002-v1.json") && verifyErrs.length === 0;
+    });
+
+    // 3. source bytes differing from approvedSourceContentHash are rejected,
+    // BEFORE rasterization/normalization.
+    await checkRejects("source bytes differing from approvedSourceContentHash are rejected", async () => {
+      writeIntake("mismatch.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({
+        tokenId: "rpt-0004", providerId: "tether", canonicalName: "Tether", symbol: "USDT",
+        expectedMimeClass: "image/svg+xml", intakePath: "mismatch.svg",
+        approvedSourceContentHash: "f".repeat(64), // deliberately wrong
+      });
+      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot });
+    }, "source-hash-mismatch");
+
+    // 4. matching bytes proceed (already proven by the successful pipeline
+    // run above; assert explicitly here too for a self-contained check).
+    await checkAsync("matching approvedSourceContentHash proceeds through inspection", async () => {
+      const hash = writeIntake("match.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({ expectedMimeClass: "image/svg+xml", intakePath: "match.svg", approvedSourceContentHash: hash });
+      const result = await inspectApprovedIntake(entry, pipelineIntakeRoot);
+      return result.actualSourceContentHash === hash;
+    });
+
+    // 2. plan intakePath is the only normal input path - a second unrelated
+    // file present in intake must never be read for a different entry.
+    await checkAsync("plan intakePath is the only file read (a decoy file in intake is ignored)", async () => {
+      writeIntake("decoy.svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"><rect width=\"999\" height=\"1\"/></svg>");
+      const hash = writeIntake("real.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({ expectedMimeClass: "image/svg+xml", intakePath: "real.svg", approvedSourceContentHash: hash });
+      const result = await inspectApprovedIntake(entry, pipelineIntakeRoot);
+      return result.actualSourceContentHash === hash;
+    });
+
+    // 1. --file cannot substitute another intake file: the shipped CLIs
+    // don't even parse a --file flag anymore (removed for the normal
+    // operator command); confirm at the real CLI level that passing one is a
+    // silent no-op and the token stays gated on the plan's own intakePath.
+    {
+      let stdout = "";
+      let failed = false;
+      try {
+        stdout = execFileSync("node", ["tools/logos/inspect-source.mjs", "--token", "rpt-0001", "--file", "some-other-file.png"], { cwd: repoRoot, encoding: "utf8" });
+      } catch (e) {
+        failed = true;
+        stdout = (e.stdout || "") + (e.stderr || "");
+      }
+      check("--file is not a recognized flag on inspect-source.mjs (gate still blocks on the real plan)", failed && /sourceReviewStatus=source-approved/.test(stdout));
+    }
+
+    // 5. --logo-version cannot override expectedLogoVersion: the shipped
+    // normalize-source.mjs CLI doesn't parse a --logo-version flag either.
+    {
+      let stdout = "";
+      let failed = false;
+      try {
+        stdout = execFileSync("node", ["tools/logos/normalize-source.mjs", "--token", "rpt-0001", "--logo-version", "999"], { cwd: repoRoot, encoding: "utf8" });
+      } catch (e) {
+        failed = true;
+        stdout = (e.stdout || "") + (e.stderr || "");
+      }
+      check("--logo-version is not a recognized flag on normalize-source.mjs (gate still blocks on the real plan)", failed && /sourceReviewStatus=source-approved/.test(stdout));
+    }
+    check(
+      "normalizeApprovedToken has no logoVersion override parameter - only entry.expectedLogoVersion is ever used",
+      normalizeApprovedToken.length === 1, // single destructured options object; no separate version arg
+    );
+
+    // 6. missing/invalid expectedLogoVersion is rejected for approved entries.
+    await checkRejects("invalid expectedLogoVersion is rejected at the pipeline level", async () => {
+      const hash = writeIntake("badver.svg", fx.validSimpleSvg);
+      const entry = approvedEntry({ expectedMimeClass: "image/svg+xml", intakePath: "badver.svg", approvedSourceContentHash: hash, expectedLogoVersion: 0 });
+      await normalizeApprovedToken({ entry, intakeRoot: pipelineIntakeRoot, outputRoot: pipelineOutputRoot, receiptsRoot: pipelineReceiptsRoot, repoRoot: fakeRepoRoot });
+    }, "invalid-expected-logo-version");
+    check(
+      "missing expectedLogoVersion rejected by validate-source-plan for a source-approved entry",
+      validateSourcePlan([approvedEntry({ expectedLogoVersion: null })], registry).some((e) => /requires a valid expectedLogoVersion/.test(e)),
+    );
+
+    // 7. manually placed output without receipt is rejected (orphan output).
+    await checkAsync("manually placed output without a receipt is rejected as orphan", async () => {
+      const source = await fx.validPngMark();
+      const buf64 = await sharp(source).resize(64, 64).png().toBuffer();
+      const buf128 = await sharp(source).resize(128, 128).png().toBuffer();
+      writeOutputAtomically(pipelineOutputRoot, "rpt-0012", 1, 64, sha256Hex(buf64), buf64);
+      writeOutputAtomically(pipelineOutputRoot, "rpt-0012", 1, 128, sha256Hex(buf128), buf128);
+      const { found } = await verifyOutputTreeShape(pipelineOutputRoot, registry);
+      const { receipts } = loadAllReceipts(pipelineReceiptsRoot);
+      const receiptKeys = new Set(receipts.map((r) => `${r.tokenId}:${r.logoVersion}`));
+      return found.has("rpt-0012:1") && !receiptKeys.has("rpt-0012:1");
+    });
+
+    // 8. receipt with wrong source hash is rejected.
+    check(
+      "receipt with approvedSourceContentHash != actualSourceContentHash is rejected",
+      validateReceiptShape(buildReceipt({
+        tokenId: "rpt-0001", catalogVersion: registry.catalogVersion, logoVersion: 1, normalizationPolicyVersion: NORMALIZATION_POLICY_VERSION,
+        approvedSourceContentHash: "a".repeat(64), actualSourceContentHash: "b".repeat(64),
+        sourceMimeType: "image/png", sourceWidth: 10, sourceHeight: 10, sourceFileSize: 100,
+        output64Path: "x", output128Path: "y", output64Hash: "c".repeat(64), output128Hash: "d".repeat(64),
+        toolchain: getToolchainFingerprint(),
+      })).some((e) => /must be equal/.test(e)),
+    );
+    check(
+      "receipt containing a forbidden field (e.g. intakePath) is rejected",
+      validateReceiptShape({ ...ethReceipt, intakePath: "leak.svg" }).some((e) => /forbidden field "intakePath"/.test(e)),
+    );
+    check("FORBIDDEN_RECEIPT_FIELDS covers source/approval/intake surface", FORBIDDEN_RECEIPT_FIELDS.includes("sourceReference") && FORBIDDEN_RECEIPT_FIELDS.includes("intakePath") && FORBIDDEN_RECEIPT_FIELDS.includes("approvedBy"));
+
+    // 9. receipt with wrong output hash/path is rejected.
+    await checkAsync("receipt with a tampered output file is rejected (hash mismatch)", async () => {
+      const outPath = path.join(fakeRepoRoot, ethReceipt.output64Path);
+      const original = readFileSync(outPath);
+      writeFileSync(outPath, Buffer.from("tampered-bytes"));
+      const errs = await verifyReceiptAgainstOutputs(ethReceipt, fakeRepoRoot, registry);
+      writeFileSync(outPath, original); // restore for subsequent checks
+      return errs.some((e) => /recomputed hash .* does not match receipt hash/.test(e));
+    });
+    await checkAsync("receipt with a wrong declared path is rejected (path/hash convention mismatch)", async () => {
+      const badReceipt = { ...ethReceipt, output64Path: ethReceipt.output64Path.replace(/64\/[0-9a-f]+\.png$/, "64/0000000000000000000000000000000000000000000000000000000000000000.png") };
+      const errs = await verifyReceiptAgainstOutputs(badReceipt, fakeRepoRoot, registry);
+      return errs.some((e) => /inconsistent with the tokenId\/logoVersion\/size\/hash convention/.test(e));
+    });
+
+    // 10. incomplete 64/128 pair is rejected.
+    await checkAsync("incomplete 64/128 output pair is rejected", async () => {
+      const buf = await fx.validPngMark();
+      const h = sha256Hex(buf);
+      writeOutputAtomically(pipelineOutputRoot, "rpt-0024", 1, 64, h, buf); // 128/ deliberately omitted
+      const { errors, found } = await verifyOutputTreeShape(pipelineOutputRoot, registry);
+      return errors.some((e) => /missing required "128\/" directory/.test(e)) && !found.has("rpt-0024:1");
+    });
+
+    // 11. multiple current versions without explicit selection are rejected.
+    {
+      const receiptV1 = { ...ethReceipt, logoVersion: 1 };
+      const receiptV2 = {
+        ...ethReceipt, logoVersion: 2,
+        output64Path: ethReceipt.output64Path.replace("/v1/", "/v2/"),
+        output128Path: ethReceipt.output128Path.replace("/v1/", "/v2/"),
+      };
+      const { errors } = selectReceiptsForRelease([receiptV1, receiptV2], { selections: {} });
+      check("multiple receipted versions without explicit release-selection rejected", errors.some((e) => /no explicit entry/.test(e)));
+
+      const { chosen, errors: selErrors } = selectReceiptsForRelease([receiptV1, receiptV2], { selections: { [ethReceipt.tokenId]: 2 } });
+      check("explicit release-selection resolves multiple versions deterministically", selErrors.length === 0 && chosen.length === 1 && chosen[0].logoVersion === 2);
+    }
+
+    // 12 & 13. release manifest is built EXCLUSIVELY from verified receipts
+    // (an orphan output with no receipt never appears), and repeat builds
+    // are byte-identical.
+    await checkAsync("release manifest excludes unreceipted (orphan) outputs and is deterministic across repeat builds", async () => {
+      const { receipts } = loadAllReceipts(pipelineReceiptsRoot); // only rpt-0002 has a real receipt at this point
+      for (const r of receipts) {
+        const errs = await verifyReceiptAgainstOutputs(r, fakeRepoRoot, registry);
+        if (errs.length > 0) return false;
+      }
+      const { chosen, errors: selErrors } = selectReceiptsForRelease(receipts, { selections: {} });
+      if (selErrors.length > 0) return false;
+      const entries = chosen.map(receiptToPublicEntry);
+
+      const manifestA = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries });
+      const manifestB = buildReleaseManifest({ catalogVersion: registry.catalogVersion, entries });
+      const noOrphan = !manifestA.entries.some((e) => e.tokenId === "rpt-0012" || e.tokenId === "rpt-0024");
+      const includesReceipted = manifestA.entries.some((e) => e.tokenId === "rpt-0002");
+      const deterministic = manifestA.contentHash === manifestB.contentHash && manifestA.logoReleaseVersion === manifestB.logoReleaseVersion;
+      return noOrphan && includesReceipted && deterministic && validateReleaseManifest(manifestA, registry).length === 0;
     });
 
     // Sanity: the pilot template itself must remain fully unresearched and
@@ -417,7 +643,9 @@ async function main() {
             e.sourceReference === null &&
             e.sourcePageReference === null &&
             e.approvedBy === null &&
-            e.approvedAt === null,
+            e.approvedAt === null &&
+            e.approvedSourceContentHash === null &&
+            e.intakePath === null,
         ),
       );
       check("pilot-source-plan.json catalogVersion matches the approved registry", pilot.catalogVersion === registry.catalogVersion);

@@ -62,6 +62,28 @@ export function resolveSafePath(rootDir, relativePath) {
 }
 
 /**
+ * Assert that `absolutePath` exists, is NOT a symlink (regardless of where it
+ * points - a within-root-resolving symlink is still rejected outright, not
+ * just an escaping one), and is a regular file.
+ * @param {string} absolutePath
+ * @throws {UnsafePathError}
+ */
+export function assertRegularNonSymlinkFile(absolutePath) {
+  let stat;
+  try {
+    stat = fs.lstatSync(absolutePath);
+  } catch {
+    throw new UnsafePathError(`file does not exist: "${absolutePath}"`);
+  }
+  if (stat.isSymbolicLink()) {
+    throw new UnsafePathError(`path is a symlink, not a regular file: "${absolutePath}"`);
+  }
+  if (!stat.isFile()) {
+    throw new UnsafePathError(`path is not a regular file: "${absolutePath}"`);
+  }
+}
+
+/**
  * Walk from the deepest existing ancestor of `candidate` back up to `root`,
  * resolving symlinks, and confirm the real path never leaves `root`. Only
  * inspects path segments that actually exist on disk (the final file itself

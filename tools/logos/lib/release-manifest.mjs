@@ -6,15 +6,30 @@
 // change must never change catalogVersion, Daily selection, the challenge
 // seed, token eligibility or scoring).
 import { createHash } from "node:crypto";
-import { SCHEMA_VERSION, NORMALIZATION_POLICY_VERSION } from "./constants.mjs";
+import {
+  SCHEMA_VERSION,
+  NORMALIZATION_POLICY_VERSION,
+  TOKEN_ID_PATTERN,
+  SHA256_HEX_PATTERN,
+  TOKEN_LOGOS_OUTPUT_ROOT,
+} from "./constants.mjs";
 
-// Fields that must NEVER appear anywhere in the public release manifest.
+// Fields that must NEVER appear anywhere in the public release manifest -
+// the full admin/source/approval/intake surface, plus the receipt-only
+// source-hash and raw-source-shape fields (those belong in
+// tools/logos/receipts/, never in the client-safe manifest).
 export const FORBIDDEN_PUBLIC_FIELDS = [
   "sourceReference", "sourcePageReference", "sourceType", "sourceReviewStatus",
   "permissionReviewStatus", "permissionEvidenceReference", "approvedBy",
   "approvedAt", "notes", "intakePath", "permittedVariant", "variantType",
   "cropMode", "providerFallbackApproved",
+  "approvedSourceContentHash", "actualSourceContentHash",
+  "sourceMimeType", "sourceWidth", "sourceHeight", "sourceFileSize",
 ];
+
+function expectedOutputRelPath(tokenId, logoVersion, size, hash) {
+  return `${TOKEN_LOGOS_OUTPUT_ROOT}/${tokenId}/v${logoVersion}/${size}/${hash}.png`;
+}
 
 function sortKeysDeep(value) {
   if (Array.isArray(value)) return value.map(sortKeysDeep);
@@ -72,26 +87,66 @@ export function buildReleaseManifest({ catalogVersion, entries, normalizationPol
 }
 
 /**
- * Structural + privacy validation of a built release manifest. Rejects any
- * entry carrying a forbidden admin/private field.
+ * Full structural + registry/policy + privacy validation of a built release
+ * manifest.
+ * @param {any} manifest
+ * @param {{ byTokenId: Map, catalogVersion: string }} [registry]  optional -
+ *   when provided, cross-checks catalogVersion and registry membership.
  * @returns {string[]} errors
  */
-export function validateReleaseManifest(manifest) {
+export function validateReleaseManifest(manifest, registry) {
   const errors = [];
   if (!manifest || !Array.isArray(manifest.entries)) {
     return ["release manifest entries is not an array"];
   }
+
+  if (manifest.normalizationPolicyVersion !== NORMALIZATION_POLICY_VERSION) {
+    errors.push(`release manifest normalizationPolicyVersion must be ${NORMALIZATION_POLICY_VERSION}, got ${manifest.normalizationPolicyVersion}`);
+  }
+  if (registry && manifest.catalogVersion !== registry.catalogVersion) {
+    errors.push(`release manifest catalogVersion "${manifest.catalogVersion}" does not match the approved registry catalogVersion "${registry.catalogVersion}"`);
+  }
+
+  const seenTokenIds = new Set();
   for (const entry of manifest.entries) {
+    const label = `release entry ${entry.tokenId ?? "<unknown>"}`;
+
     for (const field of FORBIDDEN_PUBLIC_FIELDS) {
       if (Object.prototype.hasOwnProperty.call(entry, field)) {
-        errors.push(`release entry ${entry.tokenId ?? "<unknown>"}: forbidden private/admin field "${field}" present`);
+        errors.push(`${label}: forbidden private/admin field "${field}" present`);
       }
     }
-    if (!Object.prototype.hasOwnProperty.call(entry, "tokenId")) errors.push("release entry missing tokenId");
-    if (!Object.prototype.hasOwnProperty.call(entry, "logoVersion")) errors.push(`release entry ${entry.tokenId}: missing logoVersion`);
-    if (!Object.prototype.hasOwnProperty.call(entry, "output64Hash")) errors.push(`release entry ${entry.tokenId}: missing output64Hash`);
-    if (!Object.prototype.hasOwnProperty.call(entry, "output128Hash")) errors.push(`release entry ${entry.tokenId}: missing output128Hash`);
+
+    if (typeof entry.tokenId !== "string" || !TOKEN_ID_PATTERN.test(entry.tokenId)) {
+      errors.push(`${label}: invalid tokenId`);
+      continue; // nothing further can be safely cross-checked
+    }
+    if (seenTokenIds.has(entry.tokenId)) errors.push(`${label}: duplicate tokenId in release manifest`);
+    seenTokenIds.add(entry.tokenId);
+
+    if (registry && !registry.byTokenId.has(entry.tokenId)) {
+      errors.push(`${label}: token is absent from the approved V2 registry`);
+    }
+    if (!Number.isInteger(entry.logoVersion) || entry.logoVersion < 1) {
+      errors.push(`${label}: logoVersion must be a positive integer, got ${JSON.stringify(entry.logoVersion)}`);
+    }
+
+    for (const size of [64, 128]) {
+      const p = entry[`output${size}Path`];
+      const h = entry[`output${size}Hash`];
+      const mime = entry[`output${size}MimeType`];
+      if (typeof p !== "string" || p.length === 0) errors.push(`${label}: missing output${size}Path`);
+      if (typeof h !== "string" || !SHA256_HEX_PATTERN.test(h)) errors.push(`${label}: missing/invalid output${size}Hash`);
+      if (mime !== "image/png") errors.push(`${label}: output${size}MimeType must be "image/png", got ${JSON.stringify(mime)}`);
+      if (typeof p === "string" && typeof h === "string" && Number.isInteger(entry.logoVersion)) {
+        const expected = expectedOutputRelPath(entry.tokenId, entry.logoVersion, size, h);
+        if (p !== expected) {
+          errors.push(`${label}: output${size}Path "${p}" is inconsistent with tokenId/logoVersion/size/hash (expected "${expected}")`);
+        }
+      }
+    }
   }
+
   const recomputed = computeReleaseContentHash(manifest.normalizationPolicyVersion, manifest.catalogVersion, manifest.entries);
   if (manifest.contentHash !== undefined && manifest.contentHash !== recomputed) {
     errors.push(`release manifest contentHash mismatch: stored=${manifest.contentHash} recomputed=${recomputed}`);

@@ -12,6 +12,8 @@ import {
   VARIANT_TYPES,
   CROP_MODES,
   EXPECTED_MIME_CLASSES,
+  SHA256_HEX_PATTERN,
+  EXPECTED_MIME_EXTENSION,
 } from "./constants.mjs";
 import { resolveSafePath, UnsafePathError } from "./path-safety.mjs";
 
@@ -97,6 +99,36 @@ export function validateSourcePlan(entries, registry, options = {}) {
       errors.push(`${label}: unknown expectedMimeClass "${entry.expectedMimeClass}"`);
     }
 
+    // --- approvedSourceContentHash: pins the exact reviewed candidate bytes.
+    // Must stay null until approval, then must be an exact sha256 hex. ------
+    if (entry.sourceReviewStatus === "source-approved") {
+      if (typeof entry.approvedSourceContentHash !== "string" || !SHA256_HEX_PATTERN.test(entry.approvedSourceContentHash)) {
+        errors.push(`${label}: source-approved requires approvedSourceContentHash as a lowercase sha256 hex string`);
+      }
+    } else if (entry.approvedSourceContentHash !== null && entry.approvedSourceContentHash !== undefined) {
+      errors.push(`${label}: approvedSourceContentHash must be null until sourceReviewStatus=source-approved`);
+    }
+
+    // --- expectedLogoVersion: author-declared intended version. Format is
+    // validated whenever present; required as a positive integer once approved. ---
+    if (entry.expectedLogoVersion !== null && entry.expectedLogoVersion !== undefined) {
+      if (!Number.isInteger(entry.expectedLogoVersion) || entry.expectedLogoVersion < 1) {
+        errors.push(`${label}: expectedLogoVersion must be a positive integer >= 1, got ${JSON.stringify(entry.expectedLogoVersion)}`);
+      }
+    }
+    if (entry.sourceReviewStatus === "source-approved" && !(Number.isInteger(entry.expectedLogoVersion) && entry.expectedLogoVersion >= 1)) {
+      errors.push(`${label}: source-approved requires a valid expectedLogoVersion (positive integer >= 1)`);
+    }
+
+    // --- intakePath / expectedMimeClass extension consistency (string-level;
+    // MIME sniffing on the actual bytes remains authoritative downstream). ---
+    if (isNonEmptyString(entry.intakePath) && entry.expectedMimeClass && EXPECTED_MIME_EXTENSION[entry.expectedMimeClass]) {
+      const expectedExt = EXPECTED_MIME_EXTENSION[entry.expectedMimeClass];
+      if (!entry.intakePath.toLowerCase().endsWith(expectedExt)) {
+        errors.push(`${label}: intakePath "${entry.intakePath}" does not end with the extension expected for ${entry.expectedMimeClass} ("${expectedExt}")`);
+      }
+    }
+
     // --- provider fallback gate (checked regardless of overall status) ---
     if (entry.sourceType === PROVIDER_FALLBACK_SOURCE_TYPE) {
       if (entry.providerFallbackApproved !== true) errors.push(`${label}: authorized-provider source requires providerFallbackApproved=true`);
@@ -129,6 +161,9 @@ export function validateSourcePlan(entries, registry, options = {}) {
       if (!EXPECTED_MIME_CLASSES.has(entry.expectedMimeClass)) errors.push(`${label}: source-approved requires a valid expectedMimeClass`);
       if (!PROCESSABLE_PERMISSION_STATUSES.has(entry.permissionReviewStatus)) {
         errors.push(`${label}: source-approved requires permissionReviewStatus to be permission-confirmed or explicit-product-exception, got "${entry.permissionReviewStatus}"`);
+      }
+      if (!isNonEmptyString(entry.intakePath)) {
+        errors.push(`${label}: source-approved requires a non-null intakePath (the exact local file the approval was bound to)`);
       }
     } else if (hasApprovalFields) {
       errors.push(`${label}: approvedBy/approvedAt present but sourceReviewStatus is not "source-approved" (inconsistent state)`);
