@@ -58,6 +58,19 @@ import * as fx from "./fixtures/generate.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, "../..");
+const defaultPilotPlanPath = path.join(here, "data", "pilot-source-plan.json");
+
+// RUSHPI_LOGO_SELFTEST_PLAN_PATH (selftest-only): overrides which plan file
+// the final pilot-plan sanity block (below) validates, so the lifecycle-
+// neutral invariants can be proven against an alternate, e.g. more-advanced,
+// plan without ever editing the tracked pilot-source-plan.json. Affects only
+// that one sanity block - never any production CLI, library, or the
+// temporary gated-plan fixture used by the CLI gate tests. Defaults to the
+// real tracked plan when unset.
+function resolveSelftestPlanPath() {
+  const override = process.env.RUSHPI_LOGO_SELFTEST_PLAN_PATH;
+  return override ? path.resolve(process.cwd(), override) : defaultPilotPlanPath;
+}
 
 let failures = 0;
 let passed = 0;
@@ -150,6 +163,50 @@ async function main() {
   mkdirSync(outputRoot, { recursive: true });
 
   try {
+    // -----------------------------------------------------------------
+    // Temporary gated-plan fixture (selftest-only). The three real-CLI gate
+    // tests further below must always exercise a token guaranteed to be
+    // unresearched/gated, independent of whatever valid lifecycle state the
+    // real tracked pilot-source-plan.json happens to be in (some entries may
+    // legitimately be source-approved once product review begins). Clone the
+    // real tracked plan - preserving registry identity and pilot metadata
+    // for every entry - and force just rpt-0001 back to a fully null,
+    // unresearched/unreviewed state. Written only under this selftest's own
+    // tmpRoot, never under tools/logos/data/.
+    // -----------------------------------------------------------------
+    const gatedPlanPath = (() => {
+      const tracked = JSON.parse(readFileSync(defaultPilotPlanPath, "utf8"));
+      const cloned = JSON.parse(JSON.stringify(tracked));
+      const idx = cloned.entries.findIndex((e) => e.tokenId === "rpt-0001");
+      if (idx === -1) throw new Error("temp gated-plan fixture: rpt-0001 is missing from the tracked pilot plan");
+      cloned.entries[idx] = {
+        ...cloned.entries[idx],
+        sourceReviewStatus: "unresearched",
+        permissionReviewStatus: "unreviewed",
+        sourceType: null,
+        sourceReference: null,
+        sourcePageReference: null,
+        permittedVariant: null,
+        variantType: null,
+        cropMode: null,
+        expectedMimeClass: null,
+        approvedSourceContentHash: null,
+        approvedBy: null,
+        approvedAt: null,
+        permissionEvidenceReference: null,
+        providerFallbackApproved: false,
+        intakePath: null,
+        expectedLogoVersion: 1,
+      };
+      const fixtureErrors = validateSourcePlan(cloned.entries, registry, { intakeRoot: path.join(here, "intake") });
+      if (fixtureErrors.length > 0) {
+        throw new Error(`temp gated-plan fixture failed validateSourcePlan: ${fixtureErrors.join("; ")}`);
+      }
+      const fixturePath = path.join(tmpRoot, "gated-plan.json");
+      writeFileSync(fixturePath, JSON.stringify(cloned, null, 2));
+      return fixturePath;
+    })();
+
     // ---------------------------------------------------------------
     // 1. valid PNG / valid SVG accepted
     // ---------------------------------------------------------------
@@ -575,12 +632,12 @@ async function main() {
       let stdout = "";
       let failed = false;
       try {
-        stdout = execFileSync("node", ["tools/logos/inspect-source.mjs", "--token", "rpt-0001", "--file", "some-other-file.png"], { cwd: repoRoot, encoding: "utf8" });
+        stdout = execFileSync("node", ["tools/logos/inspect-source.mjs", "--token", "rpt-0001", "--file", "some-other-file.png", "--plan", gatedPlanPath], { cwd: repoRoot, encoding: "utf8" });
       } catch (e) {
         failed = true;
         stdout = (e.stdout || "") + (e.stderr || "");
       }
-      check("--file is not a recognized flag on inspect-source.mjs (gate still blocks on the real plan)", failed && /sourceReviewStatus=source-approved/.test(stdout));
+      check("--file is not a recognized flag on inspect-source.mjs (gate blocks on the temp gated-plan fixture, independent of the real plan's lifecycle state)", failed && /sourceReviewStatus=source-approved/.test(stdout));
     }
 
     // 5. --logo-version cannot override expectedLogoVersion: the shipped
@@ -589,12 +646,12 @@ async function main() {
       let stdout = "";
       let failed = false;
       try {
-        stdout = execFileSync("node", ["tools/logos/normalize-source.mjs", "--token", "rpt-0001", "--logo-version", "999"], { cwd: repoRoot, encoding: "utf8" });
+        stdout = execFileSync("node", ["tools/logos/normalize-source.mjs", "--token", "rpt-0001", "--logo-version", "999", "--plan", gatedPlanPath], { cwd: repoRoot, encoding: "utf8" });
       } catch (e) {
         failed = true;
         stdout = (e.stdout || "") + (e.stderr || "");
       }
-      check("--logo-version is not a recognized flag on normalize-source.mjs (gate still blocks on the real plan)", failed && /sourceReviewStatus=source-approved/.test(stdout));
+      check("--logo-version is not a recognized flag on normalize-source.mjs (gate blocks on the temp gated-plan fixture, independent of the real plan's lifecycle state)", failed && /sourceReviewStatus=source-approved/.test(stdout));
     }
     check(
       "normalizeApprovedToken has no logoVersion override parameter - only entry.expectedLogoVersion is ever used",
@@ -711,12 +768,12 @@ async function main() {
       let stdout = "";
       let failed = false;
       try {
-        stdout = execFileSync("node", ["tools/logos/freeze-approval.mjs", "--token", "rpt-0001"], { cwd: repoRoot, encoding: "utf8" });
+        stdout = execFileSync("node", ["tools/logos/freeze-approval.mjs", "--token", "rpt-0001", "--plan", gatedPlanPath], { cwd: repoRoot, encoding: "utf8" });
       } catch (e) {
         failed = true;
         stdout = (e.stdout || "") + (e.stderr || "");
       }
-      check("freeze-approval CLI is gated on the real (unresearched) plan", failed && /sourceReviewStatus=source-approved/.test(stdout));
+      check("freeze-approval CLI is gated on the temp gated-plan fixture (unresearched), independent of the real plan's lifecycle state", failed && /sourceReviewStatus=source-approved/.test(stdout));
     }
 
     await checkAsync("freeze-approval logic refuses when intake bytes don't match approvedSourceContentHash", async () => {
@@ -1147,29 +1204,36 @@ async function main() {
       }
     }
 
-    // Sanity: the pilot template itself must remain fully unresearched and
-    // internally valid (guards against accidental drift while iterating).
+    // Sanity: the pilot plan must be internally valid and structurally
+    // consistent with the approved registry - in ANY valid lifecycle state
+    // (fully unresearched, partially approved, or fully approved). Approval
+    // counts are mutable product state, not a tooling invariant; only the
+    // plan's structural/identity contract is asserted here. Defaults to the
+    // real tracked plan; RUSHPI_LOGO_SELFTEST_PLAN_PATH may point this block
+    // at an alternate plan to prove the same invariants hold there too.
     {
-      const pilotPath = path.join(here, "data", "pilot-source-plan.json");
+      const pilotPath = resolveSelftestPlanPath();
       const pilot = JSON.parse(readFileSync(pilotPath, "utf8"));
       const errs = validateSourcePlan(pilot.entries, registry, { intakeRoot: path.join(here, "intake") });
-      check("pilot-source-plan.json is internally valid", errs.length === 0);
-      check("pilot-source-plan.json has exactly 12 entries", pilot.entries.length === 12);
+      check("pilot plan is internally valid (schema-valid lifecycle combinations only)", errs.length === 0);
+      check("pilot plan has exactly 12 entries", pilot.entries.length === 12);
+      const expectedPilotTokenIds = new Set([
+        "rpt-0001", "rpt-0002", "rpt-0004", "rpt-0012", "rpt-0024", "rpt-0037",
+        "rpt-0038", "rpt-0041", "rpt-0058", "rpt-0070", "rpt-0142", "rpt-0250",
+      ]);
+      const actualTokenIds = pilot.entries.map((e) => e.tokenId);
+      const uniqueTokenIds = new Set(actualTokenIds);
       check(
-        "pilot-source-plan.json entries are all unresearched/unreviewed with null references/approvals",
-        pilot.entries.every(
-          (e) =>
-            e.sourceReviewStatus === "unresearched" &&
-            e.permissionReviewStatus === "unreviewed" &&
-            e.sourceReference === null &&
-            e.sourcePageReference === null &&
-            e.approvedBy === null &&
-            e.approvedAt === null &&
-            e.approvedSourceContentHash === null &&
-            e.intakePath === null,
-        ),
+        "pilot plan contains exactly the expected 12 unique pilot tokenIds, each preserving registry identity (providerId/canonicalName/symbol)",
+        uniqueTokenIds.size === actualTokenIds.length &&
+          actualTokenIds.length === expectedPilotTokenIds.size &&
+          actualTokenIds.every((id) => expectedPilotTokenIds.has(id)) &&
+          pilot.entries.every((e) => {
+            const reg = registry.byTokenId.get(e.tokenId);
+            return !!reg && e.providerId === reg.providerIds.coingecko && e.canonicalName === reg.name && e.symbol === reg.symbol;
+          }),
       );
-      check("pilot-source-plan.json catalogVersion matches the approved registry", pilot.catalogVersion === registry.catalogVersion);
+      check("pilot plan catalogVersion matches the approved registry", pilot.catalogVersion === registry.catalogVersion);
     }
   } finally {
     rmSync(tmpRoot, { recursive: true, force: true });
