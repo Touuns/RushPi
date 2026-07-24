@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "logoReleaseVersion": "logo-release-v1-b04b94bca7a50eb3",
+  "normalizationPolicyVersion": 1,
+  "catalogVersion": "token-registry-v2-7b98c60e767128c1",
+  "contentHash": "b04b94bca7a50eb3bc124b2c0b6b963495bb0bb90759dad6035824e9564e54e4",
+  "entryCount": 11,
+  "entries": [
+    {
+      "tokenId": "rpt-0001",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0001/v1/64/10482668d504a4ca571ba67f7077f60157940de27cfd42ea5012c485b8e58409.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0001/v1/128/766037e5978eb8e9686d4ca8f9b814536cf6da918b7cde70efc3cae5a5259e34.png",
+      "output64Hash": "10482668d504a4ca571ba67f7077f60157940de27cfd42ea5012c485b8e58409",
+      "output128Hash": "766037e5978eb8e9686d4ca8f9b814536cf6da918b7cde70efc3cae5a5259e34",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0002",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0002/v1/64/43d87326044016ef895bfd75164f7c73213649fb661821fb8db5ced18965327f.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0002/v1/128/31cbfc7110f0ce915249259fbf929ce7cfbca54bb04e251423d4a30e75c386fa.png",
+      "output64Hash": "43d87326044016ef895bfd75164f7c73213649fb661821fb8db5ced18965327f",
+      "output128Hash": "31cbfc7110f0ce915249259fbf929ce7cfbca54bb04e251423d4a30e75c386fa",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0004",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0004/v1/64/823e407290859e312140cf636e29d2e3cc5be7610c9efab657ad647c87c1b739.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0004/v1/128/a297c18f1b9f3d9189f9a86fa7220a588f712d1fa5a41f12e2d306176055ab85.png",
+      "output64Hash": "823e407290859e312140cf636e29d2e3cc5be7610c9efab657ad647c87c1b739",
+      "output128Hash": "a297c18f1b9f3d9189f9a86fa7220a588f712d1fa5a41f12e2d306176055ab85",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0012",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0012/v1/64/599e1c398adc58bb47f826389a1459db7e1d5918daf01758ed957f968bfa3c3f.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0012/v1/128/2d999b76e0ae4227265925e6b2279eed68b6fa2839409c8f4dea73e821a926b8.png",
+      "output64Hash": "599e1c398adc58bb47f826389a1459db7e1d5918daf01758ed957f968bfa3c3f",
+      "output128Hash": "2d999b76e0ae4227265925e6b2279eed68b6fa2839409c8f4dea73e821a926b8",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0024",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0024/v1/64/e3479eeac8c9f369ebcaf2037d724c28808cf29d7edf4a2222f2d0af06a587c9.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0024/v1/128/dd4d8bbf57fb2d42babb6d8f5d9f6623d7ce941d6c0b8a9ec881481b9e6ef8bf.png",
+      "output64Hash": "e3479eeac8c9f369ebcaf2037d724c28808cf29d7edf4a2222f2d0af06a587c9",
+      "output128Hash": "dd4d8bbf57fb2d42babb6d8f5d9f6623d7ce941d6c0b8a9ec881481b9e6ef8bf",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0037",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0037/v1/64/313ddb045bda1940ec81e90bbf628a4c84754c6e95416c079ec2987ce1d0a50a.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0037/v1/128/23969c9e225c85dea8c0ff3fbf23628f8171bbdc6c89e41eedf058fb3e4c9bf4.png",
+      "output64Hash": "313ddb045bda1940ec81e90bbf628a4c84754c6e95416c079ec2987ce1d0a50a",
+      "output128Hash": "23969c9e225c85dea8c0ff3fbf23628f8171bbdc6c89e41eedf058fb3e4c9bf4",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0041",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0041/v1/64/3530700b24a8045cd24873ac46eb6943ea6eb89dcaabce93a9bc1ec7d6b05d2d.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0041/v1/128/1ae9930fe689423edf4943711e0fe0822b2de1f1305bb9d9cb5f1a657a908710.png",
+      "output64Hash": "3530700b24a8045cd24873ac46eb6943ea6eb89dcaabce93a9bc1ec7d6b05d2d",
+      "output128Hash": "1ae9930fe689423edf4943711e0fe0822b2de1f1305bb9d9cb5f1a657a908710",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0058",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0058/v1/64/ee74ce84e6fb7c87069fb58f82a018cf78854f317597fcf20719c64fe501ad99.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0058/v1/128/1a874bcc3054f70ca5f1a682bb95f96a8ea5c9381ec721a418c2e082697bc5bd.png",
+      "output64Hash": "ee74ce84e6fb7c87069fb58f82a018cf78854f317597fcf20719c64fe501ad99",
+      "output128Hash": "1a874bcc3054f70ca5f1a682bb95f96a8ea5c9381ec721a418c2e082697bc5bd",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0070",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0070/v1/64/0105a449515a0ac685676358840865b29c7d351fca82a656a31291deb810dac5.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0070/v1/128/9a842fa9ae1fab9527190ae5c67d7bcb7273628d919d02ae4bb179b446da2ed8.png",
+      "output64Hash": "0105a449515a0ac685676358840865b29c7d351fca82a656a31291deb810dac5",
+      "output128Hash": "9a842fa9ae1fab9527190ae5c67d7bcb7273628d919d02ae4bb179b446da2ed8",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0142",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0142/v1/64/c3d56461dbb50300c9343a54a4e01c557a3164d412ee5d2afe6cc4acdc52c5e8.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0142/v1/128/dd88ab20fa1906739bc098c3b34fc4f0277d2fbe5fdd993f99f7d230d4c58456.png",
+      "output64Hash": "c3d56461dbb50300c9343a54a4e01c557a3164d412ee5d2afe6cc4acdc52c5e8",
+      "output128Hash": "dd88ab20fa1906739bc098c3b34fc4f0277d2fbe5fdd993f99f7d230d4c58456",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0250",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0250/v1/64/c3dfa6082fa88a998d80070cbec9f13a70a9d1917a42a3309664487fd20ee70e.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0250/v1/128/6ed6e58bd0367b595430257b71025908f1d36ad7911ca963e864a96af052705d.png",
+      "output64Hash": "c3dfa6082fa88a998d80070cbec9f13a70a9d1917a42a3309664487fd20ee70e",
+      "output128Hash": "6ed6e58bd0367b595430257b71025908f1d36ad7911ca963e864a96af052705d",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    }
+  ]
+}
