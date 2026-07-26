@@ -174,9 +174,19 @@ const cache = new Map<string, PreloadImageLike>();
 let cacheDate: string | null = null;
 let lastResult: DailyLogoPreloadResult | null = null;
 
+// Presentation-only lookup for the render switch (Phase 12C-1B2C-2D2B): maps a
+// Daily token's CoinGecko id to its canonical logo texture key
+// (token-logo:<tokenId>:v<logoVersion>) as ALREADY resolved by the preload plan.
+// The renderer reads this instead of re-parsing the manifest or inferring by
+// symbol; the key is only a candidate — the renderer still confirms the texture
+// exists in Phaser before using it. Never leaves the client, never enters a
+// score digest or ranked payload.
+const logoTextureKeyByCoinGeckoId = new Map<string, string>();
+
 function resetForChallenge(date: string): void {
   if (cacheDate !== date) {
     cache.clear();
+    logoTextureKeyByCoinGeckoId.clear();
     cacheDate = date;
   }
 }
@@ -279,6 +289,8 @@ export async function preloadDailyTokenLogos(
 
   resetForChallenge(challengeDate);
 
+  logoTextureKeyByCoinGeckoId.clear();
+
   const fetchResult = await fetchManifest();
   if (!fetchResult.ok) {
     debug("manifest-failed", { reason: fetchResult.reason });
@@ -298,6 +310,13 @@ export async function preloadDailyTokenLogos(
 
   const { plan, selectedTokenIds, unknownCoinGeckoIds, missingManifestTokenIds } =
     resolveDailyLogoPreloadPlan(tokens, fetchResult.index, density);
+
+  // Record the canonical CoinGecko-id → texture-key mapping for the renderer.
+  // Same-key de-dup already happened in the plan; a token id may map to only one
+  // texture key, so a plain overwrite is safe here.
+  for (const entry of plan) {
+    logoTextureKeyByCoinGeckoId.set(entry.coingeckoId, entry.textureKey);
+  }
 
   debug("manifest-loaded", {
     catalogVersion: fetchResult.manifest.catalogVersion,
@@ -344,6 +363,21 @@ export function getLastDailyLogoPreloadResult(): DailyLogoPreloadResult | null {
 }
 
 /**
+ * Presentation-only resolver for the Daily render switch (Phase 12C-1B2C-2D2B).
+ *
+ * Returns the canonical logo texture key (token-logo:<tokenId>:v<logoVersion>)
+ * that the last preload resolved for a Daily token's CoinGecko id, or null when
+ * the token has no mapped/manifested logo. This is a pure map read over data the
+ * preload already computed: it never fetches, never re-parses the manifest and
+ * never infers from the token symbol. A returned key is only a CANDIDATE — the
+ * renderer must still confirm scene.textures.exists(key) before drawing it, so a
+ * logo whose PNG failed to load still degrades to the procedural collectible.
+ */
+export function resolveDailyTokenLogoTextureKey(coingeckoId: string): string | null {
+  return logoTextureKeyByCoinGeckoId.get(coingeckoId) ?? null;
+}
+
+/**
  * Register the preloaded logo images into a Phaser TextureManager under their
  * deterministic keys, returning how many were newly added. Purely additive: it
  * NEVER renders and nothing reads these keys yet (that is the next phase).
@@ -365,6 +399,7 @@ export function registerDailyTokenLogoTextures(
 /** Test-only cache reset. Not used by production code. */
 export function __resetDailyLogoPreloadCacheForTests(): void {
   cache.clear();
+  logoTextureKeyByCoinGeckoId.clear();
   cacheDate = null;
   lastResult = null;
 }

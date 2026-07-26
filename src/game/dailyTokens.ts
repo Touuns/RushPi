@@ -4,6 +4,7 @@ import { OBJECTS } from "./gameConfig";
 import type { DailyTokenSpec } from "../market/dailyTokenTypes";
 import { getTokenImage, tokenTextureKey } from "../market/tokenAssetCache";
 import { PROD_TEXTURE_KEYS } from "./productionAssets";
+import { shouldRenderDailyTokenLogo, logoDisplayScale } from "./dailyTokenLogoRender";
 
 /**
  * Daily Token Rush gameplay helpers (Phase 11B). MainScene orchestrates the run;
@@ -18,6 +19,15 @@ import { PROD_TEXTURE_KEYS } from "./productionAssets";
 
 /** Token disc radius — readable, but no bigger than an obstacle's silhouette. */
 export const TOKEN_RADIUS = 20;
+
+/**
+ * Bounding-box diameter for a rendered project logo inside the coin face
+ * (Phase 12C-1B2C-2D2B). Kept below the face diameter (2·TOKEN_RADIUS) so the
+ * logo never touches the collectible edge; the image is scaled to fit this box
+ * WHILE preserving its aspect ratio (the manifest logos are square, but we never
+ * assume it). Single layout constant — no scattered magic numbers.
+ */
+export const TOKEN_LOGO_DIAMETER = TOKEN_RADIUS * 1.5;
 
 /**
  * Obstacle safety window around each collectible/power-up spawn (Bloc 4 + Phase
@@ -108,14 +118,64 @@ export function registerTokenTextures(scene: Phaser.Scene, tokens: DailyTokenSpe
 }
 
 /**
+ * Build the decorative project-logo image for a Daily collectible, or null when
+ * it must fall back procedurally (Phase 12C-1B2C-2D2B render switch).
+ *
+ * The image is presentation-only: no physics body, no interactivity, no gameplay
+ * state — it is added to the token container purely so the collectible shows the
+ * normalized project logo. Returns null (→ procedural disc) whenever:
+ *   - no resolved logo texture key was supplied (unknown/absent tokenId or
+ *     logoVersion, or a non-Daily caller passing nothing);
+ *   - that exact key is not present in the Phaser TextureManager (the PNG never
+ *     preloaded/registered, e.g. it failed to load or timed out);
+ *   - Phaser fails to create/size the image in a detectable way.
+ * No network is ever touched here, and the cached texture is never mutated
+ * (no tint, no recolour, no blend mode) — we only centre and scale-to-fit.
+ */
+function makeTokenLogoImage(
+  scene: Phaser.Scene,
+  logoTextureKey: string | null | undefined,
+): Phaser.GameObjects.Image | null {
+  if (!shouldRenderDailyTokenLogo(scene.textures, logoTextureKey)) return null;
+  // The guard above guarantees a non-empty, registered texture key.
+  const key = logoTextureKey as string;
+  let logo: Phaser.GameObjects.Image | null = null;
+  try {
+    logo = scene.add.image(0, 0, key).setOrigin(0.5);
+    // Fit inside TOKEN_LOGO_DIAMETER without distortion (see logoDisplayScale):
+    // scale by the larger source dimension so the aspect ratio is preserved and
+    // the logo stays centred within (and clear of) the coin face.
+    logo.setScale(logoDisplayScale(logo.width, logo.height, TOKEN_LOGO_DIAMETER));
+    return logo;
+  } catch {
+    if (logo) {
+      try {
+        logo.destroy();
+      } catch {
+        /* nothing more we can do; the procedural path takes over */
+      }
+    }
+    return null;
+  }
+}
+
+/**
  * Circular token collectible: glowing ring + dark coin face + centered logo
- * (or a procedural disc with the symbol when the texture is missing) + short
- * symbol label. A gentle pulse animates the ring only — the container's scale
- * is owned by the track projection, so we never tween it.
+ * (or a procedural disc with the symbol when no logo texture is available) +
+ * short symbol label. A gentle pulse animates the ring only — the container's
+ * scale is owned by the track projection, so we never tween it.
+ *
+ * `logoTextureKey` is the canonical, already-resolved Daily logo texture key
+ * (token-logo:<tokenId>:v<logoVersion>) from the preload pipeline. It is the
+ * ONLY logo source: when it is absent or its texture is missing, the exact
+ * existing procedural disc + symbol path runs unchanged. The container contract
+ * (origin, size class) is identical in both branches, so the caller's
+ * position/depth/hitbox handling is untouched.
  */
 export function makeTokenCollectible(
   scene: Phaser.Scene,
   spec: DailyTokenSpec,
+  logoTextureKey: string | null = null,
 ): Phaser.GameObjects.Container {
   const r = TOKEN_RADIUS;
   const halo = scene.add.circle(0, 0, r * GLOW.outerScale, PALETTE.gold, GLOW.outerAlpha);
@@ -126,11 +186,8 @@ export function makeTokenCollectible(
 
   const parts: Phaser.GameObjects.GameObject[] = [halo, face, ring];
 
-  const key = tokenTextureKey(spec.id);
-  if (scene.textures.exists(key)) {
-    const logo = scene.add.image(0, 0, key);
-    const d = r * 1.55; // logo diameter inside the coin face
-    logo.setDisplaySize(d, d);
+  const logo = makeTokenLogoImage(scene, logoTextureKey);
+  if (logo) {
     parts.push(logo);
   } else {
     // Procedural fallback: colored disc + ≤4-char symbol, no broken image ever.

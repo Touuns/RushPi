@@ -34,6 +34,7 @@ import {
   PROD_TEXTURE_KEYS,
   registerDailyProductionTextures,
 } from "../productionAssets";
+import { resolveDailyTokenLogoTextureKey } from "../dailyLogoPreload";
 import { createSeededRandom, getDailySeed } from "../seededRandom";
 import { resolveReducedMotion } from "../motion";
 import {
@@ -1325,7 +1326,15 @@ export default class MainScene extends Phaser.Scene {
   }
 
   private spawnToken(spec: DailyTokenSpec): void {
-    const container = makeTokenCollectible(this, spec);
+    // Daily-only logo render switch (Phase 12C-1B2C-2D2B): reuse the canonical
+    // texture key the Daily preload already resolved for this token's CoinGecko
+    // id (token-logo:<tokenId>:v<logoVersion>). This is a pure map read — no
+    // fetch, no manifest parse, no symbol inference — and only reached from the
+    // Daily token spawn path, so Training/Survival/Campaign never resolve a key.
+    // makeTokenCollectible still confirms the texture exists before drawing it,
+    // otherwise it renders the unchanged procedural collectible.
+    const logoTextureKey = resolveDailyTokenLogoTextureKey(spec.id);
+    const container = makeTokenCollectible(this, spec, logoTextureKey);
     container.setPosition(this.laneX[spec.lane], -TOKEN_RADIUS * 2);
     container.setDepth(6); // above energies/obstacles, below the player
     this.objects.push({ container, type: "token", lane: spec.lane, alive: true, token: spec });
