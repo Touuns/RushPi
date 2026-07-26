@@ -4,6 +4,10 @@ import { PALETTE } from "./theme";
 import MainScene from "./scenes/MainScene";
 import type { GameMode } from "../types";
 import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
+import {
+  registerDailyTokenLogoTextures,
+  getLastDailyLogoPreloadResult,
+} from "./dailyLogoPreload";
 
 /**
  * Thin factory that owns the Phaser.Game lifecycle. React (GameScreen) calls
@@ -34,6 +38,22 @@ export function createRushPiGame(
 
   const game = new Phaser.Game(config);
   game.scene.start("MainScene", { mode, campaignLevelId, dailyChallenge });
+
+  // Phase 12C-1B2C-2D2A: once the global TextureManager is booted, register the
+  // Daily logos that DailyPreparationScreen preloaded. Purely additive — nothing
+  // reads the `token-logo:*` keys yet (that is the next phase), so this does not
+  // change any draw call; the procedural/CoinGecko token rendering is untouched.
+  if (dailyChallenge) {
+    game.events.once(Phaser.Core.Events.READY, () => {
+      const registered = registerDailyTokenLogoTextures(game.textures);
+      if (import.meta.env.DEV) {
+        console.debug("[daily-logo-preload] registered token logo textures", {
+          registered,
+          result: getLastDailyLogoPreloadResult(),
+        });
+      }
+    });
+  }
 
   // Dev-only: expose the game for manual inspection/automation (stripped in prod).
   if (import.meta.env.DEV) {

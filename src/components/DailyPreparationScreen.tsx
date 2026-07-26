@@ -3,6 +3,7 @@ import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import { fetchDailyTokenChallenge } from "../market/marketClient";
 import { preloadTokenLogos } from "../market/tokenAssetCache";
 import { preloadDailyProductionAssets } from "../game/productionAssets";
+import { preloadDailyTokenLogos } from "../game/dailyLogoPreload";
 import { claimAttempt, ServerScoreError, type ClaimResult } from "../utils/serverLeaderboard";
 import { newSubmissionId } from "../utils/submissionId";
 import ScreenBackButton from "./ScreenBackButton";
@@ -114,6 +115,11 @@ export default function DailyPreparationScreen({
         await Promise.all([
           preloadTokenLogos(c.challengeDate, c.tokens),
           preloadDailyProductionAssets(),
+          // Phase 12C-1B2C-2D2A: preload the verified token-logo PNGs into a
+          // module cache so they are available inside Phaser before gameplay.
+          // Purely additive — nothing renders them yet, and it always resolves,
+          // so a logo failure never blocks the run.
+          preloadDailyTokenLogos(c.challengeDate, c.tokens),
         ]);
         if (cancelled) return;
 
