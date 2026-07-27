@@ -4,7 +4,8 @@ import { OBJECTS } from "./gameConfig";
 import type { DailyTokenSpec } from "../market/dailyTokenTypes";
 import { getTokenImage, tokenTextureKey } from "../market/tokenAssetCache";
 import { PROD_TEXTURE_KEYS } from "./productionAssets";
-import { shouldRenderDailyTokenLogo, logoDisplayScale } from "./dailyTokenLogoRender";
+import { shouldRenderDailyTokenLogo, resolveTokenLogoLayout } from "./dailyTokenLogoRender";
+import { BACKING_PLATE_WARM_NEUTRAL_COLOR } from "./dailyTokenLogoPresentation";
 
 /**
  * Daily Token Rush gameplay helpers (Phase 11B). MainScene orchestrates the run;
@@ -117,37 +118,70 @@ export function registerTokenTextures(scene: Phaser.Scene, tokens: DailyTokenSpe
   }
 }
 
+/** A resolved logo image plus its optional presentation backing plate. */
+interface TokenLogoPresentation {
+  readonly logo: Phaser.GameObjects.Image;
+  readonly backingPlate: Phaser.GameObjects.Arc | null;
+}
+
 /**
- * Build the decorative project-logo image for a Daily collectible, or null when
+ * Build the decorative project-logo image (plus its optional presentation
+ * backing plate — Phase 12C-1B2C-2D2C-A) for a Daily collectible, or null when
  * it must fall back procedurally (Phase 12C-1B2C-2D2B render switch).
  *
- * The image is presentation-only: no physics body, no interactivity, no gameplay
- * state — it is added to the token container purely so the collectible shows the
- * normalized project logo. Returns null (→ procedural disc) whenever:
+ * Both are presentation-only: no physics body, no interactivity, no gameplay
+ * state — they are added to the token container purely so the collectible
+ * shows the normalized project logo. Returns null (→ procedural disc) whenever:
  *   - no resolved logo texture key was supplied (unknown/absent tokenId or
  *     logoVersion, or a non-Daily caller passing nothing);
  *   - that exact key is not present in the Phaser TextureManager (the PNG never
  *     preloaded/registered, e.g. it failed to load or timed out);
- *   - Phaser fails to create/size the image in a detectable way.
- * No network is ever touched here, and the cached texture is never mutated
- * (no tint, no recolour, no blend mode) — we only centre and scale-to-fit.
+ *   - Phaser fails to create/size the image or plate in a detectable way.
+ * No network is ever touched here, and the cached logo texture is never mutated
+ * (no tint, no recolour, no blend mode) — resolveTokenLogoLayout only decides a
+ * scale and an optional plate diameter.
  */
-function makeTokenLogoImage(
+function makeTokenLogoPresentation(
   scene: Phaser.Scene,
   logoTextureKey: string | null | undefined,
-): Phaser.GameObjects.Image | null {
+): TokenLogoPresentation | null {
   if (!shouldRenderDailyTokenLogo(scene.textures, logoTextureKey)) return null;
   // The guard above guarantees a non-empty, registered texture key.
   const key = logoTextureKey as string;
   let logo: Phaser.GameObjects.Image | null = null;
+  let backingPlate: Phaser.GameObjects.Arc | null = null;
   try {
     logo = scene.add.image(0, 0, key).setOrigin(0.5);
-    // Fit inside TOKEN_LOGO_DIAMETER without distortion (see logoDisplayScale):
-    // scale by the larger source dimension so the aspect ratio is preserved and
-    // the logo stays centred within (and clear of) the coin face.
-    logo.setScale(logoDisplayScale(logo.width, logo.height, TOKEN_LOGO_DIAMETER));
-    return logo;
+    // Fit inside TOKEN_LOGO_DIAMETER without distortion, then apply the token's
+    // presentation rule (default rule reproduces this exactly — see
+    // resolveTokenLogoLayout in dailyTokenLogoRender.ts, the single shared size
+    // calculation so no token-specific magic number lives here).
+    const layout = resolveTokenLogoLayout(
+      key,
+      logo.width,
+      logo.height,
+      TOKEN_LOGO_DIAMETER,
+      TOKEN_RADIUS * 2,
+    );
+    logo.setScale(layout.scale);
+    if (layout.backingPlate) {
+      backingPlate = scene.add.circle(
+        0,
+        0,
+        layout.backingPlate.diameter / 2,
+        BACKING_PLATE_WARM_NEUTRAL_COLOR,
+        1,
+      );
+    }
+    return { logo, backingPlate };
   } catch {
+    if (backingPlate) {
+      try {
+        backingPlate.destroy();
+      } catch {
+        /* nothing more we can do; the procedural path takes over */
+      }
+    }
     if (logo) {
       try {
         logo.destroy();
@@ -186,9 +220,13 @@ export function makeTokenCollectible(
 
   const parts: Phaser.GameObjects.GameObject[] = [halo, face, ring];
 
-  const logo = makeTokenLogoImage(scene, logoTextureKey);
-  if (logo) {
-    parts.push(logo);
+  const presentation = makeTokenLogoPresentation(scene, logoTextureKey);
+  if (presentation) {
+    // Presentation backing plate (if any) sits behind the logo, still inside
+    // the dark face and clear of the gold ring above; no physics body, no
+    // input, and destroyed with the rest of the container's children.
+    if (presentation.backingPlate) parts.push(presentation.backingPlate);
+    parts.push(presentation.logo);
   } else {
     // Procedural fallback: colored disc + ≤4-char symbol, no broken image ever.
     const disc = scene.add.circle(0, 0, r * 0.78, PALETTE.violet, 1);

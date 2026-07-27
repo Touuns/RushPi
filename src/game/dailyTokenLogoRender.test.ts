@@ -21,6 +21,8 @@ import { fileURLToPath } from "node:url";
 import {
   shouldRenderDailyTokenLogo,
   logoDisplayScale,
+  tokenIdFromLogoTextureKey,
+  resolveTokenLogoLayout,
   type TextureExistenceCheck,
 } from "./dailyTokenLogoRender.ts";
 import {
@@ -159,6 +161,80 @@ test("degenerate/unknown source dimensions yield a safe scale (never NaN/Infinit
   assert.equal(logoDisplayScale(0, 0, 30), 1);
   assert.equal(logoDisplayScale(64, 64, 0), 1);
   assert.ok(Number.isFinite(logoDisplayScale(NaN, NaN, 30)));
+});
+
+// ── Presentation rules (Phase 12C-1B2C-2D2C-A): tokenId parsing + shared layout ──
+
+const TAO_KEY = "token-logo:rpt-0041:v1";
+const ETH_KEY = "token-logo:rpt-0002:v1";
+const FACE_DIAMETER = 40; // 2 * TOKEN_RADIUS in dailyTokens.ts
+
+test("tokenIdFromLogoTextureKey extracts the canonical tokenId from a resolved key", () => {
+  assert.equal(tokenIdFromLogoTextureKey(BTC_KEY), "rpt-0001");
+  assert.equal(tokenIdFromLogoTextureKey(TAO_KEY), "rpt-0041");
+});
+
+test("tokenIdFromLogoTextureKey returns null for malformed/foreign keys — no symbol matching", () => {
+  assert.equal(tokenIdFromLogoTextureKey(null), null);
+  assert.equal(tokenIdFromLogoTextureKey(undefined), null);
+  assert.equal(tokenIdFromLogoTextureKey(""), null);
+  assert.equal(tokenIdFromLogoTextureKey("TAO"), null);
+  assert.equal(tokenIdFromLogoTextureKey("token:rpt-0041"), null);
+  assert.equal(tokenIdFromLogoTextureKey("rpt-0041"), null);
+});
+
+test("resolveTokenLogoLayout: a token with no rule reproduces the exact 2D2B scale and no plate", () => {
+  const layout = resolveTokenLogoLayout(BTC_KEY, 64, 64, 30, FACE_DIAMETER);
+  assert.equal(layout.scale, logoDisplayScale(64, 64, 30));
+  assert.equal(layout.backingPlate, null);
+});
+
+test("resolveTokenLogoLayout: an unresolved/foreign key falls back to the default layout", () => {
+  const layout = resolveTokenLogoLayout("token-logo:rpt-9999:v1", 64, 64, 30, FACE_DIAMETER);
+  assert.equal(layout.scale, logoDisplayScale(64, 64, 30));
+  assert.equal(layout.backingPlate, null);
+});
+
+test("resolveTokenLogoLayout: ETH applies its scale multiplier on top of the fit-to-box scale", () => {
+  const layout = resolveTokenLogoLayout(ETH_KEY, 64, 64, 30, FACE_DIAMETER);
+  const base = logoDisplayScale(64, 64, 30);
+  assert.ok(layout.scale > base, "ETH scale is increased over the base fit");
+  assert.ok(layout.scale <= base * 1.1);
+});
+
+test("resolveTokenLogoLayout: TAO gets a scaled-up logo and a warm-neutral backing plate", () => {
+  const layout = resolveTokenLogoLayout(TAO_KEY, 64, 64, 30, FACE_DIAMETER);
+  const base = logoDisplayScale(64, 64, 30);
+  assert.ok(layout.scale > base);
+  assert.ok(layout.backingPlate);
+  assert.equal(layout.backingPlate?.tone, "warm-neutral");
+  assert.ok(layout.backingPlate!.diameter >= 32 && layout.backingPlate!.diameter <= 34);
+});
+
+test("resolveTokenLogoLayout: final TAO dimensions stay within the coin face bounds", () => {
+  const box = 30; // TOKEN_LOGO_DIAMETER in dailyTokens.ts
+  const sourceSize = 64;
+  const layout = resolveTokenLogoLayout(TAO_KEY, sourceSize, sourceSize, box, FACE_DIAMETER);
+  const renderedLogoSize = sourceSize * layout.scale;
+  assert.ok(renderedLogoSize <= FACE_DIAMETER, "scaled logo stays within the face diameter");
+  assert.ok(layout.backingPlate!.diameter <= FACE_DIAMETER, "plate stays within the face diameter");
+});
+
+test("resolveTokenLogoLayout performs no network/fetch call", () => {
+  const g = globalThis as unknown as { fetch?: unknown };
+  const original = g.fetch;
+  let calls = 0;
+  g.fetch = () => {
+    calls += 1;
+    throw new Error("no fetch from layout resolution");
+  };
+  try {
+    resolveTokenLogoLayout(TAO_KEY, 64, 64, 30, FACE_DIAMETER);
+    resolveTokenLogoLayout(BTC_KEY, 64, 64, 30, FACE_DIAMETER);
+  } finally {
+    g.fetch = original;
+  }
+  assert.equal(calls, 0);
 });
 
 // ── Daily-only, canonical resolver (no fetch, no symbol) ──────────────────────
