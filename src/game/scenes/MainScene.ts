@@ -28,6 +28,15 @@ import {
   TOKEN_RADIUS,
 } from "../dailyTokens";
 import { TrackDrift } from "../trackDrift";
+import {
+  advanceLaneTransition,
+  createLaneTransition,
+  horizontallyOverlaps,
+  nearestLaneIndex,
+  resetLaneTransition,
+  startLaneTransition,
+  type LaneTransitionState,
+} from "../laneTransition";
 import { TrackGate } from "../zoneTransition";
 import { ZoneDecor } from "../zoneDecor";
 import {
@@ -83,7 +92,21 @@ export default class MainScene extends Phaser.Scene {
 
   // Lane geometry
   private laneX: number[] = [];
+  /**
+   * REQUESTED destination lane. Since Phase 13-R1 this is an input/target state
+   * only: it decides where a movement is heading and where the next one starts
+   * from. It no longer decides whether the player overlaps an object — that is
+   * `laneTransition.x` below.
+   */
   private currentLane = 1; // start centered
+
+  /**
+   * Authoritative horizontal player position (Phase 13-R1). Single source of
+   * truth: the orb is RENDERED from `laneTransition.x` and every collision is
+   * EVALUATED against the same value, advanced by the scene's own frame delta.
+   * Created for real in createPlayer(), once lane centres are known.
+   */
+  private laneTransition: LaneTransitionState = createLaneTransition(0);
 
   // Player
   private player!: Phaser.GameObjects.Container;
@@ -300,6 +323,9 @@ export default class MainScene extends Phaser.Scene {
     this.obstaclesHit = 0;
     this.finished = false;
     this.currentLane = 1;
+    // Phase 13-R1: no transition state may survive a replay. The real starting
+    // x is seeded in createPlayer(), once the lane centres exist.
+    resetLaneTransition(this.laneTransition, 0);
     this.invulnerableUntilMs = 0;
     this.slowUntilMs = 0;
     this.shieldCharges = 0;
@@ -537,7 +563,10 @@ export default class MainScene extends Phaser.Scene {
 
   private createPlayer(): void {
     this.player = this.makeOrb(PALETTE.player, PLAYER.radius);
-    this.player.setPosition(this.laneX[this.currentLane], GAME_HEIGHT * PLAYER.yRatio);
+    // Phase 13-R1: seed the authoritative position from the starting lane centre
+    // (a replay re-enters create(), so no transition state survives a restart).
+    resetLaneTransition(this.laneTransition, this.laneX[this.currentLane]);
+    this.player.setPosition(this.laneTransition.x, GAME_HEIGHT * PLAYER.yRatio);
     this.player.setDepth(10);
 
     // Pi identity (Phase 11B): original typographic "π" glyph centered on the
@@ -635,17 +664,35 @@ export default class MainScene extends Phaser.Scene {
 
   // ---- Movement ------------------------------------------------------------
 
+  /**
+   * Request a one-lane move. Phase 13-R1: instead of retargeting a Phaser tween
+   * (which left the logical lane ahead of the visible orb, and could stack two
+   * tweens on the same property under rapid input), this starts a deterministic
+   * transition FROM the position the orb currently occupies. Duration, easing and
+   * the one-lane-per-call rule are unchanged; the destination is still a lane
+   * centre, so a completed move lands exactly on it.
+   */
   private moveLane(dir: -1 | 1): void {
     if (this.finished || this.runState !== "running") return;
     const target = Phaser.Math.Clamp(this.currentLane + dir, 0, LANE_COUNT - 1);
     if (target === this.currentLane) return;
     this.currentLane = target;
-    this.tweens.add({
-      targets: this.player,
-      x: this.laneX[this.currentLane],
-      duration: PLAYER.laneTweenMs,
-      ease: "Quad.easeOut",
-    });
+    startLaneTransition(
+      this.laneTransition,
+      this.laneX[target],
+      GAME_WIDTH / LANE_COUNT,
+      PLAYER.laneTweenMs,
+    );
+  }
+
+  /**
+   * Advance the authoritative horizontal position by one frame of GAME time and
+   * push it to the rendered orb. Called before collisions are evaluated, so the
+   * position tested this frame is exactly the position drawn this frame.
+   */
+  private updateLaneTransition(delta: number): void {
+    advanceLaneTransition(this.laneTransition, delta);
+    this.player.x = this.laneTransition.x;
   }
 
   // ---- Spawning ------------------------------------------------------------
@@ -760,6 +807,10 @@ export default class MainScene extends Phaser.Scene {
       return;
     }
 
+    // Phase 13-R1: advance the ONE authoritative horizontal position first, so
+    // rendering and every collision test below read the same value this frame.
+    this.updateLaneTransition(delta);
+
     // Track Drift (Survival only, visual) + animate the track — cosmetic only.
     const driftX = this.survivalLike()
       ? this.drift.update(this.elapsedMs, delta, this.driftAmplitudePx)
@@ -799,13 +850,20 @@ export default class MainScene extends Phaser.Scene {
     const dy = speed * (delta / 1000);
     const invulnerable = now < this.invulnerableUntilMs;
     const radii = PLAYER.radius + OBJECTS.radius;
+    // Phase 13-R1: the authoritative position, identical to the one just pushed
+    // to the rendered orb. Lane-PROXIMITY rules (Magnet reach) now follow the
+    // side the orb is visibly on rather than the requested destination lane;
+    // while settled this is exactly `currentLane`, so their generosity is
+    // unchanged.
+    const playerX = this.laneTransition.x;
+    const proximityLane = nearestLaneIndex(playerX, this.laneX);
 
     for (const obj of this.objects) {
       if (!obj.alive) continue;
       obj.container.y += dy;
 
       const proj = this.track.project(obj.lane, obj.container.y);
-      const laneDiff = Math.abs(obj.lane - this.currentLane);
+      const laneDiff = Math.abs(obj.lane - proximityLane);
 
       // Magnet (cosmetic bend): nearby energies curve toward the player as they
       // approach. Does not move obstacles. Collision reach is widened below.
@@ -841,20 +899,27 @@ export default class MainScene extends Phaser.Scene {
         continue;
       }
 
-      // ---- Collision. Base rule (unchanged): same lane + within radii. ----
+      // ---- Collision (Phase 13-R1). Horizontal overlap now compares the
+      // AUTHORITATIVE player position against the object's lane centre, instead
+      // of testing lane-index equality against the requested destination lane.
+      // The threshold is the same sum of radii already used vertically, so a
+      // settled player behaves exactly as before (distance 0 to its own lane
+      // centre, a full lane width to any other). Mid-transition the player
+      // overlaps a lane only while the orb is visibly inside it. The vertical
+      // rule, the radii and every outcome below are untouched. ----
       const dyAbs = Math.abs(obj.container.y - this.player.y);
-      const sameLane = obj.lane === this.currentLane;
+      const overlaps = horizontallyOverlaps(playerX, this.laneX[obj.lane], radii);
 
       if (obj.type === "energy") {
         const magnetReachable = magnetActive && laneDiff <= POWERUPS.magnet.laneReach;
         if (
-          (sameLane && dyAbs <= radii) ||
+          (overlaps && dyAbs <= radii) ||
           (magnetReachable && dyAbs <= radii + POWERUPS.magnet.collectReachPx)
         ) {
           this.collectEnergy(obj);
         }
       } else if (obj.type === "obstacle") {
-        if (sameLane && dyAbs <= radii) {
+        if (overlaps && dyAbs <= radii) {
           if (shieldActive) {
             this.absorbWithShield(obj);
           } else if (
@@ -867,12 +932,12 @@ export default class MainScene extends Phaser.Scene {
           }
         }
       } else if (obj.type === "token") {
-        // Tokens use the SAME lane + vertical-distance rule and are NEVER
+        // Tokens use the SAME horizontal + vertical rule and are NEVER
         // magnet-attracted (the magnet branch above only touches "energy").
-        if (sameLane && dyAbs <= radii) this.collectToken(obj);
+        if (overlaps && dyAbs <= radii) this.collectToken(obj);
       } else if (obj.type === "life") {
-        if (sameLane && dyAbs <= radii) this.collectLife(obj);
-      } else if (sameLane && dyAbs <= radii) {
+        if (overlaps && dyAbs <= radii) this.collectLife(obj);
+      } else if (overlaps && dyAbs <= radii) {
         this.collectPowerup(obj); // shield / magnet pickup
       }
     }
@@ -1071,6 +1136,9 @@ export default class MainScene extends Phaser.Scene {
 
   /** Ending-phase frame: coast visuals only — no score, no collisions. */
   private updateFinishing(delta: number): void {
+    // Phase 13-R1: let an in-flight transition settle so the orb never freezes
+    // between lanes during the exit. Purely visual here — no collision runs.
+    this.updateLaneTransition(delta);
     this.track.update(delta, 0);
     this.zoneDecor?.update(delta);
     // Ease the visual speed down while the exit plays.
