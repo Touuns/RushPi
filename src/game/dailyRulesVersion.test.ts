@@ -94,7 +94,33 @@ test("the leaderboard SQL no longer hardcodes a rules version", () => {
     /s\.rules_version = 2\b/,
     "the active boards must be parameterised, not pinned to v2",
   );
-  assert.match(sql, /p_rules_version\s+integer\s+default\s+3/);
+});
+
+test("the migration defaults to v2 so a migration-first cutover cannot break the live board", () => {
+  // The default is only ever used by callers that omit the argument, which
+  // during cutover means the STILL-DEPLOYED v2 API. Defaulting to 3 would hand
+  // that build an empty leaderboard the moment the migration lands.
+  const sql = read("supabase/migration_13_r2.sql")
+    .split("\n")
+    .filter((line) => !line.trimStart().startsWith("--"))
+    .join("\n");
+  const defaults = [...sql.matchAll(/p_rules_version\s+integer\s+default\s+(\d+)/g)];
+  assert.equal(defaults.length, 2, "both board functions must declare the parameter");
+  for (const d of defaults) {
+    assert.equal(d[1], "2", "the cutover-safe default is 2, never the active version");
+  }
+  // ...and the API must never rely on that default.
+  for (const file of ["api/leaderboard/daily.ts", "api/leaderboard/global.ts"]) {
+    assert.match(read(file), /p_rules_version:\s*ACTIVE_DAILY_RULES_VERSION/, file);
+  }
+});
+
+test("the migration is pure ASCII, like every other migration in this project", () => {
+  // A non-ASCII comment aborts the whole migration on a non-UTF8 database
+  // (observed: 'byte sequence 0xe2 0x86 0x92 has no equivalent in WIN1252').
+  const sql = read("supabase/migration_13_r2.sql");
+  const nonAscii = [...new Set([...sql].filter((c) => c.charCodeAt(0) > 127))];
+  assert.deepEqual(nonAscii, [], `non-ASCII characters found: ${JSON.stringify(nonAscii)}`);
 });
 
 // ---- Local storage: v2 and v3 bests stay separate -------------------------

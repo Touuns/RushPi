@@ -1,4 +1,4 @@
--- Rush Pi — Phase 13-R2: ranked rules version 3 leaderboard isolation.
+-- Rush Pi - Phase 13-R2: ranked rules version 3 leaderboard isolation.
 --
 -- WHY
 -- Phase 13-R1 corrected the collision model (the player's visible horizontal
@@ -9,7 +9,16 @@
 --
 -- WHAT THIS DOES
 -- Replaces the two read-only leaderboard functions with versions that take the
--- rules version as a PARAMETER, defaulting to 3. Nothing else changes.
+-- rules version as a PARAMETER. Nothing else changes.
+--
+-- THE DEFAULT IS 2, DELIBERATELY
+-- The default exists only for callers that omit the argument - which, during a
+-- migration-first cutover, means the STILL-DEPLOYED v2 API. Defaulting to 3
+-- would hand that old build an empty board the moment the migration lands,
+-- breaking the live leaderboard before the new application ships. Defaulting to
+-- 2 keeps it working untouched. The R2 API never relies on the default: both
+-- endpoints pass ACTIVE_DAILY_RULES_VERSION explicitly, so once deployed they
+-- select v3 regardless of what the default says.
 --
 -- SAFETY
 --   * Additive and non-destructive: no row is inserted, updated or deleted.
@@ -17,21 +26,30 @@
 --   * Historical v2 rows keep rules_version = 2 and are simply not selected by
 --     the active board. They are never relabelled.
 --   * NULL / unversioned rows are excluded by the equality test, exactly as
---     before — they can never be treated as v3.
+--     before - they can never be treated as v3.
 --   * The claim and finalize functions are untouched: they already accept
 --     p_rules_version from the API, which now passes the reservation's version.
 --   * Idempotent: safe to run more than once.
 --
--- DEPLOYMENT ORDER (do NOT run during Phase 13-R2 — branch-only)
---   1. Apply this migration in the Supabase SQL editor.
---        At this point the boards read v3 and are empty; v2 rows still exist
---        and are simply not shown. Nothing breaks: the API is still on v2 and
---        keeps writing v2 rows, which are now invisible on the active board.
---   2. Deploy the application (API starts issuing v3 challenges and claims).
---        New scores are written as v3 and appear on the boards immediately.
---   Running the migration FIRST is the safe order: a deployed-but-unmigrated
---   database would serve a v2-filtered board while the API writes v3 rows,
---   making every new score invisible.
+-- DEPLOYMENT ORDER - MIGRATION FIRST (do NOT run during 13-R2/R2V: branch-only)
+--   1. Apply this migration.
+--        The deployed v2 API still calls the functions WITHOUT p_rules_version,
+--        so the default (2) applies and its leaderboard is byte-for-byte what it
+--        was. No gap, no empty board, no visible change to players.
+--   2. Deploy the combined R1 + R2 application.
+--        Both endpoints now pass the active version explicitly, so the boards
+--        switch to v3 the instant the new build is live. New claims and scores
+--        are written as v3 and appear immediately.
+--   3. Smoke-test in production: claim -> run -> submit -> Daily -> Global.
+--
+--   The reverse order is NOT safe: an unmigrated database would still pin the
+--   boards to v2 while the new API writes v3 rows, hiding every new score until
+--   the migration lands.
+--
+-- No PostgREST schema reload is issued here. `notify pgrst, 'reload schema'`
+-- has never been used by this project's migrations - including
+-- migration_11b_p4_1.sql, which replaced these same two functions - so adding
+-- it now would depart from the established convention for no proven need.
 --
 -- The existing index from migration_11b.sql already covers the new predicate:
 --   (challenge_date, rules_version, is_valid, score desc)
@@ -42,7 +60,7 @@ create or replace function public.get_rushpi_daily_leaderboard_v2(
   p_challenge_date date,
   p_challenge_id   text,
   p_limit          integer default 50,
-  p_rules_version  integer default 3
+  p_rules_version  integer default 2
 )
 returns table (
   pi_username            text,
@@ -84,7 +102,7 @@ $$;
 -- ---- GLOBAL BOARD (rules version parameterised) ----------------------------
 create or replace function public.get_rushpi_global_leaderboard_v2(
   p_limit         integer default 50,
-  p_rules_version integer default 3
+  p_rules_version integer default 2
 )
 returns table (
   pi_username            text,
