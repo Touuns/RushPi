@@ -159,7 +159,8 @@ export default function HomeScreen({
         </div>
         <div className="profile-strip__meta">
           <span>🔥 {streak.current}d</span>
-          <span>🏆 {profile.bestDailyTokenRushScore.toLocaleString()}</span>
+          {/* Phase 13-R2: active (v3) best only — v2 bests are not comparable. */}
+          <span>🏆 {profile.bestDailyRulesV3Score.toLocaleString()}</span>
         </div>
       </button>
 

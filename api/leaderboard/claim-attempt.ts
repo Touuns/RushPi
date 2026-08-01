@@ -124,6 +124,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       left,
       challengeDate,
       challengeId: challenge.challengeId,
+      // Phase 13-R2: the version this reservation is bound to. The client echoes
+      // it back on submit so an in-flight v2 reservation can still be finalized
+      // under v2 rules — but the server always re-reads the STORED reservation
+      // and never trusts this value coming back.
+      rulesVersion: TOKEN_RULES_VERSION,
     });
   } catch (err) {
     if (err instanceof MigrationRequiredError) {

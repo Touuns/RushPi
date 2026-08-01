@@ -3,6 +3,10 @@ import { MARKET_DATA_ATTRIBUTION } from "./marketTypes";
 import { TOKEN_CATALOG, type TokenCategory } from "./tokenCatalog";
 import type { SnapshotResult } from "./dailySnapshot";
 import { todayUtc } from "./dailySnapshot";
+import {
+  ACTIVE_DAILY_RULES_VERSION,
+  DAILY_RULES_VERSION_V3,
+} from "./dailyRulesPolicy";
 
 /**
  * Daily Token Rush manifest (Phase 11B). Built SERVER-SIDE from the persisted
@@ -13,7 +17,12 @@ import { todayUtc } from "./dailySnapshot";
  */
 
 export const DAILY_TOKEN_COUNT = 15;
-export const TOKEN_RULES_VERSION = 2;
+/**
+ * Phase 13-R2: newly built challenges carry the ACTIVE ranked rules version,
+ * now 3 (see dailyRulesPolicy.ts for why v2 results must rank separately).
+ * The single literal lives in that policy module — never re-declared here.
+ */
+export const TOKEN_RULES_VERSION = ACTIVE_DAILY_RULES_VERSION;
 export const TOKEN_CHALLENGE_VERSION = 1;
 
 const GUARANTEED_IDS = ["bitcoin", "ethereum"];
@@ -44,7 +53,7 @@ export interface DailyTokenSpec {
 export interface DailyTokenChallenge {
   challengeDate: string;
   challengeId: string;
-  rulesVersion: 2;
+  rulesVersion: typeof DAILY_RULES_VERSION_V3;
   tokenChallengeVersion: 1;
   snapshotCreatedAt: string;
   providerUpdatedAt: string | null;

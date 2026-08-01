@@ -5,6 +5,7 @@ import {
   MigrationRequiredError,
   RpcError,
 } from "../_lib/supabaseRpc";
+import { ACTIVE_DAILY_RULES_VERSION } from "../_lib/dailyRulesPolicy";
 
 /**
  * All-time Daily Token Rush leaderboard — top 50 DISTINCT users (Phase 11B-P4.1).
@@ -29,8 +30,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Phase 13-R2: scoped to the active ranked version; v2 rows are preserved
+    // in the table but excluded from this board.
     const scores = await callRpc<unknown[]>(cfg, "get_rushpi_global_leaderboard_v2", {
       p_limit: 50,
+      p_rules_version: ACTIVE_DAILY_RULES_VERSION,
     });
     return res.status(200).json({ ok: true, scores: Array.isArray(scores) ? scores : [] });
   } catch (err) {

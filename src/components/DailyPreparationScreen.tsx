@@ -5,6 +5,7 @@ import { preloadTokenLogos } from "../market/tokenAssetCache";
 import { preloadDailyProductionAssets } from "../game/productionAssets";
 import { preloadDailyTokenLogos } from "../game/dailyLogoPreload";
 import { claimAttempt, ServerScoreError, type ClaimResult } from "../utils/serverLeaderboard";
+import { isActiveDailyRulesVersion } from "../game/dailyRulesVersion";
 import { newSubmissionId } from "../utils/submissionId";
 import ScreenBackButton from "./ScreenBackButton";
 
@@ -38,7 +39,8 @@ function isReusable(c: DailyTokenChallenge | null): c is DailyTokenChallenge {
   return (
     !!c &&
     c.challengeDate === todayUtc() &&
-    c.rulesVersion === 2 &&
+    // Phase 13-R2: never replay a cached challenge from another rules version.
+    isActiveDailyRulesVersion(c.rulesVersion) &&
     c.tokenChallengeVersion === 1 &&
     c.tokens.length > 0
   );

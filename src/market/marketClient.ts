@@ -1,5 +1,6 @@
 import type { DailyMarketSnapshot, MarketCoin, MarketResponse } from "./types";
 import type { DailyTokenChallenge } from "./dailyTokenTypes";
+import { DAILY_RULES_VERSION } from "../game/dailyRulesVersion";
 
 /**
  * Client for Rush Pi's own market endpoints (Phase 11A). Never talks to
@@ -83,7 +84,10 @@ export async function fetchDailyTokenChallenge(): Promise<DailyTokenChallenge> {
     !tokensOk ||
     typeof data.challengeDate !== "string" ||
     typeof data.challengeId !== "string" ||
-    data.rulesVersion !== 2
+    // Phase 13-R2: only the ACTIVE version is playable by this build. A server
+    // still serving v2 (or a future v4) is rejected rather than played under the
+    // wrong rules — the preparation screen surfaces it as "not ranked-eligible".
+    data.rulesVersion !== DAILY_RULES_VERSION
   ) {
     throw new MarketClientError("Malformed daily token challenge");
   }

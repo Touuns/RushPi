@@ -145,6 +145,8 @@ export default function App() {
   const [rankedClaim, setRankedClaim] = useState<{
     submissionId: string;
     attemptNumber: number;
+    /** Rules version the SERVER bound to this reservation (Phase 13-R2). */
+    rulesVersion: number;
   } | null>(null);
 
   // Star recap for the just-finished campaign run (shown on the Result screen).
@@ -279,6 +281,7 @@ export default function App() {
         setRankedClaim({
           submissionId: claim.submissionId,
           attemptNumber: claim.attemptNumber ?? 0,
+          rulesVersion: claim.rulesVersion,
         });
       } else {
         setRankedClaim(null);
@@ -325,7 +328,8 @@ export default function App() {
    * Submit (or re-submit) a ranked Daily run. Idempotent: the same reservation
    * id + same run facts never create a second score or consume another attempt.
    */
-  const submitRankedRun = useCallback((run: GameResult, token: string) => {
+  const submitRankedRun = useCallback(
+    (run: GameResult, token: string, reservationRulesVersion: number) => {
     if (syncInFlightRef.current) return; // ignore a second click while in flight
     syncInFlightRef.current = true;
     setServerSync("pending");
@@ -336,7 +340,11 @@ export default function App() {
       max_combo: run.maxCombo,
       obstacles_hit: run.obstaclesHit,
       duration_seconds: RUN_DURATION_SECONDS,
-      rules_version: 2,
+      // Phase 13-R2: echo the version the SERVER bound to this reservation, so a
+      // retry re-sends exactly the same facts and an in-flight v2 reservation is
+      // finalized under v2. The server validates it against the stored
+      // reservation, so this echo cannot select the rules applied.
+      rules_version: reservationRulesVersion,
       daily_token_challenge_version: 1,
       token_ids_collected: run.dailyTokenIdsCollected,
       token_points: run.dailyTokenPoints,
@@ -347,7 +355,9 @@ export default function App() {
       .finally(() => {
         syncInFlightRef.current = false;
       });
-  }, []);
+    },
+    [],
+  );
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
@@ -383,10 +393,15 @@ export default function App() {
         setServerSync("idle");
       } else if (runRankState === "limit-reached") {
         setServerSync("limit-reached");
-      } else if (runRankState !== "ranked" || !piSession || !enriched.dailySubmissionId) {
+      } else if (
+        runRankState !== "ranked" ||
+        !piSession ||
+        !enriched.dailySubmissionId ||
+        !rankedClaim
+      ) {
         setServerSync("local-only");
       } else {
-        submitRankedRun(enriched, piSession.accessToken);
+        submitRankedRun(enriched, piSession.accessToken, rankedClaim.rulesVersion);
       }
     },
     [refresh, piSession, runRankState, rankedClaim, submitRankedRun],
@@ -399,8 +414,10 @@ export default function App() {
    */
   const retrySync = useCallback(() => {
     if (!result || result.mode !== "daily" || !result.dailySubmissionId || !piSession) return;
-    submitRankedRun(result, piSession.accessToken);
-  }, [result, piSession, submitRankedRun]);
+    // Same reservation, same facts, same version → the server dedupes it.
+    if (!rankedClaim) return;
+    submitRankedRun(result, piSession.accessToken, rankedClaim.rulesVersion);
+  }, [result, piSession, rankedClaim, submitRankedRun]);
 
   const goHome = useCallback(() => {
     refresh();
@@ -515,7 +532,9 @@ export default function App() {
           outcome={outcome}
           bestScore={
             result.mode === "daily"
-              ? data.profile.bestDailyTokenRushScore
+              ? // Phase 13-R2: the active (v3) best only — a v2 best would be a
+                // comparison across two different collision models.
+                data.profile.bestDailyRulesV3Score
               : data.profile.bestDailyScore
           }
           dailyChallenge={result.mode === "daily" ? dailyChallenge : null}

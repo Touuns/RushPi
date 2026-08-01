@@ -20,7 +20,8 @@ export interface DailyTokenSpec {
 export interface DailyTokenChallenge {
   challengeDate: string;
   challengeId: string;
-  rulesVersion: 2;
+  /** Phase 13-R2: the active ranked version (see game/dailyRulesVersion.ts). */
+  rulesVersion: 3;
   tokenChallengeVersion: 1;
   snapshotCreatedAt: string;
   providerUpdatedAt: string | null;

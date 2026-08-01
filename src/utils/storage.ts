@@ -24,6 +24,7 @@ import type {
 } from "../types";
 import { ALL_BADGES } from "./badges";
 import { CAMPAIGN_LEVELS } from "../game/campaign";
+import { DAILY_RULES_VERSION } from "../game/dailyRulesVersion";
 
 const SAVE_KEY = "rushpi.save";
 const SAVE_VERSION = 1;
@@ -65,6 +66,7 @@ function defaultProfile(): ProfileStats {
     streak: 0,
     bestStreak: 0,
     bestDailyTokenRushScore: 0,
+    bestDailyRulesV3Score: 0,
     lastDailyDate: null,
     piTestPaymentCompleted: false,
     bestSurvivalScore: 0,
@@ -125,6 +127,12 @@ function normalize(parsed: unknown): SaveData {
       rawProfile.bestDailyTokenRushScore,
       dp.bestDailyTokenRushScore,
     ),
+    // Phase 13-R2: absent on pre-R2 saves → 0, so a v2 best is never shown as
+    // the active v3 best. Non-destructive: the v2 field is left untouched.
+    bestDailyRulesV3Score: num(
+      rawProfile.bestDailyRulesV3Score,
+      dp.bestDailyRulesV3Score,
+    ),
     lastDailyDate:
       typeof rawProfile.lastDailyDate === "string" ? rawProfile.lastDailyDate : null,
     piTestPaymentCompleted: rawProfile.piTestPaymentCompleted === true,
@@ -180,6 +188,8 @@ function normalize(parsed: unknown): SaveData {
             date: typeof r.date === "string" ? r.date : "",
             bestScore: num(r.bestScore, 0),
             runs: num(r.runs, 0),
+            // Pre-R2 entries carry no version: they are v2 runs by definition.
+            rulesVersion: num(r.rulesVersion, 2),
           };
           return entry;
         })
@@ -449,10 +459,16 @@ export function recordRun(run: GameResult): RunOutcome {
 
   // Daily-only effects.
   if (run.mode === "daily") {
-    // Token Rush (v2) tracks its OWN best, kept separate from the legacy v1 best
-    // so the two rule sets are never compared (Phase 11B). Non-v2 daily runs
-    // (e.g. no manifest loaded) keep updating the legacy best.
-    if (run.rulesVersion === 2) {
+    // Each rules version tracks its OWN best so two rule sets are never
+    // compared. Phase 13-R1 changed the collision model, so v3 (active) is kept
+    // apart from v2 (Token Rush) exactly as v2 was kept apart from the legacy
+    // v1 best. Existing values are never rewritten or relabelled.
+    if (run.rulesVersion === DAILY_RULES_VERSION) {
+      if (run.score > stats.bestDailyRulesV3Score) {
+        stats.bestDailyRulesV3Score = run.score;
+        isNewBest = true;
+      }
+    } else if (run.rulesVersion === 2) {
       if (run.score > stats.bestDailyTokenRushScore) {
         stats.bestDailyTokenRushScore = run.score;
         isNewBest = true;
@@ -473,14 +489,23 @@ export function recordRun(run: GameResult): RunOutcome {
     save.leaderboard.sort((a, b) => b.score - a.score);
     save.leaderboard = save.leaderboard.slice(0, LEADERBOARD_MAX);
 
-    // Daily Challenge history (per UTC day): track best score + run count.
+    // Daily Challenge history (per UTC day AND rules version): a v2 day and a
+    // v3 day are separate entries, so a legacy best is never merged into the
+    // active one on the day the version changes (Phase 13-R2).
     const today = dayString(now);
-    const existing = save.dailyHistory.find((e) => e.date === today);
+    const existing = save.dailyHistory.find(
+      (e) => e.date === today && e.rulesVersion === run.rulesVersion,
+    );
     if (existing) {
       existing.bestScore = Math.max(existing.bestScore, run.score);
       existing.runs += 1;
     } else {
-      save.dailyHistory.unshift({ date: today, bestScore: run.score, runs: 1 });
+      save.dailyHistory.unshift({
+        date: today,
+        bestScore: run.score,
+        runs: 1,
+        rulesVersion: run.rulesVersion,
+      });
     }
     save.dailyHistory.sort((a, b) => (a.date < b.date ? 1 : -1));
     save.dailyHistory = save.dailyHistory.slice(0, DAILY_HISTORY_MAX);

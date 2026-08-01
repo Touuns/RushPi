@@ -12,9 +12,13 @@ import {
   buildDailyTokenChallenge,
   computeDailyTokenPoints,
   TOKEN_CHALLENGE_VERSION,
-  TOKEN_RULES_VERSION,
 } from "../_lib/dailyTokenChallenge";
 import { computeScoreDigest } from "../_lib/scoreDigest";
+import {
+  isSupportedDailyRulesVersion,
+  maxScoreForVersion,
+  type DailyRulesVersion,
+} from "../_lib/dailyRulesPolicy";
 
 /**
  * Finalize a ranked Daily Token Rush score (Phase 11B-P4).
@@ -33,10 +37,11 @@ import { computeScoreDigest } from "../_lib/scoreDigest";
  * challenge_date is trusted from the client.
  */
 
-// Plausibility ceilings (unchanged from Phase 11B). Token Rush adds at most
-// 15*750 = 11,250 fixed points; the theoretical max stays well under 50,000.
+// Plausibility ceilings. Phase 13-R2: `maxScore` is no longer a fixed number
+// here — it is derived per rules version (and, for v3, per challenge) in
+// dailyRulesPolicy.ts, because the old flat 50,000 was roughly 3x the real
+// maximum a perfect run can produce. The non-score ceilings are unchanged.
 const LIMITS = {
-  maxScore: 50000,
   minDuration: 50,
   maxDuration: 70,
   maxEnergy: 1000,
@@ -67,6 +72,11 @@ interface ReservationRow {
   claimed_at: string;
   result_digest: string | null;
   score_row_id: string | null;
+  /**
+   * Phase 13-R2: the rules version bound to this reservation at claim time.
+   * This — not the request body — selects the validation policy applied below.
+   */
+  rules_version: number | null;
 }
 
 /** Read a reservation by submission_id via PostgREST (service role). */
@@ -139,12 +149,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!UUID_RE.test(submissionId)) {
     return res.status(400).json({ error: "Invalid submission_id", code: "SERVER_ERROR" });
   }
+  // Phase 13-R2: the body may declare ANY supported ranked version (so a still
+  // in-flight v2 reservation can be finalized under v2), but an unsupported or
+  // missing one fails closed here. Which rules actually get applied is decided
+  // from the STORED reservation below — never from this value.
   if (
-    body.rules_version !== TOKEN_RULES_VERSION ||
+    !isSupportedDailyRulesVersion(body.rules_version) ||
     body.daily_token_challenge_version !== TOKEN_CHALLENGE_VERSION
   ) {
     return res.status(400).json({ error: "Unsupported version", code: "CHALLENGE_NOT_RANKABLE" });
   }
+  const payloadRulesVersion = body.rules_version;
   const score = body.score;
   const energy_collected = body.energy_collected;
   const max_combo = body.max_combo;
@@ -188,6 +203,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res
       .status(409)
       .json({ error: "Reservation belongs to another user", code: "SUBMISSION_CONFLICT" });
+  }
+
+  // 3b) Phase 13-R2 — the reservation is the ONLY source of the rules version.
+  // A reservation predating the v2 rules_version column would be ambiguous, so
+  // it fails closed rather than defaulting to anything.
+  if (!isSupportedDailyRulesVersion(reservation.rules_version)) {
+    return res.status(409).json({
+      error: "Reservation uses an unsupported rules version",
+      code: "CHALLENGE_NOT_RANKABLE",
+    });
+  }
+  const rulesVersion: DailyRulesVersion = reservation.rules_version;
+  // The submitted version must match what was reserved. This blocks both
+  // directions: replaying a v2 run as v3 (to reach the active leaderboard) and
+  // submitting a v3 run as v2 (to borrow the looser legacy ceiling).
+  if (payloadRulesVersion !== rulesVersion) {
+    return res.status(409).json({
+      error: "Run version does not match its reservation",
+      code: "CHALLENGE_NOT_RANKABLE",
+    });
   }
 
   const challengeDate = reservation.challenge_date;
@@ -266,8 +301,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 7) Plausibility ceilings → is_valid (does not reject structurally-fine runs).
+  // Phase 13-R2: the score ceiling is version-specific. v2 keeps its historical
+  // 50,000 so a legacy finalization is judged by the rules it was claimed under;
+  // v3 uses the derived ceiling for THIS challenge, computed from the manifest
+  // the server just rebuilt from its own snapshot (never from the payload).
+  const maxScore = maxScoreForVersion(rulesVersion, challenge.totalTokenPointsPossible);
   const is_valid =
-    nScore <= LIMITS.maxScore &&
+    nScore <= maxScore &&
     nDuration >= LIMITS.minDuration &&
     nDuration <= LIMITS.maxDuration &&
     (energy_collected as number) <= LIMITS.maxEnergy &&
@@ -280,7 +320,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     uid,
     challengeId: reservation.challenge_id,
     challengeDate,
-    rulesVersion: TOKEN_RULES_VERSION,
+    // Phase 13-R2: the digest binds the RESERVATION's version, so a v2 run and a
+    // v3 run with otherwise identical facts hash differently and cannot be
+    // replayed across versions.
+    rulesVersion,
     tokenChallengeVersion: TOKEN_CHALLENGE_VERSION,
     score: nScore,
     energyCollected: energy_collected as number,
@@ -306,7 +349,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       p_max_combo: max_combo as number,
       p_obstacles_hit: obstacles_hit as number,
       p_duration_seconds: nDuration,
-      p_rules_version: TOKEN_RULES_VERSION,
+      // Stored under the reservation's version, so the row lands in the right
+      // leaderboard pool and can never be relabelled by a later submission.
+      p_rules_version: rulesVersion,
       p_token_challenge_version: TOKEN_CHALLENGE_VERSION,
       p_token_points: nTokenPoints,
       p_tokens_collected_count: nTokenCount,

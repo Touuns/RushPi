@@ -9,6 +9,8 @@
  * will fail — that's expected; use the deployed site or `vercel dev` to test.
  */
 
+import { DAILY_RULES_VERSION } from "../game/dailyRulesVersion";
+
 export interface ServerScore {
   pi_username: string | null;
   score: number;
@@ -151,6 +153,13 @@ export interface ClaimResult {
   left: number;
   challengeDate: string;
   challengeId: string;
+  /**
+   * Phase 13-R2: the ranked rules version the SERVER bound to this reservation.
+   * The client stores it and echoes it on submit so an in-flight v2 reservation
+   * is still finalized under v2 rules. The server re-reads the stored
+   * reservation and never trusts this value, so echoing it grants no power.
+   */
+  rulesVersion: number;
 }
 
 /**
@@ -186,6 +195,11 @@ export async function claimAttempt(
     left: data.left ?? 0,
     challengeDate: data.challengeDate ?? new Date().toISOString().slice(0, 10),
     challengeId: data.challengeId ?? "",
+    // A server that omits the version is treated as the active one; the server
+    // still validates against its own stored reservation, so a wrong guess can
+    // only cause an honest rejection, never a wrongly-accepted score.
+    rulesVersion:
+      typeof data.rulesVersion === "number" ? data.rulesVersion : DAILY_RULES_VERSION,
   };
 }
 
@@ -201,7 +215,8 @@ export interface SubmitScorePayload {
   max_combo: number;
   obstacles_hit: number;
   duration_seconds: number;
-  rules_version: 2;
+  /** Echo of the reservation's version (Phase 13-R2) — the server re-checks it. */
+  rules_version: number;
   daily_token_challenge_version: 1;
   token_ids_collected: string[];
   token_points: number;

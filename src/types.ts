@@ -160,6 +160,12 @@ export interface ProfileStats {
    * Daily result screen show this value. Default 0 (non-destructive migration).
    */
   bestDailyTokenRushScore: number;
+  /**
+   * Best ACTIVE (rules v3) Daily score — Phase 13-R2. Kept separate from
+   * `bestDailyTokenRushScore` (v2) because Phase 13-R1 changed the collision
+   * model, so v2 and v3 runs are not comparable. Default 0; no reset needed.
+   */
+  bestDailyRulesV3Score: number;
   /** Last Daily run date as YYYY-MM-DD (UTC), or null if never. */
   lastDailyDate: string | null;
   /** Whether the Pi developer-checklist test payment has succeeded (cosmetic). */
@@ -186,6 +192,12 @@ export interface DailyHistoryEntry {
   bestScore: number;
   /** Number of Daily runs played that day. */
   runs: number;
+  /**
+   * Rules version those runs were played under (Phase 13-R2). Entries written
+   * before R2 are read back as 2. Runs from different versions are never merged
+   * into one entry, so a v2 best can't be shown as a v3 best.
+   */
+  rulesVersion: number;
 }
 
 /** Effective streak state computed against the current UTC day (for display). */

@@ -5,6 +5,7 @@ import {
   MigrationRequiredError,
   RpcError,
 } from "../_lib/supabaseRpc";
+import { ACTIVE_DAILY_RULES_VERSION } from "../_lib/dailyRulesPolicy";
 
 /**
  * Today's Daily Token Rush leaderboard — top 50 DISTINCT users (Phase 11B-P4.1).
@@ -35,10 +36,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const challengeId = `RUSHPI-${challengeDate}-TOKEN-V1`;
 
   try {
+    // Phase 13-R2: the active board is rules-version scoped. v2 rows stay in the
+    // table but can never appear here or influence ordering.
     const scores = await callRpc<unknown[]>(cfg, "get_rushpi_daily_leaderboard_v2", {
       p_challenge_date: challengeDate,
       p_challenge_id: challengeId,
       p_limit: 50,
+      p_rules_version: ACTIVE_DAILY_RULES_VERSION,
     });
     return res.status(200).json({ ok: true, scores: Array.isArray(scores) ? scores : [] });
   } catch (err) {
