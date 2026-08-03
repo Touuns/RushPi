@@ -15,6 +15,8 @@ import {
   PROCESSABLE_PERMISSION_STATUSES,
   SOURCE_TYPES,
   PROVIDER_FALLBACK_SOURCE_TYPE,
+  COMMUNITY_CC0_SOURCE_TYPE,
+  COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS,
   VARIANT_TYPES,
   CROP_MODES,
   EXPECTED_MIME_CLASSES,
@@ -186,6 +188,27 @@ export function validateApprovalRecordShape(record) {
     if (typeof record.notes !== "string" || record.notes.length === 0) errors.push("approval record sourceType=authorized-provider requires non-empty notes explaining the fallback");
   } else if (record.providerFallbackApproved === true) {
     errors.push(`approval record providerFallbackApproved must be false for sourceType "${record.sourceType}" (only meaningful for authorized-provider)`);
+  }
+
+  // --- community CC0 gate (Phase 13-Q1) ---------------------------------
+  // Mirrors the source-plan gate so a frozen record can never assert more than
+  // the licence grants. Additive: no pre-existing source type is affected.
+  if (record.sourceType === COMMUNITY_CC0_SOURCE_TYPE) {
+    if (record.permissionReviewStatus !== COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS) {
+      errors.push(`approval record sourceType=${COMMUNITY_CC0_SOURCE_TYPE} requires permissionReviewStatus="${COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS}" (the licence is the permission; a product-owner exception cannot replace it)`);
+    }
+    if (record.providerFallbackApproved !== false) {
+      errors.push(`approval record sourceType=${COMMUNITY_CC0_SOURCE_TYPE} requires providerFallbackApproved=false`);
+    }
+    if (typeof record.permissionEvidenceReference !== "string" || record.permissionEvidenceReference.length === 0) {
+      errors.push(`approval record sourceType=${COMMUNITY_CC0_SOURCE_TYPE} requires permissionEvidenceReference (the pinned CC0 licence)`);
+    }
+    if (typeof record.approvedSourceContentHash !== "string" || !SHA256_HEX_PATTERN.test(record.approvedSourceContentHash)) {
+      errors.push(`approval record sourceType=${COMMUNITY_CC0_SOURCE_TYPE} requires a valid approvedSourceContentHash`);
+    }
+    if (typeof record.notes !== "string" || !/community/i.test(record.notes) || !/CC0/i.test(record.notes)) {
+      errors.push(`approval record sourceType=${COMMUNITY_CC0_SOURCE_TYPE} requires notes identifying it as a community CC0 icon rather than an official endorsement`);
+    }
   }
 
   if (typeof record.allowExtremeAspectRatio !== "boolean") errors.push("approval record allowExtremeAspectRatio must be a boolean");

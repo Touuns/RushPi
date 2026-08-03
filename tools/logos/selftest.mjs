@@ -1239,6 +1239,89 @@ async function main() {
     rmSync(tmpRoot, { recursive: true, force: true });
   }
 
+  // ---- Phase 13-Q1: community CC0 source type -----------------------------
+  // The new type must be MORE constrained than the existing five, never less,
+  // and must not alter their behaviour in any way.
+  {
+    const CC0 = "community-cc0-token-icon";
+    const cc0Entry = (overrides = {}) =>
+      approvedEntry({
+        sourceType: CC0,
+        permissionReviewStatus: "permission-confirmed",
+        providerFallbackApproved: false,
+        permissionEvidenceReference: "https://github.com/spothq/cryptocurrency-icons/blob/<pin>/LICENSE.md",
+        sourceReference: "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/<pin>/128/color/btc.png",
+        sourcePageReference: "https://github.com/spothq/cryptocurrency-icons/tree/<pin>",
+        notes: "Community-created CC0 token icon used as an in-game visual identifier. This record does not claim official project endorsement.",
+        ...overrides,
+      });
+    const planErrs = (entry) => validateSourcePlan([entry], registry);
+    const mentions = (errs, needle) => errs.some((e) => e.includes(needle));
+
+    // 1. accepted with complete CC0 evidence
+    check(
+      "Q1: community-cc0-token-icon is accepted with complete CC0 evidence",
+      planErrs(cc0Entry()).length === 0,
+    );
+    // 2. refused with explicit-product-exception
+    check(
+      "Q1: community-cc0-token-icon refuses explicit-product-exception",
+      mentions(planErrs(cc0Entry({ permissionReviewStatus: "explicit-product-exception" })), "permission-confirmed"),
+    );
+    // 3. refused with providerFallbackApproved=true
+    check(
+      "Q1: community-cc0-token-icon refuses providerFallbackApproved=true",
+      planErrs(cc0Entry({ providerFallbackApproved: true })).length > 0,
+    );
+    // 4. refused without licence evidence
+    check(
+      "Q1: community-cc0-token-icon refuses a missing licence reference",
+      mentions(planErrs(cc0Entry({ permissionEvidenceReference: "" })), "permissionEvidenceReference"),
+    );
+    // 5. refused without a source hash
+    check(
+      "Q1: community-cc0-token-icon refuses a missing source hash",
+      planErrs(cc0Entry({ approvedSourceContentHash: null })).length > 0,
+    );
+    // 6. refused when identity is not exact
+    check(
+      "Q1: community-cc0-token-icon refuses an inexact canonical name",
+      mentions(planErrs(cc0Entry({ canonicalName: "Not The Registry Name" })), "canonicalName"),
+    );
+    check(
+      "Q1: community-cc0-token-icon refuses an inexact symbol",
+      mentions(planErrs(cc0Entry({ symbol: "ZZZZ" })), "symbol"),
+    );
+    // 7. the five pre-existing source types keep their exact behaviour
+    for (const t of ["official-brand-kit", "official-project-website", "official-github", "official-documentation"]) {
+      check(
+        `Q1: ${t} still accepts permission-confirmed unchanged`,
+        planErrs(approvedEntry({ sourceType: t })).length === 0,
+      );
+      check(
+        `Q1: ${t} still accepts explicit-product-exception unchanged`,
+        planErrs(approvedEntry({ sourceType: t, permissionReviewStatus: "explicit-product-exception" })).length === 0,
+      );
+    }
+    check(
+      "Q1: authorized-provider still requires providerFallbackApproved=true",
+      mentions(planErrs(approvedEntry({ sourceType: "authorized-provider", providerFallbackApproved: false })), "providerFallbackApproved=true"),
+    );
+    check(
+      "Q1: authorized-provider still accepts its documented fallback shape",
+      planErrs(approvedEntry({ sourceType: "authorized-provider", providerFallbackApproved: true, permissionReviewStatus: "explicit-product-exception" })).length === 0,
+    );
+    // 8. nothing was relaxed: an unknown source type is still rejected
+    check(
+      "Q1: an unknown sourceType is still rejected",
+      mentions(planErrs(approvedEntry({ sourceType: "official-looking-but-fake" })), "unknown sourceType"),
+    );
+    check(
+      "Q1: a non-CC0 type still refuses providerFallbackApproved=true",
+      mentions(planErrs(approvedEntry({ sourceType: "official-github", providerFallbackApproved: true })), "only meaningful"),
+    );
+  }
+
   console.log(`\n${passed} check(s) passed, ${failures} failed.`);
   if (failures > 0) {
     console.error("Logo tooling selftest FAILED.");

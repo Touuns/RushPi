@@ -67,8 +67,23 @@ export const SOURCE_TYPES = new Set([
   "official-github",
   "official-documentation",
   "authorized-provider",
+  // Phase 13-Q1. A community-created icon released under CC0, used as an
+  // in-game visual identifier. Deliberately NOT one of the "official-*" types:
+  // the licence covers copying, transforming and redistributing the FILE, and
+  // nothing more. It never asserts project endorsement or trademark rights.
+  // Stricter than every other type - see COMMUNITY_CC0_SOURCE_TYPE below.
+  "community-cc0-token-icon",
 ]);
 export const PROVIDER_FALLBACK_SOURCE_TYPE = "authorized-provider";
+
+/**
+ * Phase 13-Q1. Community CC0 icons carry the tightest rules in the pipeline:
+ * the permission must be the licence itself (permission-confirmed), never a
+ * product-owner exception, and they can never be a provider fallback. This
+ * ADDS constraints; it relaxes nothing for any pre-existing source type.
+ */
+export const COMMUNITY_CC0_SOURCE_TYPE = "community-cc0-token-icon";
+export const COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS = "permission-confirmed";
 
 export const VARIANT_TYPES = new Set(["icon", "full-mark"]);
 export const CROP_MODES = new Set(["alpha-bounds", "preserve-canvas"]);

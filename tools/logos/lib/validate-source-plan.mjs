@@ -9,6 +9,8 @@ import {
   PROCESSABLE_PERMISSION_STATUSES,
   SOURCE_TYPES,
   PROVIDER_FALLBACK_SOURCE_TYPE,
+  COMMUNITY_CC0_SOURCE_TYPE,
+  COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS,
   VARIANT_TYPES,
   CROP_MODES,
   EXPECTED_MIME_CLASSES,
@@ -138,6 +140,46 @@ export function validateSourcePlan(entries, registry, options = {}) {
       if (!isNonEmptyString(entry.notes)) errors.push(`${label}: authorized-provider source requires explanatory notes`);
     } else if (entry.providerFallbackApproved === true) {
       errors.push(`${label}: providerFallbackApproved=true is only meaningful for sourceType=authorized-provider`);
+    }
+
+    // --- community CC0 gate (Phase 13-Q1) --------------------------------
+    // Strictly ADDITIVE: it constrains only the new source type. The permission
+    // must BE the licence, so a product-owner exception is refused here — a
+    // human cannot grant what only the licence can. Identity must match the
+    // registry exactly, because these icons are keyed by symbol upstream and a
+    // symbol-only match is never sufficient proof of identity.
+    if (entry.sourceType === COMMUNITY_CC0_SOURCE_TYPE) {
+      if (entry.permissionReviewStatus !== COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires permissionReviewStatus="${COMMUNITY_CC0_REQUIRED_PERMISSION_STATUS}" (a product-owner exception cannot stand in for the licence), got "${entry.permissionReviewStatus}"`);
+      }
+      if (entry.providerFallbackApproved !== false) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires providerFallbackApproved=false`);
+      }
+      if (!isNonEmptyString(entry.permissionEvidenceReference)) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires permissionEvidenceReference (the pinned CC0 licence file)`);
+      }
+      if (!isNonEmptyString(entry.sourceReference)) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires sourceReference (the exact source file)`);
+      }
+      if (!isNonEmptyString(entry.sourcePageReference)) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires sourcePageReference (the originating collection)`);
+      }
+      if (!isNonEmptyString(entry.approvedSourceContentHash)) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires approvedSourceContentHash`);
+      }
+      if (!isNonEmptyString(entry.notes)) {
+        errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} requires notes stating it is a community CC0 icon, not an official endorsement`);
+      }
+      // Identity must be exact against the registry — never symbol-only.
+      const regEntry = registry.byTokenId.get(entry.tokenId);
+      if (regEntry) {
+        if (entry.canonicalName !== regEntry.name) {
+          errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} canonicalName "${entry.canonicalName}" must match the registry name "${regEntry.name}" exactly`);
+        }
+        if (entry.symbol !== regEntry.symbol) {
+          errors.push(`${label}: ${COMMUNITY_CC0_SOURCE_TYPE} symbol "${entry.symbol}" must match the registry symbol "${regEntry.symbol}" exactly`);
+        }
+      }
     }
 
     // --- explicit-product-exception completeness -------------------------

@@ -26,3 +26,8 @@ Thumbs.db
 .vite/
 
 .vercel
+
+# Phase 13-Q1: batch logo intake cache + local audit artifacts (never shipped).
+tools/logos/intake/
+tools/logos/data/q1-*.json
+tools/logos/data/q1-gallery.html
