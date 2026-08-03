@@ -108,7 +108,9 @@ export default function ProfileScreen({
       <div className="profile__stats">
         <Stat label="Daily Runs" value={profile.dailyRuns} />
         <Stat label="Training Runs" value={profile.trainingRuns} />
-        <Stat label="Best Daily" value={profile.bestDailyScore.toLocaleString()} />
+        {/* Phase 13-Q2: the active ranked version is 3 — show that best, not
+            the legacy v1 field, so Home and Profile always agree. */}
+        <Stat label="Best Daily" value={profile.bestDailyRulesV3Score.toLocaleString()} />
         <Stat label="Total Energy" value={profile.totalEnergies.toLocaleString()} />
         <Stat label="Best Combo" value={`x${profile.bestCombo}`} />
         <Stat label="Obstacles Hit" value={profile.totalObstaclesHit.toLocaleString()} />

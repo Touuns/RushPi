@@ -461,7 +461,16 @@ export default function App() {
             aria-hidden="true"
             draggable={false}
             decoding="async"
-            fetchPriority="high"
+            // Phase 13-Q2: no fetchPriority hint here. @types/react 18.3.31
+            // declares the camelCase prop, but the installed react-dom 18.3.1
+            // has no runtime support for it at all (confirmed: zero matches
+            // for "fetchpriority" in its DOM property config) — React falls
+            // through to its generic unknown-camelCase-prop warning. The
+            // literal lowercase HTML attribute fails TypeScript instead
+            // (`fetchpriority` is not a declared ImgHTMLAttributes key).
+            // `loading="eager"` below already does the real job (this image
+            // starts loading immediately, never lazily); the hint was only
+            // ever a network-priority nicety on top of that.
             loading="eager"
             onError={(e) => {
               // If the WebP can't load (unsupported/blocked/missing), hide the

@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { PALETTE, GLOW } from "./theme";
 import { OBJECTS } from "./gameConfig";
 import type { DailyTokenSpec } from "../market/dailyTokenTypes";
-import { getTokenImage, tokenTextureKey } from "../market/tokenAssetCache";
 import { PROD_TEXTURE_KEYS } from "./productionAssets";
 import { shouldRenderDailyTokenLogo, resolveTokenLogoLayout } from "./dailyTokenLogoRender";
 import { BACKING_PLATE_WARM_NEUTRAL_COLOR } from "./dailyTokenLogoPresentation";
@@ -102,20 +101,6 @@ export function pickObstacleLane(
     }
   }
   return bestLane;
-}
-
-/**
- * Register the preloaded logo images as Phaser textures (one per token, stable
- * `token:<id>` keys). Missing/failed logos are simply skipped — the collectible
- * falls back to a procedural disc.
- */
-export function registerTokenTextures(scene: Phaser.Scene, tokens: DailyTokenSpec[]): void {
-  for (const spec of tokens) {
-    const key = tokenTextureKey(spec.id);
-    if (scene.textures.exists(key)) continue;
-    const img = getTokenImage(spec.id);
-    if (img) scene.textures.addImage(key, img);
-  }
 }
 
 /** A resolved logo image plus its optional presentation backing plate. */

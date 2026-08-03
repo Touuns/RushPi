@@ -3,8 +3,8 @@
  * accepts an arbitrary string, only a repository-relative path shape already
  * accepted by TOKEN_LOGO_OUTPUT_PATH_RE (manifestParser.ts) — i.e. a path
  * that has already survived parseTokenLogoManifest. No protocol/host
- * support, no fallback to a source/provider URL (that stays the CoinGecko
- * hotlink in tokenAssetCache.ts, untouched by this module).
+ * support, no fallback to a remote source/provider URL — this module only
+ * ever resolves a verified local asset path.
  *
  * Device-size selection is intentionally decoupled from
  * src/game/productionAssets.ts (resolveDeviceTier / Phaser-adjacent) so this

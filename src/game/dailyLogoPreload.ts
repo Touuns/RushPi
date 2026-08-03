@@ -1,22 +1,21 @@
 /**
- * Phase 12C-1B2C-2D2A — Daily token-logo PRELOAD (no render switch).
+ * Daily token-logo PRELOAD.
  *
  * Bridges the browser-safe logo manifest client layer (src/logos/*) to the
- * Daily startup pipeline. Its ONLY job is to make the correct verified logo
- * PNGs available inside Phaser's TextureManager BEFORE a Daily run begins.
- *
- * Explicitly NOT this phase:
- *  - it renders nothing (nothing reads the `token-logo:*` keys yet);
- *  - it never replaces the CoinGecko logo cache (src/market/tokenAssetCache.ts),
- *    which keeps driving the current token art;
- *  - the procedural/CoinGecko token rendering in src/game/dailyTokens.ts and
- *    MainScene stays byte-identical.
+ * Daily startup pipeline. Its job is to make the correct verified local logo
+ * PNGs available inside Phaser's TextureManager BEFORE a Daily run begins, so
+ * `dailyTokens.ts` (via `resolveDailyTokenLogoTextureKey`) can draw them —
+ * this is the ONLY texture source a Daily collectible ever renders from.
+ * Phase 13-Q2 removed the legacy CoinGecko hotlink cache
+ * (src/market/tokenAssetCache.ts): it registered `token:<id>` textures that
+ * were never actually drawn.
  *
  * Shape mirrors the proven two-stage flow of src/game/productionAssets.ts:
  *   1. preload HTMLImageElements into a module cache during DailyPreparationScreen;
  *   2. register them into the Phaser TextureManager at game boot.
  * Always resolves — a logo failure (manifest, mapping, missing entry, PNG load,
- * or timeout) NEVER blocks the claim, the run, or gameplay.
+ * or timeout) NEVER blocks the claim, the run, or gameplay; the collectible
+ * falls back to the unchanged procedural disc.
  *
  * Phaser is imported as a TYPE only, so this module has zero Phaser runtime
  * dependency and stays importable/unit-testable outside the browser.
@@ -33,7 +32,7 @@ import {
   type LogoDensityPreference,
 } from "../logos/index.ts";
 
-/** Group timeout for the whole preload — mirrors tokenAssetCache/productionAssets. */
+/** Group timeout for the whole preload — mirrors productionAssets.ts. */
 const PRELOAD_TIMEOUT_MS = 5000;
 
 // 1×1 transparent PNG assigned to a cancelled Image to abort its in-flight

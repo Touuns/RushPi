@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import { fetchDailyTokenChallenge } from "../market/marketClient";
-import { preloadTokenLogos } from "../market/tokenAssetCache";
 import { preloadDailyProductionAssets } from "../game/productionAssets";
 import { preloadDailyTokenLogos } from "../game/dailyLogoPreload";
 import { claimAttempt, ServerScoreError, type ClaimResult } from "../utils/serverLeaderboard";
@@ -110,17 +109,15 @@ export default function DailyPreparationScreen({
           return;
         }
 
-        // Load the visual resources (token logos + Daily production assets) in
-        // parallel. Both always resolve with fallbacks — a visual failure never
-        // blocks the claim, the run, or the submissionId.
+        // Load the visual resources (verified local token logos + Daily
+        // production assets) in parallel. Both always resolve with fallbacks —
+        // a visual failure never blocks the claim, the run, or the submissionId.
+        // Phase 13-Q2: the CoinGecko hotlink preload (tokenAssetCache.ts) was
+        // removed here — its textures were registered but never drawn; the
+        // renderer has only ever used the verified local token-logo:* key.
         setStep("logos");
         await Promise.all([
-          preloadTokenLogos(c.challengeDate, c.tokens),
           preloadDailyProductionAssets(),
-          // Phase 12C-1B2C-2D2A: preload the verified token-logo PNGs into a
-          // module cache so they are available inside Phaser before gameplay.
-          // Purely additive — nothing renders them yet, and it always resolves,
-          // so a logo failure never blocks the run.
           preloadDailyTokenLogos(c.challengeDate, c.tokens),
         ]);
         if (cancelled) return;

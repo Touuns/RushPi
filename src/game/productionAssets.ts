@@ -5,8 +5,8 @@ import Phaser from "phaser";
  * Portal). Loads the selected raster BEFORE Phaser starts and registers it into
  * each scene's TextureManager under a stable, resolution-independent key.
  *
- * Rules (mirrors src/market/tokenAssetCache.ts, kept separate — the logo cache
- * is untouched):
+ * Rules (mirrors the local Daily logo preload in src/game/dailyLogoPreload.ts,
+ * kept separate):
  *  - purely VISUAL: never consumes an RNG draw, never changes position/scale/
  *    collision, never added to `this.objects`;
  *  - never fetches during a run (only via the Daily preparation preload);
@@ -116,8 +116,8 @@ const images = new Map<string, HTMLImageElement>();
  * counted exactly once; `cancel()` makes a still-running load DEFINITIVELY
  * terminal (Phase 12A-2 hardening): it detaches the handlers, aborts the pending
  * request, blocks any later cache write, and resolves. Scope: the three Rush Pi
- * production assets ONLY — the CoinGecko logo cache (tokenAssetCache.ts) is not
- * touched by this and keeps its historical behaviour.
+ * production assets ONLY — the local Daily logo preload (dailyLogoPreload.ts)
+ * is not touched by this and keeps its own independent behaviour.
  */
 interface ActiveLoad {
   cancel: () => void;

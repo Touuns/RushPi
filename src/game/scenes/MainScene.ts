@@ -24,7 +24,6 @@ import {
   type LaneSpawn,
   makeChainBlock,
   makeTokenCollectible,
-  registerTokenTextures,
   TOKEN_RADIUS,
 } from "../dailyTokens";
 import { TrackDrift } from "../trackDrift";
@@ -404,11 +403,6 @@ export default class MainScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(PALETTE.bg);
 
     this.computeLanes();
-    // Daily Token Rush: register the preloaded logo textures BEFORE the run —
-    // no image request ever starts mid-run (missing logos fall back procedurally).
-    if (this.dailyChallenge) {
-      registerTokenTextures(this, this.dailyChallenge.tokens);
-    }
     // Daily production visuals (Phase 12A-2, hardened): BOTH the texture
     // registration and the background image are strictly Daily-only, so
     // Training/Survival/Campaign never get any prod:* key in their (freshly
