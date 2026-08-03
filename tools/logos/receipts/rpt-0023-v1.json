@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "tokenId": "rpt-0023",
+  "catalogVersion": "token-registry-v2-7b98c60e767128c1",
+  "logoVersion": 1,
+  "normalizationPolicyVersion": 1,
+  "approvedSourceContentHash": "5df3a36be8fb4acfad9202d7deb17ccdef62268185985076482ed5251df059b5",
+  "actualSourceContentHash": "5df3a36be8fb4acfad9202d7deb17ccdef62268185985076482ed5251df059b5",
+  "sourceMimeType": "image/png",
+  "sourceWidth": 128,
+  "sourceHeight": 128,
+  "sourceFileSize": 5111,
+  "output64Path": "public/assets/rushpi/token-logos/rpt-0023/v1/64/4f3cfbbda6174197d0658236e9fb0c4158b3def6f8d3ca7d8ab1f0dbe1cb7080.png",
+  "output128Path": "public/assets/rushpi/token-logos/rpt-0023/v1/128/bc0b646d1dcd1f4c2204f3fa37433a743214e6ac2aa07cbac0e657b894e67512.png",
+  "output64Hash": "4f3cfbbda6174197d0658236e9fb0c4158b3def6f8d3ca7d8ab1f0dbe1cb7080",
+  "output128Hash": "bc0b646d1dcd1f4c2204f3fa37433a743214e6ac2aa07cbac0e657b894e67512",
+  "output64MimeType": "image/png",
+  "output128MimeType": "image/png",
+  "approvalRecordContentHash": "d5e8244848cdd91148f99c5c0465fde429a5720ddb9e7e4d7609eec7fefedfdc",
+  "toolchain": {
+    "nodeVersion": "v25.2.1",
+    "platform": "win32",
+    "arch": "x64",
+    "sharpVersion": "0.35.3",
+    "libvipsVersion": "8.18.3",
+    "resvgVersion": "2.6.2",
+    "normalizationPolicyVersion": 1
+  }
+}
