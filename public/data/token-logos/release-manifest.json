@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "logoReleaseVersion": "logo-release-v1-b04b94bca7a50eb3",
+  "logoReleaseVersion": "logo-release-v1-8235284b59f49250",
   "normalizationPolicyVersion": 1,
   "catalogVersion": "token-registry-v2-7b98c60e767128c1",
-  "contentHash": "b04b94bca7a50eb3bc124b2c0b6b963495bb0bb90759dad6035824e9564e54e4",
-  "entryCount": 11,
+  "contentHash": "8235284b59f49250a9a8ca7f717545e7599f41b42ece09372396c3e9bfd8d93a",
+  "entryCount": 64,
   "entries": [
     {
       "tokenId": "rpt-0001",
@@ -27,12 +27,72 @@
       "output128MimeType": "image/png"
     },
     {
+      "tokenId": "rpt-0003",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0003/v1/64/a0957d352e4aebaa1b69828191d30b1dc4d57d50a8224165e7621a01d3531a9b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0003/v1/128/e35937aed4e35c2f6fc6b48af731e5cfe12cd4ed7a7ef456113f59debd80da88.png",
+      "output64Hash": "a0957d352e4aebaa1b69828191d30b1dc4d57d50a8224165e7621a01d3531a9b",
+      "output128Hash": "e35937aed4e35c2f6fc6b48af731e5cfe12cd4ed7a7ef456113f59debd80da88",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
       "tokenId": "rpt-0004",
       "logoVersion": 1,
       "output64Path": "public/assets/rushpi/token-logos/rpt-0004/v1/64/823e407290859e312140cf636e29d2e3cc5be7610c9efab657ad647c87c1b739.png",
       "output128Path": "public/assets/rushpi/token-logos/rpt-0004/v1/128/a297c18f1b9f3d9189f9a86fa7220a588f712d1fa5a41f12e2d306176055ab85.png",
       "output64Hash": "823e407290859e312140cf636e29d2e3cc5be7610c9efab657ad647c87c1b739",
       "output128Hash": "a297c18f1b9f3d9189f9a86fa7220a588f712d1fa5a41f12e2d306176055ab85",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0006",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0006/v1/64/52de69d7f1cd5c3074f8718ae9bb5b8a328a32db3b6f7482e1d3cc67156c638c.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0006/v1/128/d4096e986cf6109181a3351194642ce152702f88a52ebd78e85f54e30d610558.png",
+      "output64Hash": "52de69d7f1cd5c3074f8718ae9bb5b8a328a32db3b6f7482e1d3cc67156c638c",
+      "output128Hash": "d4096e986cf6109181a3351194642ce152702f88a52ebd78e85f54e30d610558",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0008",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0008/v1/64/68b3497d2a96930516317e9ac48d34fc12b41c3b282bee1ec8a8e8beda57b6ce.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0008/v1/128/720d2a8b87ad2b497dc05575aa0dc5b1aa6b43af469f9d58394dff27b8fa9f13.png",
+      "output64Hash": "68b3497d2a96930516317e9ac48d34fc12b41c3b282bee1ec8a8e8beda57b6ce",
+      "output128Hash": "720d2a8b87ad2b497dc05575aa0dc5b1aa6b43af469f9d58394dff27b8fa9f13",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0009",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0009/v1/64/ec80542a2e8c45162696ef28e8777c1bc7352407ebe0fd671ba8fd785f154583.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0009/v1/128/fe9c39280ef9b5d315b13ea15d01e3d24eee2371f53a330ef9c8f43d1b3ce05d.png",
+      "output64Hash": "ec80542a2e8c45162696ef28e8777c1bc7352407ebe0fd671ba8fd785f154583",
+      "output128Hash": "fe9c39280ef9b5d315b13ea15d01e3d24eee2371f53a330ef9c8f43d1b3ce05d",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0010",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0010/v1/64/b0c531660b9aba0b434d101386561a4e07256f747507f5ddbfc2cbb298805465.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0010/v1/128/b2ecefa227441205472af6fcf15cb4dd4ae783402cc1eee72c633b08b31199ab.png",
+      "output64Hash": "b0c531660b9aba0b434d101386561a4e07256f747507f5ddbfc2cbb298805465",
+      "output128Hash": "b2ecefa227441205472af6fcf15cb4dd4ae783402cc1eee72c633b08b31199ab",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0011",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0011/v1/64/31ca3517e36e0957a2076f35e98818691b5ff0ac84d5358b13a391242a180967.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0011/v1/128/418b820c8c82fbb22cd9f2e8d8bfbaeda7c9ea54d9e88f12cf199f8fa9eedece.png",
+      "output64Hash": "31ca3517e36e0957a2076f35e98818691b5ff0ac84d5358b13a391242a180967",
+      "output128Hash": "418b820c8c82fbb22cd9f2e8d8bfbaeda7c9ea54d9e88f12cf199f8fa9eedece",
       "output64MimeType": "image/png",
       "output128MimeType": "image/png"
     },
@@ -47,12 +107,122 @@
       "output128MimeType": "image/png"
     },
     {
+      "tokenId": "rpt-0013",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0013/v1/64/fe7932ad8d59684e58aaa5a4489abef3901ad10a9ef0930fac9941f3b25d277f.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0013/v1/128/f7ac765835d445626f32bb2dea42f977bb32921b8923839b19aa9b8c9a0233a5.png",
+      "output64Hash": "fe7932ad8d59684e58aaa5a4489abef3901ad10a9ef0930fac9941f3b25d277f",
+      "output128Hash": "f7ac765835d445626f32bb2dea42f977bb32921b8923839b19aa9b8c9a0233a5",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0014",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0014/v1/64/754430aa058d85337d1cc7981df8968c3ac49da8d642262e3c159092050d6274.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0014/v1/128/48cb102127fe7ed9974ac8254a3533e897c9780d545f74e9b81d276628453a36.png",
+      "output64Hash": "754430aa058d85337d1cc7981df8968c3ac49da8d642262e3c159092050d6274",
+      "output128Hash": "48cb102127fe7ed9974ac8254a3533e897c9780d545f74e9b81d276628453a36",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0015",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0015/v1/64/d0dd2d4bb89d4bd4a441ec08fed1b5c6ea120c94482e41811c79dda9e7593c61.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0015/v1/128/4ced9dd2ba1d851220af12ce6f6e43bab010e197557a904a74d09b1a5ec56cc0.png",
+      "output64Hash": "d0dd2d4bb89d4bd4a441ec08fed1b5c6ea120c94482e41811c79dda9e7593c61",
+      "output128Hash": "4ced9dd2ba1d851220af12ce6f6e43bab010e197557a904a74d09b1a5ec56cc0",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0016",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0016/v1/64/384fa58f8737b8294a10d5002b2984249e36e0c18b3bdd5551744fd63df4c296.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0016/v1/128/3a144a114c8e88d296b0e15bdc9cd5291c598133303eed0dab6c3c755e38cee1.png",
+      "output64Hash": "384fa58f8737b8294a10d5002b2984249e36e0c18b3bdd5551744fd63df4c296",
+      "output128Hash": "3a144a114c8e88d296b0e15bdc9cd5291c598133303eed0dab6c3c755e38cee1",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0017",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0017/v1/64/109c817231739807d6a4f4a60a2fd25236601ecdf09c01963e29ae0ece7323ec.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0017/v1/128/398331598df670187e0e95e267b95ff4c1b7d13fedafd531a6de885718ff7054.png",
+      "output64Hash": "109c817231739807d6a4f4a60a2fd25236601ecdf09c01963e29ae0ece7323ec",
+      "output128Hash": "398331598df670187e0e95e267b95ff4c1b7d13fedafd531a6de885718ff7054",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0018",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0018/v1/64/bf046c1219f7f1fb5d936d81f2c15d2b10f9488f6615adaf435991fe08d17681.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0018/v1/128/bd65b634ac32b1d4c45cc6a48067a2d82b1d3b8f1ef7b3e6b6d54076bbeba2be.png",
+      "output64Hash": "bf046c1219f7f1fb5d936d81f2c15d2b10f9488f6615adaf435991fe08d17681",
+      "output128Hash": "bd65b634ac32b1d4c45cc6a48067a2d82b1d3b8f1ef7b3e6b6d54076bbeba2be",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0022",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0022/v1/64/8c3475b05c7046787967dd00ed357b6fb5e82c25a136466edb835c9d8d1978a3.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0022/v1/128/ea9edaafbdfedb01742bf7f673827e9256828cbace3f0a3246dc4782441c7641.png",
+      "output64Hash": "8c3475b05c7046787967dd00ed357b6fb5e82c25a136466edb835c9d8d1978a3",
+      "output128Hash": "ea9edaafbdfedb01742bf7f673827e9256828cbace3f0a3246dc4782441c7641",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0023",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0023/v1/64/4f3cfbbda6174197d0658236e9fb0c4158b3def6f8d3ca7d8ab1f0dbe1cb7080.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0023/v1/128/bc0b646d1dcd1f4c2204f3fa37433a743214e6ac2aa07cbac0e657b894e67512.png",
+      "output64Hash": "4f3cfbbda6174197d0658236e9fb0c4158b3def6f8d3ca7d8ab1f0dbe1cb7080",
+      "output128Hash": "bc0b646d1dcd1f4c2204f3fa37433a743214e6ac2aa07cbac0e657b894e67512",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
       "tokenId": "rpt-0024",
       "logoVersion": 1,
       "output64Path": "public/assets/rushpi/token-logos/rpt-0024/v1/64/e3479eeac8c9f369ebcaf2037d724c28808cf29d7edf4a2222f2d0af06a587c9.png",
       "output128Path": "public/assets/rushpi/token-logos/rpt-0024/v1/128/dd4d8bbf57fb2d42babb6d8f5d9f6623d7ce941d6c0b8a9ec881481b9e6ef8bf.png",
       "output64Hash": "e3479eeac8c9f369ebcaf2037d724c28808cf29d7edf4a2222f2d0af06a587c9",
       "output128Hash": "dd4d8bbf57fb2d42babb6d8f5d9f6623d7ce941d6c0b8a9ec881481b9e6ef8bf",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0032",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0032/v1/64/6beb3d3a0a75c00d5b0d6301b7ee9626ca9ac8e8acaae376ebf74053eb948b54.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0032/v1/128/416bce66a626c4c4be6d17b7f7d47dee62c9a4c970558369e03ee391ca230186.png",
+      "output64Hash": "6beb3d3a0a75c00d5b0d6301b7ee9626ca9ac8e8acaae376ebf74053eb948b54",
+      "output128Hash": "416bce66a626c4c4be6d17b7f7d47dee62c9a4c970558369e03ee391ca230186",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0033",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0033/v1/64/840368e9a3f118b62425b8ce8ea29fdcc0401dfb25f0dd82d5999d9eb48a3ca5.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0033/v1/128/360bdecb31cfdf7ac3e3c896b4d6e1fa9a7b1974d19e91d93cf0128f537f62fc.png",
+      "output64Hash": "840368e9a3f118b62425b8ce8ea29fdcc0401dfb25f0dd82d5999d9eb48a3ca5",
+      "output128Hash": "360bdecb31cfdf7ac3e3c896b4d6e1fa9a7b1974d19e91d93cf0128f537f62fc",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0034",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0034/v1/64/bd49842e6aa22aedb265c42b965b6e6c879f9f2a0ec7f1b85157396bd7d782f1.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0034/v1/128/b9783edd778b47de0ced9ff579b557ec4eb302f459c731507252a9aff255da37.png",
+      "output64Hash": "bd49842e6aa22aedb265c42b965b6e6c879f9f2a0ec7f1b85157396bd7d782f1",
+      "output128Hash": "b9783edd778b47de0ced9ff579b557ec4eb302f459c731507252a9aff255da37",
       "output64MimeType": "image/png",
       "output128MimeType": "image/png"
     },
@@ -67,12 +237,62 @@
       "output128MimeType": "image/png"
     },
     {
+      "tokenId": "rpt-0039",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0039/v1/64/116f76a4dcc5d72f447f2e69a003514d1a57fe118c085f5d8bb8b2e4730fe465.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0039/v1/128/50ba7f1ecff75b3a450c6d4ad1763a5100f20a54a7997009d5033b1228f32394.png",
+      "output64Hash": "116f76a4dcc5d72f447f2e69a003514d1a57fe118c085f5d8bb8b2e4730fe465",
+      "output128Hash": "50ba7f1ecff75b3a450c6d4ad1763a5100f20a54a7997009d5033b1228f32394",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0040",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0040/v1/64/1a6ef26c6ba42a929a03fd06b76c3174c8ed76860fdebaa98254a0e633b1560b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0040/v1/128/8c01c00c48a66c5a07d4e0b1cff3f9adb8cee18487d81788290f8534364f914c.png",
+      "output64Hash": "1a6ef26c6ba42a929a03fd06b76c3174c8ed76860fdebaa98254a0e633b1560b",
+      "output128Hash": "8c01c00c48a66c5a07d4e0b1cff3f9adb8cee18487d81788290f8534364f914c",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
       "tokenId": "rpt-0041",
       "logoVersion": 1,
       "output64Path": "public/assets/rushpi/token-logos/rpt-0041/v1/64/3530700b24a8045cd24873ac46eb6943ea6eb89dcaabce93a9bc1ec7d6b05d2d.png",
       "output128Path": "public/assets/rushpi/token-logos/rpt-0041/v1/128/1ae9930fe689423edf4943711e0fe0822b2de1f1305bb9d9cb5f1a657a908710.png",
       "output64Hash": "3530700b24a8045cd24873ac46eb6943ea6eb89dcaabce93a9bc1ec7d6b05d2d",
       "output128Hash": "1ae9930fe689423edf4943711e0fe0822b2de1f1305bb9d9cb5f1a657a908710",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0050",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0050/v1/64/8acf10c644f03d055bf95b13847b6f567ebaf5de8b2aeb4aa30a0eeedec794be.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0050/v1/128/903e8c9dd4a6fcdde214ee4ff7e1cf353cb91f02746f2ddbd82a08cc89038cf8.png",
+      "output64Hash": "8acf10c644f03d055bf95b13847b6f567ebaf5de8b2aeb4aa30a0eeedec794be",
+      "output128Hash": "903e8c9dd4a6fcdde214ee4ff7e1cf353cb91f02746f2ddbd82a08cc89038cf8",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0053",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0053/v1/64/ab6ed081675133c1a9525d59407b2dc2edd6e8a0c067848587ba7a72a6957f7b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0053/v1/128/32c1afbb7182991f0b68c2b32c5cdd393ae2f5ed3e968ddead61ea9200b3d8fc.png",
+      "output64Hash": "ab6ed081675133c1a9525d59407b2dc2edd6e8a0c067848587ba7a72a6957f7b",
+      "output128Hash": "32c1afbb7182991f0b68c2b32c5cdd393ae2f5ed3e968ddead61ea9200b3d8fc",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0054",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0054/v1/64/4200c74419642f312b7c40895385efd7fa78174330827f3a44a9071f89e6d53a.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0054/v1/128/6acc3dbe24d62cf0d4159711357e5a17cab90f264e13133fa58877a3278c19d1.png",
+      "output64Hash": "4200c74419642f312b7c40895385efd7fa78174330827f3a44a9071f89e6d53a",
+      "output128Hash": "6acc3dbe24d62cf0d4159711357e5a17cab90f264e13133fa58877a3278c19d1",
       "output64MimeType": "image/png",
       "output128MimeType": "image/png"
     },
@@ -87,6 +307,16 @@
       "output128MimeType": "image/png"
     },
     {
+      "tokenId": "rpt-0059",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0059/v1/64/ffa8e697fca16d824a413e7fc5e8901a841a36403cf77e6ac4c55307fa63a833.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0059/v1/128/aa5befc018c10993ba031035d48c3a2168fee33550f80cfc671a7e67b65d372d.png",
+      "output64Hash": "ffa8e697fca16d824a413e7fc5e8901a841a36403cf77e6ac4c55307fa63a833",
+      "output128Hash": "aa5befc018c10993ba031035d48c3a2168fee33550f80cfc671a7e67b65d372d",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
       "tokenId": "rpt-0070",
       "logoVersion": 1,
       "output64Path": "public/assets/rushpi/token-logos/rpt-0070/v1/64/0105a449515a0ac685676358840865b29c7d351fca82a656a31291deb810dac5.png",
@@ -97,12 +327,312 @@
       "output128MimeType": "image/png"
     },
     {
+      "tokenId": "rpt-0075",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0075/v1/64/9447620dfaf1fce59666563369f95dc013b7a9f417364a06aaec1de1873923c7.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0075/v1/128/9d79311011e0652fd5399be2ec1c7035fbb2b8925f157da242941e1602022335.png",
+      "output64Hash": "9447620dfaf1fce59666563369f95dc013b7a9f417364a06aaec1de1873923c7",
+      "output128Hash": "9d79311011e0652fd5399be2ec1c7035fbb2b8925f157da242941e1602022335",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0076",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0076/v1/64/115380757e998e9f32fe9c14da13c104fb7aae48dcb22db656886071d363c675.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0076/v1/128/731640b65e7d5c4d9871312b2b8338c30e420939542856d132e1465813d38ce5.png",
+      "output64Hash": "115380757e998e9f32fe9c14da13c104fb7aae48dcb22db656886071d363c675",
+      "output128Hash": "731640b65e7d5c4d9871312b2b8338c30e420939542856d132e1465813d38ce5",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0083",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0083/v1/64/ecfce284c8fc8aa74fb6638f18a44eb0d20dd71b270522cdbf645e578be8948d.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0083/v1/128/2ec9d72ea5ce4eaf63ea047c971037a44d58d4af7b4023be1f40bf854369015c.png",
+      "output64Hash": "ecfce284c8fc8aa74fb6638f18a44eb0d20dd71b270522cdbf645e578be8948d",
+      "output128Hash": "2ec9d72ea5ce4eaf63ea047c971037a44d58d4af7b4023be1f40bf854369015c",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0086",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0086/v1/64/4f5a4da8c359b4fe520528f2fa6b74926fa9e49417206e75d64d575b951b10d7.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0086/v1/128/3a675360e037edb3076bbde69d040da0208c2789029613ca35e711d12f93d950.png",
+      "output64Hash": "4f5a4da8c359b4fe520528f2fa6b74926fa9e49417206e75d64d575b951b10d7",
+      "output128Hash": "3a675360e037edb3076bbde69d040da0208c2789029613ca35e711d12f93d950",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0091",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0091/v1/64/98656e0041f7b37014cedb2a180685923811be1840a7dabf6d701539a5aceefb.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0091/v1/128/ba7f80368512d8a84073e0aa88f99900ba2a1184321ac82ea36d205efb167c76.png",
+      "output64Hash": "98656e0041f7b37014cedb2a180685923811be1840a7dabf6d701539a5aceefb",
+      "output128Hash": "ba7f80368512d8a84073e0aa88f99900ba2a1184321ac82ea36d205efb167c76",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0093",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0093/v1/64/a868fb23a97379e1a4be9db01893929a006462a617f8e8bd709baecfbe0b9b0b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0093/v1/128/775914e30a517928bd679cc32295e8c1b0abc3dc27325a10d8a97b6ae73081d4.png",
+      "output64Hash": "a868fb23a97379e1a4be9db01893929a006462a617f8e8bd709baecfbe0b9b0b",
+      "output128Hash": "775914e30a517928bd679cc32295e8c1b0abc3dc27325a10d8a97b6ae73081d4",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0095",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0095/v1/64/668935f265796b218e2aa146c74910fe76ca747aedc2f508b1d1ecc2a68bb86d.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0095/v1/128/acfb5e9b1abe806953625fa7ce3cbfc2148c9801627f1c990daaf212337c61a7.png",
+      "output64Hash": "668935f265796b218e2aa146c74910fe76ca747aedc2f508b1d1ecc2a68bb86d",
+      "output128Hash": "acfb5e9b1abe806953625fa7ce3cbfc2148c9801627f1c990daaf212337c61a7",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0102",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0102/v1/64/35ec35df3194c7e776cde29af3a614c2a0ce29c2bda2512cd673cecddf473a60.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0102/v1/128/70d944b7c183351e983b77e31becdeec22bca9329124cb598df8c0e37754dc9c.png",
+      "output64Hash": "35ec35df3194c7e776cde29af3a614c2a0ce29c2bda2512cd673cecddf473a60",
+      "output128Hash": "70d944b7c183351e983b77e31becdeec22bca9329124cb598df8c0e37754dc9c",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0103",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0103/v1/64/efdf8aef7285a4cdbd78d8845c7dcfc13ae3bf85e98ab96e8bd5a0adf9d5463b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0103/v1/128/921f106712a6920ff1149ab5fd1f10198a7257df465324c6cd88d4d2b512009a.png",
+      "output64Hash": "efdf8aef7285a4cdbd78d8845c7dcfc13ae3bf85e98ab96e8bd5a0adf9d5463b",
+      "output128Hash": "921f106712a6920ff1149ab5fd1f10198a7257df465324c6cd88d4d2b512009a",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0104",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0104/v1/64/1f70e77d48945f3e6965af1fe4498b6285e1c1799b6c2a3174f3ee4344255385.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0104/v1/128/53fa862d45ceceacb7cf21bf616d23b5e5dcc2ef33fe4f8b6ab0575c43f1533c.png",
+      "output64Hash": "1f70e77d48945f3e6965af1fe4498b6285e1c1799b6c2a3174f3ee4344255385",
+      "output128Hash": "53fa862d45ceceacb7cf21bf616d23b5e5dcc2ef33fe4f8b6ab0575c43f1533c",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0116",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0116/v1/64/653fa16e4b68d716fb06689e9ac544513e1d3676052e88d544432a29baefe144.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0116/v1/128/0cfa7b3f2dc5130fbe465621b0d9b25f3bbed543ee1e6818496e60ae89d898ae.png",
+      "output64Hash": "653fa16e4b68d716fb06689e9ac544513e1d3676052e88d544432a29baefe144",
+      "output128Hash": "0cfa7b3f2dc5130fbe465621b0d9b25f3bbed543ee1e6818496e60ae89d898ae",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0117",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0117/v1/64/7a6a33281d27217bcd2005a9552177bd8071f7c3c9d7f4c88052b7c22a6cc63e.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0117/v1/128/206e7153dee5a09cc970c9b7c264a22b74333c78ef6905f49e22bb415bbc5fca.png",
+      "output64Hash": "7a6a33281d27217bcd2005a9552177bd8071f7c3c9d7f4c88052b7c22a6cc63e",
+      "output128Hash": "206e7153dee5a09cc970c9b7c264a22b74333c78ef6905f49e22bb415bbc5fca",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0121",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0121/v1/64/3a575fc41bc6143d0cfbfe51f9c92b6184e1aa495a4629ba0f8072694123a7e9.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0121/v1/128/dccb65b1e00969b49fe6d7f26919314392bf01e674b46a94ac9761f8f0bd91fa.png",
+      "output64Hash": "3a575fc41bc6143d0cfbfe51f9c92b6184e1aa495a4629ba0f8072694123a7e9",
+      "output128Hash": "dccb65b1e00969b49fe6d7f26919314392bf01e674b46a94ac9761f8f0bd91fa",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0123",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0123/v1/64/9d8b1a25dfc99bddc858c38ae12f5cece03565d31b9a2f415b274832213fb4ba.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0123/v1/128/75d25b1f0f5c27ce073fe1a491bb44cd5636c801e30da1c3dafaa2da861092ab.png",
+      "output64Hash": "9d8b1a25dfc99bddc858c38ae12f5cece03565d31b9a2f415b274832213fb4ba",
+      "output128Hash": "75d25b1f0f5c27ce073fe1a491bb44cd5636c801e30da1c3dafaa2da861092ab",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0136",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0136/v1/64/cb0e550ae9c42a6ee09579777a1a8644926df4b33de7d9b690da29cacb377153.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0136/v1/128/f84a95432b7843dbb741f91ccc78ff86e217826ec9f9684e0f0daf7701b56810.png",
+      "output64Hash": "cb0e550ae9c42a6ee09579777a1a8644926df4b33de7d9b690da29cacb377153",
+      "output128Hash": "f84a95432b7843dbb741f91ccc78ff86e217826ec9f9684e0f0daf7701b56810",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0138",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0138/v1/64/fd3731a84952c608cfed998b352c26e5c6450814571744c4ea0abd5526b8896c.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0138/v1/128/8a1e60ad64c7a107e4014f0d6a2ed4974e95382a87f459cd4792346c16897b20.png",
+      "output64Hash": "fd3731a84952c608cfed998b352c26e5c6450814571744c4ea0abd5526b8896c",
+      "output128Hash": "8a1e60ad64c7a107e4014f0d6a2ed4974e95382a87f459cd4792346c16897b20",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
       "tokenId": "rpt-0142",
       "logoVersion": 1,
       "output64Path": "public/assets/rushpi/token-logos/rpt-0142/v1/64/c3d56461dbb50300c9343a54a4e01c557a3164d412ee5d2afe6cc4acdc52c5e8.png",
       "output128Path": "public/assets/rushpi/token-logos/rpt-0142/v1/128/dd88ab20fa1906739bc098c3b34fc4f0277d2fbe5fdd993f99f7d230d4c58456.png",
       "output64Hash": "c3d56461dbb50300c9343a54a4e01c557a3164d412ee5d2afe6cc4acdc52c5e8",
       "output128Hash": "dd88ab20fa1906739bc098c3b34fc4f0277d2fbe5fdd993f99f7d230d4c58456",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0144",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0144/v1/64/38b0209198ebed8def4c2e5780e4f28c951f44be97153f33b96fe3d59d79685b.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0144/v1/128/65ee97c58b978b69a0a0c965bee12fb0eef69c4632e596fc3f18a29ef18eda7c.png",
+      "output64Hash": "38b0209198ebed8def4c2e5780e4f28c951f44be97153f33b96fe3d59d79685b",
+      "output128Hash": "65ee97c58b978b69a0a0c965bee12fb0eef69c4632e596fc3f18a29ef18eda7c",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0145",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0145/v1/64/07d15fb92fe1e3a5b6eba984c1d8c6c5a23a8e2884a8cd398e8022faf37c09a7.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0145/v1/128/f4205b61581bfb5fd00e2da11724de4f58365ab7cc9fffb5e567856e9f149548.png",
+      "output64Hash": "07d15fb92fe1e3a5b6eba984c1d8c6c5a23a8e2884a8cd398e8022faf37c09a7",
+      "output128Hash": "f4205b61581bfb5fd00e2da11724de4f58365ab7cc9fffb5e567856e9f149548",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0150",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0150/v1/64/15f935fa24c35fbc32c2ba8bbe583ebfac0565c18fc4ea4dbea0effe38673c49.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0150/v1/128/f2b669763858e8994872f099eab0c51eb25cff45cea85d1fe0ce4d35fd8573d8.png",
+      "output64Hash": "15f935fa24c35fbc32c2ba8bbe583ebfac0565c18fc4ea4dbea0effe38673c49",
+      "output128Hash": "f2b669763858e8994872f099eab0c51eb25cff45cea85d1fe0ce4d35fd8573d8",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0154",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0154/v1/64/f4327b4f48777baf05bee11e7a8a5e5e29465a3dae297271bd3dafe82747e0a6.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0154/v1/128/047f220dfec9b4b92e61c2171d11608d68e044103044098774a708123eafe4f7.png",
+      "output64Hash": "f4327b4f48777baf05bee11e7a8a5e5e29465a3dae297271bd3dafe82747e0a6",
+      "output128Hash": "047f220dfec9b4b92e61c2171d11608d68e044103044098774a708123eafe4f7",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0158",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0158/v1/64/ee60e896333c707da64d926f60bb64d5c1947de1db1d4b7aa30a8d68d2b7a15e.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0158/v1/128/54c1f60682512c28074ca951c3757a2507c5981250e80249b0da6a5618484328.png",
+      "output64Hash": "ee60e896333c707da64d926f60bb64d5c1947de1db1d4b7aa30a8d68d2b7a15e",
+      "output128Hash": "54c1f60682512c28074ca951c3757a2507c5981250e80249b0da6a5618484328",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0160",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0160/v1/64/e8c9e64f7d85e469eb788b2c6d0e60313c2ce73726ca6a77884f818f366430ec.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0160/v1/128/859ca041efbfba1af6410151ef03a80792e231e84a4d2430fddab23d850263ab.png",
+      "output64Hash": "e8c9e64f7d85e469eb788b2c6d0e60313c2ce73726ca6a77884f818f366430ec",
+      "output128Hash": "859ca041efbfba1af6410151ef03a80792e231e84a4d2430fddab23d850263ab",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0173",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0173/v1/64/c82b6f47a6736b6dd3e5b49c6921277088bb90cdba21c9f762f5e181178e25b1.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0173/v1/128/207176cd077c2b486b39ecfe2485c95b604da6279c8083ae79fcf1d106f7c290.png",
+      "output64Hash": "c82b6f47a6736b6dd3e5b49c6921277088bb90cdba21c9f762f5e181178e25b1",
+      "output128Hash": "207176cd077c2b486b39ecfe2485c95b604da6279c8083ae79fcf1d106f7c290",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0184",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0184/v1/64/9574dca2618db2eb0724a034e4b7948d5aa1025eb26391ed99ec283174cbaee9.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0184/v1/128/404ca8d16668f9edc6d4e968c700e47f055a154a4dbcacd28b1d50ef45ba13e9.png",
+      "output64Hash": "9574dca2618db2eb0724a034e4b7948d5aa1025eb26391ed99ec283174cbaee9",
+      "output128Hash": "404ca8d16668f9edc6d4e968c700e47f055a154a4dbcacd28b1d50ef45ba13e9",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0198",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0198/v1/64/15ad8e59d58d85ff9058fc7d4d1f14406971afbda8e76c4b09e59094ca2d25eb.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0198/v1/128/10d89376f6e3e450c20cc139be1fe446ac2699d85e0a3a49bdb85f16f6a336b3.png",
+      "output64Hash": "15ad8e59d58d85ff9058fc7d4d1f14406971afbda8e76c4b09e59094ca2d25eb",
+      "output128Hash": "10d89376f6e3e450c20cc139be1fe446ac2699d85e0a3a49bdb85f16f6a336b3",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0200",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0200/v1/64/44eca1bd2fd8e109f320cb322453d92aad6f5f05df07829a3a8b1d117934f6ca.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0200/v1/128/32be64e368a1cb1896a8500377c31bb093f925b4af88d451aa4b0a298e3ef73d.png",
+      "output64Hash": "44eca1bd2fd8e109f320cb322453d92aad6f5f05df07829a3a8b1d117934f6ca",
+      "output128Hash": "32be64e368a1cb1896a8500377c31bb093f925b4af88d451aa4b0a298e3ef73d",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0209",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0209/v1/64/1e0a7985939d7296819cb5137f34ad55e9669fb7b0740e9f4012f2f053fdeccb.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0209/v1/128/0c6320378733215e1b0edc1408f9446d949f6f6f042026112b8fae2d19b536a3.png",
+      "output64Hash": "1e0a7985939d7296819cb5137f34ad55e9669fb7b0740e9f4012f2f053fdeccb",
+      "output128Hash": "0c6320378733215e1b0edc1408f9446d949f6f6f042026112b8fae2d19b536a3",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0211",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0211/v1/64/786e0fadd40310e44f8a1d40da9589d41893aaff5e122392eb555469f4f45f24.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0211/v1/128/66bdd9759cf73336f4001d9475bd78ffd4990b3daff9c4a4d4cebf79c9ba737b.png",
+      "output64Hash": "786e0fadd40310e44f8a1d40da9589d41893aaff5e122392eb555469f4f45f24",
+      "output128Hash": "66bdd9759cf73336f4001d9475bd78ffd4990b3daff9c4a4d4cebf79c9ba737b",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0213",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0213/v1/64/62e4c983a04f4e24db7ac22f1b3295df2bb1688025503511673dceff82aad56c.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0213/v1/128/0ab19079bfb425f286fa9f706949e79c72b903ca4f5083eb97b339d4571d7cb8.png",
+      "output64Hash": "62e4c983a04f4e24db7ac22f1b3295df2bb1688025503511673dceff82aad56c",
+      "output128Hash": "0ab19079bfb425f286fa9f706949e79c72b903ca4f5083eb97b339d4571d7cb8",
+      "output64MimeType": "image/png",
+      "output128MimeType": "image/png"
+    },
+    {
+      "tokenId": "rpt-0235",
+      "logoVersion": 1,
+      "output64Path": "public/assets/rushpi/token-logos/rpt-0235/v1/64/033dc428b00b4e383883b66ca472f6808975c7fce12d6e25d61a9a4694381c71.png",
+      "output128Path": "public/assets/rushpi/token-logos/rpt-0235/v1/128/852dd8c1b309ddb30f954c46af3f455c4008975d700993a91043b31d4f7082fa.png",
+      "output64Hash": "033dc428b00b4e383883b66ca472f6808975c7fce12d6e25d61a9a4694381c71",
+      "output128Hash": "852dd8c1b309ddb30f954c46af3f455c4008975d700993a91043b31d4f7082fa",
       "output64MimeType": "image/png",
       "output128MimeType": "image/png"
     },

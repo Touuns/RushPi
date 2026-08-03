@@ -60,10 +60,12 @@ function spec(coingeckoId: string): DailyTokenSpec {
 }
 
 // coingecko ids: bitcoin→rpt-0001 (in manifest), ethereum→rpt-0002 (in),
-// ripple→rpt-0003 (NOT in manifest), and an unmapped id.
+// near→rpt-0019 (mapped but NOT in the manifest), and an unmapped id.
+// Phase 13-Q1 released 53 further logos, so the "mapped but unreleased"
+// fixture must be a token that is still genuinely uncovered.
 const BTC = "bitcoin";
 const ETH = "ethereum";
-const RIPPLE = "ripple";
+const UNRELEASED = "near"; // rpt-0019, still without a local logo
 const UNKNOWN = "totally-unknown-token-xyz";
 
 /** Fake Image whose behaviour (onload / onerror / never-settle) is scripted. */
@@ -163,12 +165,12 @@ test("unknown CoinGecko id is skipped and reported", () => {
 
 test("known token with no manifest entry is skipped and reported", () => {
   const { plan, missingManifestTokenIds } = resolveDailyLogoPreloadPlan(
-    [spec(BTC), spec(RIPPLE)],
+    [spec(BTC), spec(UNRELEASED)],
     realIndex(),
     "standard",
   );
   assert.equal(plan.length, 1);
-  assert.deepEqual([...missingManifestTokenIds], ["rpt-0003"]);
+  assert.deepEqual([...missingManifestTokenIds], ["rpt-0019"]);
 });
 
 test("duplicate CoinGecko ids never queue the same key twice", () => {

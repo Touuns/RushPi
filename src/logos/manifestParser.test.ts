@@ -47,10 +47,18 @@ test("current committed manifest parses successfully", () => {
   const result = parseTokenLogoManifest(JSON.parse(raw));
   assert.equal(result.ok, true);
   if (result.ok) {
-    assert.equal(result.manifest.entryCount, 11);
-    assert.equal(result.manifest.entries.length, 11);
+    // Coverage grows as logos are released (Phase 13-Q1 took it from 11 to 64),
+    // so assert INTERNAL CONSISTENCY rather than a frozen count that has to be
+    // edited on every release — the count itself is enforced by logos:verify.
+    assert.equal(result.manifest.entryCount, result.manifest.entries.length);
+    assert.ok(result.manifest.entryCount >= 11, "coverage must never regress below the pilot");
+    assert.equal(
+      new Set(result.manifest.entries.map((e) => e.tokenId)).size,
+      result.manifest.entries.length,
+      "no duplicate tokenId",
+    );
     assert.equal(result.manifest.catalogVersion, "token-registry-v2-7b98c60e767128c1");
-    assert.equal(result.manifest.logoReleaseVersion, "logo-release-v1-b04b94bca7a50eb3");
+    assert.match(result.manifest.logoReleaseVersion, /^logo-release-v1-[0-9a-f]{16}$/);
     assert.equal(SUPPORTED_MANIFEST_SCHEMA_VERSION, 1);
   }
 });

@@ -79,7 +79,7 @@ function spec(coingeckoId: string, symbol = coingeckoId.slice(0, 4)): DailyToken
 
 const BTC = "bitcoin"; // → rpt-0001, in the manifest
 const ETH = "ethereum"; // → rpt-0002, in the manifest
-const RIPPLE = "ripple"; // → rpt-0003, NOT in the manifest
+const UNRELEASED = "near"; // rpt-0019: mapped, but still without a local logo
 const UNKNOWN = "totally-unknown-token-xyz"; // no tokenId mapping at all
 const BTC_KEY = "token-logo:rpt-0001:v1";
 
@@ -284,8 +284,8 @@ test("resolver is keyed by CoinGecko id, never by symbol", async () => {
 });
 
 test("resolver returns null for a token mapped but absent from the manifest", async () => {
-  await preloadDailyTokenLogos("2026-07-27", [spec(BTC), spec(RIPPLE)], baseDeps());
-  assert.equal(resolveDailyTokenLogoTextureKey(RIPPLE), null);
+  await preloadDailyTokenLogos("2026-07-27", [spec(BTC), spec(UNRELEASED)], baseDeps());
+  assert.equal(resolveDailyTokenLogoTextureKey(UNRELEASED), null);
 });
 
 test("resolver returns null for an unmapped CoinGecko id", async () => {
