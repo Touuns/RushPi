@@ -10,6 +10,7 @@ import ModeIntroModal, {
   markIntroSeen,
   type IntroMode,
 } from "./ModeIntroModal";
+import { LANE_CONTROL_INSTRUCTION } from "./modeGuidance";
 
 function streakMessage(streak: StreakInfo): string {
   if (streak.playedToday) return "🔥 Come back tomorrow to keep your streak!";
@@ -195,7 +196,9 @@ export default function HomeScreen({
             aria-label="How to play Daily Run"
             onClick={() => setIntro("daily")}
           >
-            ?
+            <span className="mode-info__mark" aria-hidden="true">
+              ?
+            </span>
           </button>
         </div>
 
@@ -217,7 +220,9 @@ export default function HomeScreen({
               aria-label="How to play Survival"
               onClick={() => setIntro("survival")}
             >
-              ?
+              <span className="mode-info__mark" aria-hidden="true">
+                ?
+              </span>
             </button>
           </div>
 
@@ -237,7 +242,9 @@ export default function HomeScreen({
               aria-label="How to play Campaign"
               onClick={() => setIntro("campaign")}
             >
-              ?
+              <span className="mode-info__mark" aria-hidden="true">
+                ?
+              </span>
             </button>
           </div>
         </div>
@@ -265,7 +272,7 @@ export default function HomeScreen({
         testPaymentDone={profile.piTestPaymentCompleted}
       />
 
-      <p className="home__hint">Swipe or use ← → to switch lanes</p>
+      <p className="home__hint">{LANE_CONTROL_INSTRUCTION}</p>
 
       {modal === "connect" && (
         <div className="modal-overlay" role="dialog" aria-modal="true">

@@ -11,6 +11,11 @@
   --orange: #ff7a3d;
   --gold: #ffd166;
   --danger: #ff4d6d;
+  /* Phase 13A legend marks: mirrors PALETTE.shield/shieldRing/life in
+     src/game/theme.ts, so the Home legend matches the real in-game colours. */
+  --cyan: #38bdf8;
+  --cyan-ring: #7dd3fc;
+  --life-green: #34d399;
   --text: #f4f1fb;
   --text-dim: #b7aed0;
   --radius: 16px;
@@ -519,10 +524,30 @@ body {
   width: 100%;
 }
 
+/* Phase 13A: the actual clickable area is 44x44 (mobile touch-target
+   minimum); the visible circle inside (.mode-info__mark) stays the original
+   24x24 so the card isn't visually crowded. The button itself is a sibling
+   of .mode-card (never nested), positioned on top in its own corner, so it
+   never overlaps the card's own clickable surface. */
 .mode-info {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.mode-info__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -532,18 +557,52 @@ body {
   font-size: 0.78rem;
   font-weight: 800;
   line-height: 1;
-  cursor: pointer;
+}
+
+.mode-info:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 50%;
 }
 
 /* Mode intro (onboarding) modal. */
-.intro-modal {
+/* Phase 13A-RV1: two classes (not one) so this reliably beats the shared
+   .modal { text-align: center } rule regardless of stylesheet order — the
+   previous single-class .intro-modal override lost that cascade fight,
+   which is why every line read as centered body text instead of the
+   intended left-aligned rules/legend. */
+/* Phase 13A-RV3: the modal itself no longer scrolls as one long sheet — it
+   is a fixed-height shell with three flex regions (header / body / footer).
+   Only .intro-modal__body scrolls; header and footer stay pinned so the
+   title, close button, control reminder and Play are always visible. */
+.modal.intro-modal {
   position: relative;
   text-align: left;
-  max-height: min(78vh, 560px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  overscroll-behavior: contain;
+  padding: 0;
+  gap: 0;
+  max-height: min(82vh, 600px);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  /* Phase 13A-RV3: desktop gets a wider modal with enough height that
+     Daily's full content (now shorter: 2 rules, no legend note) fits
+     without an internal scrollbar, instead of reusing the cramped mobile
+     360px/560px cap. 448px is the effective ceiling — the whole app lives
+     inside the fixed 480px .app-frame column (unchanged), so 448px (480
+     minus the trimmed 16px overlay padding each side) is as wide as this
+     modal can get without touching that app-wide, out-of-scope container. */
+  .modal.intro-modal {
+    max-width: 448px;
+    max-height: min(80vh, 760px);
+  }
+}
+
+.intro-modal__header {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 18px 20px 10px;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.15);
 }
 
 .intro-modal .modal__title {
@@ -551,26 +610,106 @@ body {
   padding: 0 24px;
 }
 
+.intro-modal__body {
+  flex: 1 1 auto;
+  min-height: 0; /* required for a flex child to actually scroll instead of overflowing */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.intro-modal__footer {
+  flex: 0 0 auto;
+  padding: 10px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(167, 139, 250, 0.15);
+}
+
+/* Quick-objective line right under the title — the only other centered
+   prose in the modal; short by construction (one sentence), so centering
+   it doesn't create the ragged-line problem long lists had. */
+.intro-modal__tagline {
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-top: -4px;
+}
+
+/* A titled block ("RULES", "OBJECTS") — the four-part scaffold (tagline ->
+   rules -> objects -> CTA) that replaces one long undifferentiated flow. */
+.intro-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.intro-modal__section-label {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+/* Phase 13A: 44x44 clickable area; the visible ring (.intro-modal__close-mark)
+   stays the original 30x30. */
 .intro-modal__close {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.intro-modal__close-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 30px;
   height: 30px;
   border-radius: 50%;
   border: 1px solid rgba(183, 174, 208, 0.35);
-  background: transparent;
   color: var(--text-dim);
   font-size: 0.9rem;
-  cursor: pointer;
+}
+
+.intro-modal__close:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+/* Phase 13A-RV1: the control sentence moved to just above the CTA (a small
+   in-game "controls reminder" next to Start, not a headline element) and
+   shrunk further — secondary to everything above it. */
+.intro-modal__controls {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  opacity: 0.85;
+  margin: 2px 0 0;
 }
 
 .intro-modal__points {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  font-size: 0.9rem;
+  gap: 4px;
+  font-size: 0.86rem;
+  line-height: 1.35;
 }
 
 .intro-modal__points li::before {
@@ -583,7 +722,7 @@ body {
 .intro-modal__legend {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   padding: 10px 12px;
   border-radius: 10px;
   background: rgba(12, 7, 23, 0.5);
@@ -592,9 +731,20 @@ body {
   color: var(--text-dim);
 }
 
+/* Small nuance that doesn't earn its own legend row (e.g. Daily's logo vs
+   symbol fallback) — one short caption under the whole legend instead of a
+   second heavy row. */
+.intro-modal__legend-note {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  opacity: 0.75;
+  line-height: 1.35;
+}
+
 /* Small attribution/footnote line at the bottom of an intro modal (11B). */
 .intro-modal__footnote {
-  margin: 8px 0 0;
+  margin: 0;
   text-align: center;
   font-size: 0.72rem;
   color: var(--text-dim);
@@ -604,13 +754,190 @@ body {
 .intro-modal__legend-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.intro-modal__legend-icon {
-  min-width: 30px;
-  text-align: center;
+/* Phase 13A-RV1: name and effect stack on their own lines instead of one
+   run-on sentence, so each stays short enough to never wrap awkwardly. */
+.intro-modal__legend-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.intro-modal__legend-text strong {
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.25;
+}
+.intro-modal__legend-effect {
+  color: var(--text-dim);
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+/* ----------------------------------------------------------------------
+   Phase 13A legend-mark system: small CSS shapes that mirror the real
+   in-game geometry/colour (see src/game/theme.ts PALETTE + the *.ts
+   collectible builders in src/game/), never a bare emoji standing in for
+   the object. Purely decorative (aria-hidden on the wrapping span) — the
+   adjacent legend text always carries the meaning on its own.
+   ---------------------------------------------------------------------- */
+.legend-mark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Token: round, gold ring, dark face — matches makeTokenCollectible(). The
+   generic "picture" glyph stands for "shows the token's real logo" without
+   ever reproducing a specific project's actual artwork (the legend note
+   under the Objects list covers the not-yet-revealed symbol fallback). */
+.legend-mark--token-published {
+  border-radius: 50%;
+  background: #1b1230;
+  border: 2px solid var(--gold);
+}
+.legend-mark--token-published::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1.5px solid var(--text-dim);
+}
+
+/* Chain Block (Daily): gold rounded square, violet border — makeChainBlock(). */
+.legend-mark--chain-block {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--gold);
+  border: 2px solid var(--violet);
+}
+
+/* Energy orb (Survival/Campaign): plain gold round orb — makeOrb(PALETTE.energy). */
+.legend-mark--energy-orb {
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+/* Hazard: red/pink diamond with crossed bars — makeHazard(). The diamond
+   background is a separate rotated element so the "X" bars (siblings, each
+   independently rotated ±45deg) render as a true X in screen space rather
+   than inheriting the diamond's own rotation. */
+.legend-mark--hazard .legend-mark__diamond {
+  position: absolute;
+  inset: 3px;
+  background: var(--danger);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  transform: rotate(45deg);
+}
+.legend-mark--hazard .legend-mark__bar {
+  position: absolute;
+  width: 14px;
+  height: 2.5px;
+  background: #fff;
+}
+.legend-mark--hazard .legend-mark__bar--a {
+  transform: rotate(45deg);
+}
+.legend-mark--hazard .legend-mark__bar--b {
+  transform: rotate(-45deg);
+}
+
+/* Shield: cyan orb with a ring — makeShieldOrb(). */
+.legend-mark--shield {
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--cyan-ring);
+}
+
+/* Magnet: orange orb with a violet ring — makeMagnetOrb(). */
+.legend-mark--magnet {
+  border-radius: 50%;
+  background: var(--orange);
+  border: 2px solid var(--violet-soft);
+}
+
+/* Life Orb (Survival/Campaign): green orb with a white cross — makeLifeOrb(). */
+.legend-mark--life-orb {
+  border-radius: 50%;
+  background: var(--life-green);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+.legend-mark--life-orb .legend-mark__plus {
+  position: relative;
+  width: 12px;
+  height: 2.5px;
+  background: #fff;
+}
+.legend-mark--life-orb .legend-mark__plus::after {
+  content: "";
+  position: absolute;
+  top: -4.75px;
+  left: 4.75px;
+  width: 2.5px;
+  height: 12px;
+  background: #fff;
+}
+
+/* Full charge (Survival/Campaign): player orb (violet) + gold charge ring —
+   matches this.chargeAura around the player at max charge. */
+.legend-mark--charge-aura {
+  border-radius: 50%;
+  background: var(--violet);
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 0 2px rgba(12, 7, 23, 0.6);
+}
+
+/* Campaign stars: reuse the app's own ★ glyph (not an emoji), gold. */
+.legend-mark--stars {
+  width: auto;
+  gap: 1px;
+}
+.legend-mark__star {
   color: var(--gold);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.legend-mark__star::before {
+  content: "★";
+}
+
+/* Campaign level-failed: a plain "no-entry" ring + bar — 0 lives is an
+   outcome, not a falling collectible, so this is a status glyph rather than
+   a reproduction of a specific game shape. */
+.legend-mark--level-failed {
+  border-radius: 50%;
+  border: 2.5px solid var(--danger);
+}
+.legend-mark--level-failed .legend-mark__bar {
+  position: absolute;
+  width: 18px;
+  height: 2.5px;
+  background: var(--danger);
+  transform: rotate(-45deg);
+}
+
+/* Campaign finish gate: checkered flag pattern, matching the finish-gate
+   sequence's motif (theme.ts / MainScene startEndSequence) — a status glyph,
+   not a specific falling collectible. */
+.legend-mark--finish-gate .legend-mark__checker {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--text-dim);
+  background-color: #1b1230;
+  background-image:
+    linear-gradient(45deg, var(--text) 25%, transparent 25%, transparent 75%, var(--text) 75%),
+    linear-gradient(45deg, var(--text) 25%, transparent 25%, transparent 75%, var(--text) 75%);
+  background-size: 7px 7px;
+  background-position:
+    0 0,
+    7px 7px;
 }
 
 /* Campaign level card: 3 objectives + footer. */
@@ -1040,6 +1367,18 @@ body {
   padding: 24px;
   background: rgba(6, 3, 14, 0.72);
   backdrop-filter: blur(3px);
+}
+
+@media (min-width: 768px) {
+  /* Phase 13A-RV3: the whole app renders inside the fixed 480px .app-frame
+     phone column, even on desktop (unchanged, out of scope here) — that is
+     the real ceiling on any modal's width, well below typical desktop
+     content widths. Trimming the overlay's own padding is the only lever
+     available to get the intro modal closer to a comfortable desktop size
+     without touching .app-frame's app-wide layout. */
+  .modal-overlay {
+    padding: 16px;
+  }
 }
 
 .modal {

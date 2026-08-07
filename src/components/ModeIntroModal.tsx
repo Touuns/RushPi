@@ -1,11 +1,24 @@
+import {
+  LANE_CONTROL_INSTRUCTION,
+  MODE_GUIDANCE,
+  type IntroMode,
+  type LegendMarkKind,
+  type LegendRow,
+} from "./modeGuidance";
+
 /**
  * Mode onboarding modal (Phase 10B-P2). Shown automatically the FIRST time a
  * mode is launched, then never again (versioned localStorage flag); reopenable
  * anytime via the "?" buttons on Home. "Play" continues into the mode's normal
  * existing flow (for Daily: Pi connection / ranked-attempt logic untouched).
+ *
+ * Phase 13A: legend/copy content lives in `modeGuidance.ts` (source-derived,
+ * honest wording — see that file's audit notes); this component only renders
+ * it, plus the small CSS-shape "legend mark" system (never a bare emoji
+ * standing in for a rendered game object).
  */
 
-export type IntroMode = "daily" | "survival" | "campaign";
+export type { IntroMode };
 
 const INTRO_KEYS: Record<IntroMode, string> = {
   // Daily bumped to v2 for the Token Rush rework (Phase 11B) so existing
@@ -31,113 +44,120 @@ export function markIntroSeen(mode: IntroMode): void {
   }
 }
 
-interface IntroContent {
-  title: string;
-  points: string[];
-  legend: { icon: string; label: string }[];
-  /** Small footnote line (e.g. market data attribution). */
-  footnote?: string;
-}
-
-const CONTENT: Record<IntroMode, IntroContent> = {
-  daily: {
-    title: "Daily Token Rush",
-    points: [
-      "60-second ranked token race",
-      "Collect unique market tokens",
-      "Each token appears once",
-      "Collect Chain Blocks to build combo",
-      "Magnet attracts Chain Blocks only",
-      "Token prices come from today's market snapshot",
-      "3 ranked attempts per day",
-    ],
-    legend: [
-      { icon: "🪙", label: "Token logo = unique token collectible" },
-      { icon: "🟨", label: "Chain Block = repeatable combo collectible" },
-      { icon: "🔻", label: "Red diamond = hazard" },
-      { icon: "🛡", label: "Shield = absorbs one hit" },
-      { icon: "🧲", label: "Magnet = attracts Chain Blocks only" },
-    ],
-    footnote: "Market data by CoinGecko",
-  },
-  survival: {
-    title: "Survival",
-    points: [
-      "Start with 3 lives",
-      "Survive as long as possible",
-      "Cross different blockchain-inspired zones",
-      "Collect energy to charge the Pi orb",
-      "Maximum charge can absorb a hit",
-    ],
-    legend: [
-      { icon: "🟡", label: "Golden orb = Energy / charge" },
-      { icon: "🔻", label: "Red diamond = Lose one life" },
-      { icon: "💚", label: "Green Life Orb = Recover one life" },
-      { icon: "🛡", label: "Cyan Shield = Protects from one hit" },
-      { icon: "🧲", label: "Magnet = Attracts energy" },
-      { icon: "⚡", label: "Charge Lv 6 = Absorbs one hit, drops to Lv 4" },
-    ],
-  },
-  campaign: {
-    title: "Campaign — Chain Journey",
-    points: [
-      "Complete levels to unlock the next",
-      "Earn up to 3 stars per level",
-      "Progress is saved locally",
-      "Complete objectives before reaching the finish",
-    ],
-    legend: [
-      { icon: "★", label: "Finish the level" },
-      { icon: "★★", label: "Secondary objective" },
-      { icon: "★★★", label: "Mastery objective" },
-      { icon: "💔", label: "0 lives = Level Failed" },
-      { icon: "🏁", label: "Finish gate = Level Complete" },
-    ],
-  },
-};
-
 interface ModeIntroModalProps {
   mode: IntroMode;
   onPlay: () => void;
   onClose: () => void;
 }
 
+/**
+ * Small reusable legend-mark system (Phase 13A): each kind is a CSS shape
+ * that mirrors the real in-game geometry/colour (see `.legend-mark*` in
+ * global.css) — never a bare emoji standing in for the rendered object.
+ * Purely decorative: the adjacent name/effect text carries the meaning.
+ */
+function LegendMark({ kind, count }: { kind: LegendMarkKind; count?: number }) {
+  if (kind === "star") {
+    const n = count ?? 1;
+    return (
+      <span className="legend-mark legend-mark--stars" aria-hidden="true">
+        {Array.from({ length: n }, (_, i) => (
+          <span key={i} className="legend-mark__star" />
+        ))}
+      </span>
+    );
+  }
+  return (
+    <span className={`legend-mark legend-mark--${kind}`} aria-hidden="true">
+      {kind === "hazard" && (
+        <>
+          <span className="legend-mark__diamond" />
+          <span className="legend-mark__bar legend-mark__bar--a" />
+          <span className="legend-mark__bar legend-mark__bar--b" />
+        </>
+      )}
+      {kind === "level-failed" && <span className="legend-mark__bar" />}
+      {kind === "life-orb" && <span className="legend-mark__plus" />}
+      {kind === "finish-gate" && <span className="legend-mark__checker" />}
+    </span>
+  );
+}
+
+/** One compact legend row: mark, bold name, short effect — a single line
+ * whenever the copy is short enough, never a wrapped paragraph. */
+function LegendRowView({ row }: { row: LegendRow }) {
+  return (
+    <div className="intro-modal__legend-row">
+      <LegendMark kind={row.mark} count={row.count} />
+      <span className="intro-modal__legend-text">
+        <strong>{row.name}</strong>
+        <span className="intro-modal__legend-effect">{row.effect}</span>
+      </span>
+    </div>
+  );
+}
+
+/** Small uppercase section label — the "OBJECTIVE / RULES / OBJECTS" scaffold
+ * that replaces one long undifferentiated block of text (Phase 13A-RV1). */
+function SectionLabel({ children }: { children: string }) {
+  return <span className="intro-modal__section-label">{children}</span>;
+}
+
 export default function ModeIntroModal({ mode, onPlay, onClose }: ModeIntroModalProps) {
-  const c = CONTENT[mode];
+  const c = MODE_GUIDANCE[mode];
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={c.title}>
       <div className="modal intro-modal">
-        <button
-          className="intro-modal__close"
-          type="button"
-          aria-label="Close"
-          onClick={onClose}
-        >
-          ✕
-        </button>
-        <h2 className="modal__title">{c.title}</h2>
-
-        <ul className="intro-modal__points">
-          {c.points.map((p, i) => (
-            <li key={i}>{p}</li>
-          ))}
-        </ul>
-
-        <div className="intro-modal__legend">
-          {c.legend.map((l, i) => (
-            <div key={i} className="intro-modal__legend-row">
-              <span className="intro-modal__legend-icon">{l.icon}</span>
-              <span>{l.label}</span>
-            </div>
-          ))}
+        {/* Phase 13A-RV3: three fixed regions — header and footer never
+            scroll, only .intro-modal__body does, so the title/close stay
+            visible while reading and Play never requires scrolling to
+            reach. */}
+        <div className="intro-modal__header">
+          <h2 className="modal__title">{c.title}</h2>
+          <button
+            className="intro-modal__close"
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+          >
+            <span className="intro-modal__close-mark" aria-hidden="true">
+              ✕
+            </span>
+          </button>
         </div>
 
-        {c.footnote && <p className="intro-modal__footnote">{c.footnote}</p>}
+        <div className="intro-modal__body">
+          <p className="intro-modal__tagline">{c.tagline}</p>
 
-        <div className="modal__actions">
-          <button className="btn btn--primary" type="button" onClick={onPlay}>
-            Play
-          </button>
+          <div className="intro-modal__section">
+            <SectionLabel>Rules</SectionLabel>
+            <ul className="intro-modal__points">
+              {c.rules.map((r, i) => (
+                <li key={i}>{r}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="intro-modal__section">
+            <SectionLabel>Objects</SectionLabel>
+            <div className="intro-modal__legend">
+              {c.legend.map((row, i) => (
+                <LegendRowView key={i} row={row} />
+              ))}
+            </div>
+            {c.legendNote && <p className="intro-modal__legend-note">{c.legendNote}</p>}
+          </div>
+
+          {c.footnote && <p className="intro-modal__footnote">{c.footnote}</p>}
+        </div>
+
+        <div className="intro-modal__footer">
+          <p className="intro-modal__controls">{LANE_CONTROL_INSTRUCTION}</p>
+          <div className="modal__actions">
+            <button className="btn btn--primary" type="button" onClick={onPlay}>
+              Play
+            </button>
+          </div>
         </div>
       </div>
     </div>
