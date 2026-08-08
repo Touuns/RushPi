@@ -5,6 +5,8 @@ import type { DailyTokenSpec } from "../market/dailyTokenTypes";
 import { PROD_TEXTURE_KEYS } from "./productionAssets";
 import { shouldRenderDailyTokenLogo, resolveTokenLogoLayout } from "./dailyTokenLogoRender";
 import { BACKING_PLATE_WARM_NEUTRAL_COLOR } from "./dailyTokenLogoPresentation";
+import { resolveTokenIdFromCoinGeckoId } from "../logos/index.ts";
+import { ensureRushSigilTexture } from "./rushSigil";
 
 /**
  * Daily Token Rush gameplay helpers (Phase 11B). MainScene orchestrates the run;
@@ -179,16 +181,27 @@ function makeTokenLogoPresentation(
 }
 
 /**
- * Circular token collectible: glowing ring + dark coin face + centered logo
- * (or a procedural disc with the symbol when no logo texture is available) +
- * short symbol label. A gentle pulse animates the ring only — the container's
- * scale is owned by the track projection, so we never tween it.
+ * Circular token collectible: glowing halo + centered content + short symbol
+ * label below. A gentle pulse animates the ring only — the container's scale
+ * is owned by the track projection, so we never tween it.
+ *
+ * Phase 13-S1 visual resolution order for the centered content:
+ *   1. verified released local logo (unchanged — dark face + gold ring +
+ *      the preloaded project logo image, exactly as before this phase);
+ *   2. Rush Sigil ("Prismatic Core", rushSigil.ts) — a deterministic,
+ *      tokenId-only generated texture that IS the complete coin (its own
+ *      dark disc + curated-colour ring + core shape + ring cue), used for
+ *      every valid token with no released logo;
+ *   3. a neutral, non-text emergency disc — ONLY reached when the Sigil
+ *      texture itself fails to generate (invalid/corrupt state), never as
+ *      the normal presentation for an uncovered token. No ticker, no
+ *      initial, no symbol is ever drawn as this collectible's central
+ *      artwork again.
  *
  * `logoTextureKey` is the canonical, already-resolved Daily logo texture key
- * (token-logo:<tokenId>:v<logoVersion>) from the preload pipeline. It is the
- * ONLY logo source: when it is absent or its texture is missing, the exact
- * existing procedural disc + symbol path runs unchanged. The container contract
- * (origin, size class) is identical in both branches, so the caller's
+ * (token-logo:<tokenId>:v<logoVersion>) from the preload pipeline — the ONLY
+ * logo source, untouched by this phase. The container contract (origin, size
+ * class) is identical across all three branches, so the caller's
  * position/depth/hitbox handling is untouched.
  */
 export function makeTokenCollectible(
@@ -198,33 +211,47 @@ export function makeTokenCollectible(
 ): Phaser.GameObjects.Container {
   const r = TOKEN_RADIUS;
   const halo = scene.add.circle(0, 0, r * GLOW.outerScale, PALETTE.gold, GLOW.outerAlpha);
-  const face = scene.add.circle(0, 0, r, 0x1b1230, 1);
-  const ring = scene.add
-    .circle(0, 0, r + 2, PALETTE.gold, 0)
-    .setStrokeStyle(3, PALETTE.gold, 0.95);
 
-  const parts: Phaser.GameObjects.GameObject[] = [halo, face, ring];
+  const parts: Phaser.GameObjects.GameObject[] = [halo];
+  // Whatever plays the "ring" role in the chosen branch — the pulse below
+  // always animates this alongside the halo, regardless of which branch ran.
+  let pulseTarget: Phaser.GameObjects.GameObject = halo;
 
   const presentation = makeTokenLogoPresentation(scene, logoTextureKey);
   if (presentation) {
+    // 1. Released local logo — unchanged dark face + gold ring framing.
+    const face = scene.add.circle(0, 0, r, 0x1b1230, 1);
+    const ring = scene.add.circle(0, 0, r + 2, PALETTE.gold, 0).setStrokeStyle(3, PALETTE.gold, 0.95);
+    parts.push(face, ring);
+    pulseTarget = ring;
     // Presentation backing plate (if any) sits behind the logo, still inside
     // the dark face and clear of the gold ring above; no physics body, no
     // input, and destroyed with the rest of the container's children.
     if (presentation.backingPlate) parts.push(presentation.backingPlate);
     parts.push(presentation.logo);
   } else {
-    // Procedural fallback: colored disc + ≤4-char symbol, no broken image ever.
-    const disc = scene.add.circle(0, 0, r * 0.78, PALETTE.violet, 1);
-    disc.setStrokeStyle(2, PALETTE.white, 0.85);
-    const sym = scene.add
-      .text(0, 0, spec.symbol.toUpperCase().slice(0, 4), {
-        fontFamily: "Segoe UI, system-ui, sans-serif",
-        fontSize: "11px",
-        fontStyle: "bold",
-        color: "#ffffff",
-      })
-      .setOrigin(0.5);
-    parts.push(disc, sym);
+    // 2. Rush Sigil — the token's OWN dark disc + curated ring + core shape
+    // is the complete coin, so the shared face/ring above is intentionally
+    // skipped here (drawing both would double the ring). 3. emergency: only
+    // when the Sigil texture generation itself fails.
+    const tokenId = resolveTokenIdFromCoinGeckoId(spec.id) ?? null;
+    const sigilKey = tokenId ? ensureRushSigilTexture(scene, tokenId) : null;
+    if (sigilKey) {
+      const diameter = (r + 2) * 2; // matches the logo path's outer ring edge
+      const sigil = scene.add.image(0, 0, sigilKey).setOrigin(0.5);
+      sigil.setDisplaySize(diameter, diameter);
+      parts.push(sigil);
+      pulseTarget = sigil;
+    } else {
+      // Emergency fallback: neutral Rush Pi styling, no text, no ticker, no
+      // initial, no fake logo — only reached on a genuine render failure.
+      const face = scene.add.circle(0, 0, r, 0x1b1230, 1);
+      const ring = scene.add.circle(0, 0, r + 2, PALETTE.gold, 0).setStrokeStyle(3, PALETTE.gold, 0.95);
+      const dot = scene.add.circle(0, 0, r * 0.5, PALETTE.violet, 1);
+      dot.setStrokeStyle(2, PALETTE.white, 0.85);
+      parts.push(face, ring, dot);
+      pulseTarget = ring;
+    }
   }
 
   // Short symbol tag under the coin so tokens read as "market tokens" at a glance.
@@ -241,9 +268,9 @@ export function makeTokenCollectible(
 
   const container = scene.add.container(0, 0, parts);
 
-  // Subtle life: the ring pulses; scale stays untouched (projection owns it).
+  // Subtle life: the ring (or Sigil) pulses; scale stays untouched (projection owns it).
   scene.tweens.add({
-    targets: [ring, halo],
+    targets: [pulseTarget, halo],
     alpha: { from: 1, to: 0.55 },
     duration: 520,
     yoyo: true,

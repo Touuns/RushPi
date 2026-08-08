@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node --test src/logos/*.test.ts src/game/dailyLogoPreload.test.ts src/game/dailyTokenLogoRender.test.ts src/game/dailyTokenLogoPresentation.test.ts src/game/laneTransition.test.ts src/game/dailyRulesVersion.test.ts src/game/dailyRulesPolicy.test.ts src/game/q2Cleanup.test.ts src/components/modeGuidance.test.ts tools/logos/q1-coverage.test.mjs",
+    "test": "node --test src/logos/*.test.ts src/game/dailyLogoPreload.test.ts src/game/dailyTokenLogoRender.test.ts src/game/dailyTokenLogoPresentation.test.ts src/game/laneTransition.test.ts src/game/dailyRulesVersion.test.ts src/game/dailyRulesPolicy.test.ts src/game/q2Cleanup.test.ts src/components/modeGuidance.test.ts src/game/rushSigil.test.ts tools/logos/q1-coverage.test.mjs",
     "registry:build": "node tools/registry/build-v1.mjs",
     "registry:build-coingecko-map": "node tools/registry/build-coingecko-map.mjs",
     "registry:validate": "node tools/registry/validate.mjs",
