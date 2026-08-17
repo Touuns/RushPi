@@ -11,6 +11,13 @@ interface GameScreenProps {
   campaignLevelId?: number;
   /** Daily Token Rush manifest (Phase 11B); null outside Daily. */
   dailyChallenge?: DailyTokenChallenge | null;
+  /**
+   * True only for a ranked Daily run (Phase 13B): the server already reserved
+   * this attempt during preparation, before gameplay started, so quitting now
+   * cannot give it back. Honest-costs wording only — never changes whether or
+   * when an attempt is consumed.
+   */
+  dailyRanked?: boolean;
   onGameOver: (result: GameResult) => void;
   onQuit: () => void;
 }
@@ -79,6 +86,7 @@ export default function GameScreen({
   mode,
   campaignLevelId = 0,
   dailyChallenge = null,
+  dailyRanked = false,
   onGameOver,
   onQuit,
 }: GameScreenProps) {
@@ -226,7 +234,11 @@ export default function GameScreen({
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal">
             <h2 className="modal__title">Quit this run?</h2>
-            <p className="modal__text">Your current run progress will be lost.</p>
+            <p className="modal__text">
+              {dailyRanked
+                ? "This ranked run is already counted. Quitting won't give the attempt back."
+                : "Your current run progress will be lost."}
+            </p>
             <div className="modal__actions">
               <button className="btn btn--primary" type="button" onClick={keepPlaying}>
                 Keep playing

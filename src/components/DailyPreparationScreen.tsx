@@ -27,7 +27,7 @@ interface DailyPreparationScreenProps {
   onCancel: () => void;
 }
 
-type Step = "challenge" | "logos" | "claiming" | "starting" | "error";
+type Step = "challenge" | "logos" | "claiming" | "starting" | "empty-manifest" | "error";
 type ErrorKind = "generic" | "auth" | "limit" | "not-eligible";
 
 function todayUtc(): string {
@@ -109,6 +109,17 @@ export default function DailyPreparationScreen({
           return;
         }
 
+        // Phase 13B: a local (unranked) run with zero tokens today would
+        // otherwise start silently with nothing to collect. This is a missing
+        // MARKET DATA condition, distinct from a missing official logo (that
+        // case is already handled by the Prismatic Core renderer) and from an
+        // attempt-cost concern (no ranked attempt is at stake on this path,
+        // since `ranked && !c.rankedEligible` already returned above).
+        if (!ranked && c.tokens.length === 0) {
+          setStep("empty-manifest");
+          return;
+        }
+
         // Load the visual resources (verified local token logos + Daily
         // production assets) in parallel. Both always resolve with fallbacks —
         // a visual failure never blocks the claim, the run, or the submissionId.
@@ -177,6 +188,20 @@ export default function DailyPreparationScreen({
     retry();
   };
 
+  // Phase 13B: explicit opt-in to continue a zero-token local run. Runs the
+  // same preload the normal path would have run, then hands off exactly like
+  // the unranked branch of `prepare()` above.
+  const playAnyway = async () => {
+    if (!challenge) return;
+    setStep("logos");
+    await Promise.all([
+      preloadDailyProductionAssets(),
+      preloadDailyTokenLogos(challenge.challengeDate, challenge.tokens),
+    ]);
+    setStep("starting");
+    onReady(challenge, null);
+  };
+
   const stepLabel =
     step === "challenge"
       ? "Loading today's token challenge…"
@@ -191,7 +216,21 @@ export default function DailyPreparationScreen({
       <ScreenBackButton onBack={onCancel} label="Cancel" />
       <h2 className="daily-prep__title">Daily Token Rush</h2>
 
-      {step !== "error" ? (
+      {step === "empty-manifest" ? (
+        <>
+          <p className="daily-prep__step">
+            No tokens today — this run won't be ranked. Play anyway?
+          </p>
+          <div className="daily-prep__actions">
+            <button className="btn btn--primary" type="button" onClick={playAnyway}>
+              Play anyway
+            </button>
+            <button className="btn btn--secondary" type="button" onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : step !== "error" ? (
         <>
           <div className="daily-prep__spinner" aria-hidden="true" />
           <p className="daily-prep__step">{stepLabel}</p>

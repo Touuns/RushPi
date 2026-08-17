@@ -530,6 +530,7 @@ export default function App() {
           mode={mode}
           campaignLevelId={campaignLevelId}
           dailyChallenge={mode === "daily" ? dailyChallenge : null}
+          dailyRanked={mode === "daily" && runRankState === "ranked"}
           onGameOver={handleGameOver}
           onQuit={mode === "campaign" ? goCampaign : goHome}
         />
@@ -555,6 +556,8 @@ export default function App() {
           campaignStarsNew={campaignStarInfo.isNew}
           serverSync={serverSync}
           onRetrySync={retrySync}
+          attemptsLeft={data.attempts.left}
+          piConnected={piUser !== null}
           streak={data.streak}
           onPlayAgain={playAgain}
           onHome={goHome}

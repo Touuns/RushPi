@@ -20,6 +20,10 @@ interface ResultScreenProps {
   serverSync: ServerSyncStatus;
   /** Retry a failed-retryable ranked sync (Phase 11B-P4). */
   onRetrySync?: () => void;
+  /** Ranked Daily attempts left today (Phase 13B honest-costs label). */
+  attemptsLeft: number;
+  /** Whether Pi is connected — Play Again only spends a ranked attempt then. */
+  piConnected: boolean;
   streak: StreakInfo;
   onPlayAgain: () => void;
   onHome: () => void;
@@ -186,6 +190,8 @@ export default function ResultScreen({
   campaignStarsNew,
   serverSync,
   onRetrySync,
+  attemptsLeft,
+  piConnected,
   streak,
   onPlayAgain,
   onHome,
@@ -397,7 +403,9 @@ export default function ResultScreen({
 
         <div className="result__actions">
           <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
-            Play Again
+            {/* Phase 13B: honest cost — Play Again spends a ranked attempt only
+                when Pi is connected; state that count instead of a bare label. */}
+            {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
           </button>
           <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
             Leaderboard
