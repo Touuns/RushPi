@@ -355,9 +355,11 @@ export default function ResultScreen({
           </div>
         </div>
 
+        {/* Phase 13C: "Tokens Collected" is deliberately not repeated here —
+            the token-summary card above is already its one canonical
+            representation; a second identical tile added nothing but height. */}
         <KeyStats
           stats={[
-            { label: "Tokens Collected", value: `${tokensCollected}/${tokensTotal}` },
             { label: "Blocks Collected", value: result.energiesCollected },
             { label: "Max Combo", value: `x${result.maxCombo}` },
           ]}
@@ -375,6 +377,22 @@ export default function ResultScreen({
           </button>
         )}
         {streakMessage && <p className="result__streak">{streakMessage}</p>}
+
+        {/* Phase 13C: actions before details — the primary CTA must be
+            reachable without scrolling past the collapsible breakdown. */}
+        <div className="result__actions">
+          <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
+            {/* Phase 13B: honest cost — Play Again spends a ranked attempt only
+                when Pi is connected; state that count instead of a bare label. */}
+            {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+            Leaderboard
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onHome}>
+            Back Home
+          </button>
+        </div>
 
         <details className="result__details">
           <summary>View details</summary>
@@ -400,20 +418,6 @@ export default function ResultScreen({
           <p className="result__footnote">Prices fixed from today's UTC market snapshot</p>
           <p className="result__footnote">Market data by CoinGecko</p>
         </details>
-
-        <div className="result__actions">
-          <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
-            {/* Phase 13B: honest cost — Play Again spends a ranked attempt only
-                when Pi is connected; state that count instead of a bare label. */}
-            {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
-          </button>
-          <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
-            Leaderboard
-          </button>
-          <button className="btn btn--secondary" type="button" onClick={onHome}>
-            Back Home
-          </button>
-        </div>
       </div>
     );
   }
