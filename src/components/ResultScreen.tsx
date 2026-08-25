@@ -20,6 +20,15 @@ interface ResultScreenProps {
   serverSync: ServerSyncStatus;
   /** Retry a failed-retryable ranked sync (Phase 11B-P4). */
   onRetrySync?: () => void;
+  /**
+   * Phase 13D → 13E handoff. True only for the result produced by the Guided
+   * First Run. 13D deliberately does NOT change this screen's presentation —
+   * it only tags the root element (`is-first-run`) so the state is real,
+   * inspectable and testable. Phase 13E replaces the presentation here with
+   * "You've got it" / "Try the Daily Run"; until then the ordinary Training
+   * result renders unchanged.
+   */
+  guidedFirstRunResult?: boolean;
   /** Ranked Daily attempts left today (Phase 13B honest-costs label). */
   attemptsLeft: number;
   /** Whether Pi is connected — Play Again only spends a ranked attempt then. */
@@ -190,6 +199,7 @@ export default function ResultScreen({
   campaignStarsNew,
   serverSync,
   onRetrySync,
+  guidedFirstRunResult = false,
   attemptsLeft,
   piConnected,
   streak,
@@ -456,7 +466,11 @@ export default function ResultScreen({
       ];
 
   return (
-    <div className="screen result">
+    // Phase 13D: `is-first-run` marks the Guided First Run's result. It carries
+    // NO styling today — it is the seam Phase 13E will build the "You've got
+    // it" / "Try the Daily Run" presentation on, kept here so the 13D→13E
+    // handoff is a real, inspectable, testable piece of state.
+    <div className={`screen result ${guidedFirstRunResult ? "is-first-run" : ""}`}>
       <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="result__title">{isSurvival ? "Run Ended" : "Run Complete"}</h2>
 

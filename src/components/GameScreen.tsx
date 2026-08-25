@@ -18,6 +18,15 @@ interface GameScreenProps {
    * when an attempt is consumed.
    */
   dailyRanked?: boolean;
+  /**
+   * Phase 13D: this run is the one-time Guided First Run (Training, unmodified
+   * rules). Purely presentational — it swaps the ordinary quit button for a
+   * single "Skip →" affordance so the run has exactly one navigation action.
+   * Never true for a returning player's manually-started Training run.
+   */
+  guidedFirstRun?: boolean;
+  /** Leave the Guided First Run immediately (no confirmation, no run recorded). */
+  onSkipGuidedFirstRun?: () => void;
   onGameOver: (result: GameResult) => void;
   onQuit: () => void;
 }
@@ -87,6 +96,8 @@ export default function GameScreen({
   campaignLevelId = 0,
   dailyChallenge = null,
   dailyRanked = false,
+  guidedFirstRun = false,
+  onSkipGuidedFirstRun,
   onGameOver,
   onQuit,
 }: GameScreenProps) {
@@ -153,8 +164,10 @@ export default function GameScreen({
 
   return (
     <div className="game-screen">
-      {/* HUD overlay — pointerEvents disabled so taps reach the Phaser canvas. */}
-      <div className="hud" aria-hidden="true">
+      {/* HUD overlay — pointerEvents disabled so taps reach the Phaser canvas.
+          Phase 13D: `--guided` re-reserves the corner gutter on the right for
+          "Skip →" so it never covers the Combo readout. */}
+      <div className={`hud ${guidedFirstRun ? "hud--guided" : ""}`} aria-hidden="true">
         <div className="hud__item">
           <span className="hud__label">Score</span>
           <span className="hud__value">{hud.score.toLocaleString()}</span>
@@ -224,11 +237,25 @@ export default function GameScreen({
         </div>
       )}
 
-      {/* Back arrow: opens a quit confirmation instead of quitting directly. */}
-      <ScreenBackButton
-        onBack={openQuitConfirm}
-        label={isCampaign ? "Quit level" : "Quit run"}
-      />
+      {/* Phase 13D — the Guided First Run has exactly ONE navigation action
+          ("Skip →", top-right), so the ordinary quit arrow is not rendered
+          alongside it. Every other run (normal Training, Daily, Survival,
+          Campaign) keeps the unchanged back-arrow + confirmation flow. */}
+      {guidedFirstRun ? (
+        <button
+          className="guided-skip"
+          type="button"
+          onClick={onSkipGuidedFirstRun}
+          aria-label="Skip the first run and go to the home screen"
+        >
+          Skip →
+        </button>
+      ) : (
+        <ScreenBackButton
+          onBack={openQuitConfirm}
+          label={isCampaign ? "Quit level" : "Quit run"}
+        />
+      )}
 
       {confirmQuit && (
         <div className="modal-overlay" role="dialog" aria-modal="true">

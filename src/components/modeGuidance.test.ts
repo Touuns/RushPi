@@ -310,8 +310,12 @@ test("no forbidden future Phase 13 persistence key is introduced anywhere", () =
     "src/App.tsx",
     "src/utils/storage.ts",
   ];
+  // This guard's purpose is "no phase implements a LATER phase's onboarding key
+  // early". `firstRunCompleted` was on this list while it was still future work;
+  // Phase 13D is the phase that delivers it (see PHASE-13-PLAN §9/§14), so it
+  // graduated off the list and is now pinned by src/utils/firstRunRouting.test.ts
+  // instead. The keys below still belong to 13E/13F and remain forbidden.
   const forbidden = [
-    "firstRunCompleted",
     "firstDailyResultSeen",
     "attemptCostAcknowledged",
     "coachMarksSeen",

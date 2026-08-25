@@ -22,9 +22,12 @@ import type {
   RunOutcome,
   StreakInfo,
 } from "../types";
-import { ALL_BADGES } from "./badges";
-import { CAMPAIGN_LEVELS } from "../game/campaign";
-import { DAILY_RULES_VERSION } from "../game/dailyRulesVersion";
+// Explicit .ts extensions (the convention already used across src/logos and
+// src/game) so this module resolves under Node's ESM loader and its Phase 13D
+// first-run migration can be tested against real behaviour, not source text.
+import { ALL_BADGES } from "./badges.ts";
+import { CAMPAIGN_LEVELS } from "../game/campaign.ts";
+import { DAILY_RULES_VERSION } from "../game/dailyRulesVersion.ts";
 
 const SAVE_KEY = "rushpi.save";
 const SAVE_VERSION = 1;
@@ -49,6 +52,20 @@ interface SaveData {
   badges: BadgeId[];
   dailyHistory: DailyHistoryEntry[];
   campaign: CampaignProgress;
+  /**
+   * Phase 13D — gates the one-time Guided First Run auto-launch.
+   *
+   * MIGRATION RULE (deliberate, and the opposite of every other field here):
+   * a brand-new save defaults to `false`, but an EXISTING pre-13D save that
+   * has no such field must normalize to `true`. Those two cases produce the
+   * same "field is absent" input, so the distinction cannot live in
+   * `normalize()` — only `loadSave()` knows whether a stored blob existed at
+   * all. See `normalize(parsed, saveExisted)`.
+   *
+   * Getting this backwards would push every already-onboarded player through
+   * the tutorial on their next launch.
+   */
+  firstRunCompleted: boolean;
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -93,6 +110,8 @@ function defaultSave(): SaveData {
     badges: [],
     dailyHistory: [],
     campaign: defaultCampaign(),
+    // A genuinely new player has not completed the first run yet (13D).
+    firstRunCompleted: false,
   };
 }
 
@@ -103,8 +122,13 @@ function num(value: unknown, fallback: number): number {
 }
 
 /** Deep-validate/merge a parsed blob against defaults so missing/corrupt fields
- *  never crash the app. Unknown shapes degrade gracefully to defaults. */
-function normalize(parsed: unknown): SaveData {
+ *  never crash the app. Unknown shapes degrade gracefully to defaults.
+ *
+ *  `saveExisted` (Phase 13D) tells this function whether `parsed` came from a
+ *  real stored save. It ONLY affects `firstRunCompleted`: an existing pre-13D
+ *  save with no such field belongs to a player who is already onboarded, so it
+ *  migrates to `true`; every other absent field keeps its usual default. */
+function normalize(parsed: unknown, saveExisted = false): SaveData {
   const base = defaultSave();
   if (!parsed || typeof parsed !== "object") return base;
 
@@ -228,7 +252,22 @@ function normalize(parsed: unknown): SaveData {
     starsByLevel,
   };
 
-  return { version: SAVE_VERSION, profile, leaderboard, badges, dailyHistory, campaign };
+  // Phase 13D first-run gate. An explicit boolean always wins. When the field
+  // is absent, the answer depends on whether this blob is a REAL existing save
+  // (a pre-13D player who is already past onboarding → true) or a synthesized
+  // default for a first-time player (→ false).
+  const firstRunCompleted =
+    typeof p.firstRunCompleted === "boolean" ? p.firstRunCompleted : saveExisted;
+
+  return {
+    version: SAVE_VERSION,
+    profile,
+    leaderboard,
+    badges,
+    dailyHistory,
+    campaign,
+    firstRunCompleted,
+  };
 }
 
 // ---- Low-level load/save -------------------------------------------------
@@ -237,7 +276,8 @@ function loadSave(): SaveData {
   try {
     const raw = window.localStorage.getItem(SAVE_KEY);
     if (raw) {
-      return normalize(JSON.parse(raw));
+      // A stored save exists → pre-13D blobs migrate to firstRunCompleted=true.
+      return normalize(JSON.parse(raw), true);
     }
     // First run on Phase 2: migrate a Phase 1 standalone best score if present.
     const legacy = window.localStorage.getItem(LEGACY_BEST_KEY);
@@ -335,6 +375,30 @@ export function getDailyHistory(): DailyHistoryEntry[] {
 
 export function getCampaignProgress(): CampaignProgress {
   return loadSave().campaign;
+}
+
+/**
+ * Phase 13D — has the player already been through (or skipped) the Guided
+ * First Run? Side-effect free: reading this NEVER writes a save, so merely
+ * booting the app cannot silently onboard-complete a first-time player.
+ *
+ * Returns true for every pre-13D save (see the migration rule on SaveData),
+ * so existing players go straight Home exactly as they do today.
+ */
+export function isFirstRunCompleted(): boolean {
+  return loadSave().firstRunCompleted;
+}
+
+/**
+ * Phase 13D — mark the Guided First Run as done (finished OR skipped).
+ * Idempotent, and preserves every other saved field: it round-trips the whole
+ * normalized save and only flips this one flag.
+ */
+export function markFirstRunCompleted(): void {
+  const save = loadSave();
+  if (save.firstRunCompleted) return; // already done — no write, no churn
+  save.firstRunCompleted = true;
+  persist(save);
 }
 
 /** Total Campaign stars earned across all levels (0..24). */

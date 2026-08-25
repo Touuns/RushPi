@@ -15,6 +15,8 @@ import {
   getRankedAttemptsToday,
   getStreakInfo,
   getUnlockedBadgeIds,
+  isFirstRunCompleted,
+  markFirstRunCompleted,
   markPiTestPaymentCompleted,
   recordRun,
   resetLocalProgress,
@@ -117,8 +119,35 @@ function readLocalData(): LocalData {
  * authority on the limit (this only improves the UX).
  */
 export default function App() {
-  const [screen, setScreen] = useState<Screen>("home");
-  const [mode, setMode] = useState<GameResult["mode"]>("daily");
+  /**
+   * Phase 13D — first-launch routing. Read ONCE, lazily, before the first
+   * render, so a genuine first-time player's very first painted frame is the
+   * Guided First Run itself. Deliberately not a useEffect redirect: that would
+   * paint Home for a frame first. `useState`'s lazy initializer runs during the
+   * initial render, so there is no Home flash.
+   *
+   * Held in a ref as well so the rest of the session keeps treating this run as
+   * the guided one even after the persisted flag flips to true (which happens
+   * the moment the first result is reached — see handleGameOver).
+   */
+  const guidedFirstRunRef = useRef(!isFirstRunCompleted());
+  const [guidedFirstRun, setGuidedFirstRun] = useState(guidedFirstRunRef.current);
+  /**
+   * Phase 13D → 13E handoff contract (session-only, never persisted).
+   *
+   * True only while the Result screen is showing the result produced BY the
+   * Guided First Run. 13E will consume this to swap in the "You've got it" /
+   * "Try the Daily Run" presentation. 13D itself only sets it — the ordinary
+   * Training result still renders, unchanged, for now.
+   */
+  const [guidedFirstRunResult, setGuidedFirstRunResult] = useState(false);
+
+  const [screen, setScreen] = useState<Screen>(() =>
+    guidedFirstRunRef.current ? "game" : "home",
+  );
+  const [mode, setMode] = useState<GameResult["mode"]>(() =>
+    guidedFirstRunRef.current ? "training" : "daily",
+  );
   const [result, setResult] = useState<GameResult | null>(null);
   const [outcome, setOutcome] = useState<RunOutcome | null>(null);
   const [data, setData] = useState<LocalData>(() => readLocalData());
@@ -185,11 +214,19 @@ export default function App() {
 
   // Initialize the Pi SDK on load, and inside Pi Browser auto-connect so the
   // username shows and every Daily run syncs without re-tapping "Connect Pi".
+  //
+  // Phase 13D: a genuine first-time player is dropped straight into the Guided
+  // First Run, and the canonical FRE requires "Pi login happens after Training,
+  // never before". So for that one session we still INITIALIZE the SDK (cheap,
+  // no UI, keeps `piSdkAvailable` honest) but skip the auto-authenticate call —
+  // no auth prompt competes with the player's first 60 seconds. Returning
+  // players keep today's auto-connect behavior byte-for-byte. Manual
+  // "Connect Pi" on Home stays available to everyone.
   useEffect(() => {
     const available = isPiBrowser();
     setPiSdkAvailable(available);
     void initPi();
-    if (available) {
+    if (available && !guidedFirstRunRef.current) {
       authenticatePi()
         .then(applySession)
         .catch(() => {
@@ -212,6 +249,10 @@ export default function App() {
   const beginRun = useCallback(
     (nextMode: GameResult["mode"], rankState: RunRankState) => {
       if (rankState === "ranked") consumeRankedAttempt();
+      // Any deliberately-started run leaves the guided context: a returning
+      // player picking Training must get the ordinary screen, never the Skip.
+      guidedFirstRunRef.current = false;
+      setGuidedFirstRun(false);
       setRunRankState(rankState);
       setMode(nextMode);
       setResult(null);
@@ -222,6 +263,23 @@ export default function App() {
     },
     [],
   );
+
+  /**
+   * Phase 13D — "Skip →" on the Guided First Run. Deliberately immediate and
+   * consequence-free: it records NO run, awards no XP, touches no counter, and
+   * never authenticates. It only marks the first run done so the auto-launch
+   * never fires again, then navigates Home through the normal React lifecycle
+   * (unmounting GameScreen, which destroys the Phaser game as it always does).
+   */
+  const skipGuidedFirstRun = useCallback(() => {
+    markFirstRunCompleted();
+    guidedFirstRunRef.current = false;
+    setGuidedFirstRun(false);
+    setResult(null);
+    setOutcome(null);
+    setData(readLocalData());
+    setScreen("home");
+  }, []);
 
   const playTraining = useCallback(() => beginRun("training", "training"), [beginRun]);
   // Survival is local-only → treated as unranked ("training" rank state): no
@@ -361,6 +419,20 @@ export default function App() {
 
   const handleGameOver = useCallback(
     (r: GameResult) => {
+      // Phase 13D — the canonical "freedom point": the instant the first result
+      // exists, the Guided First Run is done and never auto-launches again.
+      // The run itself is recorded by the normal recordRun() path below, with
+      // unchanged Training score/XP/stats. `guidedFirstRunResult` (session-only)
+      // survives this so Phase 13E can recognise THIS result as the first-run
+      // one — persistence alone can't, because the flag is already true by then.
+      if (guidedFirstRunRef.current) {
+        markFirstRunCompleted();
+        guidedFirstRunRef.current = false;
+        setGuidedFirstRunResult(true);
+        setGuidedFirstRun(false);
+      } else {
+        setGuidedFirstRunResult(false);
+      }
       // Read the previous best stars BEFORE recording, to flag "new stars earned".
       if (r.mode === "campaign") {
         const prevStars =
@@ -434,10 +506,30 @@ export default function App() {
     setScreen("profile");
   }, [refresh]);
 
+  /**
+   * Reset local data. Phase 13D: wiping the save genuinely restores first-run
+   * state (rushpi.save is gone → isFirstRunCompleted() is false again), so the
+   * app re-enters the Guided First Run immediately rather than showing a Home
+   * that a real clean bootstrap would never display. Same transition the
+   * bootstrap performs, just applied in-session.
+   */
   const handleReset = useCallback(() => {
     resetLocalProgress();
     refresh();
-    setScreen("home");
+    const restartGuided = !isFirstRunCompleted();
+    guidedFirstRunRef.current = restartGuided;
+    setGuidedFirstRun(restartGuided);
+    setGuidedFirstRunResult(false);
+    setResult(null);
+    setOutcome(null);
+    if (restartGuided) {
+      setMode("training");
+      setRunRankState("training");
+      setRunKey((k) => k + 1);
+      setScreen("game");
+    } else {
+      setScreen("home");
+    }
   }, [refresh]);
 
   return (
@@ -531,6 +623,8 @@ export default function App() {
           campaignLevelId={campaignLevelId}
           dailyChallenge={mode === "daily" ? dailyChallenge : null}
           dailyRanked={mode === "daily" && runRankState === "ranked"}
+          guidedFirstRun={guidedFirstRun}
+          onSkipGuidedFirstRun={skipGuidedFirstRun}
           onGameOver={handleGameOver}
           onQuit={mode === "campaign" ? goCampaign : goHome}
         />
@@ -540,6 +634,7 @@ export default function App() {
         <ResultScreen
           result={result}
           outcome={outcome}
+          guidedFirstRunResult={guidedFirstRunResult}
           bestScore={
             result.mode === "daily"
               ? // Phase 13-R2: the active (v3) best only — a v2 best would be a

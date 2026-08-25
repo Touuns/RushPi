@@ -294,6 +294,41 @@ body {
   cursor: not-allowed;
 }
 
+/* Phase 13D — "Skip →" on the Guided First Run. Mirrors .screen-back's
+   positioning contract (absolute, safe-area aware, 44px minimum target) but
+   sits top-RIGHT and is deliberately secondary: the run is the primary action,
+   so this is a quiet dim-text pill, never a gradient CTA and never danger-red. */
+.guided-skip {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top));
+  right: calc(10px + env(safe-area-inset-right));
+  z-index: 20;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 22px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: rgba(12, 7, 23, 0.6);
+  backdrop-filter: blur(4px);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guided-skip:active {
+  transform: scale(0.94);
+}
+
+.guided-skip:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 /* ---- 10B-P3: home header with the single Pi connection point ------------ */
 .home__header {
   display: flex;
@@ -1459,6 +1494,16 @@ body {
   gap: 8px;
   /* Let taps/swipes pass through to the canvas underneath. */
   pointer-events: none;
+}
+
+/* Phase 13D — during the Guided First Run the corner affordance is "Skip →" on
+   the RIGHT instead of the back arrow on the left, so the reserved padding
+   mirrors: room on the right for Skip, and the left gutter returns to normal.
+   Same technique the base rule already uses, so the Combo readout is never
+   covered. */
+.hud--guided {
+  padding-left: 14px;
+  padding-right: 96px;
 }
 
 .hud__item {
