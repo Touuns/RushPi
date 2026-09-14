@@ -22,13 +22,19 @@ interface ResultScreenProps {
   onRetrySync?: () => void;
   /**
    * Phase 13D → 13E handoff. True only for the result produced by the Guided
-   * First Run. 13D deliberately does NOT change this screen's presentation —
-   * it only tags the root element (`is-first-run`) so the state is real,
-   * inspectable and testable. Phase 13E replaces the presentation here with
-   * "You've got it" / "Try the Daily Run"; until then the ordinary Training
-   * result renders unchanged.
+   * First Run. 13D established the seam (`is-first-run`); 13E consumes it and
+   * swaps in the dedicated "You've got it" / "Try the Daily Run" presentation.
+   * Session-only and never persisted, so a reload after the freedom point
+   * shows Home — not a second First Result.
    */
   guidedFirstRunResult?: boolean;
+  /**
+   * Phase 13E — the First Result's primary CTA. Hands the player into the
+   * EXISTING Home Daily-entry flow (mode intro → connect / attempts →
+   * preparation); it must never start a Daily directly, so no ranked, auth or
+   * attempt logic is duplicated here.
+   */
+  onTryDailyRun?: () => void;
   /** Ranked Daily attempts left today (Phase 13B honest-costs label). */
   attemptsLeft: number;
   /** Whether Pi is connected — Play Again only spends a ranked attempt then. */
@@ -200,6 +206,7 @@ export default function ResultScreen({
   serverSync,
   onRetrySync,
   guidedFirstRunResult = false,
+  onTryDailyRun,
   attemptsLeft,
   piConnected,
   streak,
@@ -228,6 +235,55 @@ export default function ResultScreen({
   );
 
   const badgesBlock = <BadgeUnlockSummary badges={outcome.unlockedBadges} />;
+
+  // ---- Phase 13E: the one-time First Result ------------------------------
+  //
+  // Not the ordinary Training result with a new heading — a deliberately
+  // simpler screen. Canonical hierarchy (§5 / §14 of the FRE plan):
+  //   "You've got it" → one next-step line → score (small) → Try the Daily Run
+  //   → Play again / Explore.
+  //
+  // The underlying run is recorded EXACTLY as today (score, XP, level, badges,
+  // stats all persisted by recordRun before this renders). Only the
+  // presentation changes: the ordinary Training analytics — "not ranked" tag,
+  // XP gained, level-up, badge unlocks, Energy Collected, Max Combo, Obstacles
+  // Hit, View details, Leaderboard, Back Home — are withheld from this one
+  // screen so a first-time player meets three choices instead of a dashboard.
+  // Everything remains visible later in Profile, and every normal Training
+  // result is completely unchanged.
+  //
+  // No ordinary back arrow either: the three actions below ARE the navigation,
+  // and a fourth route would break the "exactly three" contract.
+  if (isTraining && guidedFirstRunResult) {
+    return (
+      <div className="screen result result--first-run is-first-run">
+        <h2 className="result__first-run-title">You've got it</h2>
+        <p className="result__first-run-line">You're ready for the Daily Run.</p>
+
+        {/* Present, but secondary and deliberately unjudged — no "Great score!",
+            no medal, no benchmark. A first score has nothing to compare to. */}
+        <div className="result__first-run-score">
+          <span className="result__first-run-score-label">Score</span>
+          <span className="result__first-run-score-value">
+            {result.score.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="result__actions">
+          <button className="btn btn--primary" type="button" onClick={onTryDailyRun}>
+            Try the Daily Run
+          </button>
+          {/* Equal secondary weight — neither is a greyed-out alternative. */}
+          <button className="btn btn--secondary" type="button" onClick={onPlayAgain}>
+            Play again
+          </button>
+          <button className="btn btn--secondary" type="button" onClick={onHome}>
+            Explore
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ---- Campaign: Level Complete / Level Failed --------------------------
   if (isCampaign) {
@@ -466,11 +522,10 @@ export default function ResultScreen({
       ];
 
   return (
-    // Phase 13D: `is-first-run` marks the Guided First Run's result. It carries
-    // NO styling today — it is the seam Phase 13E will build the "You've got
-    // it" / "Try the Daily Run" presentation on, kept here so the 13D→13E
-    // handoff is a real, inspectable, testable piece of state.
-    <div className={`screen result ${guidedFirstRunResult ? "is-first-run" : ""}`}>
+    // The ordinary Training / Survival result, unchanged. A Guided First Run
+    // result never reaches this branch (Phase 13E returns its own screen
+    // above), so every run that lands here keeps today's exact presentation.
+    <div className="screen result">
       <ScreenBackButton onBack={onHome} label="Back to Home" />
       <h2 className="result__title">{isSurvival ? "Run Ended" : "Run Complete"}</h2>
 

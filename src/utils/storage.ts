@@ -66,6 +66,24 @@ interface SaveData {
    * the tutorial on their next launch.
    */
   firstRunCompleted: boolean;
+  /**
+   * Phase 13E — gates the three one-time in-run coach marks (Move → Avoid →
+   * Collect) shown during the Guided First Run.
+   *
+   * MIGRATION RULE: an explicit boolean always wins; when the field is absent
+   * it INHERITS the normalized `firstRunCompleted`. That single rule produces
+   * every canonical outcome:
+   *   - genuine new player (no save)          → false / false
+   *   - legacy pre-13D/13E save (no fields)   → true  / true   (never re-taught)
+   *   - explicitly incomplete first run       → false / false  (cues can run)
+   *   - completed player                      → true  / true
+   *
+   * Deliberately a SEPARATE flag rather than a reuse of `firstRunCompleted`:
+   * the two flip at different moments (cues complete ~17 s into the run, the
+   * first run completes at the 60 s finish), so a player who closes the tab
+   * in between is re-offered the run but not the lesson.
+   */
+  coachMarksSeen: boolean;
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -110,8 +128,10 @@ function defaultSave(): SaveData {
     badges: [],
     dailyHistory: [],
     campaign: defaultCampaign(),
-    // A genuinely new player has not completed the first run yet (13D).
+    // A genuinely new player has not completed the first run yet (13D)
+    // and has not been shown the three coach marks yet (13E).
     firstRunCompleted: false,
+    coachMarksSeen: false,
   };
 }
 
@@ -259,6 +279,12 @@ function normalize(parsed: unknown, saveExisted = false): SaveData {
   const firstRunCompleted =
     typeof p.firstRunCompleted === "boolean" ? p.firstRunCompleted : saveExisted;
 
+  // Phase 13E coach-mark gate. An explicit boolean always wins; otherwise the
+  // flag INHERITS the answer above, so a legacy save never becomes eligible for
+  // the tutorial cues while an explicitly-unfinished first run still is.
+  const coachMarksSeen =
+    typeof p.coachMarksSeen === "boolean" ? p.coachMarksSeen : firstRunCompleted;
+
   return {
     version: SAVE_VERSION,
     profile,
@@ -267,6 +293,7 @@ function normalize(parsed: unknown, saveExisted = false): SaveData {
     dailyHistory,
     campaign,
     firstRunCompleted,
+    coachMarksSeen,
   };
 }
 
@@ -398,6 +425,32 @@ export function markFirstRunCompleted(): void {
   const save = loadSave();
   if (save.firstRunCompleted) return; // already done — no write, no churn
   save.firstRunCompleted = true;
+  persist(save);
+}
+
+/**
+ * Phase 13E — have the three in-run coach marks already been shown?
+ * Side-effect free, exactly like `isFirstRunCompleted()`: reading it never
+ * writes a save. Returns true for every pre-13E save (see the migration rule
+ * on SaveData), so no existing player is ever taught the basics again.
+ */
+export function areCoachMarksSeen(): boolean {
+  return loadSave().coachMarksSeen;
+}
+
+/**
+ * Phase 13E — record that the coach-mark sequence was actually presented.
+ *
+ * Called only once the THIRD cue has finished being displayed, never when the
+ * run merely starts: marking early would suppress cues the player never saw.
+ * Idempotent, and preserves every other saved field — including
+ * `firstRunCompleted`, which flips separately at the 60 s finish, so a player
+ * who leaves in between gets the Guided First Run back without the lesson.
+ */
+export function markCoachMarksSeen(): void {
+  const save = loadSave();
+  if (save.coachMarksSeen) return; // already seen — no write, no churn
+  save.coachMarksSeen = true;
   persist(save);
 }
 

@@ -314,11 +314,12 @@ test("no forbidden future Phase 13 persistence key is introduced anywhere", () =
   // early". `firstRunCompleted` was on this list while it was still future work;
   // Phase 13D is the phase that delivers it (see PHASE-13-PLAN §9/§14), so it
   // graduated off the list and is now pinned by src/utils/firstRunRouting.test.ts
-  // instead. The keys below still belong to 13E/13F and remain forbidden.
+  // instead. `coachMarksSeen` graduated the same way in Phase 13E and is now
+  // pinned by src/components/guidedCoachMarks.test.ts. The keys below still
+  // belong to 13F and remain forbidden.
   const forbidden = [
     "firstDailyResultSeen",
     "attemptCostAcknowledged",
-    "coachMarksSeen",
   ];
   for (const f of files) {
     const src = read(f);

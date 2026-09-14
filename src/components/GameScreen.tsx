@@ -5,6 +5,7 @@ import { RUN_DURATION_SECONDS } from "../game/gameConfig";
 import { GameEvents, type GameMode, type GameResult, type HudState } from "../types";
 import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import ScreenBackButton from "./ScreenBackButton";
+import { COACH_MARKS, type CoachMarkId } from "./coachMarks";
 
 interface GameScreenProps {
   mode: GameMode;
@@ -27,6 +28,17 @@ interface GameScreenProps {
   guidedFirstRun?: boolean;
   /** Leave the Guided First Run immediately (no confirmation, no run recorded). */
   onSkipGuidedFirstRun?: () => void;
+  /**
+   * Phase 13E: run the one-time Move → Avoid → Collect coach-mark sequence.
+   * The parent only ever passes true when this IS the Guided First Run AND the
+   * cues have not been seen before, so a second Training run, a returning
+   * player's Training, Daily, Survival and Campaign can never receive them.
+   * Read once at mount — flipping it mid-run neither starts nor restarts a
+   * sequence.
+   */
+  showCoachMarks?: boolean;
+  /** Fired once, after the THIRD cue has finished being displayed. */
+  onCoachMarksSeen?: () => void;
   onGameOver: (result: GameResult) => void;
   onQuit: () => void;
 }
@@ -98,6 +110,8 @@ export default function GameScreen({
   dailyRanked = false,
   guidedFirstRun = false,
   onSkipGuidedFirstRun,
+  showCoachMarks = false,
+  onCoachMarksSeen,
   onGameOver,
   onQuit,
 }: GameScreenProps) {
@@ -106,11 +120,23 @@ export default function GameScreen({
   // Keep the latest callback without re-running the mount effect.
   const onGameOverRef = useRef(onGameOver);
   onGameOverRef.current = onGameOver;
+  const onCoachMarksSeenRef = useRef(onCoachMarksSeen);
+  onCoachMarksSeenRef.current = onCoachMarksSeen;
 
   const [hud, setHud] = useState<HudState>(INITIAL_HUD);
   // Quit confirmation (10B-P4): the Phaser scene is paused while it is open.
   const [confirmQuit, setConfirmQuit] = useState(false);
   const quittingRef = useRef(false);
+  // Phase 13E — which coach mark is on screen right now (null = none). Driven
+  // by a fixed set of one-shot timers, never by a render loop.
+  const [coachMark, setCoachMark] = useState<CoachMarkId | null>(null);
+  /**
+   * Whether this mount is allowed to run the sequence at all, captured ONCE.
+   * The parent flips `showCoachMarks` to false as soon as the third cue is
+   * recorded; reading the prop directly in the effect below would then tear
+   * the schedule down and re-arm it on the next mount for the wrong run.
+   */
+  const coachMarksArmedRef = useRef(showCoachMarks);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -133,12 +159,54 @@ export default function GameScreen({
     // mode/level are fixed for the lifetime of a run; remounting changes them.
   }, [mode, campaignLevelId]);
 
+  /**
+   * Phase 13E — the coach-mark schedule. Deliberately the cheapest possible
+   * mechanism: a fixed, finite set of one-shot `setTimeout`s created once at
+   * mount from the static COACH_MARKS table.
+   *
+   * What it explicitly is NOT: no requestAnimationFrame loop, no Phaser update
+   * hook, no per-frame React state, no reaction to `hud` (which the scene emits
+   * on every change), no read of gameplay RNG, no spawn/timing manipulation.
+   * The Phaser game underneath is never paused, never inspected and never
+   * touched — the cues are pure overlay.
+   *
+   * Every timer is tracked and cleared on unmount, so Skip, the natural finish
+   * and any mode transition all tear the sequence down before a delayed cue
+   * could fire into an unmounted tree (no set-state-after-unmount warning, and
+   * no cue can appear after the Guided First Run is over).
+   */
+  useEffect(() => {
+    if (!coachMarksArmedRef.current) return;
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    COACH_MARKS.forEach((mark, index) => {
+      const isLast = index === COACH_MARKS.length - 1;
+      timers.push(setTimeout(() => setCoachMark(mark.id), mark.atMs));
+      timers.push(
+        setTimeout(() => {
+          setCoachMark((current) => (current === mark.id ? null : current));
+          // The sequence counts as SEEN only once the last cue has actually
+          // finished being displayed — never when the run merely started.
+          if (isLast) onCoachMarksSeenRef.current?.();
+        }, mark.atMs + mark.durationMs),
+      );
+    });
+
+    return () => {
+      for (const t of timers) clearTimeout(t);
+    };
+    // Armed once per mount, from a ref — see coachMarksArmedRef.
+
+  }, []);
+
   const isSurvival = mode === "survival";
   const isCampaign = mode === "campaign";
   const isSurvivalLike = isSurvival || isCampaign;
   const lowTime = !isSurvivalLike && hud.timeLeft <= 10;
   // Single gameplay status to display this frame (Phase 12B-1.1).
   const status = pickStatus(hud);
+  // Phase 13E — constant for the lifetime of this mount (see coachMarksArmedRef).
+  const coachMarksArmed = coachMarksArmedRef.current;
 
   // Quit flow: pause the scene while the confirmation is open so nothing can be
   // collected / no lane can change behind the modal; resume cleanly on cancel.
@@ -257,6 +325,26 @@ export default function GameScreen({
         />
       )}
 
+      {/* Phase 13E — the one-time instructional layer of the Guided First Run.
+          Non-blocking by construction: `pointer-events: none` on the layer, no
+          button, no Next, no step counter, no confirmation, and the Phaser
+          scene keeps running underneath (contrast with the quit modal above,
+          which is the ONLY thing in this screen that pauses gameplay).
+          `aria-live="polite"` announces each cue without stealing or trapping
+          focus; the element is never focusable. The layer exists only for a
+          mount that is actually armed, so no other mode ever renders it — and
+          it is mounted from frame 1 (empty) so the live region is established
+          before the first cue arrives. */}
+      {coachMarksArmed && (
+        <div className="coach-mark-layer" aria-live="polite" aria-atomic="true">
+          {coachMark && (
+            <p key={coachMark} className={`coach-mark coach-mark--${coachMark}`}>
+              {COACH_MARKS.find((m) => m.id === coachMark)?.text}
+            </p>
+          )}
+        </div>
+      )}
+
       {confirmQuit && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal">
@@ -278,7 +366,13 @@ export default function GameScreen({
         </div>
       )}
 
-      {mode === "training" && (
+      {/* Phase 13E — "not ranked" is exactly right for ordinary Training, but
+          the first run deliberately defers every meta concept (ranking,
+          attempts, tokens, streaks) until after the first Daily. So the chip is
+          suppressed for the Guided First Run ONLY, with no replacement copy:
+          the three coach marks are the complete instructional layer. Normal
+          Training is untouched. */}
+      {mode === "training" && !guidedFirstRun && (
         <div className="game-screen__mode-tag">Training scores are not ranked</div>
       )}
       {mode === "survival" && (

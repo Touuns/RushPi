@@ -1625,6 +1625,75 @@ body {
   pointer-events: none;
 }
 
+/* Phase 13E — Guided First Run coach marks.
+
+   Placement contract: a single anchored band in the upper-middle gameplay
+   space. It sits BELOW the HUD and the status channel (which ends around
+   140px) and well ABOVE the bottom 20% thumb zone, the player orb and the
+   mode-tag row, so it never covers Score / Time / Combo, never covers
+   "Skip →" (top-right), and never obscures the orb. Width is capped so it
+   spans the play line rather than blanketing it.
+
+   Interaction contract: the layer is inert. `pointer-events: none` means every
+   tap, drag and swipe reaches the Phaser canvas underneath exactly as it would
+   without the cue — gameplay is never paused and input is never intercepted. */
+.coach-mark-layer {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+.coach-mark {
+  max-width: min(78%, 300px);
+  padding: 9px 18px;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  color: var(--text);
+  /* Same visual language as the in-game status chip: dark translucent surface,
+     soft violet edge, one restrained gold accent. Deliberately quieter than the
+     player orb, the incoming objects and the HUD — a cue, never a card. */
+  background: rgba(6, 3, 14, 0.78);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  box-shadow: 0 2px 18px rgba(6, 3, 14, 0.45);
+  animation: coach-mark-in 260ms ease both;
+}
+
+/* One restrained accent so the cue reads as Rush Pi rather than a browser
+   tooltip — a colour nuance only, never the carrier of the meaning. */
+.coach-mark--collect {
+  border-color: rgba(255, 209, 102, 0.5);
+}
+
+@keyframes coach-mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion: the cue still appears and still disappears — only the
+   6px settle is dropped. Nothing here pulses, flashes or loops. */
+@media (prefers-reduced-motion: reduce) {
+  .coach-mark {
+    animation: none;
+  }
+}
+
 /* ============================================================
    Result screen
    ============================================================ */
@@ -1639,6 +1708,68 @@ body {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   overscroll-behavior: contain;
+}
+
+/* Phase 13E — the one-time First Result.
+
+   A deliberately quiet, vertically centred screen with four things on it and
+   nothing else: the headline, one next-step line, a small score, three
+   buttons. It is centred rather than top-aligned precisely because it has so
+   little content, and the whole thing fits without scrolling at 375×667. */
+.result--first-run {
+  justify-content: center;
+  gap: 0;
+}
+
+.result__first-run-title {
+  /* The dominant element on the screen — deliberately larger and brighter than
+     any result title, because confirming success IS the purpose here. */
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, var(--gold), var(--orange), var(--violet-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.result__first-run-line {
+  margin-top: 12px;
+  max-width: 20rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+/* Score: present and honest, but clearly secondary — smaller than the
+   headline, smaller than the CTA, and never framed as a grade. */
+.result__first-run-score {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.result__first-run-score-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+
+.result__first-run-score-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.result--first-run .result__actions {
+  margin-top: 32px;
+  max-width: 320px;
 }
 
 /* Grouped badge unlocks (10B-P3): one highlighted card + collapsed rest. */

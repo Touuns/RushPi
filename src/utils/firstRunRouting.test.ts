@@ -343,21 +343,23 @@ test("15/16. Pi auto-connect is suppressed for the guided first run only", () =>
   assert.match(APP_CODE, /onConnectPi=\{connectPi\}/);
 });
 
-// ---- 13E handoff contract ---------------------------------------------------
+// ---- 13D→13E handoff contract -----------------------------------------------
 
-test("the 13D→13E handoff marker exists, is session-only and changes no presentation", () => {
+test("the 13D→13E handoff marker exists and remains session-only", () => {
   assert.match(APP_CODE, /const \[guidedFirstRunResult, setGuidedFirstRunResult\] = useState\(false\)/);
   assert.match(APP_CODE, /guidedFirstRunResult=\{guidedFirstRunResult\}/);
-  // Never persisted.
+  // Never persisted — a reload after the freedom point must show Home, not a
+  // second First Result.
   assert.doesNotMatch(codeOnly(STORAGE_SRC), /guidedFirstRunResult/);
-  // 13E's strings must not be RENDERED yet. Comments may legitimately name them
-  // while documenting the handoff, so this is a code-only assertion.
+  // Phase 13E CONSUMES the seam: the `is-first-run` marker moved from an inert
+  // class on the ordinary Training result onto the dedicated First Result that
+  // now renders in its place. (13D pinned these strings as "not yet rendered";
+  // rendering them is precisely the 13E deliverable, so that half of the
+  // assertion is superseded here rather than deleted silently — the detailed
+  // First Result contract lives in guidedCoachMarks.test.ts.)
   const RESULT_SCREEN_CODE = codeOnly(read("src/components/ResultScreen.tsx"));
-  for (const notYet of ["You've got it", "Try the Daily Run", "Explore"]) {
-    assert.doesNotMatch(RESULT_SCREEN_CODE, new RegExp(notYet), `${notYet} belongs to 13E`);
-  }
-  // The seam itself exists and is inert in 13D.
-  assert.match(RESULT_SCREEN_CODE, /guidedFirstRunResult \? "is-first-run" : ""/);
+  assert.match(RESULT_SCREEN_CODE, /if \(isTraining && guidedFirstRunResult\) \{/);
+  assert.match(RESULT_SCREEN_CODE, /result result--first-run is-first-run/);
 });
 
 // ---- Guided run is not a new game mode --------------------------------------

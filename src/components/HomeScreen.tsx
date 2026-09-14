@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ProfileStats, StreakInfo } from "../types";
 import type { PiUser } from "../pi/piClient";
 import { levelProgress } from "../utils/storage";
@@ -37,6 +37,17 @@ interface HomeScreenProps {
   onLeaderboard: () => void;
   onProfile: () => void;
   onCampaign: () => void;
+  /**
+   * Phase 13E — one-shot intent raised by the First Result's "Try the Daily
+   * Run". Home responds by entering its OWN Daily card handler, so the intro
+   * modal / connect modal / no-attempts modal / preparation screen all behave
+   * exactly as a real tap on the Daily card would. Nothing about ranking,
+   * authentication or attempt accounting is decided here or duplicated
+   * elsewhere — this only saves the player a redundant second tap.
+   */
+  autoOpenDaily?: boolean;
+  /** Clear the intent so it can never fire twice. */
+  onAutoOpenDailyConsumed?: () => void;
 }
 
 type ModalKind = "none" | "connect" | "no-attempts";
@@ -65,6 +76,8 @@ export default function HomeScreen({
   onLeaderboard,
   onCampaign,
   onProfile,
+  autoOpenDaily = false,
+  onAutoOpenDailyConsumed,
 }: HomeScreenProps) {
   const { ratio } = levelProgress(profile.totalXp);
   const challengeLabel = getDailyChallengeLabel();
@@ -101,6 +114,22 @@ export default function HomeScreen({
       LAUNCH[mode]();
     }
   };
+
+  /**
+   * Phase 13E — consume the "Try the Daily Run" intent exactly once, by calling
+   * the very same handler the Daily card's onClick calls. Held in a ref so the
+   * effect below can stay mount-scoped without re-running as Home re-renders.
+   */
+  const handleModeClickRef = useRef(handleModeClick);
+  handleModeClickRef.current = handleModeClick;
+  const autoDailyFiredRef = useRef(false);
+
+  useEffect(() => {
+    if (!autoOpenDaily || autoDailyFiredRef.current) return;
+    autoDailyFiredRef.current = true;
+    onAutoOpenDailyConsumed?.();
+    handleModeClickRef.current("daily");
+  }, [autoOpenDaily, onAutoOpenDailyConsumed]);
 
   const handleIntroPlay = () => {
     if (!intro) return;

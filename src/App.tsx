@@ -7,6 +7,7 @@ import ProfileScreen from "./components/ProfileScreen";
 import CampaignScreen from "./components/CampaignScreen";
 import DailyPreparationScreen from "./components/DailyPreparationScreen";
 import {
+  areCoachMarksSeen,
   consumeRankedAttempt,
   getCampaignProgress,
   getDailyHistory,
@@ -16,6 +17,7 @@ import {
   getStreakInfo,
   getUnlockedBadgeIds,
   isFirstRunCompleted,
+  markCoachMarksSeen,
   markFirstRunCompleted,
   markPiTestPaymentCompleted,
   recordRun,
@@ -141,6 +143,22 @@ export default function App() {
    * Training result still renders, unchanged, for now.
    */
   const [guidedFirstRunResult, setGuidedFirstRunResult] = useState(false);
+  /**
+   * Phase 13E — has the three-cue coach-mark sequence already been presented?
+   * Read once, lazily, exactly like the first-run flag, and persisted the
+   * moment the third cue finishes. Kept SEPARATE from firstRunCompleted so a
+   * player who leaves after the lesson but before the 60 s finish gets the
+   * Guided First Run back without being taught the same three verbs again.
+   */
+  const [coachMarksSeen, setCoachMarksSeen] = useState(() => areCoachMarksSeen());
+  /**
+   * Phase 13E — one-shot "the player asked for the Daily Run" intent, set only
+   * by the First Result's primary CTA. It carries NO ranked/auth/attempt
+   * decision of its own: Home consumes it by entering its own existing Daily
+   * card handler, so the mode intro, the connect modal, the no-attempts modal
+   * and the preparation screen all behave exactly as a real tap would.
+   */
+  const [autoOpenDaily, setAutoOpenDaily] = useState(false);
 
   const [screen, setScreen] = useState<Screen>(() =>
     guidedFirstRunRef.current ? "game" : "home",
@@ -279,6 +297,17 @@ export default function App() {
     setOutcome(null);
     setData(readLocalData());
     setScreen("home");
+  }, []);
+
+  /**
+   * Phase 13E — the third coach mark has finished being displayed. Persisted
+   * here (not when the run starts) so a cue the player never saw is never
+   * suppressed. Idempotent in storage, and it preserves firstRunCompleted and
+   * all progression.
+   */
+  const handleCoachMarksSeen = useCallback(() => {
+    markCoachMarksSeen();
+    setCoachMarksSeen(true);
   }, []);
 
   const playTraining = useCallback(() => beginRun("training", "training"), [beginRun]);
@@ -496,6 +525,27 @@ export default function App() {
     setScreen("home");
   }, [refresh]);
 
+  /**
+   * Phase 13E — "Try the Daily Run" on the First Result.
+   *
+   * Deliberately NOT `startDailyAuto()`: that would jump straight to the
+   * preparation screen and silently skip the Daily intro, the connect surface
+   * and the attempt-cost wording — exactly the honesty the FRE exists to fix.
+   * Instead this raises a one-shot intent and navigates to the real Home,
+   * which re-enters its OWN Daily card handler. The player therefore sees the
+   * same intro → connect/attempts → preparation sequence a Daily tap produces,
+   * without having to tap Daily a second time, and not one line of ranked,
+   * auth or attempt logic is duplicated outside Home.
+   */
+  const tryDailyRunFromFirstResult = useCallback(() => {
+    setAutoOpenDaily(true);
+    refresh();
+    setScreen("home");
+  }, [refresh]);
+
+  /** Home has consumed the intent — it must never fire a second time. */
+  const clearAutoOpenDaily = useCallback(() => setAutoOpenDaily(false), []);
+
   const goLeaderboard = useCallback(() => {
     refresh();
     setScreen("leaderboard");
@@ -520,6 +570,10 @@ export default function App() {
     guidedFirstRunRef.current = restartGuided;
     setGuidedFirstRun(restartGuided);
     setGuidedFirstRunResult(false);
+    // Phase 13E: "Reset Local Data" clears coachMarksSeen with the rest of the
+    // save, so the restarted Guided First Run teaches the three verbs again.
+    setCoachMarksSeen(areCoachMarksSeen());
+    setAutoOpenDaily(false);
     setResult(null);
     setOutcome(null);
     if (restartGuided) {
@@ -593,6 +647,8 @@ export default function App() {
           onLeaderboard={goLeaderboard}
           onProfile={goProfile}
           onCampaign={goCampaign}
+          autoOpenDaily={autoOpenDaily}
+          onAutoOpenDailyConsumed={clearAutoOpenDaily}
         />
       )}
 
@@ -625,6 +681,11 @@ export default function App() {
           dailyRanked={mode === "daily" && runRankState === "ranked"}
           guidedFirstRun={guidedFirstRun}
           onSkipGuidedFirstRun={skipGuidedFirstRun}
+          // Phase 13E: the cues belong to the Guided First Run and only while
+          // they have never been shown — so a second Training run, a returning
+          // player's Training, Daily, Survival and Campaign never receive them.
+          showCoachMarks={guidedFirstRun && !coachMarksSeen}
+          onCoachMarksSeen={handleCoachMarksSeen}
           onGameOver={handleGameOver}
           onQuit={mode === "campaign" ? goCampaign : goHome}
         />
@@ -635,6 +696,7 @@ export default function App() {
           result={result}
           outcome={outcome}
           guidedFirstRunResult={guidedFirstRunResult}
+          onTryDailyRun={tryDailyRunFromFirstResult}
           bestScore={
             result.mode === "daily"
               ? // Phase 13-R2: the active (v3) best only — a v2 best would be a
