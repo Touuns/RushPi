@@ -46,6 +46,16 @@ export function markIntroSeen(mode: IntroMode): void {
 
 interface ModeIntroModalProps {
   mode: IntroMode;
+  /**
+   * Phase 13F — a compact, one-time notice rendered above the tagline.
+   *
+   * Used only for the first Daily, to supply the one canonical fact this modal
+   * cannot state statically: the player's LIVE ranked-attempt context. The other
+   * two first-Daily facts (today's 15 tokens, 3 ranked runs a day) are already
+   * part of this modal's permanent content, so no second Daily intro is created.
+   * Null for every other mode and for every player who has finished a Daily.
+   */
+  notice?: string | null;
   onPlay: () => void;
   onClose: () => void;
 }
@@ -103,7 +113,12 @@ function SectionLabel({ children }: { children: string }) {
   return <span className="intro-modal__section-label">{children}</span>;
 }
 
-export default function ModeIntroModal({ mode, onPlay, onClose }: ModeIntroModalProps) {
+export default function ModeIntroModal({
+  mode,
+  notice = null,
+  onPlay,
+  onClose,
+}: ModeIntroModalProps) {
   const c = MODE_GUIDANCE[mode];
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={c.title}>
@@ -127,6 +142,11 @@ export default function ModeIntroModal({ mode, onPlay, onClose }: ModeIntroModal
         </div>
 
         <div className="intro-modal__body">
+          {/* Phase 13F — one-time first-Daily attempt context. Deliberately the
+              first thing read, and deliberately inside the EXISTING intro rather
+              than a second modal: this surface already appears before any
+              attempt is reserved, so the cost is understood before it is spent. */}
+          {notice && <p className="intro-modal__notice">{notice}</p>}
           <p className="intro-modal__tagline">{c.tagline}</p>
 
           <div className="intro-modal__section">

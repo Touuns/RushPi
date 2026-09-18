@@ -579,16 +579,18 @@ test("34. no Daily attempt is consumed or accounted differently by 13E", () => {
   assert.match(APP_CODE, /if \(rankState === "ranked"\) consumeRankedAttempt\(\)/);
 });
 
-test("35. 13F surfaces are NOT started", () => {
+test("35. 13E did not reach into a later phase's persistence", () => {
+  // `firstDailyResultSeen` graduated off this list in Phase 13F, which is the
+  // phase that delivers it (see PHASE-13-PLAN §9/§14) — it is now pinned by
+  // src/components/firstDailyMeta.test.ts, exactly as `firstRunCompleted`
+  // graduated in 13D and `coachMarksSeen` in 13E. `attemptCostAcknowledged` is
+  // still unimplemented canonical work and remains forbidden here.
   const all = [APP_CODE, GAME_SCREEN_CODE, RESULT_SCREEN_CODE, HOME_SCREEN_CODE, STORAGE_CODE].join("\n");
-  for (const notYet of [
-    "firstDailyResultSeen",
-    "attemptCostAcknowledged",
-    "firstDailyPanel",
-    "metaLesson",
-  ]) {
-    assert.ok(!all.includes(notYet), `${notYet} belongs to Phase 13F`);
+  for (const notYet of ["attemptCostAcknowledged", "firstDailyPanel", "metaLesson"]) {
+    assert.ok(!all.includes(notYet), `${notYet} is not Phase 13E work`);
   }
+  // The coach-mark layer itself must still carry no Daily/meta concern.
+  assert.ok(!GAME_SCREEN_CODE.includes("firstDailyResultSeen"));
 });
 
 test("36. the coach-mark styling respects the motion preference and never flashes", () => {

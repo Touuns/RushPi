@@ -84,6 +84,24 @@ interface SaveData {
    * in between is re-offered the run but not the lesson.
    */
   coachMarksSeen: boolean;
+  /**
+   * Phase 13F — gates the one-time first-Daily teaching: the attempt-context
+   * notice shown before the first ranked claim, and the meta lesson (leaderboard
+   * + streak meaning) shown on the first completed Daily result.
+   *
+   * MIGRATION RULE — deliberately NOT the `saveExisted` rule used by
+   * `firstRunCompleted`, and NOT an inherit like `coachMarksSeen`. An explicit
+   * boolean always wins; when the field is absent the answer is derived from
+   * whether the player has actually finished a Daily before:
+   *
+   *   absent + dailyRuns > 0 (or any dailyHistory) → true   (experienced, never taught)
+   *   absent + no Daily ever finished              → false  (still owed the lesson)
+   *
+   * Inheriting "a save exists → true" would be wrong here: a 13D/13E player who
+   * completed Guided Training but has never played a Daily has a save, yet is
+   * exactly the player this phase exists for.
+   */
+  firstDailyResultSeen: boolean;
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -132,6 +150,8 @@ function defaultSave(): SaveData {
     // and has not been shown the three coach marks yet (13E).
     firstRunCompleted: false,
     coachMarksSeen: false,
+    // A genuinely new player has not finished a Daily yet (13F).
+    firstDailyResultSeen: false,
   };
 }
 
@@ -285,6 +305,16 @@ function normalize(parsed: unknown, saveExisted = false): SaveData {
   const coachMarksSeen =
     typeof p.coachMarksSeen === "boolean" ? p.coachMarksSeen : firstRunCompleted;
 
+  // Phase 13F first-Daily gate. An explicit boolean always wins; otherwise the
+  // answer comes from the player's REAL Daily history, not from the existence of
+  // a save — a 13D/13E player who finished Guided Training but never played a
+  // Daily must still be eligible. Both inputs below are already normalized.
+  const hasFinishedADailyBefore = profile.dailyRuns > 0 || dailyHistory.length > 0;
+  const firstDailyResultSeen =
+    typeof p.firstDailyResultSeen === "boolean"
+      ? p.firstDailyResultSeen
+      : hasFinishedADailyBefore;
+
   return {
     version: SAVE_VERSION,
     profile,
@@ -294,6 +324,7 @@ function normalize(parsed: unknown, saveExisted = false): SaveData {
     campaign,
     firstRunCompleted,
     coachMarksSeen,
+    firstDailyResultSeen,
   };
 }
 
@@ -451,6 +482,35 @@ export function markCoachMarksSeen(): void {
   const save = loadSave();
   if (save.coachMarksSeen) return; // already seen — no write, no churn
   save.coachMarksSeen = true;
+  persist(save);
+}
+
+/**
+ * Phase 13F — has the player already been through their first Daily?
+ * Side-effect free, like the other two onboarding reads: merely booting the app
+ * can never silently mark a player as taught.
+ *
+ * True for every save that already shows a finished Daily (see the migration
+ * rule on SaveData), so an experienced player is never onboarded again.
+ */
+export function isFirstDailyResultSeen(): boolean {
+  return loadSave().firstDailyResultSeen;
+}
+
+/**
+ * Phase 13F — record that the first Daily has actually been COMPLETED.
+ *
+ * Called only once a real Daily result exists — never when the Daily intro
+ * opens, when preparation starts, when an attempt is claimed, or when gameplay
+ * begins. A player who enters Daily and cancels is still owed the lesson.
+ *
+ * Idempotent, and preserves every other saved field (progression, streak,
+ * history, the 13D/13E flags).
+ */
+export function markFirstDailyResultSeen(): void {
+  const save = loadSave();
+  if (save.firstDailyResultSeen) return; // already seen — no write, no churn
+  save.firstDailyResultSeen = true;
   persist(save);
 }
 

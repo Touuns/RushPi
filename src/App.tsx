@@ -16,8 +16,10 @@ import {
   getRankedAttemptsToday,
   getStreakInfo,
   getUnlockedBadgeIds,
+  isFirstDailyResultSeen,
   isFirstRunCompleted,
   markCoachMarksSeen,
+  markFirstDailyResultSeen,
   markFirstRunCompleted,
   markPiTestPaymentCompleted,
   recordRun,
@@ -159,6 +161,21 @@ export default function App() {
    * and the preparation screen all behave exactly as a real tap would.
    */
   const [autoOpenDaily, setAutoOpenDaily] = useState(false);
+  /**
+   * Phase 13F — has the player already finished a Daily? Read once, lazily.
+   * Drives the one-time attempt-context notice on the Daily intro.
+   */
+  const [firstDailyResultSeen, setFirstDailyResultSeen] = useState(() =>
+    isFirstDailyResultSeen(),
+  );
+  /**
+   * Phase 13F — session-only marker for "the Result screen is showing the
+   * result of the FIRST Daily". Necessary because `recordRun()` increments
+   * `profile.dailyRuns` before the Result screen renders, so by then
+   * persistence can no longer distinguish the first Daily from the second.
+   * Same handoff shape 13D→13E already uses for `guidedFirstRunResult`.
+   */
+  const [firstDailyResultLesson, setFirstDailyResultLesson] = useState(false);
 
   const [screen, setScreen] = useState<Screen>(() =>
     guidedFirstRunRef.current ? "game" : "home",
@@ -462,6 +479,22 @@ export default function App() {
       } else {
         setGuidedFirstRunResult(false);
       }
+      // Phase 13F — decide BEFORE recordRun() whether this is the first Daily.
+      // recordRun() increments profile.dailyRuns, which is exactly the signal
+      // the persisted flag migrates from, so reading it afterwards would always
+      // say "already seen" and the lesson would never appear. Marking here is
+      // also the correct moment per the canonical spec: a completed Daily result
+      // now genuinely exists (entering Daily and cancelling never reaches this).
+      if (r.mode === "daily") {
+        const isFirstDaily = !isFirstDailyResultSeen();
+        setFirstDailyResultLesson(isFirstDaily);
+        if (isFirstDaily) {
+          markFirstDailyResultSeen();
+          setFirstDailyResultSeen(true);
+        }
+      } else {
+        setFirstDailyResultLesson(false);
+      }
       // Read the previous best stars BEFORE recording, to flag "new stars earned".
       if (r.mode === "campaign") {
         const prevStars =
@@ -573,6 +606,10 @@ export default function App() {
     // Phase 13E: "Reset Local Data" clears coachMarksSeen with the rest of the
     // save, so the restarted Guided First Run teaches the three verbs again.
     setCoachMarksSeen(areCoachMarksSeen());
+    // Phase 13F: the wipe removes rushpi.save, so the first-Daily teaching is
+    // owed again. Re-read rather than assume, for the same reason as above.
+    setFirstDailyResultSeen(isFirstDailyResultSeen());
+    setFirstDailyResultLesson(false);
     setAutoOpenDaily(false);
     setResult(null);
     setOutcome(null);
@@ -649,6 +686,7 @@ export default function App() {
           onCampaign={goCampaign}
           autoOpenDaily={autoOpenDaily}
           onAutoOpenDailyConsumed={clearAutoOpenDaily}
+          firstDailyPending={!firstDailyResultSeen}
         />
       )}
 
@@ -697,6 +735,7 @@ export default function App() {
           outcome={outcome}
           guidedFirstRunResult={guidedFirstRunResult}
           onTryDailyRun={tryDailyRunFromFirstResult}
+          firstDailyResultLesson={firstDailyResultLesson}
           bestScore={
             result.mode === "daily"
               ? // Phase 13-R2: the active (v3) best only — a v2 best would be a

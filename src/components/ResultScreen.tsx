@@ -4,6 +4,7 @@ import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import { formatTokenPrice } from "../game/dailyTokens";
 import { getCampaignLevel, CAMPAIGN_LEVELS } from "../game/campaign";
 import ScreenBackButton from "./ScreenBackButton";
+import { firstDailyLesson } from "./dailyMetaLesson";
 
 interface ResultScreenProps {
   result: GameResult;
@@ -35,6 +36,15 @@ interface ResultScreenProps {
    * attempt logic is duplicated here.
    */
   onTryDailyRun?: () => void;
+  /**
+   * Phase 13F — true only for the result of the player's FIRST completed Daily.
+   * Session-only (like `guidedFirstRunResult`): `recordRun` has already
+   * incremented `dailyRuns` by the time this screen renders, so persistence
+   * alone can no longer tell that this was the first one. Adds a compact,
+   * one-time meta lesson and promotes Leaderboard to the primary action; the
+   * second Daily result reverts to the approved Phase 13C presentation exactly.
+   */
+  firstDailyResultLesson?: boolean;
   /** Ranked Daily attempts left today (Phase 13B honest-costs label). */
   attemptsLeft: number;
   /** Whether Pi is connected — Play Again only spends a ranked attempt then. */
@@ -207,6 +217,7 @@ export default function ResultScreen({
   onRetrySync,
   guidedFirstRunResult = false,
   onTryDailyRun,
+  firstDailyResultLesson = false,
   attemptsLeft,
   piConnected,
   streak,
@@ -445,20 +456,64 @@ export default function ResultScreen({
         {streakMessage && <p className="result__streak">{streakMessage}</p>}
 
         {/* Phase 13C: actions before details — the primary CTA must be
-            reachable without scrolling past the collapsible breakdown. */}
+            reachable without scrolling past the collapsible breakdown.
+
+            Phase 13F: on the FIRST Daily result only, Leaderboard leads — a
+            score now exists, so seeing where it landed is the natural next
+            step (canonical §5). Play Again keeps its honest 13B attempt label
+            and stays immediately adjacent. Every later Daily result restores
+            the 13C order exactly, which is the canonical "differ once, then
+            never". */}
         <div className="result__actions">
-          <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
-            {/* Phase 13B: honest cost — Play Again spends a ranked attempt only
-                when Pi is connected; state that count instead of a bare label. */}
-            {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
-          </button>
-          <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
-            Leaderboard
-          </button>
-          <button className="btn btn--secondary" type="button" onClick={onHome}>
-            Back Home
-          </button>
+          {firstDailyResultLesson ? (
+            <>
+              <button className="btn btn--primary" type="button" onClick={onLeaderboard}>
+                See today's leaderboard
+              </button>
+              <button className="btn btn--secondary" type="button" onClick={onPlayAgain}>
+                {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
+              </button>
+              <button className="btn btn--secondary" type="button" onClick={onHome}>
+                Back Home
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn--primary" type="button" onClick={onPlayAgain}>
+                {/* Phase 13B: honest cost — Play Again spends a ranked attempt
+                    only when Pi is connected; state that count instead of a
+                    bare label. */}
+                {piConnected ? `Play Again (${attemptsLeft} left)` : "Play Again"}
+              </button>
+              <button className="btn btn--secondary" type="button" onClick={onLeaderboard}>
+                Leaderboard
+              </button>
+              <button className="btn btn--secondary" type="button" onClick={onHome}>
+                Back Home
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Phase 13F — the one-time meta lesson, deliberately placed AFTER the
+            actions and before the collapsible details.
+
+            Why not above the actions: measured on a real first Daily at
+            375×667, this block is ~104px and pushed the primary CTA from 649px
+            to 769px — past the fold, regressing the one thing Phase 13C existed
+            to fix (canonical acceptance #5). A first Daily is inherently the
+            tallest Daily result there is (it is the run that unlocks the
+            "Daily Challenger" badge), so the lesson goes below the buttons and
+            13C's fold position is left byte-for-byte unchanged.
+
+            It still reads in the natural scroll order, immediately under the
+            CTA it explains, and appears exactly once — never again. */}
+        {firstDailyResultLesson && (
+          <div className="daily-meta">
+            <span className="daily-meta__title">{firstDailyLesson(serverSync).title}</span>
+            <p className="daily-meta__text">{firstDailyLesson(serverSync).text}</p>
+          </div>
+        )}
 
         <details className="result__details">
           <summary>View details</summary>

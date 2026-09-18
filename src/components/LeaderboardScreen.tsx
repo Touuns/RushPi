@@ -43,7 +43,10 @@ export default function LeaderboardScreen({
   onHome,
   onPlayAgain,
 }: LeaderboardScreenProps) {
-  const [tab, setTab] = useState<Tab>("local");
+  // Phase 13F: open on Daily, not Local. Local is an empty self-list for a new
+  // player and hides the only social pull; Daily is the tab a score was just
+  // submitted to. Local and Global remain one tap away and fully functional.
+  const [tab, setTab] = useState<Tab>("daily");
 
   // Server tab state (cached per session).
   const [serverScores, setServerScores] = useState<Record<"daily" | "global", ServerScore[] | null>>({

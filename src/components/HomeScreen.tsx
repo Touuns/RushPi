@@ -48,6 +48,12 @@ interface HomeScreenProps {
   autoOpenDaily?: boolean;
   /** Clear the intent so it can never fire twice. */
   onAutoOpenDailyConsumed?: () => void;
+  /**
+   * Phase 13F — true until the player has COMPLETED their first Daily. Adds the
+   * one-time attempt-context notice to the Daily intro modal. Read-only: this
+   * never changes which run is ranked or when an attempt is reserved.
+   */
+  firstDailyPending?: boolean;
 }
 
 type ModalKind = "none" | "connect" | "no-attempts";
@@ -78,6 +84,7 @@ export default function HomeScreen({
   onProfile,
   autoOpenDaily = false,
   onAutoOpenDailyConsumed,
+  firstDailyPending = false,
 }: HomeScreenProps) {
   const { ratio } = levelProgress(profile.totalXp);
   const challengeLabel = getDailyChallengeLabel();
@@ -373,7 +380,21 @@ export default function HomeScreen({
       )}
 
       {intro && (
-        <ModeIntroModal mode={intro} onPlay={handleIntroPlay} onClose={handleIntroClose} />
+        <ModeIntroModal
+          mode={intro}
+          // Phase 13F — the one-time first-Daily fact the modal cannot state
+          // statically. Built from LIVE attempt state rather than a hardcoded
+          // "run 1 of 3", which would be a lie for anyone playing locally or
+          // returning with attempts already spent. Shown once: it disappears
+          // permanently the moment a first Daily is actually completed.
+          notice={
+            intro === "daily" && firstDailyPending
+              ? `${attemptsLeft} of ${maxAttempts} ranked runs left today. A local run costs none.`
+              : null
+          }
+          onPlay={handleIntroPlay}
+          onClose={handleIntroClose}
+        />
       )}
     </div>
   );
