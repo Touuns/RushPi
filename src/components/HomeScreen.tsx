@@ -28,10 +28,12 @@ interface HomeScreenProps {
   piUser: PiUser | null;
   onPlayTraining: () => void;
   onPlaySurvival: () => void;
+  /**
+   * Request a ranked Daily. Phase 13G: Home no longer decides auth vs local or
+   * attempt availability — DailyPreparationScreen owns every one of those
+   * decisions, so this always hands straight over to it.
+   */
   onPlayRankedDaily: () => void;
-  onPlayDailyLocalOnly: () => void;
-  onPlayDailyUnranked: () => void;
-  onConnectAndPlayDaily: () => Promise<void>;
   onConnectPi: () => Promise<void>;
   onPiPaymentComplete: () => void;
   onLeaderboard: () => void;
@@ -40,8 +42,8 @@ interface HomeScreenProps {
   /**
    * Phase 13E — one-shot intent raised by the First Result's "Try the Daily
    * Run". Home responds by entering its OWN Daily card handler, so the intro
-   * modal / connect modal / no-attempts modal / preparation screen all behave
-   * exactly as a real tap on the Daily card would. Nothing about ranking,
+   * modal and the preparation screen (with its auth / attempt / last-attempt
+   * gates) behave exactly as a real tap on the Daily card would. Nothing about ranking,
    * authentication or attempt accounting is decided here or duplicated
    * elsewhere — this only saves the player a redundant second tap.
    */
@@ -56,12 +58,11 @@ interface HomeScreenProps {
   firstDailyPending?: boolean;
 }
 
-type ModalKind = "none" | "connect" | "no-attempts";
-
 /**
- * Home hub. Daily Run is ranked only when connected AND with attempts left, both
- * decided before playing. Not connected -> connect modal; out of attempts ->
- * no-attempts modal. Training is always free. The server enforces the real limit.
+ * Home hub. Phase 13G: the Daily card only shows its one-time intro (if owed)
+ * and then hands over to DailyPreparationScreen, the single authority for
+ * Pi connection, attempt availability and the last-attempt confirmation.
+ * Home renders no Daily gate modal of its own. Training is always free.
  */
 export default function HomeScreen({
   profile,
@@ -74,9 +75,6 @@ export default function HomeScreen({
   onPlayTraining,
   onPlaySurvival,
   onPlayRankedDaily,
-  onPlayDailyLocalOnly,
-  onPlayDailyUnranked,
-  onConnectAndPlayDaily,
   onConnectPi,
   onPiPaymentComplete,
   onLeaderboard,
@@ -89,26 +87,12 @@ export default function HomeScreen({
   const { ratio } = levelProgress(profile.totalXp);
   const challengeLabel = getDailyChallengeLabel();
 
-  const [modal, setModal] = useState<ModalKind>("none");
-  const [connecting, setConnecting] = useState(false);
-  const [connectError, setConnectError] = useState<string | null>(null);
   // Mode onboarding: which intro modal is open (auto on first launch, or via "?").
   const [intro, setIntro] = useState<IntroMode | null>(null);
 
-  const startDaily = () => {
-    if (!piUser) {
-      setConnectError(null);
-      setModal("connect");
-    } else if (attemptsLeft <= 0) {
-      setModal("no-attempts");
-    } else {
-      onPlayRankedDaily();
-    }
-  };
-
   // Launch actions per mode; the intro modal's "Play" re-enters these.
   const LAUNCH: Record<IntroMode, () => void> = {
-    daily: startDaily,
+    daily: onPlayRankedDaily,
     survival: onPlaySurvival,
     campaign: onCampaign,
   };
@@ -151,22 +135,6 @@ export default function HomeScreen({
     setIntro(null);
   };
 
-  const handleModalConnect = async () => {
-    setConnecting(true);
-    setConnectError(null);
-    try {
-      await onConnectAndPlayDaily(); // navigates to the game on success
-    } catch (err) {
-      setConnectError(err instanceof Error ? err.message : "Could not connect to Pi.");
-      setConnecting(false);
-    }
-  };
-
-  const closeModal = () => {
-    setModal("none");
-    setConnecting(false);
-    setConnectError(null);
-  };
 
   return (
     <div className="screen home">
@@ -309,75 +277,6 @@ export default function HomeScreen({
       />
 
       <p className="home__hint">{LANE_CONTROL_INSTRUCTION}</p>
-
-      {modal === "connect" && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal">
-            <h2 className="modal__title">Connect to Pi to rank your score</h2>
-            <p className="modal__text">
-              Daily Run scores can only be submitted to the server leaderboard when
-              you are connected with Pi before playing. You can still play locally,
-              but this score will not be ranked.
-            </p>
-            <p className="modal__note">Ranked Daily Runs are limited to 3 attempts per day.</p>
-            {connectError && <p className="modal__error">{connectError}</p>}
-            <div className="modal__actions">
-              <button
-                className="btn btn--primary"
-                type="button"
-                onClick={handleModalConnect}
-                disabled={connecting}
-              >
-                {connecting ? "Connecting…" : "Connect Pi"}
-              </button>
-              <button
-                className="btn btn--secondary"
-                type="button"
-                onClick={onPlayDailyLocalOnly}
-                disabled={connecting}
-              >
-                Play locally
-              </button>
-              <button
-                className="btn btn--ghost"
-                type="button"
-                onClick={closeModal}
-                disabled={connecting}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {modal === "no-attempts" && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal">
-            <h2 className="modal__title">No ranked attempts left today</h2>
-            <p className="modal__text">
-              You have used your {maxAttempts} ranked Daily Run attempts for today.
-              You can still play Training Mode, or play locally without submitting to
-              the server leaderboard.
-            </p>
-            <div className="modal__actions">
-              <button className="btn btn--primary" type="button" onClick={onPlayTraining}>
-                Training Mode
-              </button>
-              <button
-                className="btn btn--secondary"
-                type="button"
-                onClick={onPlayDailyUnranked}
-              >
-                Play locally
-              </button>
-              <button className="btn btn--ghost" type="button" onClick={closeModal}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {intro && (
         <ModeIntroModal

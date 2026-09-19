@@ -549,8 +549,13 @@ test("32. no auth is triggered by the cues, the First Result, Play again or Expl
   // ...and nothing in the new surfaces authenticates.
   assert.doesNotMatch(RESULT_SCREEN_CODE, /authenticatePi|piClient/);
   assert.doesNotMatch(GAME_SCREEN_CODE, /authenticatePi|piClient/);
-  // Auth is reachable only through Home's existing connect paths.
-  assert.match(APP_CODE, /const connectAndPlayDaily = useCallback/);
+  // Auth is reachable only through the explicit user-driven connect paths.
+  // Phase 13G retired Home's `connectAndPlayDaily` (its connect modal moved into
+  // DailyPreparationScreen), so the single `connectPi` handler now serves both
+  // the Home Pi chip and the preparation screen's Connect Pi action.
+  assert.match(APP_CODE, /const connectPi = useCallback\(async \(\) => \{/);
+  assert.match(APP_CODE, /onConnectPi=\{connectPi\}/);
+  assert.match(APP_CODE, /onReconnect=\{connectPi\}/);
 });
 
 // ---- 33-36. Nothing outside the UI layer moved -----------------------------
@@ -583,14 +588,18 @@ test("35. 13E did not reach into a later phase's persistence", () => {
   // `firstDailyResultSeen` graduated off this list in Phase 13F, which is the
   // phase that delivers it (see PHASE-13-PLAN §9/§14) — it is now pinned by
   // src/components/firstDailyMeta.test.ts, exactly as `firstRunCompleted`
-  // graduated in 13D and `coachMarksSeen` in 13E. `attemptCostAcknowledged` is
-  // still unimplemented canonical work and remains forbidden here.
+  // graduated in 13D and `coachMarksSeen` in 13E. `attemptCostAcknowledged`
+  // graduated the same way in Phase 13G and is now pinned by
+  // src/components/lastAttemptGate.test.ts; it lives in storage.ts and the
+  // preparation screen, never in a 13E surface.
   const all = [APP_CODE, GAME_SCREEN_CODE, RESULT_SCREEN_CODE, HOME_SCREEN_CODE, STORAGE_CODE].join("\n");
-  for (const notYet of ["attemptCostAcknowledged", "firstDailyPanel", "metaLesson"]) {
+  for (const notYet of ["firstDailyPanel", "metaLesson"]) {
     assert.ok(!all.includes(notYet), `${notYet} is not Phase 13E work`);
   }
-  // The coach-mark layer itself must still carry no Daily/meta concern.
+  // The coach-mark layer and 13E's First Result carry no Daily/meta concern.
   assert.ok(!GAME_SCREEN_CODE.includes("firstDailyResultSeen"));
+  assert.ok(!GAME_SCREEN_CODE.includes("attemptCostAcknowledged"));
+  assert.ok(!RESULT_SCREEN_CODE.includes("attemptCostAcknowledged"));
 });
 
 test("36. the coach-mark styling respects the motion preference and never flashes", () => {

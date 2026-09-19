@@ -108,7 +108,16 @@ test("App.tsx wires the real local attempt mirror and Pi connection state, not n
 // ---- 3. "No tokens today" notice on the LOCAL path only -------------------
 
 test("DailyPreparationScreen gained an empty-manifest step, distinct from the error step", () => {
-  assert.match(DAILY_PREP, /type Step = "challenge" \| "logos" \| "claiming" \| "starting" \| "empty-manifest" \| "error";/);
+  // Phase 13G widened the Step union with the consolidated decision states
+  // (auth / connecting / status / confirm-last / limit), so the exact string
+  // this phase pinned no longer exists. The 13B invariant it protected — a
+  // dedicated "empty-manifest" state, separate from "error" — is asserted here.
+  const union = DAILY_PREP.slice(
+    DAILY_PREP.indexOf("type Step ="),
+    DAILY_PREP.indexOf(";", DAILY_PREP.indexOf("type Step =")),
+  );
+  assert.match(union, /\| "empty-manifest"/);
+  assert.match(union, /\| "error"/);
 });
 
 test("the empty-manifest branch only triggers for a LOCAL run with zero tokens", () => {

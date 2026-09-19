@@ -102,6 +102,20 @@ interface SaveData {
    * exactly the player this phase exists for.
    */
   firstDailyResultSeen: boolean;
+  /**
+   * Phase 13G — the player has explicitly accepted, once, that starting a
+   * ranked run while exactly one ranked attempt remained would spend their
+   * final ranked attempt of the day (canonical §9 / §11).
+   *
+   * It records the ACKNOWLEDGEMENT only — not that a claim succeeded, not that
+   * the attempt was consumed, not that the run finished.
+   *
+   * MIGRATION RULE: explicit boolean wins; absent → FALSE for every save,
+   * including experienced players with Daily history. Unlike the first-run
+   * teaching flags, history does not imply this cost was ever confirmed, so a
+   * veteran is still owed the confirmation once, at their next last attempt.
+   */
+  attemptCostAcknowledged: boolean;
 }
 
 // ---- Defaults & normalization -------------------------------------------
@@ -152,6 +166,8 @@ function defaultSave(): SaveData {
     coachMarksSeen: false,
     // A genuinely new player has not finished a Daily yet (13F).
     firstDailyResultSeen: false,
+    // ...and has never confirmed spending a final ranked attempt (13G).
+    attemptCostAcknowledged: false,
   };
 }
 
@@ -325,6 +341,9 @@ function normalize(parsed: unknown, saveExisted = false): SaveData {
     firstRunCompleted,
     coachMarksSeen,
     firstDailyResultSeen,
+    // Phase 13G: explicit boolean wins; absent means "never confirmed" for
+    // every save, whatever its history (see the rule on SaveData).
+    attemptCostAcknowledged: p.attemptCostAcknowledged === true,
   };
 }
 
@@ -511,6 +530,27 @@ export function markFirstDailyResultSeen(): void {
   const save = loadSave();
   if (save.firstDailyResultSeen) return; // already seen — no write, no churn
   save.firstDailyResultSeen = true;
+  persist(save);
+}
+
+/**
+ * Phase 13G — has the player already confirmed spending a final ranked
+ * attempt once? Side-effect free: reading never writes a save.
+ */
+export function isAttemptCostAcknowledged(): boolean {
+  return loadSave().attemptCostAcknowledged;
+}
+
+/**
+ * Phase 13G — record that the player explicitly accepted the last-attempt
+ * confirmation. Called ONLY from the confirmation's accept action — never when
+ * it merely appears, on Cancel, on Play locally, or when >1 or 0 attempts
+ * remain. Idempotent, and preserves every other saved field.
+ */
+export function markAttemptCostAcknowledged(): void {
+  const save = loadSave();
+  if (save.attemptCostAcknowledged) return; // already acknowledged — no churn
+  save.attemptCostAcknowledged = true;
   persist(save);
 }
 

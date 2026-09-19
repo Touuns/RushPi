@@ -1,11 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { DailyTokenChallenge } from "../market/dailyTokenTypes";
 import { fetchDailyTokenChallenge } from "../market/marketClient";
 import { preloadDailyProductionAssets } from "../game/productionAssets";
 import { preloadDailyTokenLogos } from "../game/dailyLogoPreload";
-import { claimAttempt, ServerScoreError, type ClaimResult } from "../utils/serverLeaderboard";
+import {
+  claimAttempt,
+  fetchAttemptStatus,
+  ServerScoreError,
+  type AttemptStatus,
+  type ClaimResult,
+} from "../utils/serverLeaderboard";
+import { isAttemptCostAcknowledged, markAttemptCostAcknowledged } from "../utils/storage";
 import { isActiveDailyRulesVersion } from "../game/dailyRulesVersion";
 import { newSubmissionId } from "../utils/submissionId";
+import { LAST_ATTEMPT_COPY, preflightRankedClaim, singleFlight } from "./dailyEntryGate";
 import ScreenBackButton from "./ScreenBackButton";
 
 interface DailyPreparationScreenProps {
@@ -20,15 +28,35 @@ interface DailyPreparationScreenProps {
    * server reservation for ranked runs, or null for a local (unranked) run.
    */
   onReady: (challenge: DailyTokenChallenge, claim: ClaimResult | null) => void;
-  /** Fall back to a local (unranked) run instead. */
-  onPlayLocally: (challenge: DailyTokenChallenge | null) => void;
-  /** Re-authenticate with Pi (used when the access token is missing/expired). */
+  /**
+   * Fall back to a local (unranked) run instead. `limitReached` is true when
+   * the player chose local because no ranked attempts remain today, so the
+   * result can say so honestly.
+   */
+  onPlayLocally: (challenge: DailyTokenChallenge | null, limitReached?: boolean) => void;
+  /** Authenticate with Pi (first connection, or after an expired session). */
   onReconnect?: () => Promise<void>;
+  /**
+   * Phase 13G — the authoritative attempt status was read. The parent mirrors
+   * it into the existing local display counter, so Home and result labels are
+   * never left stale. No second counter exists.
+   */
+  onAttemptStatus?: (status: AttemptStatus) => void;
   onCancel: () => void;
 }
 
-type Step = "challenge" | "logos" | "claiming" | "starting" | "empty-manifest" | "error";
-type ErrorKind = "generic" | "auth" | "limit" | "not-eligible";
+type Step =
+  | "challenge"
+  | "logos"
+  | "auth"
+  | "connecting"
+  | "status"
+  | "confirm-last"
+  | "limit"
+  | "claiming"
+  | "starting"
+  | "empty-manifest"
+  | "error";
 
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
@@ -46,13 +74,24 @@ function isReusable(c: DailyTokenChallenge | null): c is DailyTokenChallenge {
 }
 
 /**
- * Daily Token Rush preparation (Phase 11B, hardened in 11B-P4).
+ * Daily Token Rush preparation (Phase 11B, hardened in 11B-P4, consolidated in
+ * Phase 13G).
  *
- * Ranked flow: load manifest → preload logos → RESERVE a server attempt (claim)
- * → only then start Phaser. The attempt is consumed on the SERVER before the run
- * begins (so an abandoned ranked run still counts). The submissionId is stable
- * across retries so a lost claim response never double-consumes. Local runs make
- * no reservation.
+ * Phase 13G makes this screen the ONE decision surface for entering a Daily.
+ * Home no longer decides auth vs local or attempt availability; every ranked
+ * request from every entry path lands here, and the pre-claim gate below is
+ * the only route to `claimAttempt()`.
+ *
+ * Ranked flow:
+ *   load challenge → preload assets → ensure Pi auth → read the authoritative
+ *   attempt status (read-only) → gate → one-time last-attempt confirmation if
+ *   owed → reserve the attempt (claim) → start Phaser.
+ *
+ * The claim remains the final transactional authority: its ATTEMPT_LIMIT and
+ * auth errors are still handled, because the status read can race with a claim
+ * made elsewhere. The submissionId is generated once per preparation and reused
+ * on every retry, so a lost claim response never double-consumes. Local runs
+ * make no status read and no reservation.
  */
 export default function DailyPreparationScreen({
   ranked,
@@ -61,30 +100,162 @@ export default function DailyPreparationScreen({
   onReady,
   onPlayLocally,
   onReconnect,
+  onAttemptStatus,
   onCancel,
 }: DailyPreparationScreenProps) {
   const [step, setStep] = useState<Step>("challenge");
   const [error, setError] = useState<string>("");
-  const [errorKind, setErrorKind] = useState<ErrorKind>("generic");
   const [challenge, setChallenge] = useState<DailyTokenChallenge | null>(null);
+  /** Extra line on the auth gate after a failed or expired connection. */
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
+  /** Last authoritative status, for the limit copy. */
+  const [lastStatus, setLastStatus] = useState<AttemptStatus | null>(null);
+  /** Set after a successful Pi connection; resumes once the token arrives. */
+  const [awaitingAuth, setAwaitingAuth] = useState(false);
   const runningRef = useRef(false);
+  const aliveRef = useRef(true);
   // The ranked submissionId is generated ONCE per preparation and reused on
   // Retry (idempotent claim). A new preparation (remount) gets a fresh id.
   const submissionIdRef = useRef<string | null>(null);
-  // retryTick re-triggers the effect; unmount aborts via the cancelled flag.
+  /**
+   * True once a claim request has been SENT for the current submissionId. The
+   * server may already hold that reservation even if the response was lost, so
+   * a retry goes straight back to the same idempotent claim rather than
+   * re-gating — re-gating could report "no attempts left" for the very attempt
+   * this preparation already owns.
+   */
+  const claimSentRef = useRef(false);
+  // Latest values for the async continuations, which outlive a single render.
+  const challengeRef = useRef<DailyTokenChallenge | null>(null);
+  const tokenRef = useRef(accessToken);
+  tokenRef.current = accessToken;
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
+  const onAttemptStatusRef = useRef(onAttemptStatus);
+  onAttemptStatusRef.current = onAttemptStatus;
+  // retryTick re-triggers the effect; unmount aborts via aliveRef.
   const [retryTick, setRetryTick] = useState(0);
+
+  useEffect(() => {
+    aliveRef.current = true;
+    return () => {
+      aliveRef.current = false;
+    };
+  }, []);
+
+  /** Genuine failures only. Expected states (auth, limit) have their own panels. */
+  const fail = (message: string) => {
+    if (!aliveRef.current) return;
+    setError(message);
+    setStep("error");
+  };
+
+  /** Map a ranked status/claim failure onto the right state of this screen. */
+  const handleRankedError = (err: unknown) => {
+    if (!aliveRef.current) return;
+    if (err instanceof ServerScoreError) {
+      if (err.code === "ATTEMPT_LIMIT") {
+        // Claim-side race: status said an attempt was left, the server — the
+        // final authority — says otherwise. Same honest state as a status read.
+        setStep("limit");
+      } else if (err.code.startsWith("PI_AUTH")) {
+        setAuthNotice("Your Pi session expired. Reconnect Pi to play ranked.");
+        setStep("auth");
+      } else if (err.code === "MIGRATION_REQUIRED") {
+        fail("Ranked play is temporarily unavailable. You can play locally.");
+      } else if (err.code === "CHALLENGE_NOT_RANKABLE") {
+        fail("Today's challenge isn't ranked-eligible right now.");
+      } else {
+        fail(err.message || "Could not reserve a ranked attempt.");
+      }
+    } else {
+      fail(err instanceof Error ? err.message : "Could not load the challenge.");
+    }
+  };
+
+  /**
+   * Reserve the ranked attempt. The ONLY call site of `claimAttempt()` in the
+   * app, reachable only from the gate's "claim" outcome, an explicit
+   * last-attempt acceptance, or a retry of a claim already sent. Single-flight,
+   * so a double tap or duplicate continuation still produces exactly one claim.
+   */
+  const claimOnce = useMemo(
+    () =>
+      singleFlight(async () => {
+        const c = challengeRef.current;
+        const token = tokenRef.current;
+        if (!c || !token) {
+          handleRankedError(new ServerScoreError("PI_AUTH_REQUIRED", "", 401));
+          return;
+        }
+        if (!submissionIdRef.current) submissionIdRef.current = newSubmissionId();
+        claimSentRef.current = true;
+        setStep("claiming");
+        try {
+          const claim = await claimAttempt(token, submissionIdRef.current);
+          if (!aliveRef.current) return;
+          setStep("starting");
+          onReadyRef.current(c, claim);
+        } catch (err) {
+          handleRankedError(err);
+        }
+      }),
+    // Reads only refs; stable for the life of this preparation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  /**
+   * The ranked gate: auth → authoritative status → decision. Never claims by
+   * itself except through `claimOnce` on the gate's "claim" outcome.
+   */
+  const continueRanked = useMemo(
+    () =>
+      singleFlight(async () => {
+        if (!challengeRef.current) return;
+        if (claimSentRef.current && tokenRef.current) {
+          await claimOnce();
+          return;
+        }
+        setStep("status");
+        const outcome = await preflightRankedClaim({
+          accessToken: tokenRef.current,
+          fetchStatus: fetchAttemptStatus,
+          isAcknowledged: isAttemptCostAcknowledged,
+          onStatus: (st) => {
+            setLastStatus(st);
+            onAttemptStatusRef.current?.(st);
+          },
+        });
+        if (!aliveRef.current) return;
+        switch (outcome.gate) {
+          case "auth":
+            setStep("auth");
+            return;
+          case "limit":
+            setStep("limit");
+            return;
+          case "confirm-last":
+            // Nothing is reserved yet, and nothing is persisted by merely
+            // showing this — only the explicit accept below writes the flag.
+            setStep("confirm-last");
+            return;
+          case "claim":
+            await claimOnce();
+            return;
+          case "error":
+            handleRankedError(outcome.error);
+            return;
+        }
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [claimOnce],
+  );
 
   useEffect(() => {
     if (runningRef.current) return; // never run two preparations in parallel
     runningRef.current = true;
     let cancelled = false;
-
-    const fail = (kind: ErrorKind, message: string) => {
-      if (cancelled) return;
-      setErrorKind(kind);
-      setError(message);
-      setStep("error");
-    };
 
     const prepare = async () => {
       try {
@@ -98,10 +269,10 @@ export default function DailyPreparationScreen({
           throw new Error("Challenge is not for today (UTC). Please retry.");
         }
         setChallenge(c);
+        challengeRef.current = c;
 
         if (ranked && !c.rankedEligible) {
           fail(
-            "not-eligible",
             c.status === "fallback"
               ? "Today's market snapshot isn't available — ranked play needs live data."
               : "Today's challenge isn't ranked-eligible right now.",
@@ -123,9 +294,8 @@ export default function DailyPreparationScreen({
         // Load the visual resources (verified local token logos + Daily
         // production assets) in parallel. Both always resolve with fallbacks —
         // a visual failure never blocks the claim, the run, or the submissionId.
-        // Phase 13-Q2: the CoinGecko hotlink preload (tokenAssetCache.ts) was
-        // removed here — its textures were registered but never drawn; the
-        // renderer has only ever used the verified local token-logo:* key.
+        // Loaded BEFORE any ranked gate, so "Play locally" from any gate starts
+        // immediately on the challenge and assets already in hand.
         setStep("logos");
         await Promise.all([
           preloadDailyProductionAssets(),
@@ -133,42 +303,18 @@ export default function DailyPreparationScreen({
         ]);
         if (cancelled) return;
 
-        // Local (unranked) run: no reservation, start immediately.
+        // Local (unranked) run: no status read, no reservation, start now.
         if (!ranked) {
           setStep("starting");
-          onReady(c, null);
+          onReadyRef.current(c, null);
           return;
         }
 
-        // Ranked run: reserve a server attempt BEFORE starting.
-        if (!accessToken) {
-          fail("auth", "Connect Pi to reserve a ranked attempt.");
-          return;
-        }
-        if (!submissionIdRef.current) submissionIdRef.current = newSubmissionId();
-        setStep("claiming");
-        const claim = await claimAttempt(accessToken, submissionIdRef.current);
-        if (cancelled) return;
-
-        setStep("starting");
-        onReady(c, claim);
+        // Ranked run: through the pre-claim gate — never straight to a claim.
+        await continueRanked();
       } catch (err) {
         if (cancelled) return;
-        if (err instanceof ServerScoreError) {
-          if (err.code === "ATTEMPT_LIMIT") {
-            fail("limit", "You've used all 3 ranked attempts today.");
-          } else if (err.code.startsWith("PI_AUTH")) {
-            fail("auth", "Your Pi session expired. Reconnect Pi to play ranked.");
-          } else if (err.code === "MIGRATION_REQUIRED") {
-            fail("generic", "Ranked play is temporarily unavailable. You can play locally.");
-          } else if (err.code === "CHALLENGE_NOT_RANKABLE") {
-            fail("not-eligible", "Today's challenge isn't ranked-eligible right now.");
-          } else {
-            fail("generic", err.message || "Could not reserve a ranked attempt.");
-          }
-        } else {
-          fail("generic", err instanceof Error ? err.message : "Could not load the challenge.");
-        }
+        fail(err instanceof Error ? err.message : "Could not load the challenge.");
       } finally {
         runningRef.current = false;
       }
@@ -182,11 +328,43 @@ export default function DailyPreparationScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryTick]);
 
-  const retry = () => setRetryTick((t) => t + 1);
-  const reconnect = async () => {
-    if (onReconnect) await onReconnect();
-    retry();
+  // Resume the gate once a fresh Pi session has reached this screen.
+  useEffect(() => {
+    if (!awaitingAuth || !accessToken) return;
+    setAwaitingAuth(false);
+    void continueRanked();
+  }, [awaitingAuth, accessToken, continueRanked]);
+
+  const retry = () => {
+    if (claimSentRef.current && challengeRef.current && tokenRef.current) {
+      void claimOnce(); // same submissionId — the server dedupes it
+      return;
+    }
+    setRetryTick((t) => t + 1);
   };
+
+  const connect = async () => {
+    if (!onReconnect) return;
+    setAuthNotice(null);
+    setStep("connecting");
+    try {
+      await onReconnect();
+      if (!aliveRef.current) return;
+      setAwaitingAuth(true);
+    } catch {
+      if (!aliveRef.current) return;
+      setAuthNotice("Couldn't connect to Pi. Try again, or play locally.");
+      setStep("auth");
+    }
+  };
+
+  /** The ONLY place the last-attempt acknowledgement is ever written. */
+  const acceptLastAttempt = () => {
+    markAttemptCostAcknowledged();
+    void claimOnce();
+  };
+
+  const playLocally = (limitReached = false) => onPlayLocally(challenge, limitReached);
 
   // Phase 13B: explicit opt-in to continue a zero-token local run. Runs the
   // same preload the normal path would have run, then hands off exactly like
@@ -207,16 +385,89 @@ export default function DailyPreparationScreen({
       ? "Loading today's token challenge…"
       : step === "logos"
         ? "Preparing game assets…"
-        : step === "claiming"
-          ? "Reserving ranked attempt…"
-          : "Starting run…";
+        : step === "connecting"
+          ? "Connecting to Pi…"
+          : step === "status"
+            ? "Checking your ranked runs…"
+            : step === "claiming"
+              ? "Reserving ranked attempt…"
+              : "Starting run…";
+
+  const maxAttempts = lastStatus?.max ?? 3;
 
   return (
     <div className="screen daily-prep">
       <ScreenBackButton onBack={onCancel} label="Cancel" />
       <h2 className="daily-prep__title">Daily Token Rush</h2>
 
-      {step === "empty-manifest" ? (
+      {step === "auth" ? (
+        // Phase 13G — formerly Home's "Connect to Pi" modal. An expected
+        // state, not an error: calm copy, and the cost is stated before login.
+        <>
+          <div className="daily-prep__panel">
+            <p className="daily-prep__heading">Connect Pi to rank your score</p>
+            <p className="daily-prep__text">
+              Ranked scores need a Pi connection before the run starts. You can still
+              play locally — that score won't be ranked.
+            </p>
+            <p className="daily-prep__note">Ranked Daily Runs are limited to 3 attempts per day.</p>
+            {authNotice && <p className="daily-prep__error">{authNotice}</p>}
+          </div>
+          <div className="daily-prep__actions">
+            {onReconnect && (
+              <button className="btn btn--primary" type="button" onClick={connect}>
+                Connect Pi
+              </button>
+            )}
+            <button className="btn btn--secondary" type="button" onClick={() => playLocally()}>
+              Play locally
+            </button>
+            <button className="btn btn--ghost" type="button" onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : step === "confirm-last" ? (
+        // Phase 13G — the one-time last-attempt confirmation (canonical §9/§11).
+        // Nothing has been reserved yet. An informed-cost choice, not an error.
+        <>
+          <div className="daily-prep__panel daily-prep__panel--last">
+            <p className="daily-prep__heading">{LAST_ATTEMPT_COPY.title}</p>
+            <p className="daily-prep__text">{LAST_ATTEMPT_COPY.text}</p>
+          </div>
+          <div className="daily-prep__actions">
+            <button className="btn btn--primary" type="button" onClick={acceptLastAttempt}>
+              {LAST_ATTEMPT_COPY.accept}
+            </button>
+            <button className="btn btn--secondary" type="button" onClick={() => playLocally()}>
+              {LAST_ATTEMPT_COPY.local}
+            </button>
+            <button className="btn btn--ghost" type="button" onClick={onCancel}>
+              {LAST_ATTEMPT_COPY.cancel}
+            </button>
+          </div>
+        </>
+      ) : step === "limit" ? (
+        // Phase 13G — formerly Home's "No ranked attempts left" modal, now
+        // driven by the authoritative status read (or a claim-side race).
+        <>
+          <div className="daily-prep__panel">
+            <p className="daily-prep__heading">No ranked attempts left today</p>
+            <p className="daily-prep__text">
+              You've used all {maxAttempts} ranked Daily Runs for today. You can still play
+              locally — that score won't be ranked.
+            </p>
+          </div>
+          <div className="daily-prep__actions">
+            <button className="btn btn--primary" type="button" onClick={() => playLocally(true)}>
+              Play locally
+            </button>
+            <button className="btn btn--ghost" type="button" onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+        </>
+      ) : step === "empty-manifest" ? (
         <>
           <p className="daily-prep__step">
             No tokens today — this run won't be ranked. Play anyway?
@@ -242,21 +493,10 @@ export default function DailyPreparationScreen({
         <>
           <p className="daily-prep__error">{error}</p>
           <div className="daily-prep__actions">
-            {errorKind === "auth" && onReconnect && (
-              <button className="btn btn--primary" type="button" onClick={reconnect}>
-                Reconnect Pi
-              </button>
-            )}
-            {(errorKind === "generic" || errorKind === "not-eligible") && (
-              <button className="btn btn--primary" type="button" onClick={retry}>
-                Retry
-              </button>
-            )}
-            <button
-              className="btn btn--secondary"
-              type="button"
-              onClick={() => onPlayLocally(challenge)}
-            >
+            <button className="btn btn--primary" type="button" onClick={retry}>
+              Retry
+            </button>
+            <button className="btn btn--secondary" type="button" onClick={() => playLocally()}>
               Play locally
             </button>
             <button className="btn btn--ghost" type="button" onClick={onCancel}>

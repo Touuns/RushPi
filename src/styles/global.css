@@ -1933,6 +1933,53 @@ body {
   max-width: 280px;
 }
 
+/* Phase 13G — the decision states of the one Daily entry surface (connect,
+   last-attempt confirmation, no attempts). An inline panel under the same
+   title, never a modal over the preparation screen, so the whole flow reads
+   as one coherent place rather than dialogs pasted onto a loader. */
+.daily-prep__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px 16px 14px;
+  border-radius: var(--radius);
+  text-align: center;
+  background: rgba(22, 13, 42, 0.6);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.daily-prep__heading {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.daily-prep__text {
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.daily-prep__note {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* The last-attempt confirmation is an informed-cost choice, not an error:
+   a warm gold edge for importance, deliberately never danger-red. */
+.daily-prep__panel--last {
+  border-color: rgba(255, 209, 102, 0.55);
+  background: rgba(255, 209, 102, 0.07);
+}
+
+.daily-prep__panel--last .daily-prep__heading {
+  color: var(--gold);
+}
+
 /* Gameplay motion preference (Phase 12B-3C) — compact card in the Profile. */
 .motion-pref {
   width: 100%;

@@ -34,6 +34,7 @@ import {
   fetchAttemptStatus,
   ServerScoreError,
   submitServerScore,
+  type AttemptStatus,
   type ClaimResult,
 } from "./utils/serverLeaderboard";
 import { RUN_DURATION_SECONDS } from "./game/gameConfig";
@@ -338,26 +339,30 @@ export default function App() {
     setScreen("daily-prep");
   }, []);
 
+  /**
+   * Home's Daily card. Phase 13G: always a RANKED request — connected or not,
+   * attempts left or not. DailyPreparationScreen decides everything from there
+   * (Pi connection, authoritative attempt status, last-attempt confirmation,
+   * limit, local fallback), so Home carries no Daily decision tree at all.
+   */
   const playRankedDaily = useCallback(() => goDailyPrep("ranked"), [goDailyPrep]);
-  const playDailyLocalOnly = useCallback(() => goDailyPrep("local-only"), [goDailyPrep]);
-  const playDailyUnranked = useCallback(() => goDailyPrep("limit-reached"), [goDailyPrep]);
 
   /**
-   * Connect Pi (from the modal) then start a RANKED Daily preparation. The
-   * local mirror may be stale right after connecting (P4.1) — claim-attempt is
-   * the final authority: if the server says ATTEMPT_LIMIT, the preparation
-   * screen shows the real limit and offers "Play locally".
+   * Phase 13G — DailyPreparationScreen read the SERVER-authoritative attempt
+   * status. Mirror it through the existing sync helper (same as a session
+   * start does) so Home and result labels never stay stale. One counter only.
    */
-  const connectAndPlayDaily = useCallback(async () => {
-    const session = await authenticatePi();
-    applySession(session);
-    goDailyPrep("ranked");
-  }, [goDailyPrep, applySession]);
+  const handleAttemptStatus = useCallback((status: AttemptStatus) => {
+    syncRankedAttemptsFromServer(status.challengeDate, status.used, status.max);
+    setData(readLocalData());
+  }, []);
 
   /**
    * Auto-decide a Daily run (used by Result "Play Again" and the Leaderboard).
-   * Connected → ranked preparation; the server-side claim is the authority on
-   * the 3/day limit (the local mirror only drives display), P4.1.
+   * Connected → ranked preparation, which runs the Phase 13G pre-claim gate
+   * (authoritative status, last-attempt confirmation, limit) before any claim.
+   * Disconnected → local-only, unchanged: these replays stay local rather than
+   * gaining a Pi prompt, as they always have.
    */
   const startDailyAuto = useCallback(() => {
     goDailyPrep(piUser ? "ranked" : "local-only");
@@ -676,9 +681,6 @@ export default function App() {
           onPlayTraining={playTraining}
           onPlaySurvival={playSurvival}
           onPlayRankedDaily={playRankedDaily}
-          onPlayDailyLocalOnly={playDailyLocalOnly}
-          onPlayDailyUnranked={playDailyUnranked}
-          onConnectAndPlayDaily={connectAndPlayDaily}
           onConnectPi={connectPi}
           onPiPaymentComplete={onPiPaymentComplete}
           onLeaderboard={goLeaderboard}
@@ -704,8 +706,13 @@ export default function App() {
           accessToken={piSession?.accessToken ?? null}
           cachedChallenge={dailyChallenge}
           onReady={(c, claim) => startPreparedDaily(c, pendingDailyRank, claim)}
-          onPlayLocally={(c) => startPreparedDaily(c, "local-only")}
+          // A local run chosen because no ranked attempts remain keeps its honest
+          // "limit reached" result copy (formerly Home's no-attempts modal path).
+          onPlayLocally={(c, limitReached) =>
+            startPreparedDaily(c, limitReached ? "limit-reached" : "local-only")
+          }
           onReconnect={connectPi}
+          onAttemptStatus={handleAttemptStatus}
           onCancel={goHome}
         />
       )}

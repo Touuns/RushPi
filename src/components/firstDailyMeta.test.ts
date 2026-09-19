@@ -233,11 +233,13 @@ test("9. the flag is marked only from the game-over path, never on entry/start",
     APP_CODE.indexOf("const retrySync"),
   );
   assert.match(handler, /markFirstDailyResultSeen\(\)/);
-  // Entering/preparing/claiming Daily must not mark it.
+  // Entering/preparing/claiming Daily must not mark it. (Phase 13G removed the
+  // Home-only `playDailyLocalOnly` entry; local Daily now starts from the
+  // preparation screen's own "Play locally", which routes via startPreparedDaily.)
   for (const entry of [
     "const goDailyPrep",
     "const playRankedDaily",
-    "const playDailyLocalOnly",
+    "const handleAttemptStatus",
     "const startPreparedDaily",
     "const tryDailyRunFromFirstResult",
   ]) {
@@ -414,8 +416,11 @@ test("16. the first-Daily notice reuses the existing intro modal, not a new one"
   assert.match(HOME_SCREEN_CODE, /intro === "daily" && firstDailyPending/);
   assert.match(INTRO_MODAL_CODE, /\{notice && <p className="intro-modal__notice">\{notice\}<\/p>\}/);
   assert.match(INTRO_MODAL_CODE, /notice = null/, "must default off for every other mode");
-  // ModalKind is unchanged — no extra Home modal state was introduced.
-  assert.match(HOME_SCREEN_CODE, /type ModalKind = "none" \| "connect" \| "no-attempts"/);
+  // The 13F invariant was "no extra Home modal state". Phase 13G went further
+  // and removed Home's Daily gate modals entirely, so the only modal Home can
+  // render is the mode intro itself — no new Daily modal can have crept in.
+  assert.doesNotMatch(HOME_SCREEN_CODE, /type ModalKind/);
+  assert.equal((HOME_SCREEN_CODE.match(/className="modal-overlay"/g) ?? []).length, 0);
 });
 
 test("17. the notice states LIVE attempt state, never a hardcoded 'run 1 of 3'", () => {

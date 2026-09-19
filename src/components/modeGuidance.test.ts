@@ -302,29 +302,28 @@ test("existing onboarding storage keys are unchanged", () => {
   assert.match(modal, /export function markIntroSeen/);
 });
 
-test("no forbidden future Phase 13 persistence key is introduced anywhere", () => {
-  const files = [
-    "src/components/HomeScreen.tsx",
-    "src/components/ModeIntroModal.tsx",
-    "src/components/modeGuidance.ts",
-    "src/App.tsx",
-    "src/utils/storage.ts",
-  ];
-  // This guard's purpose is "no phase implements a LATER phase's onboarding key
-  // early". `firstRunCompleted` was on this list while it was still future work;
-  // Phase 13D is the phase that delivers it (see PHASE-13-PLAN §9/§14), so it
-  // graduated off the list and is now pinned by src/utils/firstRunRouting.test.ts
-  // instead. `coachMarksSeen` graduated the same way in Phase 13E and is now
-  // pinned by src/components/guidedCoachMarks.test.ts, and
-  // `firstDailyResultSeen` in Phase 13F, pinned by
-  // src/components/firstDailyMeta.test.ts. `attemptCostAcknowledged` is the one
-  // canonical §9 key still unimplemented, so it remains forbidden.
-  const forbidden = ["attemptCostAcknowledged"];
-  for (const f of files) {
-    const src = read(f);
-    for (const key of forbidden) {
-      assert.doesNotMatch(src, new RegExp(key), `${f} must not introduce "${key}"`);
-    }
+test("every canonical §9 onboarding key is delivered, inside the single rushpi.save blob", () => {
+  // History: this test began as a forward guard — "no phase implements a LATER
+  // phase's onboarding key early" — and each key graduated off its forbidden
+  // list in the phase that delivered it: `firstRunCompleted` (13D, pinned by
+  // src/utils/firstRunRouting.test.ts), `coachMarksSeen` (13E,
+  // guidedCoachMarks.test.ts), `firstDailyResultSeen` (13F,
+  // firstDailyMeta.test.ts) and `attemptCostAcknowledged` (13G,
+  // lastAttemptGate.test.ts). With the list empty, it now pins the closure:
+  // all four exist as fields of the one persisted save — no side keys.
+  const storage = read("src/utils/storage.ts");
+  const saveData = storage.slice(
+    storage.indexOf("interface SaveData {"),
+    storage.indexOf("// ---- Defaults & normalization"),
+  );
+  for (const key of [
+    "firstRunCompleted",
+    "coachMarksSeen",
+    "firstDailyResultSeen",
+    "attemptCostAcknowledged",
+  ]) {
+    assert.match(saveData, new RegExp(`\\b${key}: boolean;`), `${key} must be a SaveData field`);
+    assert.doesNotMatch(storage, new RegExp(`"rushpi\\.${key}"`), `${key} must not get its own key`);
   }
 });
 
